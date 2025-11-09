@@ -1,0 +1,28 @@
+name: 🪄 Auto Sitemap & SEO Updater
+
+on:
+  schedule:
+    - cron: '0 4 * * 1' # Her Pazartesi sabah 04:00’te çalışır (UTC)
+  workflow_dispatch: # Manuel çalıştırma için de izin verir
+
+jobs:
+  update_sitemap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Generate sitemap
+        run: |
+          echo "Sitemap generating..."
+          node ./generate-sitemap.js || echo "⚠️ generate-sitemap.js bulunamadı"
+
+      - name: Ping search engines
+        run: |
+          curl "https://www.google.com/ping?sitemap=https://mystai.ai/sitemap.xml"
+          curl "https://www.bing.com/ping?sitemap=https://mystai.ai/sitemap.xml"
+          curl "https://yandex.com/ping?sitemap=https://mystai.ai/sitemap.xml"
+          curl "https://search.yahoo.com/ping?sitemap=https://mystai.ai/sitemap.xml"
+
+      - name: Done ✅
+        run: echo "MystAI sitemap otomatik olarak güncellendi ve arama motorlarına bildirildi!"
