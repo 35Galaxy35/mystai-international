@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact — MystAI.ai</title>
+<link rel="canonical" href="https://mystai.ai/contact.html" />
+<meta name="description" content="Contact MystAI.ai — support and general inquiries." />
+<link rel="icon" href="https://mystai.ai/logo.png">
+<style>
+body{margin:0;font-family:system-ui,Inter,Arial;background:#0a0f2c;color:#e7ebff}
+.main{max-width:820px;margin:40px auto;padding:20px}
+a{color:#ffd166;text-decoration:none}
+h1{color:#ffd166}
+.card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:18px}
+label,input,textarea{display:block;width:100%}
+input,textarea{margin:8px 0 14px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff}
+button{background:linear-gradient(90deg,#ffcc33,#ffe07a);border:0;padding:12px 18px;border-radius:12px;font-weight:700;color:#1a1400;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="main">
+  <h1>Contact</h1>
+  <div class="card">
+    <p>For support & business inquiries: <a href="mailto:support@mystai.ai">support@mystai.ai</a></p>
+    <form onsubmit="event.preventDefault(); alert('Thanks! We will get back to you.');">
+      <label>Name</label><input type="text" required>
+      <label>Email</label><input type="email" required>
+      <label>Message</label><textarea rows="5" required></textarea>
+      <button type="submit">Send</button>
+    </form>
+  </div>
+  <p><a href="/">← Back to Home</a></p>
+</div>
+</body>
+</html>
