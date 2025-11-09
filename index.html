@@ -2,135 +2,216 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MystAI – AI-Powered Fortune Platform</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MystAI.ai — The Future of Digital Divination</title>
+  <meta name="description" content="MystAI — A global AI-powered fortune platform. Coffee, Tarot, Palm, Energy, Dream & Mind readings with elegant, secure, and international experience." />
+  <meta property="og:title" content="MystAI.ai — AI-Powered Fortune Platform" />
+  <meta property="og:description" content="Where Artificial Intelligence meets the ancient art of divination." />
+  <meta property="og:url" content="https://mystai.ai" />
+  <meta property="og:image" content="https://mystai.ai/logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" type="image/png" href="./logo.png" />
   <style>
+    /* === RESET & BASE === */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gold:#ffcc33;
+      --gold-soft:#ffe17b;
+      --ink:#0a0d1c;
+      --panel: rgba(20,20,40,.55);
+      --panel-border: rgba(255,215,0,.25);
+      --text:#e8e8ea;
+      --muted:#bfbfcc;
+    }
+    html, body { height: 100%; }
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Poppins', sans-serif;
-      background: radial-gradient(circle at top, #0b0b22 0%, #000 100%);
-      color: #eaeaea;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      text-align: center;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Poppins", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 50% 30%, #0b0e19 0%, #000 70%);
+      overflow-x: hidden;
     }
 
-    #status-banner {
-      width: 100%;
-      padding: 10px;
-      background: linear-gradient(90deg, #ffcc00, #d4a017);
-      color: #1b1b1b;
-      font-weight: 600;
-      font-size: 14px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      text-align: center;
-      z-index: 10;
+    /* === STARFIELD BACKGROUND (subtle) === */
+    .stars, .stars2 {
+      position: fixed; inset: 0; z-index: -2; pointer-events: none; opacity:.18;
+      background-image:
+        radial-gradient(2px 2px at 20% 30%, #ffffff 60%, transparent 61%),
+        radial-gradient(2px 2px at 80% 70%, #ffffff 60%, transparent 61%),
+        radial-gradient(1px 1px at 60% 20%, #ffffff 60%, transparent 61%),
+        radial-gradient(1px 1px at 40% 80%, #ffffff 60%, transparent 61%);
+      background-repeat: no-repeat;
+      animation: drift 120s linear infinite;
     }
+    .stars2 { filter: blur(1px); opacity:.1; animation-duration: 200s; }
+    @keyframes drift { from{ transform: translateY(0)} to{ transform: translateY(30px)} }
 
+    /* === TOP BANNER === */
+    .banner {
+      position: sticky; top:0; z-index: 10;
+      background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+      color:#111; text-align:center; padding:10px 16px; font-weight:700; letter-spacing:.4px;
+      box-shadow: 0 2px 18px rgba(255,215,0,.35);
+      background-size: 300% 100%;
+      animation: shimmer 6s linear infinite;
+    }
+    @keyframes shimmer { 0%{background-position:0 0} 100%{background-position:300% 0} }
+
+    /* === CONTAINER === */
     .container {
-      background: rgba(20, 20, 40, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 60px 40px;
-      margin-top: 80px;
-      width: 85%;
-      max-width: 700px;
-      box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
-      backdrop-filter: blur(10px);
+      max-width: 980px; margin: clamp(48px,6vw,80px) auto; padding: clamp(20px,4vw,40px);
+      background: var(--panel); border-radius: 20px; backdrop-filter: blur(14px);
+      border: 1px solid var(--panel-border);
+      box-shadow: 0 0 60px rgba(255,215,0,.08);
+      position: relative; overflow: hidden;
     }
 
-    .logo {
-      width: 160px;
-      height: auto;
-      margin-bottom: 20px;
+    /* === INTERACTIVE AURA (follows cursor) === */
+    .aura {
+      position:absolute; inset:-20%;
+      background: radial-gradient(400px 400px at var(--x,50%) var(--y,40%), rgba(180,140,255,.15), transparent 60%),
+                  radial-gradient(260px 260px at calc(var(--x,50%) + 12%) calc(var(--y,40%) + 10%), rgba(255,215,0,.08), transparent 70%);
+      transition: background-position .1s linear;
+      pointer-events:none; z-index:0;
     }
+
+    /* === LOGO === */
+    .logo {
+      width: clamp(140px, 22vw, 220px);
+      display:block; margin: 10px auto 14px;
+      filter: drop-shadow(0 0 8px rgba(255,215,0,.35));
+      animation: logoPulse 3.2s ease-in-out infinite alternate, fadeUp .9s ease both;
+      position: relative; z-index: 1;
+    }
+    @keyframes logoPulse {
+      0% { filter: drop-shadow(0 0 10px rgba(255,215,0,.25)) drop-shadow(0 0 0 rgba(160,130,255,0)); transform: translateY(0) }
+      100% { filter: drop-shadow(0 0 24px rgba(255,215,0,.65)) drop-shadow(0 0 18px rgba(160,130,255,.35)); transform: translateY(-2px) }
+    }
+    @keyframes fadeUp { from{ opacity:0; transform: translateY(10px)} to{ opacity:1; transform: translateY(0)} }
 
     h1 {
-      color: #ffd700;
-      font-size: 2rem;
-      margin-bottom: 10px;
+      font-size: clamp(28px, 4.2vw, 44px);
+      color: var(--gold);
+      text-shadow: 0 0 20px rgba(255,215,0,.35);
+      margin: 6px 0 8px; position: relative; z-index:1;
+      animation: fadeUp .9s .05s ease both;
+    }
+    .lead {
+      font-size: clamp(16px, 2.1vw, 20px);
+      line-height: 1.7; color:#dedee6; margin: 8px auto 10px; max-width: 780px;
+      position: relative; z-index:1; opacity:.95;
+      animation: fadeUp 1s .15s ease both;
     }
 
-    p {
-      font-size: 1rem;
-      line-height: 1.6;
-      color: #d8d8d8;
-    }
-
+    /* === VISION BOX === */
     .vision {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-      padding: 20px;
-      margin-top: 25px;
+      margin: 28px auto 0; max-width: 820px; position: relative; z-index:1;
+      padding: clamp(18px,3vw,28px);
+      border: 1px solid var(--panel-border); border-radius: 14px;
+      background: rgba(255,255,255,.05);
+      box-shadow: 0 0 24px rgba(255,215,0,.08);
+      transition: transform .25s ease, box-shadow .25s ease;
+      animation: fadeUp 1s .25s ease both;
     }
+    .vision:hover { transform: translateY(-2px); box-shadow:0 0 32px rgba(255,215,0,.14) }
+    .vision h2 { color: var(--gold-soft); margin-bottom: 8px; font-size: clamp(20px,2.6vw,26px)}
+    .vision p { color:#d6d6e2; font-size: clamp(14px,1.9vw,18px); line-height:1.8 }
 
+    /* === CTA === */
+    .cta { margin: 34px 0 4px; z-index:1; position:relative; animation: fadeUp 1s .35s ease both; }
+    .cta button {
+      background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+      color:#111; border:0; padding: 14px 36px; border-radius: 999px;
+      font-weight:800; font-size: clamp(14px,2vw,18px); letter-spacing:.3px;
+      box-shadow: 0 0 24px rgba(255,215,0,.45);
+      cursor:pointer; transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+    }
+    .cta button:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 0 40px rgba(255,215,0,.7); filter: saturate(1.1) }
+    .cta .sub { margin-top:10px; color:var(--muted); font-size: 0.95rem }
+
+    /* === FOOTER === */
     footer {
-      margin-top: 40px;
-      font-size: 0.85rem;
-      color: #999;
+      margin: 42px auto 6px; text-align:center; color:#bfbfca; font-size:.95rem;
+      animation: fadeUp 1s .45s ease both;
     }
+    footer a { color: var(--gold); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .links { margin-top:6px }
+    .build { margin-top:6px; color:#8e8ea1; font-size:.85rem }
 
-    footer a {
-      color: #ffcc00;
-      text-decoration: none;
-      margin: 0 8px;
-    }
-
-    footer a:hover {
-      text-decoration: underline;
-    }
-
-    @media (max-width: 600px) {
-      .container {
-        padding: 40px 20px;
-      }
-
-      h1 {
-        font-size: 1.6rem;
-      }
+    /* === RESPONSIVE TWEAKS === */
+    @media (max-width: 640px) {
+      .container { margin: 56px 14px; padding: 28px 18px; border-radius:16px }
     }
   </style>
 </head>
-
 <body>
-  <div id="status-banner">
+  <!-- decorative starfields -->
+  <div class="stars"></div>
+  <div class="stars2"></div>
+
+  <!-- live banner -->
+  <div class="banner">
     ⚡ MystAI is Now Live! Experience AI-powered fortune readings worldwide. Secure payments via Paddle, Stripe & iyzico.
   </div>
 
-  <div class="container">
-    <img src="./logo.png" alt="MystAI Logo" class="logo" />
+  <main class="container" id="panel">
+    <!-- interactive aura -->
+    <div class="aura" id="aura"></div>
+
+    <!-- logo -->
+    <img src="./logo.png" class="logo" alt="MystAI Logo" />
+
+    <!-- hero -->
     <h1>MystAI.ai</h1>
-    <p>
-      Where Artificial Intelligence meets the ancient art of divination.<br>
-      Discover your path through <b>Coffee</b>, <b>Tarot</b>, <b>Palm</b>, <b>Energy</b>, <b>Dream</b> & <b>Mind</b> readings —
-      interpreted by advanced AI.
+    <p class="lead">
+      Where <strong>Artificial Intelligence</strong> meets the ancient art of divination.<br/>
+      Discover your path through <strong>Coffee</strong>, <strong>Tarot</strong>, <strong>Palm</strong>,
+      <strong>Energy</strong>, <strong>Dream</strong> & <strong>Mind</strong> readings — interpreted by advanced AI.
     </p>
 
-    <div class="vision">
-      <h3>Our Vision</h3>
+    <!-- vision -->
+    <section class="vision">
+      <h2>Our Vision</h2>
       <p>
-        To merge the mystical and the technological — transforming the world of fortune-telling into a new era of intelligent, personalized insight.
-        MystAI connects wisdom, culture, and data to empower your inner journey.
+        We blend mysticism with technology to usher fortune-telling into a new era of intelligent, personalized insight.
+        MystAI connects wisdom, culture and data to empower your inner journey — elegantly, securely, and globally.
       </p>
+    </section>
+
+    <!-- cta -->
+    <div class="cta">
+      <button type="button">✨ Join the Future of Digital Spirituality</button>
+      <div class="sub">Public access opening soon · English & Turkish</div>
     </div>
 
-    <p style="margin-top: 25px; color: #aaa;">
-      ✨ Coming Soon — Join the future of digital spirituality.
-    </p>
-
+    <!-- footer -->
     <footer>
-      © 2025 MystAI • Built by GALAXY<br>
-      <a href="privacy.html">Privacy</a> •
-      <a href="terms.html">Terms</a> •
-      <a href="mailto:support@mystai.ai">support@mystai.ai</a>
+      © 2025 MystAI · Built by <strong>GALAXY</strong>
+      <div class="links">
+        <a href="privacy.html">Privacy</a> ·
+        <a href="terms.html">Terms</a> ·
+        <a href="mailto:support@mystai.ai">support@mystai.ai</a>
+      </div>
+      <div class="build">Build 2025-11-09</div>
     </footer>
-  </div>
+  </main>
+
+  <!-- minimal JS: interactive aura follows cursor -->
+  <script>
+    (function () {
+      const panel = document.getElementById('panel');
+      const aura = document.getElementById('aura');
+      function set(e) {
+        const r = panel.getBoundingClientRect();
+        const x = ((e.clientX || (r.left + r.width/2)) - r.left) / r.width * 100;
+        const y = ((e.clientY || (r.top + r.height/2)) - r.top) / r.height * 100;
+        aura.style.setProperty('--x', x + '%');
+        aura.style.setProperty('--y', y + '%');
+      }
+      panel.addEventListener('mousemove', set);
+      window.addEventListener('resize', () => set({ clientX: panel.offsetWidth/2, clientY: panel.offsetTop + 100 }));
+      set({ clientX: panel.offsetWidth/2, clientY: panel.offsetTop + 100 });
+    })();
+  </script>
 </body>
 </html>
