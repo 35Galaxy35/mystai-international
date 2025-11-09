@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mystai.ai/sitemap.xml
+
+# MystAI.ai - Powered by AI and built for the digital spirituality era.
