@@ -1,0 +1,48 @@
+name: 🪄 Auto Sitemap & SEO Updater (MystAI v2.2)
+
+on:
+  schedule:
+    - cron: '0 4 * * 1' # Her Pazartesi sabah 04:00 UTC (haftalık çalışır)
+  workflow_dispatch: # Manuel çalıştırmaya da izin verir
+
+jobs:
+  update_sitemap:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate sitemap
+        run: |
+          echo "🧭 Generating sitemap for MystAI..."
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > sitemap.xml
+          echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> sitemap.xml
+          for page in "/" "/about.html" "/privacy.html" "/terms.html" "/disclaimer.html" "/contact.html"; do
+            echo "  <url>" >> sitemap.xml
+            echo "    <loc>https://mystai.ai${page}</loc>" >> sitemap.xml
+            echo "    <lastmod>$(date +%Y-%m-%d)</lastmod>" >> sitemap.xml
+            echo "    <changefreq>weekly</changefreq>" >> sitemap.xml
+            echo "    <priority>0.8</priority>" >> sitemap.xml
+            echo "  </url>" >> sitemap.xml
+          done
+          echo "</urlset>" >> sitemap.xml
+          echo "✅ Sitemap.xml dosyası oluşturuldu."
+
+      - name: Ping Google, Bing, Yandex, Yahoo
+        run: |
+          echo "📡 Pinging search engines..."
+          curl -s "https://www.google.com/ping?sitemap=https://mystai.ai/sitemap.xml" || true
+          curl -s "https://www.bing.com/ping?sitemap=https://mystai.ai/sitemap.xml" || true
+          curl -s "https://yandex.com/ping?sitemap=https://mystai.ai/sitemap.xml" || true
+          curl -s "https://search.yahoo.com/ping?sitemap=https://mystai.ai/sitemap.xml" || true
+          echo "🚀 Ping işlemleri tamamlandı!"
+
+      - name: Upload updated sitemap (optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: sitemap
+          path: sitemap.xml
+
+      - name: Done
+        run: echo "🎉 MystAI v2.2 SEO otomasyon sistemi başarıyla tamamlandı!"
