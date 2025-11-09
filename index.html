@@ -3,170 +3,134 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MystAI.ai – Where Artificial Intelligence Meets Mysticism</title>
-  <meta name="description" content="MystAI.ai – The world's first AI-powered global fortune and mystical insight platform. Discover Coffee, Tarot, Palm, Energy, Dream & Mind readings." />
-  <meta property="og:title" content="MystAI.ai – AI-Powered Global Fortune Platform" />
-  <meta property="og:description" content="AI-powered readings for Coffee, Tarot, Palm, Energy, Dreams & Mind. Secure global payments via Paddle, Stripe & iyzico." />
-  <meta property="og:image" content="assets/logo.png" />
-  <meta property="og:url" content="https://mystai.ai" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <link rel="icon" type="image/png" href="assets/logo.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-
+  <title>MystAI – AI-Powered Fortune Platform</title>
+  <link rel="icon" type="image/png" href="./logo.png" />
   <style>
     body {
       margin: 0;
+      padding: 0;
       font-family: 'Poppins', sans-serif;
-      background: radial-gradient(circle at top, #0a0714, #100c20, #05040b);
-      color: #f5f5f5;
-      text-align: center;
+      background: radial-gradient(circle at top, #0b0b22 0%, #000 100%);
+      color: #eaeaea;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       min-height: 100vh;
-      overflow-x: hidden;
+      text-align: center;
     }
 
     #status-banner {
       width: 100%;
-      padding: 14px;
-      background: linear-gradient(90deg, #caa32a, #f9df7b);
-      color: #111;
+      padding: 10px;
+      background: linear-gradient(90deg, #ffcc00, #d4a017);
+      color: #1b1b1b;
       font-weight: 600;
-      font-size: 15px;
+      font-size: 14px;
       position: fixed;
       top: 0;
       left: 0;
-      z-index: 1000;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      text-align: center;
+      z-index: 10;
     }
 
-    /* 🔮 Animated Logo */
+    .container {
+      background: rgba(20, 20, 40, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 60px 40px;
+      margin-top: 80px;
+      width: 85%;
+      max-width: 700px;
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
     .logo {
-      margin-top: 110px;
-      width: 190px;
-      animation: fadeIn 2s ease-in-out, pulseGlow 4s ease-in-out infinite;
-      filter: drop-shadow(0 0 30px rgba(205,180,100,0.5));
+      width: 160px;
+      height: auto;
+      margin-bottom: 20px;
     }
 
-    @keyframes fadeIn {
-      0% { opacity: 0; transform: scale(0.95); }
-      100% { opacity: 1; transform: scale(1); }
+    h1 {
+      color: #ffd700;
+      font-size: 2rem;
+      margin-bottom: 10px;
     }
 
-    @keyframes pulseGlow {
-      0% { filter: drop-shadow(0 0 15px rgba(205,180,100,0.25)); }
-      50% { filter: drop-shadow(0 0 50px rgba(205,180,100,0.8)); }
-      100% { filter: drop-shadow(0 0 15px rgba(205,180,100,0.25)); }
-    }
-
-    .hero {
-      margin-top: 30px;
-      font-size: 1.2rem;
-      max-width: 700px;
-      color: #ddd;
+    p {
+      font-size: 1rem;
       line-height: 1.6;
-      animation: fadeIn 3s ease-in-out 1s forwards;
+      color: #d8d8d8;
     }
 
-    .mission {
+    .vision {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 25px;
+    }
+
+    footer {
       margin-top: 40px;
-      background: rgba(25, 20, 40, 0.6);
-      border: 1px solid rgba(200, 160, 50, 0.2);
-      border-radius: 14px;
-      padding: 30px 40px;
-      box-shadow: 0 0 20px rgba(255,215,0,0.07);
-      width: 80%;
-      max-width: 700px;
-      animation: fadeIn 3s ease-in-out 1.5s forwards;
+      font-size: 0.85rem;
+      color: #999;
     }
 
-    .mission h2 {
-      color: #f9df7b;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-
-    .mission p {
-      color: #ccc;
-      font-size: 16px;
-    }
-
-    .coming {
-      margin-top: 35px;
-      font-size: 18px;
-      color: #caa32a;
-      opacity: 0;
-      animation: fadeInSlow 3s ease-in-out 2.5s forwards;
-    }
-
-    @keyframes fadeInSlow {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .footer {
-      margin-top: 50px;
-      font-size: 13px;
-      opacity: 0.7;
-      color: #bbb;
-    }
-
-    .footer a {
-      color: #ffd84a;
+    footer a {
+      color: #ffcc00;
       text-decoration: none;
-      margin: 0 6px;
+      margin: 0 8px;
     }
 
-    .build {
-      font-size: 12px;
-      margin-top: 4px;
-      color: #777;
+    footer a:hover {
+      text-decoration: underline;
     }
 
     @media (max-width: 600px) {
-      .logo { width: 140px; margin-top: 80px; }
-      .mission { padding: 20px; width: 90%; }
-      .mission h2 { font-size: 20px; }
+      .container {
+        padding: 40px 20px;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+      }
     }
   </style>
 </head>
+
 <body>
-
-  <!-- ⚡ Live Status Banner -->
   <div id="status-banner">
-    ⚡ MystAI is Now Live! Experience AI-powered fortune readings worldwide.
-    Secure payments via Paddle, Stripe & iyzico.
+    ⚡ MystAI is Now Live! Experience AI-powered fortune readings worldwide. Secure payments via Paddle, Stripe & iyzico.
   </div>
 
-  <!-- 🌀 Logo -->
-  <img src="assets/logo.png" alt="MystAI Logo" class="logo">
-
-  <!-- 🌌 Hero -->
-  <div class="hero">
+  <div class="container">
+    <img src="./logo.png" alt="MystAI Logo" class="logo" />
     <h1>MystAI.ai</h1>
-    <p>Where Artificial Intelligence meets the ancient art of divination.  
-    Discover your path through Coffee, Tarot, Palm, Energy, Dream & Mind readings — interpreted by advanced AI.</p>
+    <p>
+      Where Artificial Intelligence meets the ancient art of divination.<br>
+      Discover your path through <b>Coffee</b>, <b>Tarot</b>, <b>Palm</b>, <b>Energy</b>, <b>Dream</b> & <b>Mind</b> readings —
+      interpreted by advanced AI.
+    </p>
+
+    <div class="vision">
+      <h3>Our Vision</h3>
+      <p>
+        To merge the mystical and the technological — transforming the world of fortune-telling into a new era of intelligent, personalized insight.
+        MystAI connects wisdom, culture, and data to empower your inner journey.
+      </p>
+    </div>
+
+    <p style="margin-top: 25px; color: #aaa;">
+      ✨ Coming Soon — Join the future of digital spirituality.
+    </p>
+
+    <footer>
+      © 2025 MystAI • Built by GALAXY<br>
+      <a href="privacy.html">Privacy</a> •
+      <a href="terms.html">Terms</a> •
+      <a href="mailto:support@mystai.ai">support@mystai.ai</a>
+    </footer>
   </div>
-
-  <!-- 🌍 Mission -->
-  <div class="mission">
-    <h2>Our Vision</h2>
-    <p>To merge the mystical and the technological — transforming the world of fortune-telling into a new era of intelligent, personalized insight.  
-    MystAI connects wisdom, culture, and data to empower your inner journey.</p>
-  </div>
-
-  <p class="coming">✨ Coming Soon – Join the future of digital spirituality.</p>
-
-  <!-- ⚙️ Footer -->
-  <div class="footer">
-    © 2025 MystAI • Developed by <strong>GALAXY</strong><br>
-    <a href="privacy.html">Privacy</a> • 
-    <a href="terms.html">Terms</a> • 
-    <a href="mailto:support@mystai.ai">support@mystai.ai</a>
-    <div class="build">Build 2025-11-09</div>
-  </div>
-
 </body>
 </html>
