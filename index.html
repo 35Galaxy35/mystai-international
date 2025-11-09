@@ -33,6 +33,75 @@
   <meta name="twitter:title" content="MystAI.ai – AI-Powered Fortune Readings" />
   <meta name="twitter:description" content="Where mysticism meets artificial intelligence — personalized, digital fortune readings by MystAI." />
   <meta name="twitter:image" content="https://mystai.ai/logo.png" />
+<!-- 🚀 MystAI Auto SEO Engine v1.0 -->
+<script>
+(function() {
+  // Sayfa başlığı ve açıklamaları dinamik olarak ayarlanıyor
+  const pageTitle = document.title || "MystAI.ai – AI-Powered Fortune Readings";
+  const pageDescription = document.querySelector('meta[name="description"]')?.content 
+    || "Experience AI-powered fortune telling with coffee, tarot, palm, energy & dream readings — interpreted by advanced AI.";
+
+  // Open Graph meta’ları otomatik oluştur
+  const ogTags = {
+    "og:title": pageTitle,
+    "og:description": pageDescription,
+    "og:type": "website",
+    "og:url": window.location.href,
+    "og:image": "https://mystai.ai/logo.png",
+    "og:locale": "en_US"
+  };
+
+  // Twitter kartları
+  const twitterTags = {
+    "twitter:card": "summary_large_image",
+    "twitter:title": pageTitle,
+    "twitter:description": pageDescription,
+    "twitter:image": "https://mystai.ai/logo.png"
+  };
+
+  // Meta etiket oluşturucu
+  function setMeta(name, content, property = false) {
+    let tag = document.querySelector(property ? `meta[property='${name}']` : `meta[name='${name}']`);
+    if (!tag) {
+      tag = document.createElement('meta');
+      if (property) tag.setAttribute('property', name);
+      else tag.setAttribute('name', name);
+      document.head.appendChild(tag);
+    }
+    tag.setAttribute('content', content);
+  }
+
+  // Meta ve OG etiketlerini uygula
+  Object.entries(ogTags).forEach(([k, v]) => setMeta(k, v, true));
+  Object.entries(twitterTags).forEach(([k, v]) => setMeta(k, v));
+
+  // Yapılandırılmış veri (schema.org)
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "MystAI.ai",
+    "url": "https://mystai.ai",
+    "logo": "https://mystai.ai/logo.png",
+    "sameAs": [
+      "https://www.instagram.com/mystai.ai",
+      "https://twitter.com/MystAI_ai",
+      "https://www.linkedin.com/company/mystai-ai"
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "support@mystai.ai",
+      "contactType": "Customer Support",
+      "availableLanguage": ["English", "Turkish"]
+    }
+  };
+  
+  const schemaTag = document.createElement("script");
+  schemaTag.type = "application/ld+json";
+  schemaTag.textContent = JSON.stringify(schema, null, 2);
+  document.head.appendChild(schemaTag);
+})();
+</script>
+<!-- 🚀 End of Auto SEO Engine -->
 
   <!-- Structured Data: Organization (JSON-LD) -->
   <script type="application/ld+json">
