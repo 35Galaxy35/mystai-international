@@ -1,83 +1,121 @@
-<!doctype html>
-<html lang="tr">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>MystAI.ai — Coming Soon</title>
-    <meta name="description" content="MystAI.ai: Yapay zekâ destekli uluslararası fal platformu. Kahve, Tarot, Rüya, Enerji, Zihin. Yapımcı: GALAXY." />
-    <meta name="theme-color" content="#0B1220" />
-    <style>
-      :root{
-        --ink:#0B1220; --gold:#D4AF37; --amethyst:#6C5CE7; --text:#E7ECF6; --muted:#aeb7cc; 
-        --card:rgba(255,255,255,.06); --border:rgba(255,255,255,.14)
-      }
-      *{box-sizing:border-box}
-      html,body{height:100%}
-      body{
-        margin:0; background:
-          radial-gradient(900px 600px at 70% -10%, rgba(108,92,231,.16), transparent),
-          radial-gradient(600px 400px at -10% 80%, rgba(212,175,55,.12), transparent),
-          var(--ink);
-        color:var(--text); font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Arial;
-        display:flex; align-items:center; justify-content:center; padding:24px;
-      }
-      .card{
-        width:min(920px, 100%); background:var(--card); border:1px solid var(--border);
-        border-radius:18px; padding:28px; box-shadow:0 10px 30px rgba(0,0,0,.35);
-      }
-      h1{margin:0 0 4px; font-size:40px; letter-spacing:.3px; color:var(--gold);}
-      h2{margin:0 0 12px; font-size:18px; color:#cfd7ea; font-weight:600}
-      p{margin:8px 0; color:#dbe3f3}
-      .grid{display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); margin-top:16px}
-      .pill{display:inline-block; padding:10px 14px; border-radius:999px; background:rgba(212,175,55,.12); color:#ffe9a3; border:1px solid rgba(212,175,55,.35)}
-      .row{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
-      .muted{color:var(--muted)}
-      .footer{margin-top:18px; padding-top:12px; border-top:1px solid var(--border); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px}
-      .logo{
-        width:56px; height:56px; border-radius:50%;
-        background: radial-gradient(120% 120% at 30% 30%, #ffe9a3, #d9b23c 40%, #8f6b0a 70%, #2a2208 100%);
-        box-shadow: inset 0 0 12px rgba(255,255,255,.35), 0 4px 22px rgba(212,175,55,.25);
-        position:relative; margin-right:12px;
-      }
-      .logo:after{
-        content:""; position:absolute; inset:12px;
-        border:2px solid rgba(0,0,0,.55); border-radius:50%; 
-        box-shadow: inset 0 0 8px rgba(0,0,0,.45);
-      }
-      a{color:#f0f4ff; text-decoration:none}
-      a:hover{text-decoration:underline}
-    </style>
-  </head>
-  <body>
-    <main class="card" role="main" aria-label="MystAI Coming Soon">
-      <div class="row">
-        <div class="logo" aria-hidden="true"></div>
-        <div>
-          <h1>MystAI.ai</h1>
-          <h2>Yapay zekâ destekli uluslararası fal platformu</h2>
-        </div>
-      </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MystAI.ai - AI-Powered Fortune Platform</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: radial-gradient(circle at center, #0b1222, #050912);
+      color: #fff;
+      text-align: center;
+    }
 
-      <div class="grid">
-        <div><p>🔮 <b>Tüm fal türleri</b>: Kahve, Tarot, El, Enerji, Rüya, Zihin</p></div>
-        <div><p>🌍 <b>Diller</b>: Türkçe & İngilizce</p></div>
-        <div><p>💳 <b>Ödemeler</b>: iyzico (₺) & Stripe (USD/EUR/GBP)</p></div>
-        <div><p>🛡️ <b>Yasal</b>: KVKK · GDPR · CCPA uyumlu</p></div>
-      </div>
+    .container {
+      max-width: 900px;
+      margin: 120px auto;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+    }
 
-      <p class="muted">🚀 Platformumuz kısa süre içinde yayında olacaktır. İş ortaklığı ve bilgilendirme için bizimle iletişime geçebilirsiniz.</p>
+    h1 {
+      color: #ffd700;
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
 
-      <div class="footer">
-        <div>© <span id="y"></span> MystAI • Yapımcı: <b>GALAXY</b></div>
-        <div class="row">
-          <a href="/privacy.html">Gizlilik</a>
-          <span>•</span>
-          <a href="/terms.html">Koşullar</a>
-          <span>•</span>
-          <a href="mailto:support@mystai.ai">support@mystai.ai</a>
-        </div>
+    p {
+      line-height: 1.7em;
+      font-size: 1.1em;
+      color: #ddd;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      color: #aaa;
+    }
+
+    a {
+      color: #ffd700;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* Altın Banner Efekti */
+    #status-banner {
+      color: #ffd700;
+      text-align: center;
+      padding: 14px 20px;
+      font-size: 16px;
+      font-weight: 500;
+      background: linear-gradient(90deg, #111, #191919, #333, #191919);
+      background-size: 400px 100%;
+      animation: shimmer 4s infinite linear;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200px 0; }
+      100% { background-position: 200px 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 🟡 MystAI Dynamic Status Banner -->
+  <script>
+    const isLive = true; // Paddle onayı geldiğinde true kalacak
+
+    const betaMessage = `
+      <div id="status-banner">
+        ⚡ <strong>MystAI Beta Notice:</strong> Our AI-powered fortune platform is in private beta.
+        Public launch will follow Paddle compliance review.
       </div>
-    </main>
-    <script>document.getElementById('y').textContent = new Date().getFullYear()</script>
-  </body>
+    `;
+
+    const liveMessage = `
+      <div id="status-banner">
+        ⚡ <strong>MystAI is Now Live!</strong> Experience AI-powered readings in English & Turkish.<br>
+        Secure global payments via Paddle, Stripe & iyzico.
+      </div>
+    `;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.body.insertAdjacentHTML("afterbegin", isLive ? liveMessage : betaMessage);
+    });
+  </script>
+
+  <div class="container">
+    <h1>MystAI.ai</h1>
+    <p>Yapay zeka destekli uluslararası fal platformu</p>
+
+    <p>
+      🔮 <strong>Tüm fal türleri:</strong> Kahve, Tarot, El, Enerji, Rüya, Zihin <br>
+      🌍 <strong>Diller:</strong> Türkçe & İngilizce <br>
+      💳 <strong>Ödemeler:</strong> iyzico (₺) & Stripe (USD / EUR / GBP) <br>
+      🛡️ <strong>Yasal:</strong> KVKK - GDPR - CCPA uyumlu
+    </p>
+
+    <p>
+      Platformumuz kısa süre içinde yayında olacaktır. İş ortaklığı ve bilgilendirme için bizimle iletişime geçebilirsiniz.
+    </p>
+
+    <footer>
+      <p>© 2025 MystAI • Yapımcı: GALAXY</p>
+      <p>
+        <a href="privacy.html">Gizlilik</a> • 
+        <a href="terms.html">Koşullar</a> • 
+        <a href="mailto:support@mystai.ai">support@mystai.ai</a>
+      </p>
+    </footer>
+  </div>
+</body>
 </html>
