@@ -1,48 +1,84 @@
-name: 🪄 Auto Sitemap & SEO Updater (MystAI v2.2)
+name: 🧭 Auto Sitemap & SEO Updater (MystAI v3.0)
 
 on:
   schedule:
-    - cron: '0 4 * * 1' # Her Pazartesi sabah 04:00 UTC (haftalık çalışır)
-  workflow_dispatch: # Manuel çalıştırmaya da izin verir
+    - cron: '0 4 * * 1'        # Her Pazartesi 04:00 UTC
+  workflow_dispatch:            # Manuel çalıştırmaya izin ver
+
+permissions:
+  contents: write
 
 jobs:
-  update_sitemap:
+  build-sitemap:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate sitemap
+      - name: Generate sitemap.xml and robots.txt
+        shell: bash
         run: |
-          echo "🧭 Generating sitemap for MystAI..."
-          echo '<?xml version="1.0" encoding="UTF-8"?>' > sitemap.xml
-          echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> sitemap.xml
-          for page in "/" "/about.html" "/privacy.html" "/terms.html" "/disclaimer.html" "/contact.html"; do
-            echo "  <url>" >> sitemap.xml
-            echo "    <loc>https://mystai.ai${page}</loc>" >> sitemap.xml
-            echo "    <lastmod>$(date +%Y-%m-%d)</lastmod>" >> sitemap.xml
-            echo "    <changefreq>weekly</changefreq>" >> sitemap.xml
-            echo "    <priority>0.8</priority>" >> sitemap.xml
-            echo "  </url>" >> sitemap.xml
-          done
-          echo "</urlset>" >> sitemap.xml
-          echo "✅ Sitemap.xml dosyası oluşturuldu."
+          set -e
+          BASE_URL="https://mystai.ai"
+          TODAY=$(date -u +"%Y-%m-%d")
 
-      - name: Ping Google, Bing, Yandex, Yahoo
+          echo "🧭 Generating sitemap for MystAI..."
+
+          # sitemap.xml oluştur
+          cat > sitemap.xml <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${BASE_URL}/</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/about.html</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/privacy.html</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/contact.html</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+</urlset>
+EOF
+
+          # robots.txt oluştur
+          cat > robots.txt <<EOF
+User-agent: *
+Allow: /
+Sitemap: ${BASE_URL}/sitemap.xml
+EOF
+
+          echo "✅ Files created: sitemap.xml & robots.txt"
+
+      - name: Commit sitemap.xml and robots.txt
         run: |
-          echo "📡 Pinging search engines..."
+          git config user.name "MystAI Bot"
+          git config user.email "bot@mystai.ai"
+          git add sitemap.xml robots.txt
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Auto-update sitemap.xml & robots.txt [skip ci]"
+            git push
+          fi
+
+      - name: Ping search engines
+        run: |
+          echo "🔍 Pinging Google and Bing..."
           curl -s "https://www.google.com/ping?sitemap=https://mystai.ai/sitemap.xml" || true
           curl -s "https://www.bing.com/ping?sitemap=https://mystai.ai/sitemap.xml" || true
-          curl -s "https://yandex.com/ping?sitemap=https://mystai.ai/sitemap.xml" || true
-          curl -s "https://search.yahoo.com/ping?sitemap=https://mystai.ai/sitemap.xml" || true
-          echo "🚀 Ping işlemleri tamamlandı!"
-
-      - name: Upload updated sitemap (optional)
-        uses: actions/upload-artifact@v4
-        with:
-          name: sitemap
-          path: sitemap.xml
-
-      - name: Done
-        run: echo "🎉 MystAI v2.2 SEO otomasyon sistemi başarıyla tamamlandı!"
+          echo "✅ Pings sent successfully."
