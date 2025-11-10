@@ -2,231 +2,277 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="index, follow" />
-  <meta name="theme-color" content="#0a0a1a" />
-  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
-  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MystAI.ai — AI-Powered Fortune Readings & Digital Divination</title>
 
-  <title>MystAI — AI-Powered Fortune Reading</title>
-
-  <!-- 🌐 Canonical and Language -->
+  <!-- Basic SEO -->
+  <meta name="description" content="Experience AI-powered fortune readings — mystical insights interpreted by advanced artificial intelligence. Coffee, Tarot, Palm, Energy, Dream & Mind readings with focus on privacy and clarity." />
   <link rel="canonical" href="https://mystai.ai/" />
-  <link rel="alternate" hreflang="tr" href="https://mystai.ai/tr/" />
 
-  <!-- 🪄 SEO + Social Metadata -->
-  <meta name="description" content="MystAI — Experience AI-powered fortune readings: Coffee, Tarot, Palm, Energy & Dreams interpreted by artificial intelligence. Secure. Global. Insightful." />
+  <!-- Hreflang (English & Turkish versions point to the same canonical for now) -->
+  <link rel="alternate" hreflang="en" href="https://mystai.ai/" />
+  <link rel="alternate" hreflang="tr" href="https://mystai.ai/" />
+
+  <!-- Verification metas we added before -->
+  <meta name="msvalidate.01" content="F4901DFFBBFF3189DD60F4837431A10C" />
+  <meta name="yandex-verification" content="ba92387a9ee4fc41" />
+
+  <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="MystAI — AI-Powered Fortune Reading" />
-  <meta property="og:description" content="Experience AI-powered fortune readings — mystical insights interpreted by advanced artificial intelligence." />
+  <meta property="og:title" content="MystAI.ai — AI-Powered Fortune Readings" />
+  <meta property="og:description" content="Where Artificial Intelligence meets the ancient art of divination. Explore Coffee, Tarot, Palm, Energy, Dream & Mind readings — interpreted by advanced AI." />
   <meta property="og:url" content="https://mystai.ai/" />
   <meta property="og:image" content="https://mystai.ai/logo.png" />
   <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="MystAI — AI-Powered Fortune Reading" />
-  <meta name="twitter:description" content="AI-powered Coffee, Tarot, Palm & Energy readings — mystical insights reimagined by AI." />
+  <meta name="twitter:title" content="MystAI.ai — Fortune Telling with Artificial Intelligence" />
+  <meta name="twitter:description" content="MystAI blends advanced AI with timeless divination arts. Coffee • Tarot • Palm • Energy • Dream & Mind." />
   <meta name="twitter:image" content="https://mystai.ai/logo.png" />
 
-  <link rel="icon" href="/favicon.ico" />
+  <!-- Organization structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "MystAI.ai",
+    "url": "https://mystai.ai/",
+    "logo": "https://mystai.ai/logo.png",
+    "contactPoint": [{
+      "@type": "ContactPoint",
+      "email": "support@mystai.ai",
+      "contactType": "customer support",
+      "availableLanguage": ["en","tr"]
+    }]
+  }
+  </script>
 
-  <!-- ✨ Styles -->
+  <!-- Minimal page styles + cookie banner styles (lightweight, no frameworks) -->
   <style>
-    body {
-      margin: 0;
-      font-family: "Poppins", sans-serif;
-      background-color: #0a0a1a;
-      color: #f2c84b;
-      text-align: center;
-      overflow-x: hidden;
+    :root{
+      --bg-start:#0d1a2b;
+      --bg-end:#0b0f1f;
+      --brand:#ffcc33;
+      --text:#d8e0ff;
+      --muted:#a9b4d0;
+      --panel:#0f1b34;
+      --accent:#f2c84b;
     }
-
-    main {
-      margin-top: 60px;
-      padding: 10px;
+    html,body{margin:0;padding:0;background:radial-gradient(1200px 600px at 50% 0%, var(--bg-start) 0%, var(--bg-end) 70%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+    a{color:#9ec9ff;text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:1100px;margin:0 auto;padding:28px 20px}
+    header{display:flex;align-items:center;gap:16px}
+    header img{height:46px;width:auto}
+    h1{font-size:44px;margin:22px 0 10px 0;color:var(--brand);letter-spacing:.4px}
+    p.lead{font-size:18px;line-height:1.6;color:var(--text);max-width:900px}
+    .cta{margin:26px 0 8px;display:flex;gap:12px;flex-wrap:wrap}
+    .btn{background:var(--accent);color:#151515;border:0;padding:12px 18px;border-radius:12px;font-weight:700;cursor:pointer}
+    .btn.outline{background:transparent;color:#cfe4ff;border:1px solid #2b3f66}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:28px 0 40px}
+    .tile{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:14px 14px 16px}
+    .tile h3{margin:6px 0 10px;font-size:16px}
+    .tile p{margin:0;color:var(--muted);font-size:14px;line-height:1.45}
+    footer{margin-top:30px;padding:36px 0 24px;border-top:1px solid rgba(255,255,255,.08);text-align:center}
+    footer .links{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin:12px 0 14px}
+    small.legal{display:block;color:#aeb6cf;opacity:.85;max-width:980px;margin:10px auto 0;line-height:1.5}
+    /* Cookie banner */
+    #cookie-banner{
+      position:fixed;left:50%;transform:translateX(-50%);
+      bottom:22px;z-index:9999;display:none;
+      background:rgba(8,14,32,.92);backdrop-filter:blur(6px);
+      color:#dde6ff;border:1px solid rgba(255,255,255,.14);
+      border-radius:16px;max-width:860px;width:calc(100% - 24px);
+      box-shadow:0 6px 26px rgba(0,0,0,.35)
     }
-
-    h1 {
-      font-size: 2.4em;
-      margin-bottom: 8px;
+    .cb-wrap{display:flex;gap:14px;align-items:center;justify-content:space-between;padding:16px}
+    .cb-text{font-size:14px;line-height:1.45;color:#e6edff}
+    .cb-actions{display:flex;gap:10px;flex:0 0 auto}
+    .cb-actions .btn{padding:10px 14px;border-radius:10px}
+    @media (max-width:860px){
+      .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .cb-wrap{flex-direction:column;align-items:flex-start}
     }
-
-    p {
-      color: #ddd;
-      line-height: 1.6;
-      font-size: 1em;
-      margin: 10px 0 20px;
-    }
-
-    footer {
-      margin-top: 60px;
-      padding: 25px 10px;
-      background: linear-gradient(180deg, #0a0a1a, #11112b);
-      color: #e8e8e8;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    footer a {
-      color: #f2c84b;
-      text-decoration: none;
-      margin: 0 4px;
-    }
-
-    footer a:hover {
-      text-decoration: underline;
-    }
-
-    /* 🍪 Cookie Banner */
-    #cookie-banner {
-      position: fixed;
-      bottom: 25px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(10, 10, 26, 0.95);
-      color: #fff;
-      padding: 15px 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-      z-index: 9999;
-      width: 90%;
-      max-width: 500px;
-      font-size: 14px;
-      display: none;
-      animation: fadeIn 0.8s ease-in-out;
-    }
-
-    #cookie-banner button {
-      background-color: #f2c84b;
-      color: #0a0a1a;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      margin-top: 10px;
-      transition: 0.3s ease;
-    }
-
-    #cookie-banner button:hover {
-      background-color: #ffe066;
-    }
-
-    #cookie-banner a {
-      color: #f2c84b;
-      text-decoration: underline;
-    }
-
-    @keyframes fadeOut {
-      from { opacity: 1; }
-      to { opacity: 0; visibility: hidden; }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    @media (max-width:520px){
+      .grid{grid-template-columns:1fr}
     }
   </style>
 </head>
-
 <body>
-  <main>
-    <img src="logo.png" alt="MystAI Logo" width="120" style="margin-bottom:10px;">
-    <h1>MystAI.ai</h1>
-    <p>
-      Experience AI-powered fortune reading — mystical insights interpreted by advanced artificial intelligence.<br>
-      Coffee • Tarot • Palm • Energy • Dreams
-    </p>
-  </main>
+  <div class="wrap">
+    <header>
+      <img src="https://mystai.ai/logo.png" alt="MystAI Logo" />
+      <strong>MystAI.ai</strong>
+    </header>
 
-  <footer>
-    <p>
-      <a href="#">Terms of Service</a> |
-      <a href="#">Privacy Policy</a> |
-      <a href="#">Cookie Policy</a> |
-      <a href="#">Disclaimer</a>
-    </p>
-    <p>For support: <a href="mailto:support@mystai.ai">support@mystai.ai</a></p>
-    <p>© 2025 MystAI.ai — All Rights Reserved.<br>
-    Developed by 🌌 <strong>GALAXY</strong></p>
-    <p><strong>Legal Notice (Yasal Bildirim):</strong> AI readings on MystAI.ai are for entertainment and personal reflection only.<br>
-    They are not medical, legal, or financial advice and should not replace professional consultation.</p>
-  </footer>
+    <main>
+      <h1>MystAI.ai</h1>
+      <p class="lead">
+        Experience <strong>AI-powered fortune reading</strong> — mystical insights interpreted by advanced artificial intelligence.
+        Your privacy, security, and clarity are our top priorities.
+      </p>
 
-  <!-- 🍪 Cookie Consent Banner -->
-  <div id="cookie-banner">
-    🍪 MystAI, deneyiminizi geliştirmek için çerezleri kullanır.
-    <a href="#">Detaylar</a><br>
-    <button id="accept-cookies">Kabul Et</button>
+      <div class="cta">
+        <a class="btn" href="#get-started">Get Your Fortune</a>
+        <a class="btn outline" href="privacy.html">Privacy</a>
+        <a class="btn outline" href="contact.html">Contact</a>
+      </div>
+
+      <section class="grid" aria-label="Reading types">
+        <article class="tile">
+          <h3>AI Coffee Reading</h3>
+          <p>Upload your cup image and receive symbolic, cultural, and emotional layers decoded by AI.</p>
+        </article>
+        <article class="tile">
+          <h3>AI Tarot Reading</h3>
+          <p>Draw cards digitally and get spreads interpreted with archetypes, timeline &amp; guidance.</p>
+        </article>
+        <article class="tile">
+          <h3>AI Palm Reading</h3>
+          <p>Scan your palm and discover line patterns, shapes and traits — processed with computer vision.</p>
+        </article>
+        <article class="tile">
+          <h3>Energy &amp; Dreams</h3>
+          <p>Upload dreams for symbolism mapping, and explore energy reading with mindful prompts.</p>
+        </article>
+      </section>
+    </main>
+
+    <footer>
+      <div class="links">
+        <a href="terms.html">Terms of Service</a>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="cookies.html">Cookie Policy</a>
+        <a href="disclaimer.html">Disclaimer</a>
+      </div>
+      <p>For support: <a href="mailto:support@mystai.ai">support@mystai.ai</a></p>
+      <p>© 2025 MystAI.ai — All Rights Reserved. Developed by GALAXY 🌌</p>
+      <small class="legal">
+        Legal Notice: AI readings on MystAI.ai are for entertainment and personal reflection only.
+        They are <em>not medical, legal, or financial advice</em> and should not replace professional consultation.
+      </small>
+    </footer>
+  </div>
+
+  <!-- ===========================
+       Cookie Consent + Yandex Metrica (consent-based)
+       =========================== -->
+  <div id="cookie-banner" role="dialog" aria-live="polite" aria-label="Cookie consent">
+    <div class="cb-wrap">
+      <div class="cb-text">
+        🍪 MystAI uses cookies to improve your experience. We only load analytics after you accept.
+        See details in our <a href="privacy.html#cookies" target="_blank" rel="noopener">Privacy Policy</a>.
+      </div>
+      <div class="cb-actions">
+        <a class="btn outline" href="privacy.html#cookies" target="_blank" rel="noopener">Details</a>
+        <button id="cookie-accept" class="btn">Accept</button>
+      </div>
+    </div>
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const banner = document.getElementById("cookie-banner");
-      const accepted = localStorage.getItem("cookiesAccepted");
+  (function () {
+    const BANNER_ID = 'cookie-banner';
+    const ACCEPT_KEY = 'cookiesAccepted';
+    const YM_ID = 105215957; // Yandex Metrica ID (we used this together)
 
-      if (!accepted) banner.style.display = "block";
+    /** Inject Yandex Metrica script safely (idempotent) */
+    function loadMetrica() {
+      if (window._myst_metrica_loaded) return; // prevent double load
+      window._myst_metrica_loaded = true;
 
-      const acceptBtn = document.getElementById("accept-cookies");
-      acceptBtn.addEventListener("click", () => {
-        localStorage.setItem("cookiesAccepted", "true");
-        banner.style.animation = "fadeOut 0.8s forwards";
-        setTimeout(() => (banner.style.display = "none"), 800);
-        console.log("✅ MystAI Cookie Consent accepted.");
-        activateYandexMetrica();
-      });
-
-      if (accepted) activateYandexMetrica();
-
-      function activateYandexMetrica() {
-        const metrika = document.createElement("script");
-        metrika.src = "https://mc.yandex.ru/metrika/tag.js";
-        metrika.async = true;
-        metrika.onload = () => {
-          ym(105215957, "init", {
-            clickmap: true,
-            trackLinks: true,
-            accurateTrackBounce: true,
-            webvisor: true
-          });
-          console.log("✅ MystAI Yandex Metrica aktif!");
+      // Guard against CSP/network issues
+      try {
+        const s = document.createElement('script');
+        s.src = 'https://mc.yandex.ru/metrika/tag.js';
+        s.async = true;
+        s.onload = function () {
+          try {
+            if (typeof ym === 'function') {
+              ym(YM_ID, 'init', {
+                clickmap: true,
+                trackLinks: true,
+                accurateTrackBounce: true,
+                webvisor: true
+              });
+              console.log('✅ Yandex Metrica enabled.');
+            }
+          } catch (e) {
+            console.warn('⚠️ Yandex Metrica init error:', e);
+          }
         };
-        document.head.appendChild(metrika);
+        document.head.appendChild(s);
+      } catch (e) {
+        console.warn('⚠️ Could not append Yandex script:', e);
       }
-    });
+    }
+
+    /** Cookie banner controller */
+    function showCookieBanner() {
+      const banner = document.getElementById(BANNER_ID);
+      const acceptBtn = document.getElementById('cookie-accept');
+      if (!banner || !acceptBtn) return;
+      banner.style.display = 'block';
+
+      acceptBtn.addEventListener('click', function () {
+        try {
+          localStorage.setItem(ACCEPT_KEY, 'true');
+        } catch (e) {}
+        banner.style.display = 'none';
+        loadMetrica();
+      });
+    }
+
+    // If already accepted in a previous visit, auto-load metrica
+    let accepted = false;
+    try {
+      accepted = localStorage.getItem(ACCEPT_KEY) === 'true';
+    } catch (e) {}
+
+    if (accepted) {
+      loadMetrica();
+    } else {
+      // show banner a tick later to ensure layout painted
+      setTimeout(showCookieBanner, 200);
+    }
+  })();
   </script>
 
-  <!-- 🗺️ Auto Sitemap Generator -->
+  <!-- ===========================
+       Auto-Sitemap Generator (safe, local only)
+       Stores XML in localStorage: mystai_sitemap
+       =========================== -->
   <script>
-    (async () => {
-      const pages = ["/", "/about.html", "/privacy.html", "/contact.html"];
-      const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${pages.map(url => `
-<url>
-  <loc>https://mystai.ai${url}</loc>
-  <lastmod>${new Date().toISOString().split("T")[0]}</lastmod>
-  <changefreq>weekly</changefreq>
-  <priority>${url === "/" ? "1.0" : "0.8"}</priority>
-</url>`).join("")}
-</urlset>`;
+  (function () {
+    try {
+      const pages = [
+        "/", "/about.html", "/privacy.html", "/cookies.html",
+        "/disclaimer.html", "/contact.html", "/pricing.html",
+        "/refund.html", "/terms.html"
+      ];
+      const today = new Date().toISOString().split("T")[0];
+
+      const xml =
+        `<?xml version="1.0" encoding="UTF-8"?>` +
+        `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">` +
+        pages.map(url => `
+          <url>
+            <loc>https://mystai.ai${url}</loc>
+            <lastmod>${today}</lastmod>
+            <changefreq>weekly</changefreq>
+            <priority>${url === "/" ? "1.0" : "0.8"}</priority>
+          </url>
+        `).join("") +
+        `</urlset>`;
+
       localStorage.setItem("mystai_sitemap", xml);
-      console.log("🗺️ MystAI Sitemap otomatik oluşturuldu ve güncellendi!");
-    })();
-  </script>
-
-  <!-- 📊 Google Analytics (GA4) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
-  </script>
-
-  <!-- 🔒 Security Console Log -->
-  <script>
-    console.log("%c MystAI v5.0 Ultra Pro — © 2025 GALAXY | All Rights Reserved", "color:#f2c84b;font-size:14px;");
+      console.log("✅ MystAI Sitemap generated & cached.");
+      // No remote ping here (prevents 404/fetch errors in Lighthouse/Console)
+    } catch (e) {
+      console.warn("⚠️ Sitemap generation issue:", e);
+    }
+  })();
   </script>
 </body>
 </html>
