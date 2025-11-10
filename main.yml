@@ -11,15 +11,16 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+- name: Generate sitemap
+  run: |
+    echo "📄 Generating sitemap for MystAI..."
+    echo '<?xml version="1.0" encoding="UTF-8"?>' > sitemap.xml
+    echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> sitemap.xml
+    for url in "/" "/about.html" "/privacy.html" "/terms.html" "/disclaimer.html" "/contact.html"; do
+      echo "<url><loc>https://mystai.ai${url}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>" >> sitemap.xml
+    done
+    echo '</urlset>' >> sitemap.xml
 
-      - name: Generate sitemap
-        run: |
-          echo "Sitemap generating..."
-          node ./generate-sitemap.js || echo "⚠️ generate-sitemap.js bulunamadı"
-      - name: Deploy sitemap to site root
-        run: |
-          mkdir -p ./public
-          mv sitemap.xml ./public/sitemap.xml
 
       - name: Ping search engines
         run: |
