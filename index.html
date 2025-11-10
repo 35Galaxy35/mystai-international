@@ -464,7 +464,75 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
 </script>
-<!-- End of MystAI Cookie Consent -->
+<!-- MystAI Cookie Consent v3.0 -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  if (!localStorage.getItem("cookiesAccepted")) {
+    const banner = document.createElement("div");
+    banner.innerHTML = `
+      <div id="cookie-banner" style="
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #0a0a1a;
+        color: #f2c84b;
+        padding: 15px 25px;
+        border-radius: 10px;
+        font-family: 'Inter', sans-serif;
+        font-size: 15px;
+        box-shadow: 0 0 15px rgba(242, 200, 75, 0.4);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+      ">
+        🍪 MystAI, deneyiminizi geliştirmek için çerezleri kullanır.
+        <a href="/cookie-policy.html" target="_blank" style="color:#f2c84b; text-decoration:underline;">Detaylar</a>
+        <button id="acceptCookies" style="
+          background-color: #f2c84b;
+          color: #0a0a1a;
+          border: none;
+          padding: 8px 15px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-weight: 600;
+        ">Kabul Et</button>
+      </div>
+    `;
+    document.body.appendChild(banner);
+
+    document.getElementById("acceptCookies").onclick = function () {
+      localStorage.setItem("cookiesAccepted", "true");
+      banner.remove();
+      console.log("✅ Kullanıcı çerezleri kabul etti. Yandex Metrica aktif!");
+      // 🔥 Kullanıcı onay verince Yandex Metrica yükleniyor
+      const metrika = document.createElement("script");
+      metrika.src = "https://mc.yandex.ru/metrika/tag.js";
+      metrika.async = true;
+      metrika.onload = () => {
+        ym(105215957, "init", { clickmap:true, trackLinks:true, accurateTrackBounce:true });
+        console.log("📊 Yandex Metrica başarıyla etkinleştirildi!");
+      };
+      document.head.appendChild(metrika);
+    };
+  } else {
+    // Eğer kullanıcı zaten kabul etmişse metrika otomatik yüklensin
+    const metrika = document.createElement("script");
+    metrika.src = "https://mc.yandex.ru/metrika/tag.js";
+    metrika.async = true;
+    metrika.onload = () => {
+      ym(105215957, "init", { clickmap:true, trackLinks:true, accurateTrackBounce:true });
+      console.log("📊 Yandex Metrica zaten etkin!");
+    };
+    document.head.appendChild(metrika);
+  }
+});
+</script>
+<!-- End of MystAI Cookie Consent v3.0 -->
+
 
   
 </body>
