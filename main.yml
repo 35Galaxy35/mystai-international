@@ -1,4 +1,4 @@
-name: 🧭 Auto Sitemap & SEO Updater (MystAI v2.3)
+name: 🧭 Auto Sitemap & SEO Updater (MystAI v2.4)
 
 on:
   schedule:
@@ -14,14 +14,18 @@ jobs:
 
       - name: Generate sitemap
         run: |
+          # Eski dosya varsa sil
           rm -f sitemap.xml
-          echo "🌀 Generating sitemap for MystAI..."
-          echo '<?xml version="1.0" encoding="UTF-8"?>' > sitemap.xml
-          echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> sitemap.xml
+
+          # Dosyayı sıfırdan oluştur (BOM'suz ve boşluksuz)
+          printf '<?xml version="1.0" encoding="UTF-8"?>\n' > sitemap.xml
+          printf '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' >> sitemap.xml
+
           for url in "/" "/about.html" "/privacy.html" "/terms.html" "/disclaimer.html" "/contact.html"; do
-            echo "<url><loc>https://mystai.ai${url}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>" >> sitemap.xml
+            printf "  <url><loc>https://mystai.ai%s</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>\n" "$url" >> sitemap.xml
           done
-          echo '</urlset>' >> sitemap.xml
+
+          printf '</urlset>\n' >> sitemap.xml
 
       - name: Deploy sitemap to site root
         run: |
@@ -32,10 +36,10 @@ jobs:
       - name: Ping search engines
         run: |
           echo "🔔 Pinging Google, Bing, Yandex and Yahoo..."
-          curl "https://www.google.com/ping?sitemap=https://mystai.ai/sitemap.xml"
-          curl "https://www.bing.com/ping?sitemap=https://mystai.ai/sitemap.xml"
-          curl "https://yandex.com/ping?sitemap=https://mystai.ai/sitemap.xml"
-          curl "https://search.yahoo.com/ping?sitemap=https://mystai.ai/sitemap.xml"
+          curl -s "https://www.google.com/ping?sitemap=https://mystai.ai/sitemap.xml"
+          curl -s "https://www.bing.com/ping?sitemap=https://mystai.ai/sitemap.xml"
+          curl -s "https://yandex.com/ping?sitemap=https://mystai.ai/sitemap.xml"
+          curl -s "https://search.yahoo.com/ping?sitemap=https://mystai.ai/sitemap.xml"
 
       - name: Done
-        run: echo "🎉 MystAI sitemap başarıyla güncellendi ve tüm arama motorlarına bildirildi!"
+        run: echo "🎉 MystAI sitemap başarıyla sıfırdan oluşturuldu ve bildirildi!"
