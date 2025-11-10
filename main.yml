@@ -2,50 +2,72 @@ name: 🧭 Auto Sitemap & SEO Updater (MystAI v2.5)
 
 on:
   schedule:
-    - cron: '0 4 * * 1' # Her Pazartesi sabah 04:00’te çalışır (UTC)
-  workflow_dispatch: # Manuel çalıştırmaya izin verir
+    - cron: '0 4 * * 1'        # Her Pazartesi 04:00 UTC
+  workflow_dispatch:            # Elle çalıştırma tuşu
+
+permissions:
+  contents: write               # Reponun içine push atabilmek için
 
 jobs:
-  update_sitemap:
+  build-sitemap:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Generate clean sitemap
+      - name: Generate sitemap.xml & robots.txt
         shell: bash
         run: |
-          echo "🌀 Generating CLEAN sitemap for MystAI..."
-          
-          # BOM, boşluk veya eski dosya kalıntılarını temizle
-          rm -f sitemap.xml
-          
-          # Dosyayı sıfırdan oluştur (tamamen temiz UTF-8)
-          printf '<?xml version="1.0" encoding="UTF-8"?>\n' > sitemap.xml
-          printf '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' >> sitemap.xml
-          
-          for url in "/" "/about.html" "/privacy.html" "/terms.html" "/disclaimer.html" "/contact.html"; do
-            printf "  <url><loc>https://mystai.ai%s</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>\n" "$url" >> sitemap.xml
-          done
-          
-          printf '</urlset>\n' >> sitemap.xml
-          
-          # Dosya formatını kontrol et
-          head -n 5 sitemap.xml
+          set -e
+          BASE="https://mystai.ai"
+          TODAY="$(date -u +%Y-%m-%d)"
+          PAGES="/ /about.html /privacy.html /terms.html /disclaimer.html /contact.html"
 
-      - name: Deploy sitemap to site root
+          # 1) sitemap.xml — ilk bayt mutlak XML deklarasyonu (BOM, boşluk yok!)
+          printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' > sitemap.xml
+          printf '%s\n' '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> sitemap.xml
+
+          for url in $PAGES; do
+            PRIORITY="0.8"; CHANGE="monthly"
+            [ "$url" = "/" ] && PRIORITY="1.0" && CHANGE="daily"
+            {
+              printf '  <url>\n'
+              printf '    <loc>%s%s</loc>\n' "$BASE" "$url"
+              printf '    <lastmod>%s</lastmod>\n' "$TODAY"
+              printf '    <changefreq>%s</changefreq>\n' "$CHANGE"
+              printf '    <priority>%s</priority>\n' "$PRIORITY"
+              printf '  </url>\n'
+            } >> sitemap.xml
+          done
+
+          printf '%s\n' '</urlset>' >> sitemap.xml
+
+          # 2) robots.txt — arama motorlarına site haritasını bildir
+          printf 'User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n' "$BASE" > robots.txt
+
+          # Hızlı kontrol (ilk satır XML mi?)
+          head -n1 sitemap.xml
+
+      - name: Commit sitemap & robots.txt
         run: |
-          mkdir -p ./public
-          mv sitemap.xml ./public/sitemap.xml
-          echo "✅ Sitemap moved to /public/sitemap.xml"
+          set -e
+          git config user.name  "MystAI Bot"
+          git config user.email "bot@mystai.ai"
+          git add sitemap.xml robots.txt
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: auto-update sitemap.xml & robots.txt [skip ci]"
+            git push
+          fi
 
       - name: Ping search engines
         run: |
-          echo "🔔 Pinging Google, Bing, Yandex and Yahoo..."
-          curl -s "https://www.google.com/ping?sitemap=https://mystai.ai/sitemap.xml"
-          curl -s "https://www.bing.com/ping?sitemap=https://mystai.ai/sitemap.xml"
-          curl -s "https://yandex.com/ping?sitemap=https://mystai.ai/sitemap.xml"
-          curl -s "https://search.yahoo.com/ping?sitemap=https://mystai.ai/sitemap.xml"
-
-      - name: Done
-        run: echo "🎉 MystAI sitemap başarıyla oluşturuldu ve arama motorlarına bildirildi!"
+          set -e
+          ENC_URL=$(python3 - <<'PY'
+import urllib.parse
+print(urllib.parse.quote("https://mystai.ai/sitemap.xml", safe=""))
+PY
+)
+          curl -fsS "https://www.google.com/ping?sitemap=${ENC_URL}" || echo "Google ping failed"
+          curl -fsS "https://www.bing.com/ping?sitemap=${ENC_URL}"   || echo "Bing ping failed"
