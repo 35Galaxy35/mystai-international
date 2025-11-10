@@ -1,70 +1,63 @@
-name: 🧭 Auto Sitemap & SEO Updater (MystAI v3.0)
+name: 🧭 Auto Sitemap & SEO Updater (MystAI v3.2)
 
 on:
   schedule:
-    - cron: '0 4 * * 1'        # Her Pazartesi 04:00 UTC
-  workflow_dispatch:            # Manuel çalıştırmaya izin ver
+    - cron: '0 4 * * 1'   # Her Pazartesi sabah 04:00 UTC
+  workflow_dispatch:      # Manuel çalıştırmaya izin verir
 
 permissions:
   contents: write
 
 jobs:
-  build-sitemap:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate sitemap.xml and robots.txt
-        shell: bash
+      - name: Generate sitemap and robots.txt
         run: |
-          set -e
+          echo "🧭 Generating sitemap.xml and robots.txt ..."
           BASE_URL="https://mystai.ai"
-          TODAY=$(date -u +"%Y-%m-%d")
+          DATE=$(date -u +"%Y-%m-%d")
 
-          echo "🧭 Generating sitemap for MystAI..."
-
-          # sitemap.xml oluştur
           cat > sitemap.xml <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>${BASE_URL}/</loc>
-    <lastmod>${TODAY}</lastmod>
+    <lastmod>${DATE}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>${BASE_URL}/about.html</loc>
-    <lastmod>${TODAY}</lastmod>
+    <lastmod>${DATE}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>${BASE_URL}/privacy.html</loc>
-    <lastmod>${TODAY}</lastmod>
+    <lastmod>${DATE}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>${BASE_URL}/contact.html</loc>
-    <lastmod>${TODAY}</lastmod>
+    <lastmod>${DATE}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 </urlset>
 EOF
 
-          # robots.txt oluştur
           cat > robots.txt <<EOF
 User-agent: *
 Allow: /
 Sitemap: ${BASE_URL}/sitemap.xml
 EOF
 
-          echo "✅ Files created: sitemap.xml & robots.txt"
-
-      - name: Commit sitemap.xml and robots.txt
+      - name: Commit and push updated files
         run: |
           git config user.name "MystAI Bot"
           git config user.email "bot@mystai.ai"
@@ -81,4 +74,4 @@ EOF
           echo "🔍 Pinging Google and Bing..."
           curl -s "https://www.google.com/ping?sitemap=https://mystai.ai/sitemap.xml" || true
           curl -s "https://www.bing.com/ping?sitemap=https://mystai.ai/sitemap.xml" || true
-          echo "✅ Pings sent successfully."
+          echo "✅ Sitemap update completed successfully."
