@@ -1,0 +1,77 @@
+name: 🧭 Auto Sitemap & SEO Updater (MystAI v3.4)
+
+on:
+  schedule:
+    - cron: '0 4 * * 1'   # Her Pazartesi sabah 04:00 UTC
+  workflow_dispatch:      # Manuel çalıştırma izni
+
+permissions:
+  contents: write
+
+jobs:
+  update_sitemap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate sitemap.xml and robots.txt
+        run: |
+          echo "🔧 Generating sitemap.xml and robots.txt ..."
+          BASE_URL="https://mystai.ai"
+          TODAY=$(date -u +"%Y-%m-%d")
+
+          cat > sitemap.xml <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${BASE_URL}/</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/about.html</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/privacy.html</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/contact.html</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+</urlset>
+EOF
+
+          cat > robots.txt <<EOF
+User-agent: *
+Allow: /
+Sitemap: ${BASE_URL}/sitemap.xml
+EOF
+
+      - name: Commit and push updated files
+        run: |
+          git config user.name "MystAI Bot"
+          git config user.email "bot@mystai.ai"
+          git add sitemap.xml robots.txt
+          if git diff --cached --quiet; then
+            echo "No new changes to commit."
+          else
+            git commit -m "Auto-update sitemap.xml & robots.txt [v3.4]"
+            git push
+          fi
+
+      - name: Ping search engines
+        run: |
+          echo "🌍 Notifying Google and Bing..."
+          curl -s "https://www.google.com/ping?sitemap=https://mystai.ai/sitemap.xml" || true
+          curl -s "https://www.bing.com/ping?sitemap=https://mystai.ai/sitemap.xml" || true
+          echo "✅ Sitemap update completed successfully."
