@@ -417,21 +417,7 @@
   localStorage.setItem("mystai_sitemap", xml);
   console.log("✅ MystAI Sitemap otomatik oluşturuldu ve güncellendi!");
 
-  // Google’a otomatik ping at (Search Console bildirimi)
-  const sitemapUrl = encodeURIComponent("https://mystai.ai/sitemap.xml");
-  const pingUrl = `https://www.google.com/ping?sitemap=${sitemapUrl}`;
-
-  try {
-    const res = await fetch(pingUrl);
-    if (res.ok) {
-      console.log("📡 Google Ping başarılı — Sitemap bildirildi.");
-    } else {
-      console.warn("⚠️ Google Ping başarısız olabilir, manuel kontrol önerilir.");
-    }
-  } catch (e) {
-    console.warn("⚠️ Google Ping isteği sırasında hata oluştu:", e);
-  }
-})();
+  
 </script>
 <!-- End of MystAI Auto Sitemap Updater v2.0 -->
 
