@@ -1,73 +1,83 @@
-name: 🧭 Auto Sitemap & SEO Updater (MystAI v2.5)
+name: 🧭 Auto Sitemap & SEO Updater (MystAI v3.1)
 
 on:
   schedule:
     - cron: '0 4 * * 1'        # Her Pazartesi 04:00 UTC
-  workflow_dispatch:            # Elle çalıştırma tuşu
+  workflow_dispatch:            # Manuel çalıştırma izni
 
 permissions:
-  contents: write               # Reponun içine push atabilmek için
+  contents: write
 
 jobs:
   build-sitemap:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate sitemap.xml & robots.txt
+      - name: Generate sitemap.xml and robots.txt
         shell: bash
         run: |
           set -e
-          BASE="https://mystai.ai"
-          TODAY="$(date -u +%Y-%m-%d)"
-          PAGES="/ /about.html /privacy.html /terms.html /disclaimer.html /contact.html"
+          BASE_URL="https://mystai.ai"
+          TODAY=$(date -u +"%Y-%m-%d")
 
-          # 1) sitemap.xml — ilk bayt mutlak XML deklarasyonu (BOM, boşluk yok!)
-          printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' > sitemap.xml
-          printf '%s\n' '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> sitemap.xml
+          echo "🧭 Generating sitemap for MystAI..."
 
-          for url in $PAGES; do
-            PRIORITY="0.8"; CHANGE="monthly"
-            [ "$url" = "/" ] && PRIORITY="1.0" && CHANGE="daily"
-            {
-              printf '  <url>\n'
-              printf '    <loc>%s%s</loc>\n' "$BASE" "$url"
-              printf '    <lastmod>%s</lastmod>\n' "$TODAY"
-              printf '    <changefreq>%s</changefreq>\n' "$CHANGE"
-              printf '    <priority>%s</priority>\n' "$PRIORITY"
-              printf '  </url>\n'
-            } >> sitemap.xml
-          done
+          cat > sitemap.xml <<'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://mystai.ai/</loc>
+    <lastmod>DATE</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://mystai.ai/about.html</loc>
+    <lastmod>DATE</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mystai.ai/privacy.html</loc>
+    <lastmod>DATE</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mystai.ai/contact.html</loc>
+    <lastmod>DATE</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+</urlset>
+EOF
 
-          printf '%s\n' '</urlset>' >> sitemap.xml
+          # Tarihi dosyaya yaz
+          sed -i "s/DATE/${TODAY}/g" sitemap.xml
 
-          # 2) robots.txt — arama motorlarına site haritasını bildir
-          printf 'User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n' "$BASE" > robots.txt
+          cat > robots.txt <<'EOF'
+User-agent: *
+Allow: /
+Sitemap: https://mystai.ai/sitemap.xml
+EOF
 
-          # Hızlı kontrol (ilk satır XML mi?)
-          head -n1 sitemap.xml
-
-      - name: Commit sitemap & robots.txt
+      - name: Commit sitemap.xml and robots.txt
         run: |
-          set -e
-          git config user.name  "MystAI Bot"
+          git config user.name "MystAI Bot"
           git config user.email "bot@mystai.ai"
           git add sitemap.xml robots.txt
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "chore: auto-update sitemap.xml & robots.txt [skip ci]"
+            git commit -m "Auto-update sitemap.xml & robots.txt [skip ci]"
             git push
           fi
 
       - name: Ping search engines
         run: |
-          set -e
-          ENC_URL=$(python3 - <<'PY'
-import urllib.parse
-print(urllib.parse.quote("https://mystai.ai/sitemap.xml", safe=""))
-PY
-)
-          curl -fsS "https://www.google.com/ping?sitemap=${ENC_URL}" || echo "Google ping failed"
-          curl -fsS "https://www.bing.com/ping?sitemap=${ENC_URL}"   || echo "Bing ping failed"
+          echo "🔍 Pinging search engines..."
+          curl -s "https://www.google.com/ping?sitemap=https://mystai.ai/sitemap.xml" || true
+          curl -s "https://www.bing.com/ping?sitemap=https://mystai.ai/sitemap.xml" || true
+          echo "✅ Done."
