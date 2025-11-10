@@ -1,4 +1,4 @@
-name: Auto Sitemap & SEO Updater (MystAI v3.7)
+name: Auto Sitemap & SEO Updater (MystAI v3.7.1)
 
 on:
   workflow_dispatch:
@@ -19,59 +19,59 @@ jobs:
 
           echo "Generating sitemap.xml for MystAI..."
           cat > sitemap.xml <<EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-            <url>
-              <loc>${BASE_URL}/</loc>
-              <lastmod>${TODAY}</lastmod>
-              <changefreq>monthly</changefreq>
-              <priority>0.8</priority>
-            </url>
-            <url>
-              <loc>${BASE_URL}/about.html</loc>
-              <lastmod>${TODAY}</lastmod>
-              <changefreq>monthly</changefreq>
-              <priority>0.6</priority>
-            </url>
-            <url>
-              <loc>${BASE_URL}/privacy.html</loc>
-              <lastmod>${TODAY}</lastmod>
-              <changefreq>monthly</changefreq>
-              <priority>0.5</priority>
-            </url>
-            <url>
-              <loc>${BASE_URL}/contact.html</loc>
-              <lastmod>${TODAY}</lastmod>
-              <changefreq>monthly</changefreq>
-              <priority>0.5</priority>
-            </url>
-          </urlset>
-          EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${BASE_URL}/</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/about.html</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/privacy.html</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/contact.html</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>
+EOF
 
           echo "Generating robots.txt..."
           cat > robots.txt <<EOF
-          User-agent: *
-          Allow: /
-          Sitemap: ${BASE_URL}/sitemap.xml
-          EOF
+User-agent: *
+Allow: /
+Sitemap: ${BASE_URL}/sitemap.xml
+EOF
 
       - name: Commit and push updates
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add sitemap.xml robots.txt
-          git commit -m "Auto-update sitemap.xml & robots.txt [v3.7]" || echo "No changes to commit"
+          git commit -m "Auto-update sitemap.xml & robots.txt [v3.7.1]" || echo "No changes to commit"
           git push
 
       - name: Notify Google of new sitemap
         run: |
           echo "Pinging Google for sitemap update..."
-          curl -s "https://www.google.com/ping?sitemap=${BASE_URL}/sitemap.xml" || echo "Google ping failed"
+          curl -s "https://www.google.com/ping?sitemap=https://mystai.ai/sitemap.xml" || echo "Google ping failed"
 
       - name: Notify Bing of new sitemap
         run: |
           echo "Pinging Bing for sitemap update..."
-          curl -s "https://www.bing.com/ping?sitemap=${BASE_URL}/sitemap.xml" || echo "Bing ping failed"
+          curl -s "https://www.bing.com/ping?sitemap=https://mystai.ai/sitemap.xml" || echo "Bing ping failed"
 
       - name: Notify IndexNow (Bing, Yandex, Seznam)
         run: |
@@ -79,17 +79,17 @@ jobs:
           curl -s -X POST "https://api.indexnow.org/indexnow" \
           -H "Content-Type: application/json" \
           -d '{
-              "host": "mystai.ai",
-              "key": "d755adb705ae4a0abe1bd6d2a6aaf35c",
-              "keyLocation": "https://mystai.ai/d755adb705ae4a0abe1bd6d2a6aaf35c.txt",
-              "urlList": [
-                "https://mystai.ai/",
-                "https://mystai.ai/about.html",
-                "https://mystai.ai/privacy.html",
-                "https://mystai.ai/contact.html",
-                "https://mystai.ai/sitemap.xml"
-              ]
+            "host": "mystai.ai",
+            "key": "d755adb705ae4a0abe1bd6d2a6aaf35c",
+            "keyLocation": "https://mystai.ai/d755adb705ae4a0abe1bd6d2a6aaf35c.txt",
+            "urlList": [
+              "https://mystai.ai/",
+              "https://mystai.ai/about.html",
+              "https://mystai.ai/privacy.html",
+              "https://mystai.ai/contact.html",
+              "https://mystai.ai/sitemap.xml"
+            ]
           }' || echo "IndexNow ping failed"
 
       - name: Done
-        run: echo "✅ MystAI v3.7 SEO automation completed successfully!"
+        run: echo "✅ MystAI v3.7.1 SEO automation completed successfully!"
