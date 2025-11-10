@@ -1,4 +1,4 @@
-name: 🧭 Auto Sitemap & SEO Updater (MystAI v2.4)
+name: 🧭 Auto Sitemap & SEO Updater (MystAI v2.5)
 
 on:
   schedule:
@@ -12,20 +12,26 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Generate sitemap
+      - name: Generate clean sitemap
+        shell: bash
         run: |
-          # Eski dosya varsa sil
+          echo "🌀 Generating CLEAN sitemap for MystAI..."
+          
+          # BOM, boşluk veya eski dosya kalıntılarını temizle
           rm -f sitemap.xml
-
-          # Dosyayı sıfırdan oluştur (BOM'suz ve boşluksuz)
+          
+          # Dosyayı sıfırdan oluştur (tamamen temiz UTF-8)
           printf '<?xml version="1.0" encoding="UTF-8"?>\n' > sitemap.xml
           printf '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' >> sitemap.xml
-
+          
           for url in "/" "/about.html" "/privacy.html" "/terms.html" "/disclaimer.html" "/contact.html"; do
             printf "  <url><loc>https://mystai.ai%s</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>\n" "$url" >> sitemap.xml
           done
-
+          
           printf '</urlset>\n' >> sitemap.xml
+          
+          # Dosya formatını kontrol et
+          head -n 5 sitemap.xml
 
       - name: Deploy sitemap to site root
         run: |
@@ -42,4 +48,4 @@ jobs:
           curl -s "https://search.yahoo.com/ping?sitemap=https://mystai.ai/sitemap.xml"
 
       - name: Done
-        run: echo "🎉 MystAI sitemap başarıyla sıfırdan oluşturuldu ve bildirildi!"
+        run: echo "🎉 MystAI sitemap başarıyla oluşturuldu ve arama motorlarına bildirildi!"
