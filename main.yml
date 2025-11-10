@@ -16,6 +16,10 @@ jobs:
         run: |
           echo "Sitemap generating..."
           node ./generate-sitemap.js || echo "⚠️ generate-sitemap.js bulunamadı"
+      - name: Deploy sitemap to site root
+        run: |
+          mkdir -p ./public
+          mv sitemap.xml ./public/sitemap.xml
 
       - name: Ping search engines
         run: |
