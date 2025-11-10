@@ -1,4 +1,4 @@
-name: Auto Sitemap & SEO Updater (MystAI v3.7.1)
+name: Auto Sitemap & SEO Updater (MystAI v3.8)
 
 on:
   workflow_dispatch:
@@ -17,65 +17,48 @@ jobs:
           BASE_URL="https://mystai.ai"
           TODAY=$(date +'%Y-%m-%d')
 
-          echo "Generating sitemap.xml for MystAI..."
-          cat > sitemap.xml <<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>${BASE_URL}/</loc>
-    <lastmod>${TODAY}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>${BASE_URL}/about.html</loc>
-    <lastmod>${TODAY}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>${BASE_URL}/privacy.html</loc>
-    <lastmod>${TODAY}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>${BASE_URL}/contact.html</loc>
-    <lastmod>${TODAY}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-</urlset>
-EOF
+          echo "Generating sitemap.xml..."
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > sitemap.xml
+          echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> sitemap.xml
+
+          for PAGE in "" "about.html" "privacy.html" "contact.html"
+          do
+            echo "  <url>" >> sitemap.xml
+            echo "    <loc>${BASE_URL}/${PAGE}</loc>" >> sitemap.xml
+            echo "    <lastmod>${TODAY}</lastmod>" >> sitemap.xml
+            echo "    <changefreq>monthly</changefreq>" >> sitemap.xml
+            echo "    <priority>0.6</priority>" >> sitemap.xml
+            echo "  </url>" >> sitemap.xml
+          done
+
+          echo '</urlset>' >> sitemap.xml
 
           echo "Generating robots.txt..."
-          cat > robots.txt <<EOF
-User-agent: *
-Allow: /
-Sitemap: ${BASE_URL}/sitemap.xml
-EOF
+          echo "User-agent: *" > robots.txt
+          echo "Allow: /" >> robots.txt
+          echo "Sitemap: ${BASE_URL}/sitemap.xml" >> robots.txt
 
       - name: Commit and push updates
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add sitemap.xml robots.txt
-          git commit -m "Auto-update sitemap.xml & robots.txt [v3.7.1]" || echo "No changes to commit"
+          git commit -m "Auto-update sitemap.xml & robots.txt [v3.8]" || echo "No changes to commit"
           git push
 
-      - name: Notify Google of new sitemap
+      - name: Notify Google
         run: |
-          echo "Pinging Google for sitemap update..."
+          echo "Pinging Google..."
           curl -s "https://www.google.com/ping?sitemap=https://mystai.ai/sitemap.xml" || echo "Google ping failed"
 
-      - name: Notify Bing of new sitemap
+      - name: Notify Bing
         run: |
-          echo "Pinging Bing for sitemap update..."
+          echo "Pinging Bing..."
           curl -s "https://www.bing.com/ping?sitemap=https://mystai.ai/sitemap.xml" || echo "Bing ping failed"
 
-      - name: Notify IndexNow (Bing, Yandex, Seznam)
+      - name: Notify IndexNow
         run: |
-          echo "Submitting URLs to IndexNow..."
+          echo "Submitting to IndexNow..."
           curl -s -X POST "https://api.indexnow.org/indexnow" \
           -H "Content-Type: application/json" \
           -d '{
@@ -92,4 +75,4 @@ EOF
           }' || echo "IndexNow ping failed"
 
       - name: Done
-        run: echo "✅ MystAI v3.7.1 SEO automation completed successfully!"
+        run: echo "✅ MystAI v3.8 sitemap & SEO update completed successfully!"
