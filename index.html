@@ -107,7 +107,49 @@
     </header>
 
     <main>
-      <h1>MystAI.ai</h1>
+      <!-- Main Logo and Brand Title -->
+<div class="mystai-header">
+  <img src="logo.png" alt="MystAI Logo" class="mystai-logo">
+  <h1 class="mystai-title">MystAI.ai</h1>
+</div>
+
+<style>
+  .mystai-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 40px;
+  }
+
+  .mystai-logo {
+    height: 85px;
+    width: auto;
+    filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.5));
+  }
+
+  .mystai-title {
+    color: #FFD54F;
+    font-family: 'Cinzel', serif;
+    font-size: 60px;
+    text-shadow: 0 0 15px rgba(255, 200, 0, 0.3);
+    margin: 0;
+  }
+
+  @media (max-width: 600px) {
+    .mystai-header {
+      flex-direction: column;
+      gap: 10px;
+    }
+    .mystai-logo {
+      height: 70px;
+    }
+    .mystai-title {
+      font-size: 42px;
+    }
+  }
+</style>
+
       <p class="lead">
         Experience <strong>AI-powered fortune reading</strong> — mystical insights interpreted by advanced artificial intelligence.
         Your privacy, security, and clarity are our top priorities.
