@@ -39,11 +39,32 @@
       color:#0b0f1f;background:#ffd54f;transition:all .3s ease;
     }
     .btn:hover{filter:brightness(1.1);transform:translateY(-2px)}
+
+    /* 🔸 Yeni Dil Butonları */
     .lang-btn{
-      font-weight:700;border:0;border-radius:8px;padding:6px 10px;cursor:pointer;
-      color:#0b0f1f;background:#ffd54f;margin-left:8px;
+      font-weight:700;
+      border:0;
+      border-radius:50px;
+      padding:8px 14px;
+      cursor:pointer;
+      color:#0b0f1f;
+      background:linear-gradient(135deg,#ffd54f,#ffeb99);
+      box-shadow:0 0 10px rgba(255,215,0,0.6);
+      transition:all .3s ease;
     }
-    .lang-btn.secondary{background:transparent;color:#e6ecff;border:1px solid #2b3f66}
+    .lang-btn:hover{
+      filter:brightness(1.15);
+      box-shadow:0 0 18px rgba(255,235,150,0.9);
+    }
+    .lang-btn.secondary{
+      background:rgba(255,255,255,0.1);
+      color:#e6ecff;
+      border:1px solid rgba(255,255,255,0.15);
+      box-shadow:none;
+    }
+    .lang-btn.secondary:hover{
+      background:rgba(255,255,255,0.15);
+    }
 
     .hero{text-align:center;padding:80px 20px 40px;}
     .hero h1{color:#f5d76e;font-size:44px;margin-bottom:10px;text-shadow:0 0 15px rgba(255,215,0,.3);}
