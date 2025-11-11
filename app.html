@@ -16,34 +16,24 @@
     }
 
     header{
-      position:relative;
-      padding:16px 40px;
-      display:flex;justify-content:space-between;align-items:center;
+      padding:16px 40px;display:flex;justify-content:space-between;align-items:center;
       background:rgba(10,15,30,0.35);backdrop-filter:blur(12px);
-      border-bottom:1px solid rgba(255,255,255,0.06);
-      z-index:1000;
+      border-bottom:1px solid rgba(255,255,255,0.06);z-index:1000;
     }
-    .lang-box,.nav-btns{display:flex;gap:10px;align-items:center}
-
+    .lang-box,.nav-btns{display:flex;gap:10px;align-items:center;}
     .lang-btn{
       font-weight:700;border:0;border-radius:50px;padding:7px 13px;cursor:pointer;font-size:13px;
       background:linear-gradient(135deg,#ffd54f,#ffe680);color:#111;transition:all .3s ease;
     }
-    .lang-btn.secondary{background:rgba(255,255,255,.1);color:#e6ecff;border:1px solid rgba(255,255,255,.12)}
+    .lang-btn.secondary{
+      background:rgba(255,255,255,.1);color:#e6ecff;border:1px solid rgba(255,255,255,.12);
+    }
+
     .btn{
-      display:inline-block;text-decoration:none;
       font-weight:700;border:0;border-radius:10px;padding:8px 18px;cursor:pointer;
       color:#0b0f1f;background:#ffd54f;font-size:14px;transition:all .3s ease;
     }
-    .btn:hover{filter:brightness(1.1);transform:translateY(-2px)}
-
-    #welcome {
-      color:#ffd54f;
-      font-family:'Cinzel',serif;
-      margin-right:20px;
-      font-size:16px;
-      text-shadow:0 0 8px rgba(255,220,120,0.4);
-    }
+    .btn:hover,.lang-btn:hover{filter:brightness(1.1);transform:translateY(-2px);}
 
     .floating-logo{
       position:absolute;left:50%;top:90px;transform:translateX(-50%);
@@ -55,21 +45,29 @@
     @keyframes float{from{transform:translate(-50%,-12px)}to{transform:translate(-50%,8px)}}
     @keyframes glow{from{filter:drop-shadow(0 0 25px rgba(255,240,180,.4))}to{filter:drop-shadow(0 0 55px rgba(255,250,200,.8))}}
 
-    .hero{text-align:center;padding-top:280px;padding-bottom:50px}
-    .hero h1{color:#f5d76e;font-size:46px;margin-bottom:12px;text-shadow:0 0 14px rgba(255,220,120,.3);font-family:'Cinzel',serif}
-    .hero p{color:var(--text);max-width:720px;margin:0 auto;font-size:18px;line-height:1.6}
+    .hero{text-align:center;padding-top:280px;padding-bottom:50px;}
+    .hero h1{color:#f5d76e;font-size:46px;margin-bottom:12px;text-shadow:0 0 14px rgba(255,220,120,.3);font-family:'Cinzel',serif;}
+    .hero p{color:var(--text);max-width:720px;margin:0 auto;font-size:18px;line-height:1.6;}
 
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:28px;padding:60px 20px;max-width:1100px;margin:auto}
-    .tile{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:14px;transition:transform .3s ease,box-shadow .3s ease}
-    .tile:hover{transform:scale(1.02);box-shadow:0 0 30px rgba(255,215,0,.2)}
-    .reading-img{width:100%;height:320px;object-fit:cover;border-radius:14px;margin-bottom:14px;box-shadow:0 0 18px rgba(255,215,0,.18)}
-    .tile h3{color:#f5d76e;font-family:'Cinzel',serif;margin-bottom:10px}
-    .tile p{color:var(--muted);font-size:15px;min-height:60px}
-    .start-btn{background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);font-weight:700;color:#111;border:none;padding:10px 20px;border-radius:10px;cursor:pointer;transition:transform .3s ease;box-shadow:0 0 15px rgba(255,215,0,.4)}
-    .start-btn:hover{transform:scale(1.08)}
+    .welcome{
+      font-weight:600;color:#ffe680;text-shadow:0 0 10px rgba(255,220,120,.4);
+      margin-right:12px;
+    }
 
-    footer{margin-top:80px;padding:36px 0;border-top:1px solid rgba(255,255,255,.08);color:#aeb6cf;font-size:14px}
-    footer a{color:#cfe4ff;text-decoration:none}footer a:hover{color:#ffe680}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:28px;padding:60px 20px;max-width:1100px;margin:auto;}
+    .tile{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:14px;transition:transform .3s ease,box-shadow .3s ease;}
+    .tile:hover{transform:scale(1.02);box-shadow:0 0 30px rgba(255,215,0,.2);}
+    .reading-img{width:100%;height:320px;object-fit:cover;border-radius:14px;margin-bottom:14px;box-shadow:0 0 18px rgba(255,215,0,.18);}
+    .tile h3{color:#f5d76e;font-family:'Cinzel',serif;margin-bottom:10px;}
+    .tile p{color:var(--muted);font-size:15px;min-height:60px;}
+    .start-btn{background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);font-weight:700;color:#111;border:none;padding:10px 20px;border-radius:10px;cursor:pointer;transition:transform .3s ease;box-shadow:0 0 15px rgba(255,215,0,.4);}
+    .start-btn:hover{transform:scale(1.08);}
+
+    footer{margin-top:80px;padding:36px 0;border-top:1px solid rgba(255,255,255,.08);color:#aeb6cf;font-size:14px;}
+    footer a{color:#cfe4ff;text-decoration:none;}footer a:hover{color:#ffe680;}
+    .links{margin-bottom:8px;}
+
+    @media(max-width:768px){.floating-logo{height:120px;top:100px}.hero{padding-top:220px}}
   </style>
 </head>
 <body>
@@ -81,50 +79,56 @@
     </div>
 
     <div class="nav-btns">
-      <span id="welcome"></span>
-      <button class="btn" id="logoutBtn" style="display:none;">Logout</button>
+      <span id="user-welcome" class="welcome"></span>
+      <button class="btn" id="logoutBtn" data-i18n="logout">Logout</button>
     </div>
   </header>
 
   <img src="mystai-logo.png" alt="MystAI Logo" class="floating-logo">
 
   <section class="hero">
-    <h1 id="choose-title">Choose Your Reading</h1>
-    <p id="choose-text">Explore the ancient art of divination through the power of AI.<br>Select your path below to begin your mystical journey.</p>
+    <h1 data-i18n="choose">Choose Your Reading</h1>
+    <p data-i18n="desc">Explore the ancient art of divination through the power of AI.<br>Select your path below to begin your mystical journey.</p>
   </section>
 
   <section class="grid">
     <article class="tile">
       <img src="images/Coffee.png" alt="AI Coffee Reading" class="reading-img">
-      <h3 id="coffee-title">AI Coffee Reading</h3>
-      <p id="coffee-desc">Upload your cup image and receive symbolic and emotional insights decoded by AI.</p>
-      <button class="start-btn" id="coffee-btn" onclick="showPopup()">Start Reading</button>
+      <h3 data-i18n="coffeeTitle">AI Coffee Reading</h3>
+      <p data-i18n="coffeeDesc">Upload your cup image and receive symbolic and emotional insights decoded by AI.</p>
+      <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
     <article class="tile">
       <img src="images/Tarot.png" alt="AI Tarot Reading" class="reading-img">
-      <h3 id="tarot-title">AI Tarot Reading</h3>
-      <p id="tarot-desc">Draw cards digitally and let AI interpret archetypes and guidance for you.</p>
-      <button class="start-btn" id="tarot-btn" onclick="showPopup()">Start Reading</button>
+      <h3 data-i18n="tarotTitle">AI Tarot Reading</h3>
+      <p data-i18n="tarotDesc">Draw cards digitally and let AI interpret archetypes and guidance for you.</p>
+      <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
     <article class="tile">
       <img src="images/Palm.png" alt="AI Palm Reading" class="reading-img">
-      <h3 id="palm-title">AI Palm Reading</h3>
-      <p id="palm-desc">Scan your palm and discover patterns and meanings through AI analysis.</p>
-      <button class="start-btn" id="palm-btn" onclick="showPopup()">Start Reading</button>
+      <h3 data-i18n="palmTitle">AI Palm Reading</h3>
+      <p data-i18n="palmDesc">Scan your palm and discover patterns and meanings through AI analysis.</p>
+      <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
     <article class="tile">
       <img src="images/Energy.png" alt="Energy & Dreams" class="reading-img">
-      <h3 id="energy-title">Energy & Dreams</h3>
-      <p id="energy-desc">Upload your dreams or energy symbols and receive reflective AI interpretations.</p>
-      <button class="start-btn" id="energy-btn" onclick="showPopup()">Start Reading</button>
+      <h3 data-i18n="energyTitle">Energy & Dreams</h3>
+      <p data-i18n="energyDesc">Upload your dreams or energy symbols and receive reflective AI interpretations.</p>
+      <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
   </section>
 
   <footer>
-    <p>© 2025 MystAI.ai — All Rights Reserved. Developed by GALAXY 🌌</p>
+    <div class="links">
+      <a href="terms.html" data-i18n="terms">Terms</a> • 
+      <a href="privacy.html" data-i18n="privacy">Privacy</a> • 
+      <a href="cookies.html" data-i18n="cookies">Cookies</a> • 
+      <a href="disclaimer.html" data-i18n="disclaimer">Disclaimer</a>
+    </div>
+    <p>© 2025 MystAI.ai — <span data-i18n="rights">All Rights Reserved.</span> <span data-i18n="dev">Developed by GALAXY 🌌</span></p>
   </footer>
 
   <script type="module">
@@ -143,72 +147,51 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    const translations = {
-      en: {
-        chooseTitle:"Choose Your Reading",
-        chooseText:"Explore the ancient art of divination through the power of AI.<br>Select your path below to begin your mystical journey.",
-        logout:"Logout", welcome:"🔮 Welcome, ",
-        coffeeTitle:"AI Coffee Reading", coffeeDesc:"Upload your cup image and receive symbolic and emotional insights decoded by AI.", coffeeBtn:"Start Reading",
-        tarotTitle:"AI Tarot Reading", tarotDesc:"Draw cards digitally and let AI interpret archetypes and guidance for you.", tarotBtn:"Start Reading",
-        palmTitle:"AI Palm Reading", palmDesc:"Scan your palm and discover patterns and meanings through AI analysis.", palmBtn:"Start Reading",
-        energyTitle:"Energy & Dreams", energyDesc:"Upload your dreams or energy symbols and receive reflective AI interpretations.", energyBtn:"Start Reading"
-      },
-      tr: {
-        chooseTitle:"Falını Seç",
-        chooseText:"Yapay zekâ gücüyle kadim fal sanatını keşfet.<br>Aşağıdan yolunu seç ve mistik yolculuğuna başla.",
-        logout:"Çıkış Yap", welcome:"🔮 Hoş geldin, ",
-        coffeeTitle:"Yapay Zekâ Kahve Falı", coffeeDesc:"Fincan fotoğrafını yükle; sembolik ve duygusal içgörüler yapay zekâ tarafından çözümlensin.", coffeeBtn:"Falını Başlat",
-        tarotTitle:"Yapay Zekâ Tarot Açılımı", tarotDesc:"Kartlarını dijital olarak seç; arketipler ve rehberlik yapay zekâ tarafından yorumlansın.", tarotBtn:"Falını Başlat",
-        palmTitle:"Yapay Zekâ El Falı", palmDesc:"Avucunu tara; çizgi ve desenleri yapay zekâ analiz etsin.", palmBtn:"Falını Başlat",
-        energyTitle:"Enerji ve Rüyalar", energyDesc:"Rüyalarını veya enerji sembollerini yükle; yapay zekâ farkındalıkla yorumlasın.", energyBtn:"Falını Başlat"
+    const logoutBtn = document.getElementById('logoutBtn');
+    const userWelcome = document.getElementById('user-welcome');
+
+    logoutBtn.addEventListener('click', ()=>{
+      signOut(auth).then(()=>{
+        alert(activeLang === 'tr' ? 'Çıkış yapıldı!' : 'Logged out!');
+        window.location.href = "login.html";
+      });
+    });
+
+    onAuthStateChanged(auth, (user)=>{
+      if (user) {
+        const name = user.displayName || user.email;
+        userWelcome.textContent = (activeLang === 'tr' ? 'Hoş geldin, ' : 'Welcome, ') + name;
+      } else {
+        window.location.href = "login.html";
       }
+    });
+
+    const i18n = {
+      en: { choose:"Choose Your Reading", desc:"Explore the ancient art of divination through the power of AI.<br>Select your path below to begin your mystical journey.", coffeeTitle:"AI Coffee Reading", coffeeDesc:"Upload your cup image and receive symbolic and emotional insights decoded by AI.", tarotTitle:"AI Tarot Reading", tarotDesc:"Draw cards digitally and let AI interpret archetypes and guidance for you.", palmTitle:"AI Palm Reading", palmDesc:"Scan your palm and discover patterns and meanings through AI analysis.", energyTitle:"Energy & Dreams", energyDesc:"Upload your dreams or energy symbols and receive reflective AI interpretations.", start:"Start Reading", logout:"Logout", terms:"Terms", privacy:"Privacy", cookies:"Cookies", disclaimer:"Disclaimer", rights:"All Rights Reserved.", dev:"Developed by GALAXY 🌌" },
+      tr: { choose:"Falını Seç", desc:"Yapay zekâ gücüyle kadim fal sanatını keşfet.<br>Aşağıdan yolunu seç ve mistik yolculuğuna başla.", coffeeTitle:"Yapay Zekâ Kahve Falı", coffeeDesc:"Fincan fotoğrafını yükle; sembolik ve duygusal içgörüler yapay zekâ tarafından çözümlensin.", tarotTitle:"Yapay Zekâ Tarot Açılımı", tarotDesc:"Kartlarını dijital olarak seç; arketipler ve rehberlik yapay zekâ tarafından yorumlansın.", palmTitle:"Yapay Zekâ El Falı", palmDesc:"Avucunu tara; çizgi ve desenleri yapay zekâ analiz etsin.", energyTitle:"Enerji & Rüyalar", energyDesc:"Rüyalarını veya enerji sembollerini yükle; AI bunları farkındalıkla yorumlasın.", start:"Falını Başlat", logout:"Çıkış Yap", terms:"Şartlar", privacy:"Gizlilik", cookies:"Çerezler", disclaimer:"Sorumluluk Reddi", rights:"Tüm Hakları Saklıdır.", dev:"GALAXY tarafından geliştirilmiştir 🌌" }
     };
 
-    const welcome = document.getElementById('welcome');
-    const logoutBtn = document.getElementById('logoutBtn');
-
-    function applyLang(lang, user){
-      const t = translations[lang];
-      document.getElementById("choose-title").innerHTML=t.chooseTitle;
-      document.getElementById("choose-text").innerHTML=t.chooseText;
-      document.getElementById("coffee-title").textContent=t.coffeeTitle;
-      document.getElementById("coffee-desc").textContent=t.coffeeDesc;
-      document.getElementById("coffee-btn").textContent=t.coffeeBtn;
-      document.getElementById("tarot-title").textContent=t.tarotTitle;
-      document.getElementById("tarot-desc").textContent=t.tarotDesc;
-      document.getElementById("tarot-btn").textContent=t.tarotBtn;
-      document.getElementById("palm-title").textContent=t.palmTitle;
-      document.getElementById("palm-desc").textContent=t.palmDesc;
-      document.getElementById("palm-btn").textContent=t.palmBtn;
-      document.getElementById("energy-title").textContent=t.energyTitle;
-      document.getElementById("energy-desc").textContent=t.energyDesc;
-      document.getElementById("energy-btn").textContent=t.energyBtn;
-      logoutBtn.textContent=t.logout;
-      welcome.textContent = t.welcome + (user ? (user.displayName || user.email) : "");
-    }
-
+    let activeLang = localStorage.getItem("myst_lang") || "en";
     function setLang(lang){
-      localStorage.setItem("myst_lang",lang);
-      document.getElementById("btn-en").classList.toggle("secondary",lang!=="en");
-      document.getElementById("btn-tr").classList.toggle("secondary",lang!=="tr");
-      applyLang(lang, auth.currentUser);
+      activeLang = lang;
+      localStorage.setItem("myst_lang", lang);
+      const dict = i18n[lang];
+      document.querySelectorAll("[data-i18n]").forEach(el=>{
+        const key = el.getAttribute("data-i18n");
+        if(key==="desc"){el.innerHTML=dict[key];}
+        else el.textContent=dict[key];
+      });
+      if(auth.currentUser){
+        const name = auth.currentUser.displayName || auth.currentUser.email;
+        userWelcome.textContent = (lang === 'tr' ? 'Hoş geldin, ' : 'Welcome, ') + name;
+      }
+      document.getElementById("btn-en").classList.toggle("secondary", lang!=="en");
+      document.getElementById("btn-tr").classList.toggle("secondary", lang!=="tr");
     }
 
     document.getElementById("btn-en").addEventListener("click",()=>setLang("en"));
     document.getElementById("btn-tr").addEventListener("click",()=>setLang("tr"));
-
-    onAuthStateChanged(auth, (user)=>{
-      if(!user) return window.location.href="login.html";
-      const lang=localStorage.getItem("myst_lang")||"en";
-      applyLang(lang,user);
-      logoutBtn.style.display="inline-block";
-    });
-
-    logoutBtn.addEventListener("click",()=>{
-      signOut(auth).then(()=>{window.location.href="login.html";});
-    });
-
-    setLang(localStorage.getItem("myst_lang")||"en");
+    setLang(activeLang);
   </script>
 </body>
 </html>
