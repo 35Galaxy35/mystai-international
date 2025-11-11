@@ -8,93 +8,109 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
 
   <style>
-    :root{
-      --bg-start:#0d1a2b;--bg-end:#0b0f1f;--text:#d8e0ff;--muted:#a9b4d0;--accent:#f2c84b;
+    :root {
+      --bg-start:#0d1a2b; --bg-end:#0b0f1f; --text:#d8e0ff; --muted:#a9b4d0; --accent:#f2c84b;
     }
-    html,body{
-      margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      color:var(--text);text-align:center;overflow-x:hidden;
-      background:radial-gradient(1200px 600px at 50% 0%,var(--bg-start) 0%,var(--bg-end) 70%);
-    }
-
-    /* ===== HEADER ===== */
-    header{
-      display:flex;justify-content:space-between;align-items:center;
-      padding:16px 40px;position:sticky;top:0;z-index:10;
-      background:rgba(10,15,30,.5);backdrop-filter:blur(12px);
-      border-bottom:1px solid rgba(255,255,255,.08);
+    html,body {
+      margin:0; padding:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      color:var(--text); text-align:center; overflow-x:hidden;
+      background:radial-gradient(1200px 600px at 50% 0%, var(--bg-start) 0%, var(--bg-end) 70%);
     }
 
-    /* Sol: Dil */
-    .lang-box{display:flex;gap:10px;align-items:center;}
-    .lang-btn{
-      font-weight:700;border:0;border-radius:50px;padding:8px 14px;cursor:pointer;
-      color:#0b0f1f;background:linear-gradient(135deg,#ffd54f,#ffeb99);
-      box-shadow:0 0 10px rgba(255,215,0,0.6);transition:all .3s ease;
+    /* ==== Header üst kısmı ==== */
+    header {
+      position:relative;
+      padding:20px 40px;
+      display:flex; justify-content:space-between; align-items:center;
+      background:rgba(10,15,30,0.4); backdrop-filter:blur(10px);
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      z-index:10;
     }
-    .lang-btn:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(255,235,150,0.9);}
-    .lang-btn.secondary{
-      background:rgba(255,255,255,0.1);color:#e6ecff;border:1px solid rgba(255,255,255,0.15);box-shadow:none;
-    }
-    .lang-btn.secondary:hover{background:rgba(255,255,255,0.15);}
 
-    /* Ortadaki Logo */
-    .center-logo{
-      height:130px;filter:drop-shadow(0 0 30px rgba(255,215,0,.8)) brightness(1.2);
-      transition:transform 0.5s ease, filter 0.5s ease;
-    }
-    .center-logo:hover{transform:scale(1.05);filter:drop-shadow(0 0 55px rgba(255,235,100,1)) brightness(1.25);}
+    .lang-box, .nav-btns { display:flex; gap:10px; align-items:center; }
 
-    /* Sağ: Üyelik */
-    .nav-btns{display:flex;gap:10px;align-items:center;}
-    .btn{
-      font-weight:700;border:0;border-radius:10px;padding:10px 18px;cursor:pointer;
-      color:#0b0f1f;background:#ffd54f;transition:all .3s ease;
+    .lang-btn {
+      font-weight:700; border:0; border-radius:50px; padding:7px 12px; cursor:pointer;
+      color:#0b0f1f; background:linear-gradient(135deg,#ffd54f,#ffeb99);
+      transition:all .3s ease; font-size:13px;
     }
-    .btn:hover{filter:brightness(1.1);transform:translateY(-2px)}
-
-    /* ===== HERO ===== */
-    .hero{text-align:center;padding:80px 20px 40px;}
-    .hero h1{color:#f5d76e;font-size:44px;margin-bottom:10px;text-shadow:0 0 15px rgba(255,215,0,.3);}
-    .hero p{color:var(--text);max-width:700px;margin:0 auto;line-height:1.6}
-
-    /* ===== GRID ===== */
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:28px;padding:60px 20px;max-width:1100px;margin:auto;}
-    .tile{
-      background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-      border-radius:14px;padding:14px;transition:transform .3s ease,box-shadow .3s ease;
+    .lang-btn.secondary {
+      background:rgba(255,255,255,0.1); color:#e6ecff; border:1px solid rgba(255,255,255,0.15);
     }
-    .tile:hover{transform:scale(1.02);box-shadow:0 0 30px rgba(255,215,0,.2);}
-    .reading-img{width:100%;height:320px;object-fit:cover;border-radius:14px;margin-bottom:14px;}
-    .tile h3{color:#f5d76e;font-family:'Cinzel',serif;margin-bottom:10px;}
-    .tile p{color:var(--muted);font-size:15px;min-height:60px;}
-    .start-btn{
+
+    .btn {
+      font-weight:700; border:0; border-radius:10px; padding:8px 16px; cursor:pointer;
+      color:#0b0f1f; background:#ffd54f; transition:all .3s ease; font-size:14px;
+    }
+    .btn:hover, .lang-btn:hover { filter:brightness(1.1); transform:translateY(-2px); }
+
+    /* ==== Ortadaki Yüzer Logo ==== */
+    .floating-logo {
+      position:absolute; left:50%; top:70px; transform:translateX(-50%);
+      height:160px; width:auto;
+      animation:float 5s ease-in-out infinite alternate, glow 4s ease-in-out infinite alternate;
+      filter:drop-shadow(0 0 40px rgba(255,235,150,0.8));
+      z-index:5;
+    }
+
+    @keyframes float {
+      from { transform:translate(-50%, -10px); }
+      to { transform:translate(-50%, 10px); }
+    }
+
+    @keyframes glow {
+      from { filter:drop-shadow(0 0 25px rgba(255,235,150,0.5)); }
+      to { filter:drop-shadow(0 0 60px rgba(255,240,180,1)); }
+    }
+
+    /* ==== İçerik ==== */
+    .hero { text-align:center; padding-top:260px; padding-bottom:40px; }
+    .hero h1 { color:#f5d76e; font-size:44px; margin-bottom:10px; text-shadow:0 0 15px rgba(255,215,0,.3); }
+    .hero p { color:var(--text); max-width:700px; margin:0 auto; line-height:1.6; }
+
+    .grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:28px; padding:60px 20px; max-width:1100px; margin:auto;
+    }
+    .tile {
+      background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+      border-radius:14px; padding:14px; transition:transform .3s ease, box-shadow .3s ease;
+    }
+    .tile:hover { transform:scale(1.02); box-shadow:0 0 30px rgba(255,215,0,.2); }
+    .reading-img { width:100%; height:320px; object-fit:cover; border-radius:14px; margin-bottom:14px; }
+    .tile h3 { color:#f5d76e; font-family:'Cinzel',serif; margin-bottom:10px; }
+    .tile p { color:var(--muted); font-size:15px; min-height:60px; }
+    .start-btn {
       background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);
-      font-weight:700;color:#111;border:none;padding:10px 20px;border-radius:10px;
-      cursor:pointer;transition:transform .3s ease;box-shadow:0 0 15px rgba(255,215,0,.4);
+      font-weight:700; color:#111; border:none; padding:10px 20px; border-radius:10px;
+      cursor:pointer; transition:transform .3s ease; box-shadow:0 0 15px rgba(255,215,0,.4);
     }
-    .start-btn:hover{transform:scale(1.08);}
+    .start-btn:hover { transform:scale(1.08); }
 
-    /* ===== POPUP ===== */
-    #popup{
-      position:fixed;top:0;left:0;width:100%;height:100%;
-      background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;
+    /* ==== Popup ==== */
+    #popup {
+      position:fixed; top:0; left:0; width:100%; height:100%;
+      background:rgba(0,0,0,.7); display:none; justify-content:center; align-items:center;
     }
-    .popup-content{
-      background:#0d1a2b;border:1px solid rgba(255,255,255,.15);
-      border-radius:14px;padding:40px;max-width:400px;
+    .popup-content {
+      background:#0d1a2b; border:1px solid rgba(255,255,255,.15);
+      border-radius:14px; padding:40px; max-width:400px;
       box-shadow:0 0 35px rgba(255,215,0,.4);
     }
-    .popup-content h2{color:#ffd54f;margin-bottom:10px;}
-    .popup-content p{color:#d8e0ff;line-height:1.5;}
-    .popup-content button{margin-top:20px;background:#ffd54f;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700;}
+    .popup-content h2 { color:#ffd54f; margin-bottom:10px; }
+    .popup-content p { color:#d8e0ff; line-height:1.5; }
+    .popup-content button {
+      margin-top:20px; background:#ffd54f; border:none; padding:10px 20px; border-radius:8px;
+      cursor:pointer; font-weight:700;
+    }
 
-    footer{margin-top:80px;padding:36px 0;border-top:1px solid rgba(255,255,255,.08);color:#aeb6cf;}
-    footer a{color:#cfe4ff;text-decoration:none}footer a:hover{color:#ffe680}
+    footer { margin-top:80px; padding:36px 0; border-top:1px solid rgba(255,255,255,.08); color:#aeb6cf; }
+    footer a { color:#cfe4ff; text-decoration:none; } footer a:hover { color:#ffe680; }
 
-    @media (max-width:768px){
-      header{flex-direction:column;gap:12px;}
-      .center-logo{height:100px;}
+    @media (max-width:768px) {
+      .floating-logo { height:110px; top:90px; }
+      .hero { padding-top:200px; }
     }
   </style>
 </head>
@@ -106,13 +122,13 @@
       <button class="lang-btn secondary" id="btn-tr">TR</button>
     </div>
 
-    <img src="mystai-logo.png" alt="MystAI Logo" class="center-logo">
-
     <div class="nav-btns">
       <button class="btn" data-i18n="login">Login</button>
       <button class="btn" data-i18n="signup">Sign up</button>
     </div>
   </header>
+
+  <img src="mystai-logo.png" alt="MystAI Logo" class="floating-logo">
 
   <section class="hero">
     <h1 data-i18n="choose">Choose Your Reading</h1>
