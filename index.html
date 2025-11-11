@@ -147,17 +147,22 @@
   0% { filter: brightness(1) drop-shadow(0 0 10px rgba(255, 215, 0, 0.4)); }
   50% { filter: brightness(1.2) drop-shadow(0 0 25px rgba(255, 230, 150, 0.8)); }
   100% { filter: brightness(1) drop-shadow(0 0 10px rgba(255, 215, 0, 0.4)); }
-.reading-img{
-  width:100%;
-  border-radius:14px;
-  margin-bottom:12px;
-  box-shadow:0 0 22px rgba(255,215,0,.25);
-  transition:transform .35s ease, box-shadow .35s ease, filter .35s ease;
+.reading-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 0 22px rgba(255, 215, 0, 0.25);
+  transition: transform 0.35s ease, box-shadow 0.35s ease, filter 0.35s ease;
 }
-.tile:hover .reading-img{
-  transform:scale(1.04);
-  box-shadow:0 0 36px rgba(255,225,150,.45);
-  filter:brightness(1.05) contrast(1.03);
+
+.tile:hover .reading-img {
+  transform: scale(1.05);
+  box-shadow: 0 0 36px rgba(255, 225, 150, 0.45);
+  filter: brightness(1.05) contrast(1.03);
+
+
 
 }
 </style>
