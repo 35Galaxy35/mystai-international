@@ -147,29 +147,49 @@
   0% { filter: brightness(1) drop-shadow(0 0 10px rgba(255, 215, 0, 0.4)); }
   50% { filter: brightness(1.2) drop-shadow(0 0 25px rgba(255, 230, 150, 0.8)); }
   100% { filter: brightness(1) drop-shadow(0 0 10px rgba(255, 215, 0, 0.4)); }
+.reading-img{
+  width:100%;
+  border-radius:14px;
+  margin-bottom:12px;
+  box-shadow:0 0 22px rgba(255,215,0,.25);
+  transition:transform .35s ease, box-shadow .35s ease, filter .35s ease;
+}
+.tile:hover .reading-img{
+  transform:scale(1.04);
+  box-shadow:0 0 36px rgba(255,225,150,.45);
+  filter:brightness(1.05) contrast(1.03);
+
 }
 </style>
 
 
 
-    <section class="grid">
-      <article class="tile">
-        <h3>AI Coffee Reading</h3>
-        <p>Upload your cup image and receive symbolic, cultural, and emotional layers decoded by AI.</p>
-      </article>
-      <article class="tile">
-        <h3>AI Tarot Reading</h3>
-        <p>Draw cards digitally and get spreads interpreted with archetypes, timeline &amp; guidance.</p>
-      </article>
-      <article class="tile">
-        <h3>AI Palm Reading</h3>
-        <p>Scan your palm and discover line patterns, shapes and traits — processed with computer vision.</p>
-      </article>
-      <article class="tile">
-        <h3>Energy &amp; Dreams</h3>
-        <p>Upload dreams for symbolism mapping, and explore energy reading with mindful prompts.</p>
-      </article>
-    </section>
+   <section class="grid" aria-label="Reading types">
+  <article class="tile">
+    <img src="images/coffee.jpg" alt="AI Coffee Reading" class="reading-img">
+    <h3>AI Coffee Reading</h3>
+    <p>Upload your cup image and receive symbolic, cultural, and emotional layers decoded by AI.</p>
+  </article>
+
+  <article class="tile">
+    <img src="images/tarot.jpg" alt="AI Tarot Reading" class="reading-img">
+    <h3>AI Tarot Reading</h3>
+    <p>Draw cards digitally and get spreads interpreted with archetypes, timeline & guidance.</p>
+  </article>
+
+  <article class="tile">
+    <img src="images/palm.jpg" alt="AI Palm Reading" class="reading-img">
+    <h3>AI Palm Reading</h3>
+    <p>Scan your palm and discover line patterns, shapes and traits — processed with computer vision.</p>
+  </article>
+
+  <article class="tile">
+    <img src="images/energy.jpg" alt="Energy & Dreams" class="reading-img">
+    <h3>Energy & Dreams</h3>
+    <p>Upload dreams for symbolism mapping, and explore energy reading with mindful prompts.</p>
+  </article>
+</section>
+
 
     <footer>
       <div class="links">
