@@ -105,9 +105,51 @@
       Your privacy, security, and clarity are our top priorities.
     </p>
 
-   <div class="cta">
-  <a class="btn" href="#get-started" style="font-size: 22px; padding: 18px 38px; border-radius: 14px; background: linear-gradient(90deg, #ffd700, #ffcc33); color: #000; font-weight: 800; letter-spacing: 1px;">GET YOUR FORTUNE</a>
+  <div class="cta">
+  <a class="fortune-btn" href="#get-started">GET YOUR FORTUNE</a>
 </div>
+
+<!-- Font (üst kısma <head> içine eklenecek) -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+
+<style>
+.fortune-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 30px;
+  font-weight: 800;
+  padding: 24px 70px;
+  border-radius: 16px;
+  color: #111;
+  background: linear-gradient(120deg, #ffd700, #ffcc33, #ffe680);
+  background-size: 300% 300%;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+  animation: crystalGlow 5s ease infinite, pulseGlow 4s ease-in-out infinite;
+  transition: transform 0.3s ease, box-shadow 0.4s ease;
+}
+
+.fortune-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 45px rgba(255, 240, 150, 0.9);
+  filter: brightness(1.2);
+}
+
+@keyframes crystalGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pulseGlow {
+  0% { filter: brightness(1) drop-shadow(0 0 10px rgba(255, 215, 0, 0.4)); }
+  50% { filter: brightness(1.2) drop-shadow(0 0 25px rgba(255, 230, 150, 0.8)); }
+  100% { filter: brightness(1) drop-shadow(0 0 10px rgba(255, 215, 0, 0.4)); }
+}
+</style>
+
 
 
     <section class="grid">
