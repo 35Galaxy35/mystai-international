@@ -96,52 +96,37 @@
   <section class="grid">
     <article class="tile">
       <img src="images/Coffee.png" alt="AI Coffee Reading" class="reading-img">
-      <h3>AI Coffee Reading</h3>
-      <p>Upload your cup image and receive symbolic and emotional insights decoded by AI.</p>
-      <button class="start-btn" onclick="showPopup()">Start Reading</button>
+      <h3 id="coffee-title">AI Coffee Reading</h3>
+      <p id="coffee-desc">Upload your cup image and receive symbolic and emotional insights decoded by AI.</p>
+      <button class="start-btn" id="coffee-btn" onclick="showPopup()">Start Reading</button>
     </article>
 
     <article class="tile">
       <img src="images/Tarot.png" alt="AI Tarot Reading" class="reading-img">
-      <h3>AI Tarot Reading</h3>
-      <p>Draw cards digitally and let AI interpret archetypes and guidance for you.</p>
-      <button class="start-btn" onclick="showPopup()">Start Reading</button>
+      <h3 id="tarot-title">AI Tarot Reading</h3>
+      <p id="tarot-desc">Draw cards digitally and let AI interpret archetypes and guidance for you.</p>
+      <button class="start-btn" id="tarot-btn" onclick="showPopup()">Start Reading</button>
     </article>
 
     <article class="tile">
       <img src="images/Palm.png" alt="AI Palm Reading" class="reading-img">
-      <h3>AI Palm Reading</h3>
-      <p>Scan your palm and discover patterns and meanings through AI analysis.</p>
-      <button class="start-btn" onclick="showPopup()">Start Reading</button>
+      <h3 id="palm-title">AI Palm Reading</h3>
+      <p id="palm-desc">Scan your palm and discover patterns and meanings through AI analysis.</p>
+      <button class="start-btn" id="palm-btn" onclick="showPopup()">Start Reading</button>
     </article>
 
     <article class="tile">
       <img src="images/Energy.png" alt="Energy & Dreams" class="reading-img">
-      <h3>Energy & Dreams</h3>
-      <p>Upload your dreams or energy symbols and receive reflective AI interpretations.</p>
-      <button class="start-btn" onclick="showPopup()">Start Reading</button>
+      <h3 id="energy-title">Energy & Dreams</h3>
+      <p id="energy-desc">Upload your dreams or energy symbols and receive reflective AI interpretations.</p>
+      <button class="start-btn" id="energy-btn" onclick="showPopup()">Start Reading</button>
     </article>
   </section>
 
-  <div id="popup" style="display:none;">
-    <div class="popup-content">
-      <h2>🔒 Coming Soon</h2>
-      <p>Our reading system is almost ready.<br><br>✨ Stay tuned — your digital fortune awaits!</p>
-      <button onclick="hidePopup()">OK</button>
-    </div>
-  </div>
-
   <footer>
-    <div class="links">
-      <a href="terms.html">Terms</a> • 
-      <a href="privacy.html">Privacy</a> • 
-      <a href="cookies.html">Cookies</a> • 
-      <a href="disclaimer.html">Disclaimer</a>
-    </div>
     <p>© 2025 MystAI.ai — All Rights Reserved. Developed by GALAXY 🌌</p>
   </footer>
 
-  <!-- Firebase Login State + Multi-language Welcome -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
@@ -157,65 +142,73 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const welcome = document.getElementById('welcome');
-    const logoutBtn = document.getElementById('logoutBtn');
 
     const translations = {
       en: {
         chooseTitle:"Choose Your Reading",
         chooseText:"Explore the ancient art of divination through the power of AI.<br>Select your path below to begin your mystical journey.",
-        logout:"Logout",
-        welcome:"🔮 Welcome, "
+        logout:"Logout", welcome:"🔮 Welcome, ",
+        coffeeTitle:"AI Coffee Reading", coffeeDesc:"Upload your cup image and receive symbolic and emotional insights decoded by AI.", coffeeBtn:"Start Reading",
+        tarotTitle:"AI Tarot Reading", tarotDesc:"Draw cards digitally and let AI interpret archetypes and guidance for you.", tarotBtn:"Start Reading",
+        palmTitle:"AI Palm Reading", palmDesc:"Scan your palm and discover patterns and meanings through AI analysis.", palmBtn:"Start Reading",
+        energyTitle:"Energy & Dreams", energyDesc:"Upload your dreams or energy symbols and receive reflective AI interpretations.", energyBtn:"Start Reading"
       },
       tr: {
         chooseTitle:"Falını Seç",
         chooseText:"Yapay zekâ gücüyle kadim fal sanatını keşfet.<br>Aşağıdan yolunu seç ve mistik yolculuğuna başla.",
-        logout:"Çıkış Yap",
-        welcome:"🔮 Hoş geldin, "
+        logout:"Çıkış Yap", welcome:"🔮 Hoş geldin, ",
+        coffeeTitle:"Yapay Zekâ Kahve Falı", coffeeDesc:"Fincan fotoğrafını yükle; sembolik ve duygusal içgörüler yapay zekâ tarafından çözümlensin.", coffeeBtn:"Falını Başlat",
+        tarotTitle:"Yapay Zekâ Tarot Açılımı", tarotDesc:"Kartlarını dijital olarak seç; arketipler ve rehberlik yapay zekâ tarafından yorumlansın.", tarotBtn:"Falını Başlat",
+        palmTitle:"Yapay Zekâ El Falı", palmDesc:"Avucunu tara; çizgi ve desenleri yapay zekâ analiz etsin.", palmBtn:"Falını Başlat",
+        energyTitle:"Enerji ve Rüyalar", energyDesc:"Rüyalarını veya enerji sembollerini yükle; yapay zekâ farkındalıkla yorumlasın.", energyBtn:"Falını Başlat"
       }
     };
+
+    const welcome = document.getElementById('welcome');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    function applyLang(lang, user){
+      const t = translations[lang];
+      document.getElementById("choose-title").innerHTML=t.chooseTitle;
+      document.getElementById("choose-text").innerHTML=t.chooseText;
+      document.getElementById("coffee-title").textContent=t.coffeeTitle;
+      document.getElementById("coffee-desc").textContent=t.coffeeDesc;
+      document.getElementById("coffee-btn").textContent=t.coffeeBtn;
+      document.getElementById("tarot-title").textContent=t.tarotTitle;
+      document.getElementById("tarot-desc").textContent=t.tarotDesc;
+      document.getElementById("tarot-btn").textContent=t.tarotBtn;
+      document.getElementById("palm-title").textContent=t.palmTitle;
+      document.getElementById("palm-desc").textContent=t.palmDesc;
+      document.getElementById("palm-btn").textContent=t.palmBtn;
+      document.getElementById("energy-title").textContent=t.energyTitle;
+      document.getElementById("energy-desc").textContent=t.energyDesc;
+      document.getElementById("energy-btn").textContent=t.energyBtn;
+      logoutBtn.textContent=t.logout;
+      welcome.textContent = t.welcome + (user ? (user.displayName || user.email) : "");
+    }
 
     function setLang(lang){
       localStorage.setItem("myst_lang",lang);
       document.getElementById("btn-en").classList.toggle("secondary",lang!=="en");
       document.getElementById("btn-tr").classList.toggle("secondary",lang!=="tr");
-      const t = translations[lang];
-      document.getElementById("choose-title").innerHTML=t.chooseTitle;
-      document.getElementById("choose-text").innerHTML=t.chooseText;
-      logoutBtn.textContent=t.logout;
-
-      const user = auth.currentUser;
-      if(user){ welcome.textContent = t.welcome + (user.displayName || user.email); }
+      applyLang(lang, auth.currentUser);
     }
 
-    // Dil değiştiriciler
     document.getElementById("btn-en").addEventListener("click",()=>setLang("en"));
     document.getElementById("btn-tr").addEventListener("click",()=>setLang("tr"));
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const lang = localStorage.getItem("myst_lang") || "en";
-        const t = translations[lang];
-        welcome.textContent = t.welcome + (user.displayName || user.email);
-        logoutBtn.textContent = t.logout;
-        logoutBtn.style.display = "inline-block";
-      } else {
-        window.location.href = "login.html";
-      }
+    onAuthStateChanged(auth, (user)=>{
+      if(!user) return window.location.href="login.html";
+      const lang=localStorage.getItem("myst_lang")||"en";
+      applyLang(lang,user);
+      logoutBtn.style.display="inline-block";
     });
 
-    logoutBtn.addEventListener("click", () => {
-      signOut(auth).then(() => {
-        alert("👋 Logged out successfully!");
-        window.location.href = "login.html";
-      });
+    logoutBtn.addEventListener("click",()=>{
+      signOut(auth).then(()=>{window.location.href="login.html";});
     });
 
-    // Sayfa açılışında dil uygula
-    setLang(localStorage.getItem("myst_lang") || "en");
-
-    function showPopup(){document.getElementById('popup').style.display='flex';}
-    function hidePopup(){document.getElementById('popup').style.display='none';}
+    setLang(localStorage.getItem("myst_lang")||"en");
   </script>
 </body>
 </html>
