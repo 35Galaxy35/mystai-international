@@ -149,20 +149,29 @@
   100% { filter: brightness(1) drop-shadow(0 0 10px rgba(255, 215, 0, 0.4)); }
 .reading-img {
   width: 100%;
-  height: 220px;
-  object-fit: cover;
+  height: 320px;            /* sabit yükseklik: görüntü taşmadan dolar */
+  object-fit: cover;        /* taşıyıcı kutuyu tam doldurur, taşanı kırpar */
+  display: block;
   border-radius: 14px;
   margin-bottom: 12px;
   box-shadow: 0 0 22px rgba(255, 215, 0, 0.25);
-  transition: transform 0.35s ease, box-shadow 0.35s ease, filter 0.35s ease;
+  transition: transform .35s ease, box-shadow .35s ease, filter .35s ease;
 }
 
+
 .tile:hover .reading-img {
-  transform: scale(1.05);
+  transform: scale(1.03);
   box-shadow: 0 0 36px rgba(255, 225, 150, 0.45);
   filter: brightness(1.05) contrast(1.03);
+}
 
 
+
+@media (max-width: 640px) {
+  .reading-img {
+    height: 240px;   /* mobilde biraz daha kısa */
+  }
+}
 
 }
 </style>
