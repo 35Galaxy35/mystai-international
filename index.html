@@ -13,7 +13,7 @@
   <link rel="alternate" hreflang="en" href="https://mystai.ai/" />
   <link rel="alternate" hreflang="tr" href="https://mystai.ai/" />
 
-  <!-- Social (default EN, JS ile dil değiştikçe güncellenir) -->
+  <!-- Social -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="MystAI.ai — AI-Powered Fortune Readings" id="og-title"/>
   <meta property="og:description" content="Experience AI-powered fortune readings — mystical insights interpreted by advanced artificial intelligence." id="og-desc"/>
@@ -23,7 +23,7 @@
   <meta name="twitter:title" content="MystAI.ai — AI-Powered Fortune Readings" id="tw-title"/>
   <meta name="twitter:description" content="Experience AI-powered fortune readings — mystical insights interpreted by advanced artificial intelligence." id="tw-desc"/>
 
-  <!-- SEO description (JS ile dil değiştirilecek) -->
+  <!-- SEO -->
   <meta name="description" content="Experience AI-powered fortune readings — mystical insights interpreted by advanced artificial intelligence." id="meta-desc"/>
 
   <!-- Fonts -->
@@ -31,174 +31,95 @@
 
   <style>
     :root{
-      --bg-start:#0b0f1f; --bg-end:#070b16; /* temel derinlik */
-      --text:#d8e0ff; --muted:#a9b4d0; --accent:#f2c84b;
-      --gold:#ffd54f;
+      --bg-start:#0d1a2b;--bg-end:#0b0f1f;--text:#d8e0ff;--muted:#a9b4d0;--accent:#f2c84b;
     }
     html,body{
-      margin:0;padding:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      color:var(--text); text-align:center; overflow-x:hidden; scroll-behavior:smooth;
-      background: radial-gradient(1200px 600px at 50% 0%, var(--bg-start) 0%, var(--bg-end) 70%);
+      margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      color:var(--text);text-align:center;overflow-x:hidden;scroll-behavior:smooth;
+      background:radial-gradient(1200px 600px at 50% 0%,var(--bg-start) 0%,var(--bg-end) 70%);
     }
 
     /* Language Switcher */
     .topbar{
-      position:fixed;top:12px;right:12px;z-index:30;display:flex;gap:8px;
-      background:rgba(8,12,28,.55);backdrop-filter:blur(8px);
-      border:1px solid rgba(255,255,255,.12); padding:6px 8px; border-radius:12px;
+      position:fixed;top:12px;right:12px;z-index:10;display:flex;gap:8px;
+      background:rgba(5,8,20,.5);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);
+      padding:6px 8px;border-radius:12px;
     }
     .lang-btn{
       font-weight:700;border:0;border-radius:10px;padding:6px 10px;cursor:pointer;
-      color:#0b0f1f;background:var(--gold); transition:filter .25s ease;
+      color:#0b0f1f;background:#ffd54f;
     }
-    .lang-btn.secondary{ background:transparent; color:#e6ecff; border:1px solid #2b3f66 }
-    .lang-btn:focus{ outline:2px solid #89a7ff; outline-offset:2px }
+    .lang-btn.secondary{background:transparent;color:#e6ecff;border:1px solid #2b3f66}
 
-    /* ===== BACKGROUND LAYERS ===== */
-    .cosmos{
-      position:fixed; inset:0; z-index:-3; overflow:hidden;
-      background:
-        radial-gradient(1000px 700px at 20% -10%, rgba(145,110,255,.18), transparent 60%),
-        radial-gradient(1100px 800px at 80% 110%, rgba(255,190,70,.10), transparent 65%),
-        radial-gradient(900px 600px at 50% 90%, rgba(100,190,255,.08), transparent 70%),
-        radial-gradient(1400px 900px at 50% 10%, #0b0f1f 0%, #050814 70%);
-      filter:saturate(115%) brightness(1.02);
-    }
+    /* Starfield */
+    #starfield{position:fixed;inset:0;z-index:-1;background:radial-gradient(ellipse at center,#0d1a2b 0%,#050814 100%);overflow:hidden}
+    .star{position:absolute;width:2px;height:2px;background:rgba(255,255,200,.9);border-radius:50%;animation:twinkle 3s infinite ease-in-out}
+    @keyframes twinkle{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
 
-    /* aurora (mor-altın) */
-    .aurora, .mist {
-      position:fixed; inset:-10%; pointer-events:none; z-index:-2;
-    }
-    .aurora:before{
-      content:""; position:absolute; inset:0;
-      background:
-        radial-gradient(800px 800px at 50% 35%, rgba(170,120,255,.18), transparent 55%),
-        radial-gradient(1000px 900px at 60% 20%, rgba(255,210,90,.14), transparent 60%),
-        radial-gradient(700px 700px at 40% 60%, rgba(120,180,255,.10), transparent 65%);
-      filter: blur(30px);
-      animation: auroraFloat 16s ease-in-out infinite alternate;
-    }
-    .mist:before{
-      content:""; position:absolute; inset:0;
-      background:
-        radial-gradient(1200px 900px at 50% 60%, rgba(250,220,140,.08), transparent 70%),
-        radial-gradient(900px 700px at 40% 80%, rgba(180,140,255,.07), transparent 75%);
-      filter: blur(40px) saturate(110%);
-      animation: mistDrift 22s ease-in-out infinite alternate;
-    }
-    @keyframes auroraFloat{ from{ transform:translateY(-2%) translateX(-1%) scale(1)} to{ transform:translateY(2%) translateX(1%) scale(1.05)}}
-    @keyframes mistDrift{ from{ transform:translateY(1%) translateX(-1%)} to{ transform:translateY(-1%) translateX(1%)}}
-
-    /* stars */
-    #starfield{ position:fixed; inset:0; z-index:-1; overflow:hidden }
-    .star{ position:absolute; border-radius:50%; opacity:.85; animation: twinkle 3s infinite ease-in-out }
-    .star.s1{ width:1px; height:1px; box-shadow:0 0 6px rgba(255,255,230,.5) }
-    .star.s2{ width:2px; height:2px; box-shadow:0 0 8px rgba(255,225,170,.55) }
-    .star.s3{ width:3px; height:3px; box-shadow:0 0 10px rgba(200,180,255,.55) }
-    @keyframes twinkle{ 0%,100%{opacity:.25; transform:scale(1)} 50%{opacity:1; transform:scale(1.35)} }
-
-    /* ===== HERO ===== */
-    .hero{
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      min-height:75vh; padding-top:60px; position:relative;
-    }
-    .hero-logo-wrap{
-      position:relative; display:inline-block;
-      filter: drop-shadow(0 0 26px rgba(255,215,120,.35));
-    }
-    /* dairesel halo */
-    .hero-logo-wrap::after{
-      content:""; position:absolute; inset:-8%;
-      border-radius:50%;
-      background:
-        radial-gradient(closest-side, rgba(255,225,130,.18), rgba(255,210,90,.10) 40%, transparent 70%),
-        radial-gradient(closest-side, rgba(170,120,255,.18), transparent 60%);
-      filter: blur(18px);
-      animation: haloPulse 5.5s ease-in-out infinite alternate;
-      pointer-events:none;
-    }
-    @keyframes haloPulse{ from{ transform:scale(1); opacity:.8 } to{ transform:scale(1.06); opacity:1 } }
-
+    /* Hero */
+    .hero{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:75vh;padding-top:60px}
     .hero-logo{
-      width:560px; max-width:95%;
-      filter: drop-shadow(0 0 35px rgba(255, 215, 0, 0.8)) brightness(1.2) contrast(1.15);
-      transition: transform 1s ease, filter 1s ease;
-      will-change: transform, filter;
+      width:560px;max-width:95%;
+      filter:drop-shadow(0 0 35px rgba(255,215,0,.8)) brightness(1.2) contrast(1.15);
+      animation:pulseGlow 4s ease-in-out infinite alternate;transition:transform 1s ease,filter 1s ease
     }
-    .hero-logo:hover{
-      transform:scale(1.05);
-      filter: drop-shadow(0 0 58px rgba(255,235,100,1)) brightness(1.25) contrast(1.2);
-    }
+    .hero-logo:hover{transform:scale(1.05);filter:drop-shadow(0 0 58px rgba(255,235,100,1)) brightness(1.25) contrast(1.2)}
+    @keyframes pulseGlow{from{filter:drop-shadow(0 0 20px rgba(255,215,0,.6))}to{filter:drop-shadow(0 0 45px rgba(255,235,100,1))}}
 
-    /* CONTENT */
-    .wrap{ max-width:1100px; margin:0 auto; padding:0 20px 40px }
-    h1{ font-size:44px; color:#f5d76e; margin:20px 0 10px; text-shadow:0 0 10px rgba(255,215,0,.3) }
-    p.lead{ font-size:18px; color:var(--text); line-height:1.6; max-width:900px; margin:0 auto }
+    /* Content */
+    .wrap{max-width:1100px;margin:0 auto;padding:0 20px 40px}
+    h1{font-size:44px;color:#f5d76e;margin:20px 0 10px;text-shadow:0 0 10px rgba(255,215,0,.3)}
+    p.lead{font-size:18px;color:var(--text);line-height:1.6;max-width:900px;margin:0 auto}
 
     /* CTA */
-    .cta{ margin:30px 0; display:flex; justify-content:center }
+    .cta{margin:30px 0;display:flex;justify-content:center}
     .fortune-btn{
-      font-family:'Cinzel',serif; font-size:30px; font-weight:800; padding:24px 70px; border-radius:16px;
-      color:#111; background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680); background-size:300% 300%;
-      letter-spacing:2px; text-transform:uppercase; border:none; cursor:pointer; box-shadow:0 0 25px rgba(255,215,0,.6);
-      animation: crystalGlow 5s ease infinite, buttonPulse 4s ease-in-out infinite;
-      transition: transform .3s ease, box-shadow .4s ease, filter .3s ease;
+      font-family:'Cinzel',serif;font-size:30px;font-weight:800;padding:24px 70px;border-radius:16px;
+      color:#111;background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);background-size:300% 300%;
+      letter-spacing:2px;text-transform:uppercase;border:none;cursor:pointer;box-shadow:0 0 25px rgba(255,215,0,.6);
+      animation:crystalGlow 5s ease infinite,pulseGlow 4s ease-in-out infinite;transition:transform .3s ease,box-shadow .4s ease
     }
-    .fortune-btn:hover{ transform:scale(1.1); box-shadow:0 0 45px rgba(255,240,150,.9); filter:brightness(1.12) }
-    @keyframes crystalGlow{ 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-    @keyframes buttonPulse{ 0%,100%{ filter:brightness(1) drop-shadow(0 0 10px rgba(255,215,0,.35)) } 50%{ filter:brightness(1.08) drop-shadow(0 0 22px rgba(255,235,140,.6)) } }
+    .fortune-btn:hover{transform:scale(1.1);box-shadow:0 0 45px rgba(255,240,150,.9);filter:brightness(1.2)}
+    @keyframes crystalGlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
-    /* GRID */
-    .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:24px; margin-top:60px }
+    /* Grid */
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px;margin-top:60px}
     .tile{
-      background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:14px;
-      transition: transform .3s ease, box-shadow .3s ease; opacity:0; transform:translateY(20px)
+      background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:14px;
+      transition:transform .3s ease,box-shadow .3s ease;opacity:0;transform:translateY(20px)
     }
-    .tile.visible{ opacity:1; transform:translateY(0); transition: all 1s ease }
-    .tile:hover{ transform: scale(1.02); box-shadow: 0 0 30px rgba(255,215,0,.2) }
-    .tile h3{ color:#f5d76e; font-family:'Cinzel',serif; margin-top:10px }
-    .tile p{ color:var(--muted); font-size:15px }
+    .tile.visible{opacity:1;transform:translateY(0);transition:all 1s ease}
+    .tile:hover{transform:scale(1.02);box-shadow:0 0 30px rgba(255,215,0,.2)}
+    .tile h3{color:#f5d76e;font-family:'Cinzel',serif;margin-top:10px}
+    .tile p{color:var(--muted);font-size:15px}
 
-    /* IMAGES */
+    /* Images */
     .reading-img{
-      width:100%; height:320px; object-fit:cover; border-radius:14px; margin-bottom:12px;
-      box-shadow:0 0 22px rgba(255,215,0,.25);
-      transition: transform .35s ease, box-shadow .35s ease, filter .35s ease;
+      width:100%;height:320px;object-fit:cover;border-radius:14px;margin-bottom:12px;
+      box-shadow:0 0 22px rgba(255,215,0,.25);transition:transform .35s ease,box-shadow .35s ease,filter .35s ease
     }
-    .tile:hover .reading-img{ transform:scale(1.03); box-shadow:0 0 36px rgba(255,225,150,.45); filter:brightness(1.05) }
-    @media (max-width:640px){ .reading-img{ height:240px } }
+    .tile:hover .reading-img{transform:scale(1.03);box-shadow:0 0 36px rgba(255,225,150,.45);filter:brightness(1.05)}
+    @media (max-width:640px){.reading-img{height:240px}}
 
-    /* FOOTER */
-    footer{ margin-top:60px; padding:36px 0 24px; border-top:1px solid rgba(255,255,255,.08);
-      text-align:center; color:#aeb6cf; text-shadow:0 0 10px rgba(255,215,0,.2) }
-    footer a{ color:#cfe4ff; text-decoration:none } footer a:hover{ color:#ffe680 }
-
-    /* reduced motion */
-    @media (prefers-reduced-motion: reduce){
-      *{ animation:none !important; transition:none !important }
-    }
+    /* Footer */
+    footer{margin-top:60px;padding:36px 0 24px;border-top:1px solid rgba(255,255,255,.08);text-align:center;color:#aeb6cf;text-shadow:0 0 10px rgba(255,215,0,.2)}
+    footer a{color:#cfe4ff;text-decoration:none}footer a:hover{color:#ffe680}
   </style>
 </head>
 <body>
 
-  <!-- Language Switch -->
-  <nav class="topbar" role="navigation" aria-label="Language switch">
+  <!-- Language Switcher -->
+  <div class="topbar" role="navigation" aria-label="Language switch">
     <button class="lang-btn" id="btn-en" aria-pressed="true">EN</button>
     <button class="lang-btn secondary" id="btn-tr" aria-pressed="false">TR</button>
-  </nav>
+  </div>
 
-  <!-- Background Layers -->
-  <div class="cosmos" aria-hidden="true"></div>
-  <div class="aurora" aria-hidden="true"></div>
-  <div class="mist" aria-hidden="true"></div>
+  <!-- Starfield -->
   <div id="starfield" aria-hidden="true"></div>
 
   <!-- Hero -->
-  <section class="hero" aria-label="Hero">
-    <span class="hero-logo-wrap">
-      <img src="mystai-logo.png" alt="MystAI.ai Logo" class="hero-logo" width="560" height="560" decoding="async" />
-    </span>
+  <section class="hero">
+    <img src="mystai-logo.png" alt="MystAI.ai Logo" class="hero-logo">
   </section>
 
   <div class="wrap">
@@ -215,26 +136,26 @@
     <!-- Reading Cards -->
     <section class="grid" aria-label="Reading types">
       <article class="tile fade-in">
-        <img src="images/coffee.png" loading="lazy" alt="AI Coffee Reading" class="reading-img" width="600" height="400">
+        <img src="images/Coffee.png" loading="lazy" alt="AI Coffee Reading" class="reading-img">
         <h3 data-i18n="coffeeTitle">AI Coffee Reading</h3>
         <p data-i18n="coffeeDesc">Upload your cup image and receive symbolic, cultural, and emotional layers decoded by AI.</p>
       </article>
 
       <article class="tile fade-in">
-        <img src="images/tarot.png" loading="lazy" alt="AI Tarot Reading" class="reading-img" width="600" height="400">
+        <img src="images/Tarot.png" loading="lazy" alt="AI Tarot Reading" class="reading-img">
         <h3 data-i18n="tarotTitle">AI Tarot Reading</h3>
-        <p data-i18n="tarotDesc">Draw cards digitally and get spreads interpreted with archetypes, timeline &amp; guidance.</p>
+        <p data-i18n="tarotDesc">Draw cards digitally and get spreads interpreted with archetypes, timeline & guidance.</p>
       </article>
 
       <article class="tile fade-in">
-        <img src="images/palm.png" loading="lazy" alt="AI Palm Reading" class="reading-img" width="600" height="400">
+        <img src="images/Palm.png" loading="lazy" alt="AI Palm Reading" class="reading-img">
         <h3 data-i18n="palmTitle">AI Palm Reading</h3>
         <p data-i18n="palmDesc">Scan your palm and discover line patterns, shapes and traits — processed with computer vision.</p>
       </article>
 
       <article class="tile fade-in">
-        <img src="images/energy.png" loading="lazy" alt="Energy & Dreams" class="reading-img" width="600" height="400">
-        <h3 data-i18n="energyTitle">Energy &amp; Dreams</h3>
+        <img src="images/Energy.png" loading="lazy" alt="Energy & Dreams" class="reading-img">
+        <h3 data-i18n="energyTitle">Energy & Dreams</h3>
         <p data-i18n="energyDesc">Upload dreams for symbolism mapping, and explore energy reading with mindful prompts.</p>
       </article>
     </section>
@@ -251,21 +172,21 @@
   </div>
 
   <script>
-    // === Stars (farklı boyut/parlaklık) ===
+    // Starfield
     (function(){
       const starfield=document.getElementById("starfield");
-      const TOTAL=180;
-      for(let i=0;i<TOTAL;i++){
+      const STARS=150;
+      for(let i=0;i<STARS;i++){
         const s=document.createElement("div");
-        s.className="star " + (i%7===0 ? "s3" : i%3===0 ? "s2" : "s1");
+        s.className="star";
         s.style.left=Math.random()*100+"vw";
         s.style.top=Math.random()*100+"vh";
-        s.style.animationDelay=(Math.random()*3).toFixed(2)+"s";
+        s.style.animationDelay=Math.random()*3+"s";
         starfield.appendChild(s);
       }
     })();
 
-    // === Fade-in Cards ===
+    // Fade-in Cards
     document.addEventListener("DOMContentLoaded",()=>{
       const tiles=document.querySelectorAll('.tile');
       const obs=new IntersectionObserver(es=>{
@@ -274,71 +195,21 @@
       tiles.forEach(t=>obs.observe(t));
     });
 
-    // === i18n (EN/TR) ===
-    const i18n={
-      en:{
-        headline:"Experience AI-powered fortune reading",
-        lead:"Mystical insights interpreted by advanced artificial intelligence.<br>Your privacy, security, and clarity are our top priorities.",
-        cta:"GET YOUR FORTUNE",
-        coffeeTitle:"AI Coffee Reading",
-        coffeeDesc:"Upload your cup image and receive symbolic, cultural, and emotional layers decoded by AI.",
-        tarotTitle:"AI Tarot Reading",
-        tarotDesc:"Draw cards digitally and get spreads interpreted with archetypes, timeline & guidance.",
-        palmTitle:"AI Palm Reading",
-        palmDesc:"Scan your palm and discover line patterns, shapes and traits — processed with computer vision.",
-        energyTitle:"Energy & Dreams",
-        energyDesc:"Upload dreams for symbolism mapping, and explore energy reading with mindful prompts.",
-        terms:"Terms", privacy:"Privacy", cookies:"Cookies", disclaimer:"Disclaimer",
-        rights:"All Rights Reserved.", devby:"Developed by GALAXY 🌌",
-        meta:"Experience AI-powered fortune readings — mystical insights interpreted by advanced artificial intelligence.",
-        ogt:"MystAI.ai — AI-Powered Fortune Readings", ogd:"Where Artificial Intelligence meets the ancient art of divination."
-      },
-      tr:{
-        headline:"Yapay zekâ destekli fal deneyimi yaşa",
-        lead:"Gelişmiş yapay zekâ tarafından yorumlanan mistik içgörüler.<br>Gizlilik, güvenlik ve netlik önceliğimizdir.",
-        cta:"FALINI AL",
-        coffeeTitle:"Yapay Zekâ Kahve Falı",
-        coffeeDesc:"Fincan fotoğrafını yükle; sembolik, kültürel ve duygusal katmanları yapay zekâ çözümler.",
-        tarotTitle:"Yapay Zekâ Tarot Açılımı",
-        tarotDesc:"Kartlarını dijital olarak seç; arketipler, zaman çizgisi ve rehberlikle AI tarafından yorumlansın.",
-        palmTitle:"Yapay Zekâ El Falı",
-        palmDesc:"Avucunu tara; çizgi desenlerini, şekilleri ve özellikleri — bilgisayarlı görü ile keşfet.",
-        energyTitle:"Enerji & Rüyalar",
-        energyDesc:"Rüyalarını yükle; sembol haritalama ile yorumlansın, enerji okumasını farkındalıkla keşfet.",
-        terms:"Şartlar", privacy:"Gizlilik", cookies:"Çerezler", disclaimer:"Sorumluluk Reddi",
-        rights:"Tüm Hakları Saklıdır.", devby:"GALAXY tarafından geliştirilmiştir 🌌",
-        meta:"Yapay zekâ destekli fal deneyimleri — gelişmiş yapay zekâ tarafından yorumlanan mistik içgörüler.",
-        ogt:"MystAI.ai — Yapay Zekâ Destekli Fal", ogd:"Yapay zekâ ile kadim kehanet sanatının buluşma noktası."
-      }
-    };
+    // i18n
+    const i18n={en:{headline:"Experience AI-powered fortune reading",lead:"Mystical insights interpreted by advanced artificial intelligence.<br>Your privacy, security, and clarity are our top priorities.",cta:"GET YOUR FORTUNE",coffeeTitle:"AI Coffee Reading",coffeeDesc:"Upload your cup image and receive symbolic, cultural, and emotional layers decoded by AI.",tarotTitle:"AI Tarot Reading",tarotDesc:"Draw cards digitally and get spreads interpreted with archetypes, timeline & guidance.",palmTitle:"AI Palm Reading",palmDesc:"Scan your palm and discover line patterns, shapes and traits — processed with computer vision.",energyTitle:"Energy & Dreams",energyDesc:"Upload dreams for symbolism mapping, and explore energy reading with mindful prompts.",terms:"Terms",privacy:"Privacy",cookies:"Cookies",disclaimer:"Disclaimer",rights:"All Rights Reserved.",devby:"Developed by GALAXY 🌌"},tr:{headline:"Yapay zekâ destekli fal deneyimi yaşa",lead:"Gelişmiş yapay zekâ tarafından yorumlanan mistik içgörüler.<br>Gizlilik, güvenlik ve netlik önceliğimizdir.",cta:"FALINI AL",coffeeTitle:"Yapay Zekâ Kahve Falı",coffeeDesc:"Fincan fotoğrafını yükle; sembolik, kültürel ve duygusal katmanları yapay zekâ çözümler.",tarotTitle:"Yapay Zekâ Tarot Açılımı",tarotDesc:"Kartlarını dijital olarak seç; arketipler, zaman çizgisi ve rehberlikle AI tarafından yorumlansın.",palmTitle:"Yapay Zekâ El Falı",palmDesc:"Avucunu tara; çizgi desenlerini, şekilleri ve özellikleri — bilgisayarlı görü ile keşfet.",energyTitle:"Enerji & Rüyalar",energyDesc:"Rüyalarını yükle; sembol haritalama ile yorumlansın, enerji okumasını farkındalıkla keşfet.",terms:"Şartlar",privacy:"Gizlilik",cookies:"Çerezler",disclaimer:"Sorumluluk Reddi",rights:"Tüm Hakları Saklıdır.",devby:"GALAXY tarafından geliştirilmiştir 🌌"}};
 
     function setLang(lang){
       const dict=i18n[lang]||i18n.en;
       document.documentElement.lang=lang;
-
       document.querySelectorAll("[data-i18n]").forEach(el=>{
         const key=el.getAttribute("data-i18n");
         if(!key) return;
-        if(key==="lead"){ el.innerHTML=dict[key]; }
-        else { el.textContent=dict[key]; }
+        if(key==="lead"){ el.innerHTML=dict[key]; } else { el.textContent=dict[key]; }
       });
-
-      const metaDesc=document.getElementById("meta-desc");
-      const ogTitle=document.getElementById("og-title");
-      const ogDesc=document.getElementById("og-desc");
-      const twTitle=document.getElementById("tw-title");
-      const twDesc=document.getElementById("tw-desc");
-      if(metaDesc) metaDesc.setAttribute("content",dict.meta);
-      if(ogTitle) ogTitle.setAttribute("content",dict.ogt);
-      if(ogDesc) ogDesc.setAttribute("content",dict.ogd);
-      if(twTitle) twTitle.setAttribute("content",dict.ogt);
-      if(twDesc) twDesc.setAttribute("content",dict.ogd);
-
       document.getElementById("btn-en").classList.toggle("secondary", lang!=="en");
       document.getElementById("btn-tr").classList.toggle("secondary", lang!=="tr");
       document.getElementById("btn-en").setAttribute("aria-pressed", lang==="en");
       document.getElementById("btn-tr").setAttribute("aria-pressed", lang==="tr");
-
       try{ localStorage.setItem("myst_lang", lang); }catch(e){}
     }
 
@@ -357,7 +228,6 @@
     })();
   </script>
 
-  <!-- Structured Data -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
