@@ -37,7 +37,6 @@
     }
     .btn:hover{filter:brightness(1.1);transform:translateY(-2px)}
 
-    /* Welcome message */
     #welcome {
       color:#ffd54f;
       font-family:'Cinzel',serif;
@@ -158,41 +157,47 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-
     const welcome = document.getElementById('welcome');
     const logoutBtn = document.getElementById('logoutBtn');
 
-    // Language switch
-    document.getElementById("btn-en").addEventListener("click",()=>setLang("en"));
-    document.getElementById("btn-tr").addEventListener("click",()=>setLang("tr"));
+    const translations = {
+      en: {
+        chooseTitle:"Choose Your Reading",
+        chooseText:"Explore the ancient art of divination through the power of AI.<br>Select your path below to begin your mystical journey.",
+        logout:"Logout",
+        welcome:"🔮 Welcome, "
+      },
+      tr: {
+        chooseTitle:"Falını Seç",
+        chooseText:"Yapay zekâ gücüyle kadim fal sanatını keşfet.<br>Aşağıdan yolunu seç ve mistik yolculuğuna başla.",
+        logout:"Çıkış Yap",
+        welcome:"🔮 Hoş geldin, "
+      }
+    };
 
     function setLang(lang){
       localStorage.setItem("myst_lang",lang);
       document.getElementById("btn-en").classList.toggle("secondary",lang!=="en");
       document.getElementById("btn-tr").classList.toggle("secondary",lang!=="tr");
-      const t = lang==="tr" ? {
-        chooseTitle:"Falını Seç",
-        chooseText:"Yapay zekâ gücüyle kadim fal sanatını keşfet.<br>Aşağıdan yolunu seç ve mistik yolculuğuna başla.",
-        logout:"Çıkış Yap",
-      } : {
-        chooseTitle:"Choose Your Reading",
-        chooseText:"Explore the ancient art of divination through the power of AI.<br>Select your path below to begin your mystical journey.",
-        logout:"Logout",
-      };
+      const t = translations[lang];
       document.getElementById("choose-title").innerHTML=t.chooseTitle;
       document.getElementById("choose-text").innerHTML=t.chooseText;
       logoutBtn.textContent=t.logout;
+
+      const user = auth.currentUser;
+      if(user){ welcome.textContent = t.welcome + (user.displayName || user.email); }
     }
 
+    // Dil değiştiriciler
+    document.getElementById("btn-en").addEventListener("click",()=>setLang("en"));
+    document.getElementById("btn-tr").addEventListener("click",()=>setLang("tr"));
+
     onAuthStateChanged(auth, (user) => {
-      const lang = localStorage.getItem("myst_lang") || "en";
       if (user) {
-        const name = user.displayName || user.email;
-        if (lang==="tr") {
-          welcome.textContent = "🔮 Hoş geldin, " + name;
-        } else {
-          welcome.textContent = "🔮 Welcome, " + name;
-        }
+        const lang = localStorage.getItem("myst_lang") || "en";
+        const t = translations[lang];
+        welcome.textContent = t.welcome + (user.displayName || user.email);
+        logoutBtn.textContent = t.logout;
         logoutBtn.style.display = "inline-block";
       } else {
         window.location.href = "login.html";
@@ -206,7 +211,7 @@
       });
     });
 
-    // Initialize selected language
+    // Sayfa açılışında dil uygula
     setLang(localStorage.getItem("myst_lang") || "en");
 
     function showPopup(){document.getElementById('popup').style.display='flex';}
