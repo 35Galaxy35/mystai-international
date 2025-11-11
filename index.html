@@ -108,7 +108,7 @@
       color:var(--text); line-height:1.6; max-width:900px; margin:0 auto
     }
 
-    /* CTA (desktop) */
+    /* CTA (both desktop & mobile centered) */
     .cta{ margin:26px 0 10px; display:flex; justify-content:center }
     .fortune-btn{
       font-family:'Cinzel',serif; font-size: clamp(18px, 3.6vw, 30px); font-weight:800;
@@ -123,16 +123,6 @@
     }
     .fortune-btn:hover{ transform:scale(1.06); box-shadow:0 0 45px rgba(255,240,150,.9); filter:brightness(1.12) }
     @keyframes crystalGlow{ 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-
-    /* Mobile sticky CTA */
-    .sticky-cta{
-      position: fixed; left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0);
-      display:none; z-index:25; padding:10px 12px calc(10px + env(safe-area-inset-bottom,0));
-      background: linear-gradient(180deg, rgba(8,12,28,.0) 0%, rgba(8,12,28,.7) 35%, rgba(8,12,28,.9) 100%);
-      backdrop-filter: blur(8px);
-    }
-    .sticky-cta .fortune-btn{ width:100%; max-width:680px; margin:0 auto; display:block }
-    @media (max-width: 768px){ .sticky-cta{ display:block } .cta{ display:none } }
 
     /* Grid (cards) */
     .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:24px; margin-top:48px }
@@ -194,9 +184,9 @@
         Your privacy, security, and clarity are our top priorities.
       </p>
 
-      <!-- Desktop CTA -->
+      <!-- CTA (both desktop & mobile centered) -->
       <div class="cta">
-        <a class="fortune-btn" href="#get-started" data-i18n="cta">GET YOUR FORTUNE</a>
+        <a class="fortune-btn" href="#get-started" data-i18n="cta">UNVEIL YOUR DESTINY</a>
       </div>
 
       <!-- Reading Cards -->
@@ -243,11 +233,6 @@
       </section>
     </div>
   </main>
-
-  <!-- Mobile sticky CTA -->
-  <div class="sticky-cta" role="region" aria-label="Quick action">
-    <a class="fortune-btn" href="#get-started" data-i18n="cta">GET YOUR FORTUNE</a>
-  </div>
 
   <footer>
     <div class="links">
@@ -311,7 +296,7 @@
         title:"MystAI.ai — AI-Powered Fortune Readings & Digital Divination",
         headline:"Experience AI-powered fortune reading",
         lead:"Mystical insights interpreted by advanced artificial intelligence.<br>Your privacy, security, and clarity are our top priorities.",
-        cta:"GET YOUR FORTUNE",
+        cta:"UNVEIL YOUR DESTINY",
         coffeeTitle:"AI Coffee Reading",
         coffeeDesc:"Upload your cup image and receive symbolic, cultural, and emotional layers decoded by AI.",
         tarotTitle:"AI Tarot Reading",
@@ -329,7 +314,7 @@
         title:"MystAI.ai — Yapay Zekâ Destekli Fal & Dijital Kehanet",
         headline:"Yapay zekâ destekli fal deneyimi yaşa",
         lead:"Gelişmiş yapay zekâ tarafından yorumlanan mistik içgörüler.<br>Gizlilik, güvenlik ve netlik önceliğimizdir.",
-        cta:"FALINI AL",
+        cta:"KADERİNİ KEŞFET",
         coffeeTitle:"Yapay Zekâ Kahve Falı",
         coffeeDesc:"Fincan fotoğrafını yükle; sembolik, kültürel ve duygusal katmanları yapay zekâ çözümler.",
         tarotTitle:"Yapay Zekâ Tarot Açılımı",
