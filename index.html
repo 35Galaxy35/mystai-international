@@ -5,15 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MystAI.ai — AI-Powered Fortune Readings & Digital Divination</title>
 
-  <!-- Canonical & Favicon -->
+  <!-- Canonical & Fav -->
   <link rel="canonical" href="https://mystai.ai/" />
   <link rel="icon" type="image/png" href="mystai-logo.png" />
 
-  <!-- Hreflang -->
-  <link rel="alternate" hreflang="en" href="https://mystai.ai/" />
-  <link rel="alternate" hreflang="tr" href="https://mystai.ai/" />
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
 
-  <!-- Social / SEO (varsayılan EN; metinler JS ile değiştirilecek) -->
+  <!-- Meta & SEO -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="MystAI.ai — AI-Powered Fortune Readings" id="og-title"/>
   <meta property="og:description" content="Experience AI-powered fortune readings — mystical insights interpreted by advanced artificial intelligence." id="og-desc"/>
@@ -24,315 +23,300 @@
   <meta name="twitter:description" content="Experience AI-powered fortune readings — mystical insights interpreted by advanced artificial intelligence." id="tw-desc"/>
   <meta name="description" content="Experience AI-powered fortune readings — mystical insights interpreted by advanced artificial intelligence." id="meta-desc"/>
 
-  <!-- Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
-
   <style>
     :root{
-      --bg-start:#0d1a2b; --bg-end:#0b0f1f;
-      --text:#d8e0ff; --muted:#a9b4d0; --gold:#f5d76e;
-      --panel: rgba(255,255,255,.05); --border: rgba(255,255,255,.08);
+      --bg-start:#0a0d1f;
+      --bg-end:#050818;
+      --text:#d8e0ff;
+      --muted:#a9b4d0;
+      --gold:#ffd54f;
     }
     html,body{
-      margin:0; padding:0;
+      margin:0;padding:0;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      color:var(--text); background:#090f20; overflow-x:hidden;
+      color:var(--text);
+      background:radial-gradient(1400px 800px at 50% 0%,#1a1f35 0%,#070a14 80%);
+      overflow-x:hidden;scroll-behavior:smooth;text-align:center;
     }
 
-    /* --- arka plan yıldız/ışık --- */
-    .bg{
-      position:fixed; inset:0; z-index:-1;
-      background:
-        radial-gradient(1200px 700px at 50% -10%, #1a2750 0%, transparent 60%),
-        radial-gradient(800px 600px at 80% 20%, rgba(255,210,120,.10), transparent 60%),
-        radial-gradient(700px 600px at 20% 70%, rgba(110,140,255,.12), transparent 65%),
-        radial-gradient(ellipse at center, var(--bg-start) 0%, var(--bg-end) 70%);
-    }
-    /* küçük yıldızlar */
-    .bg:before{
-      content:"";
-      position:absolute; inset:0;
-      background-image:
-        radial-gradient(2px 2px at 10% 20%, #fff, rgba(255,255,255,0)),
-        radial-gradient(2px 2px at 30% 80%, #fff, rgba(255,255,255,0)),
-        radial-gradient(1.5px 1.5px at 70% 30%, #fff, rgba(255,255,255,0)),
-        radial-gradient(1.5px 1.5px at 85% 60%, #fff, rgba(255,255,255,0)),
-        radial-gradient(1.5px 1.5px at 45% 50%, #fff, rgba(255,255,255,0));
-      opacity:.35;
-      animation: twinkle 7s ease-in-out infinite;
-    }
-    @keyframes twinkle{
-      0%,100%{opacity:.2} 50%{opacity:.55}
-    }
-
-    /* --- Dil Seçici --- */
+    /* Language Switcher */
     .topbar{
-      position:fixed; top:12px; right:12px; display:flex; gap:8px; z-index:5;
-      background:rgba(5,8,20,.55); border:1px solid var(--border); padding:6px 8px; border-radius:12px; backdrop-filter:blur(8px);
+      position:fixed;top:12px;right:12px;z-index:10;display:flex;gap:8px;
+      background:rgba(8,12,28,.55);backdrop-filter:blur(8px);
+      border:1px solid rgba(255,255,255,.1);
+      padding:6px 8px;border-radius:12px;
     }
     .lang-btn{
-      font-weight:700; border:0; border-radius:10px; padding:6px 10px; cursor:pointer;
-      background:#ffd54f; color:#0b0f1f;
+      font-weight:700;border:0;border-radius:10px;padding:6px 10px;cursor:pointer;
+      color:#0b0f1f;background:var(--gold);
     }
-    .lang-btn.secondary{ background:transparent; color:#e6ecff; border:1px solid #2b3f66 }
+    .lang-btn.secondary{background:transparent;color:#e6ecff;border:1px solid #2b3f66}
 
-    /* --- Sayfa iskeleti: tek ekrana sığma --- */
-    .page{ min-height:100vh; display:grid; grid-template-rows:auto auto 1fr auto; }
-    .wrap{ max-width:1100px; margin:0 auto; padding:0 20px; }
+    /* Background stars */
+    #starfield{position:fixed;inset:0;z-index:-1;overflow:hidden;
+      background:radial-gradient(ellipse at center,#0b1124 0%,#030611 100%);
+    }
+    .star{position:absolute;width:2px;height:2px;background:rgba(255,255,220,.9);
+      border-radius:50%;animation:twinkle 3s infinite ease-in-out;
+    }
+    @keyframes twinkle{
+      0%,100%{opacity:.2;transform:scale(1);}
+      50%{opacity:1;transform:scale(1.35);}
+    }
 
-    /* --- Hero --- */
+    /* Hero */
     .hero{
-      display:flex; align-items:center; justify-content:center; padding-top:70px;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      min-height:70vh;padding-top:60px;
     }
     .hero-logo{
-      width: clamp(300px, 35vw, 520px);
-      filter: drop-shadow(0 0 30px rgba(255,215,0,.7));
-      transition: transform 1s ease, filter 1s ease;
-      will-change: transform;
+      width:520px;max-width:90%;
+      filter:drop-shadow(0 0 30px rgba(255,215,0,.8));
+      animation:pulseGlow 4s ease-in-out infinite alternate;
+      transition:transform .8s ease,filter .8s ease;
     }
-    .hero-logo:hover{ transform: scale(1.03); filter: drop-shadow(0 0 48px rgba(255,235,140,1)); }
+    .hero-logo:hover{
+      transform:scale(1.04);
+      filter:drop-shadow(0 0 50px rgba(255,235,100,1)) brightness(1.25);
+    }
+    @keyframes pulseGlow{
+      from{filter:drop-shadow(0 0 18px rgba(255,215,0,.5));}
+      to{filter:drop-shadow(0 0 45px rgba(255,240,120,.9));}
+    }
 
+    /* Texts */
+    .wrap{max-width:1100px;margin:0 auto;padding:0 20px 40px;}
     h1{
-      font-size: clamp(26px, 3.2vw, 40px);
-      color: var(--gold);
-      text-align:center;
-      margin: 8px 0 6px;
-      text-shadow: 0 0 10px rgba(255,215,0,.28);
+      font-size:44px;color:var(--gold);margin:20px 0 10px;
+      text-shadow:0 0 12px rgba(255,215,0,.35);
     }
-    .lead{
-      font-size: clamp(14px, 1.6vw, 18px);
-      line-height:1.6; color: var(--text); opacity:.95;
-      text-align:center; margin:0 auto; max-width:900px;
+    p.lead{
+      font-size:18px;color:var(--text);
+      line-height:1.6;max-width:800px;margin:0 auto;
     }
 
-    /* --- CTA --- */
-    .cta{ display:flex; justify-content:center; margin:22px 0 8px; }
-    .btn{
-      font-family:'Cinzel',serif; font-weight:800; letter-spacing:2px; text-transform:uppercase;
-      font-size: clamp(18px, 2.2vw, 26px);
-      color:#111; background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);
-      background-size:300% 300%; padding:18px 54px; border-radius:16px; border:none; cursor:pointer;
-      box-shadow:0 0 22px rgba(255,215,0,.55); transition: transform .25s ease, box-shadow .35s ease, filter .25s ease;
-      animation: glow 6s ease infinite;
+    /* CTA Button */
+    .cta{margin:32px 0;display:flex;justify-content:center;}
+    .fortune-btn{
+      font-family:'Cinzel',serif;font-size:28px;font-weight:800;
+      padding:20px 65px;border-radius:16px;
+      color:#111;
+      background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);
+      background-size:300% 300%;
+      letter-spacing:2px;text-transform:uppercase;
+      border:none;cursor:pointer;
+      box-shadow:0 0 25px rgba(255,215,0,.6);
+      animation:glow 6s ease infinite, pulseGlow 4s ease-in-out infinite;
+      transition:transform .3s ease, box-shadow .3s ease, filter .3s ease;
     }
-    .btn:hover{ transform:scale(1.06); box-shadow:0 0 40px rgba(255,240,160,.9); filter:brightness(1.1) }
-    @keyframes glow{ 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+    .fortune-btn:hover{
+      transform:scale(1.08);
+      box-shadow:0 0 45px rgba(255,235,150,.9);
+      filter:brightness(1.12);
+    }
+    @keyframes glow{
+      0%{background-position:0% 50%;}
+      50%{background-position:100% 50%;}
+      100%{background-position:0% 50%;}
+    }
 
-    /* --- Kartlar (tek ekrana sığacak kompakt yükseklik) --- */
+    /* Reading Cards */
     .grid{
-      display:grid; gap:18px; margin:28px auto 18px; width:100%;
-      grid-template-columns: repeat(4, 1fr);
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:24px;margin-top:60px;
     }
     .tile{
-      background: var(--panel); border:1px solid var(--border); border-radius:16px; padding:12px;
-      transition: transform .25s ease, box-shadow .25s ease;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;padding:14px;
+      transition:transform .3s ease, box-shadow .3s ease;
+      opacity:0;transform:translateY(20px);
     }
-    .tile:hover{ transform:translateY(-4px); box-shadow:0 0 26px rgba(255,215,0,.18) }
+    .tile.visible{opacity:1;transform:translateY(0);transition:all 1s ease;}
+    .tile:hover{transform:scale(1.02);box-shadow:0 0 30px rgba(255,215,0,.2);}
+    .tile h3{color:var(--gold);font-family:'Cinzel',serif;margin-top:10px;}
+    .tile p{color:var(--muted);font-size:15px;}
+
     .reading-img{
-      width:100%; height:180px; object-fit:cover; border-radius:12px; display:block;
-      box-shadow:0 0 18px rgba(255,215,0,.22); margin-bottom:10px;
+      width:100%;height:300px;object-fit:cover;
+      border-radius:14px;margin-bottom:12px;
+      box-shadow:0 0 20px rgba(255,215,0,.25);
+      transition:transform .35s ease,box-shadow .35s ease,filter .35s ease;
     }
-    .tile h3{
-      font-family:'Cinzel',serif; font-size:18px; color:var(--gold); margin:4px 0 6px;
-    }
-    .tile p{
-      font-size:13.5px; color:var(--muted); margin:0;
+    .tile:hover .reading-img{
+      transform:scale(1.03);
+      box-shadow:0 0 36px rgba(255,230,150,.4);
+      filter:brightness(1.05);
     }
 
-    /* --- Footer --- */
+    /* Footer */
     footer{
-      border-top:1px solid var(--border);
-      color:#aeb6cf; text-align:center; padding:12px 0 16px; margin-top:8px; font-size:13px;
+      margin-top:40px;padding:30px 0 20px;
+      border-top:1px solid rgba(255,255,255,.08);
+      color:#aeb6cf;font-size:14px;
+      text-shadow:0 0 10px rgba(255,215,0,.2);
     }
-    footer a{ color:#cfe4ff; text-decoration:none } footer a:hover{ color:#ffe680 }
+    footer a{color:#cfe4ff;text-decoration:none;}
+    footer a:hover{color:#ffe680;}
 
-    /* --- Mobil düzen --- */
-    @media (max-width: 960px){
-      .grid{ grid-template-columns: repeat(2, 1fr); }
-      .reading-img{ height:200px; }
-    }
-    @media (max-width: 560px){
-      .grid{ grid-template-columns: 1fr; }
-      .reading-img{ height:220px; }
-      .topbar{ right:8px; top:8px; }
-    }
-
-    /* Hareket kısıtlaması olan kullanıcılar için animasyon kapat */
-    @media (prefers-reduced-motion: reduce){
-      *{ animation:none !important; transition:none !important }
+    /* Mobile */
+    @media(max-width:640px){
+      h1{font-size:32px;}
+      .fortune-btn{font-size:22px;padding:18px 50px;}
+      .reading-img{height:220px;}
+      .hero{min-height:65vh;}
     }
   </style>
 </head>
 <body>
-  <div class="bg" aria-hidden="true"></div>
 
-  <!-- Dil Seçici -->
-  <nav class="topbar" role="navigation" aria-label="Language switch">
+  <!-- Language Switch -->
+  <div class="topbar" role="navigation" aria-label="Language switch">
     <button class="lang-btn" id="btn-en" aria-pressed="true">EN</button>
     <button class="lang-btn secondary" id="btn-tr" aria-pressed="false">TR</button>
-  </nav>
+  </div>
 
-  <main class="page">
-    <!-- Logo / Hero -->
-    <section class="hero">
-      <img src="mystai-logo.png" alt="MystAI.ai Logo" class="hero-logo" width="560" height="560" decoding="async">
+  <!-- Background Stars -->
+  <div id="starfield" aria-hidden="true"></div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <img src="mystai-logo.png" alt="MystAI.ai Logo" class="hero-logo">
+  </section>
+
+  <div class="wrap">
+    <h1 data-i18n="headline">Experience AI-powered fortune reading</h1>
+    <p class="lead" data-i18n="lead">
+      Mystical insights interpreted by advanced artificial intelligence.<br>
+      Your privacy, security, and clarity are our top priorities.
+    </p>
+
+    <div class="cta">
+      <a class="fortune-btn" href="#get-started" data-i18n="cta">GET YOUR FORTUNE</a>
+    </div>
+
+    <!-- Reading Cards -->
+    <section class="grid" aria-label="Reading types">
+      <article class="tile fade-in">
+        <img src="images/coffee.jpeg" loading="lazy" alt="AI Coffee Reading" class="reading-img">
+        <h3 data-i18n="coffeeTitle">AI Coffee Reading</h3>
+        <p data-i18n="coffeeDesc">Upload your cup image and receive symbolic, cultural, and emotional layers decoded by AI.</p>
+      </article>
+
+      <article class="tile fade-in">
+        <img src="images/tarot.jpeg" loading="lazy" alt="AI Tarot Reading" class="reading-img">
+        <h3 data-i18n="tarotTitle">AI Tarot Reading</h3>
+        <p data-i18n="tarotDesc">Draw cards digitally and get spreads interpreted with archetypes, timeline & guidance.</p>
+      </article>
+
+      <article class="tile fade-in">
+        <img src="images/palm.jpeg" loading="lazy" alt="AI Palm Reading" class="reading-img">
+        <h3 data-i18n="palmTitle">AI Palm Reading</h3>
+        <p data-i18n="palmDesc">Scan your palm and discover line patterns, shapes and traits — processed with computer vision.</p>
+      </article>
+
+      <article class="tile fade-in">
+        <img src="images/energy.jpeg" loading="lazy" alt="Energy & Dreams" class="reading-img">
+        <h3 data-i18n="energyTitle">Energy & Dreams</h3>
+        <p data-i18n="energyDesc">Upload dreams for symbolism mapping, and explore energy reading with mindful prompts.</p>
+      </article>
     </section>
 
-    <section class="wrap">
-      <h1 data-i18n="headline">Experience AI-powered fortune reading</h1>
-      <p class="lead" data-i18n="lead">
-        Mystical insights interpreted by advanced artificial intelligence.<br>
-        Your privacy, security, and clarity are our top priorities.
-      </p>
-    </section>
-
-    <!-- CTA -->
-    <section class="cta">
-      <a class="btn" href="#get-started" data-i18n="cta">GET YOUR FORTUNE</a>
-    </section>
-
-    <!-- Kartlar -->
-    <section class="wrap" aria-label="Reading types">
-      <div class="grid">
-        <article class="tile">
-          <img src="images/coffee.jpeg" alt="AI Coffee Reading" class="reading-img" loading="lazy" width="600" height="400">
-          <h3 data-i18n="coffeeTitle">AI Coffee Reading</h3>
-          <p data-i18n="coffeeDesc">Upload your cup image and receive symbolic, cultural, and emotional layers decoded by AI.</p>
-        </article>
-
-        <article class="tile">
-          <img src="images/tarot.jpeg" alt="AI Tarot Reading" class="reading-img" loading="lazy" width="600" height="400">
-          <h3 data-i18n="tarotTitle">AI Tarot Reading</h3>
-          <p data-i18n="tarotDesc">Draw cards digitally and get spreads interpreted with archetypes, timeline & guidance.</p>
-        </article>
-
-        <article class="tile">
-          <img src="images/palm.jpeg" alt="AI Palm Reading" class="reading-img" loading="lazy" width="600" height="400">
-          <h3 data-i18n="palmTitle">AI Palm Reading</h3>
-          <p data-i18n="palmDesc">Scan your palm and discover line patterns, shapes and traits — processed with computer vision.</p>
-        </article>
-
-        <article class="tile">
-          <img src="images/energy.jpeg" alt="Energy & Dreams" class="reading-img" loading="lazy" width="600" height="400">
-          <h3 data-i18n="energyTitle">Energy & Dreams</h3>
-          <p data-i18n="energyDesc">Upload dreams for symbolism mapping, and explore energy reading with mindful prompts.</p>
-        </article>
-      </div>
-    </section>
-
-    <footer class="wrap">
-      <div style="margin-bottom:6px;">
-        <a href="terms.html" data-i18n="terms">Terms</a> •
-        <a href="privacy.html" data-i18n="privacy">Privacy</a> •
-        <a href="cookies.html" data-i18n="cookies">Cookies</a> •
+    <footer>
+      <div class="links">
+        <a href="terms.html" data-i18n="terms">Terms</a> • 
+        <a href="privacy.html" data-i18n="privacy">Privacy</a> • 
+        <a href="cookies.html" data-i18n="cookies">Cookies</a> • 
         <a href="disclaimer.html" data-i18n="disclaimer">Disclaimer</a>
       </div>
-      <div>© 2025 MystAI.ai — <span data-i18n="rights">All Rights Reserved.</span> <span data-i18n="devby">Developed by GALAXY 🌌</span></div>
+      <p>© 2025 MystAI.ai — <span data-i18n="rights">All Rights Reserved.</span> <span data-i18n="devby">Developed by GALAXY 🌌</span></p>
     </footer>
-  </main>
+  </div>
 
   <script>
-    // --- Basit i18n sözlüğü ---
-    var I18N = {
-      en: {
-        headline: "Experience AI-powered fortune reading",
-        lead: "Mystical insights interpreted by advanced artificial intelligence.<br>Your privacy, security, and clarity are our top priorities.",
-        cta: "GET YOUR FORTUNE",
-        coffeeTitle: "AI Coffee Reading",
-        coffeeDesc: "Upload your cup image and receive symbolic, cultural, and emotional layers decoded by AI.",
-        tarotTitle: "AI Tarot Reading",
-        tarotDesc: "Draw cards digitally and get spreads interpreted with archetypes, timeline & guidance.",
-        palmTitle: "AI Palm Reading",
-        palmDesc: "Scan your palm and discover line patterns, shapes and traits — processed with computer vision.",
-        energyTitle: "Energy & Dreams",
-        energyDesc: "Upload dreams for symbolism mapping, and explore energy reading with mindful prompts.",
+    // === Starfield ===
+    (function(){
+      const starfield=document.getElementById("starfield");
+      const STARS=160;
+      for(let i=0;i<STARS;i++){
+        const s=document.createElement("div");
+        s.className="star";
+        s.style.left=Math.random()*100+"vw";
+        s.style.top=Math.random()*100+"vh";
+        s.style.animationDelay=Math.random()*3+"s";
+        starfield.appendChild(s);
+      }
+    })();
+
+    // === Fade-in Tiles ===
+    document.addEventListener("DOMContentLoaded",()=>{
+      const tiles=document.querySelectorAll('.tile');
+      const obs=new IntersectionObserver(es=>{
+        es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+      },{threshold:.2});
+      tiles.forEach(t=>obs.observe(t));
+    });
+
+    // === i18n (EN/TR) ===
+    const i18n={
+      en:{
+        headline:"Experience AI-powered fortune reading",
+        lead:"Mystical insights interpreted by advanced artificial intelligence.<br>Your privacy, security, and clarity are our top priorities.",
+        cta:"GET YOUR FORTUNE",
+        coffeeTitle:"AI Coffee Reading",
+        coffeeDesc:"Upload your cup image and receive symbolic, cultural, and emotional layers decoded by AI.",
+        tarotTitle:"AI Tarot Reading",
+        tarotDesc:"Draw cards digitally and get spreads interpreted with archetypes, timeline & guidance.",
+        palmTitle:"AI Palm Reading",
+        palmDesc:"Scan your palm and discover line patterns, shapes and traits — processed with computer vision.",
+        energyTitle:"Energy & Dreams",
+        energyDesc:"Upload dreams for symbolism mapping, and explore energy reading with mindful prompts.",
         terms:"Terms", privacy:"Privacy", cookies:"Cookies", disclaimer:"Disclaimer",
-        rights:"All Rights Reserved.", devby:"Developed by GALAXY 🌌",
-        meta:"Experience AI-powered fortune readings — mystical insights interpreted by advanced artificial intelligence.",
-        ogt:"MystAI.ai — AI-Powered Fortune Readings", ogd:"Where Artificial Intelligence meets the ancient art of divination."
+        rights:"All Rights Reserved.", devby:"Developed by GALAXY 🌌"
       },
-      tr: {
-        headline: "Yapay zekâ destekli fal deneyimi yaşa",
-        lead: "Gelişmiş yapay zekâ tarafından yorumlanan mistik içgörüler.<br>Gizlilik, güvenlik ve netlik önceliğimizdir.",
-        cta: "FALINI AL",
-        coffeeTitle: "Yapay Zekâ Kahve Falı",
-        coffeeDesc: "Fincan fotoğrafını yükle; sembolik, kültürel ve duygusal katmanları yapay zekâ çözümler.",
-        tarotTitle: "Yapay Zekâ Tarot Açılımı",
-        tarotDesc: "Kartlarını dijital olarak seç; arketipler, zaman çizgisi ve rehberlikle AI tarafından yorumlansın.",
-        palmTitle: "Yapay Zekâ El Falı",
-        palmDesc: "Avucunu tara; çizgi desenlerini, şekilleri ve özellikleri — bilgisayarlı görü ile keşfet.",
-        energyTitle: "Enerji & Rüyalar",
-        energyDesc: "Rüyalarını yükle; sembol haritalama ile yorumlansın, enerji okumasını farkındalıkla keşfet.",
+      tr:{
+        headline:"Yapay zekâ destekli fal deneyimi yaşa",
+        lead:"Gelişmiş yapay zekâ tarafından yorumlanan mistik içgörüler.<br>Gizlilik, güvenlik ve netlik önceliğimizdir.",
+        cta:"FALINI AL",
+        coffeeTitle:"Yapay Zekâ Kahve Falı",
+        coffeeDesc:"Fincan fotoğrafını yükle; sembolik, kültürel ve duygusal katmanları yapay zekâ çözümler.",
+        tarotTitle:"Yapay Zekâ Tarot Açılımı",
+        tarotDesc:"Kartlarını dijital olarak seç; arketipler, zaman çizgisi ve rehberlikle AI tarafından yorumlansın.",
+        palmTitle:"Yapay Zekâ El Falı",
+        palmDesc:"Avucunu tara; çizgi desenlerini, şekilleri ve özellikleri — bilgisayarlı görü ile keşfet.",
+        energyTitle:"Enerji & Rüyalar",
+        energyDesc:"Rüyalarını yükle; sembol haritalama ile yorumlansın, enerji okumasını farkındalıkla keşfet.",
         terms:"Şartlar", privacy:"Gizlilik", cookies:"Çerezler", disclaimer:"Sorumluluk Reddi",
-        rights:"Tüm Hakları Saklıdır.", devby:"GALAXY tarafından geliştirilmiştir 🌌",
-        meta:"Yapay zekâ destekli fal deneyimleri — gelişmiş yapay zekâ tarafından yorumlanan mistik içgörüler.",
-        ogt:"MystAI.ai — Yapay Zekâ Destekli Fal", ogd:"Yapay zekâ ile kadim kehanet sanatının buluşma noktası."
+        rights:"Tüm Hakları Saklıdır.", devby:"GALAXY tarafından geliştirilmiştir 🌌"
       }
     };
 
     function setLang(lang){
-      var dict = I18N[lang] || I18N.en;
-      document.documentElement.lang = lang;
-
-      // İçerik metinleri
-      var nodes = document.querySelectorAll("[data-i18n]");
-      for (var i=0;i<nodes.length;i++){
-        var el = nodes[i], key = el.getAttribute("data-i18n");
-        if (!key) continue;
-        if (key === "lead") { el.innerHTML = dict[key]; }
-        else { el.textContent = dict[key]; }
-      }
-
-      // Meta
-      var metaDesc = document.getElementById("meta-desc");
-      var ogTitle = document.getElementById("og-title");
-      var ogDesc  = document.getElementById("og-desc");
-      var twTitle = document.getElementById("tw-title");
-      var twDesc  = document.getElementById("tw-desc");
-      if (metaDesc) metaDesc.setAttribute("content", dict.meta);
-      if (ogTitle)  ogTitle.setAttribute("content", dict.ogt);
-      if (ogDesc)   ogDesc.setAttribute("content", dict.ogd);
-      if (twTitle)  twTitle.setAttribute("content", dict.ogt);
-      if (twDesc)   twDesc.setAttribute("content", dict.ogd);
-
-      // Buton stilleri
-      var enBtn = document.getElementById("btn-en");
-      var trBtn = document.getElementById("btn-tr");
-      enBtn.classList.toggle("secondary", lang !== "en");
-      trBtn.classList.toggle("secondary", lang !== "tr");
-      enBtn.setAttribute("aria-pressed", (lang === "en"));
-      trBtn.setAttribute("aria-pressed", (lang === "tr"));
-
-      try { localStorage.setItem("myst_lang", lang); } catch(e){}
+      const dict=i18n[lang]||i18n.en;
+      document.documentElement.lang=lang;
+      document.querySelectorAll("[data-i18n]").forEach(el=>{
+        const key=el.getAttribute("data-i18n");
+        if(key==="lead"){el.innerHTML=dict[key];}
+        else{el.textContent=dict[key];}
+      });
+      document.getElementById("btn-en").classList.toggle("secondary",lang!=="en");
+      document.getElementById("btn-tr").classList.toggle("secondary",lang!=="tr");
+      localStorage.setItem("myst_lang",lang);
     }
 
-    // Dil butonları
-    document.getElementById("btn-en").addEventListener("click", function(){ setLang("en"); });
-    document.getElementById("btn-tr").addEventListener("click", function(){ setLang("tr"); });
+    document.getElementById("btn-en").addEventListener("click",()=>setLang("en"));
+    document.getElementById("btn-tr").addEventListener("click",()=>setLang("tr"));
 
-    // İlk dil
-    (function(){
-      var lang = "en";
-      try {
-        var stored = localStorage.getItem("myst_lang");
-        if (stored) lang = stored;
-        else if (navigator.language && navigator.language.toLowerCase().indexOf("tr") === 0) lang = "tr";
-      } catch(e){}
+    (function initLang(){
+      let lang="en";
+      try{
+        lang=localStorage.getItem("myst_lang")||lang;
+        if(!localStorage.getItem("myst_lang") && navigator.language.toLowerCase().startsWith("tr")) lang="tr";
+      }catch(e){}
       setLang(lang);
     })();
   </script>
 
-  <!-- Structured Data -->
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"Organization",
-    "name":"MystAI.ai",
-    "url":"https://mystai.ai",
-    "logo":"https://mystai.ai/mystai-logo.png",
-    "sameAs":["https://www.instagram.com/mystai.ai","https://twitter.com/mystai_ai"],
-    "contactPoint":[{"@type":"ContactPoint","email":"support@mystai.ai","contactType":"customer support","availableLanguage":["en","tr"]}]
-  }
-  </script>
 </body>
 </html>
