@@ -23,21 +23,30 @@
       background:rgba(10,15,30,.5);backdrop-filter:blur(12px);
       border-bottom:1px solid rgba(255,255,255,.08);
     }
-    header img{height:52px;filter:drop-shadow(0 0 10px rgba(255,215,0,.6))}
-    .nav-btns{display:flex;gap:14px}
+    header img{
+      height:80px;
+      filter:drop-shadow(0 0 25px rgba(255,215,0,.8)) brightness(1.15);
+      transition:transform 0.5s ease, filter 0.5s ease;
+    }
+    header img:hover{
+      transform:scale(1.05);
+      filter:drop-shadow(0 0 45px rgba(255,235,100,1)) brightness(1.25);
+    }
+
+    .nav-btns{display:flex;gap:14px;align-items:center;}
     .btn{
       font-weight:700;border:0;border-radius:10px;padding:10px 18px;cursor:pointer;
       color:#0b0f1f;background:#ffd54f;transition:all .3s ease;
     }
     .btn:hover{filter:brightness(1.1);transform:translateY(-2px)}
+    .lang-btn{
+      font-weight:700;border:0;border-radius:8px;padding:6px 10px;cursor:pointer;
+      color:#0b0f1f;background:#ffd54f;margin-left:8px;
+    }
+    .lang-btn.secondary{background:transparent;color:#e6ecff;border:1px solid #2b3f66}
 
-    .hero{
-      text-align:center;padding:80px 20px 40px;
-    }
-    .hero h1{
-      color:#f5d76e;font-size:44px;margin-bottom:10px;
-      text-shadow:0 0 15px rgba(255,215,0,.3);
-    }
+    .hero{text-align:center;padding:80px 20px 40px;}
+    .hero h1{color:#f5d76e;font-size:44px;margin-bottom:10px;text-shadow:0 0 15px rgba(255,215,0,.3);}
     .hero p{color:var(--text);max-width:700px;margin:0 auto;line-height:1.6}
 
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:28px;padding:60px 20px;max-width:1100px;margin:auto;}
@@ -78,65 +87,110 @@
   <header>
     <img src="mystai-logo.png" alt="MystAI Logo">
     <div class="nav-btns">
-      <button class="btn">Login</button>
-      <button class="btn">Sign up</button>
+      <button class="btn" data-i18n="login">Login</button>
+      <button class="btn" data-i18n="signup">Sign up</button>
+      <button class="lang-btn" id="btn-en">EN</button>
+      <button class="lang-btn secondary" id="btn-tr">TR</button>
     </div>
   </header>
 
   <section class="hero">
-    <h1>Choose Your Reading</h1>
-    <p>Explore the ancient art of divination through the power of AI.<br> Select your path below to begin your mystical journey.</p>
+    <h1 data-i18n="choose">Choose Your Reading</h1>
+    <p data-i18n="desc">Explore the ancient art of divination through the power of AI.<br>Select your path below to begin your mystical journey.</p>
   </section>
 
   <section class="grid">
     <article class="tile">
       <img src="images/Coffee.png" alt="AI Coffee Reading" class="reading-img">
-      <h3>AI Coffee Reading</h3>
-      <p>Upload your cup image and receive symbolic and emotional insights decoded by AI.</p>
-      <button class="start-btn" onclick="showPopup()">Start Reading</button>
+      <h3 data-i18n="coffeeTitle">AI Coffee Reading</h3>
+      <p data-i18n="coffeeDesc">Upload your cup image and receive symbolic and emotional insights decoded by AI.</p>
+      <button class="start-btn" onclick="showPopup()" data-i18n="start">Start Reading</button>
     </article>
 
     <article class="tile">
       <img src="images/Tarot.png" alt="AI Tarot Reading" class="reading-img">
-      <h3>AI Tarot Reading</h3>
-      <p>Draw cards digitally and let AI interpret archetypes and guidance for you.</p>
-      <button class="start-btn" onclick="showPopup()">Start Reading</button>
+      <h3 data-i18n="tarotTitle">AI Tarot Reading</h3>
+      <p data-i18n="tarotDesc">Draw cards digitally and let AI interpret archetypes and guidance for you.</p>
+      <button class="start-btn" onclick="showPopup()" data-i18n="start">Start Reading</button>
     </article>
 
     <article class="tile">
       <img src="images/Palm.png" alt="AI Palm Reading" class="reading-img">
-      <h3>AI Palm Reading</h3>
-      <p>Scan your palm and discover patterns and meanings through AI analysis.</p>
-      <button class="start-btn" onclick="showPopup()">Start Reading</button>
+      <h3 data-i18n="palmTitle">AI Palm Reading</h3>
+      <p data-i18n="palmDesc">Scan your palm and discover patterns and meanings through AI analysis.</p>
+      <button class="start-btn" onclick="showPopup()" data-i18n="start">Start Reading</button>
     </article>
 
     <article class="tile">
       <img src="images/Energy.png" alt="Energy & Dreams" class="reading-img">
-      <h3>Energy & Dreams</h3>
-      <p>Upload your dreams or energy symbols and receive reflective AI interpretations.</p>
-      <button class="start-btn" onclick="showPopup()">Start Reading</button>
+      <h3 data-i18n="energyTitle">Energy & Dreams</h3>
+      <p data-i18n="energyDesc">Upload your dreams or energy symbols and receive reflective AI interpretations.</p>
+      <button class="start-btn" onclick="showPopup()" data-i18n="start">Start Reading</button>
     </article>
   </section>
 
   <div id="popup">
     <div class="popup-content">
-      <h2>🔒 Coming Soon</h2>
-      <p>Our reading system is almost ready. Payment and membership features are being finalized.<br><br>✨ Stay tuned — your digital fortune awaits!</p>
-      <button onclick="hidePopup()">OK</button>
+      <h2 data-i18n="comingTitle">🔒 Coming Soon</h2>
+      <p data-i18n="comingText">Our reading system is almost ready. Payment and membership features are being finalized.<br><br>✨ Stay tuned — your digital fortune awaits!</p>
+      <button onclick="hidePopup()" data-i18n="ok">OK</button>
     </div>
   </div>
 
   <footer>
-    <p>© 2025 MystAI.ai — All Rights Reserved. Developed by GALAXY 🌌</p>
+    <p>© 2025 MystAI.ai — <span data-i18n="rights">All Rights Reserved.</span> <span data-i18n="dev">Developed by GALAXY 🌌</span></p>
   </footer>
 
   <script>
-    function showPopup(){
-      document.getElementById('popup').style.display='flex';
+    const i18n = {
+      en:{
+        login:"Login", signup:"Sign up",
+        choose:"Choose Your Reading",
+        desc:"Explore the ancient art of divination through the power of AI.<br>Select your path below to begin your mystical journey.",
+        coffeeTitle:"AI Coffee Reading", coffeeDesc:"Upload your cup image and receive symbolic and emotional insights decoded by AI.",
+        tarotTitle:"AI Tarot Reading", tarotDesc:"Draw cards digitally and let AI interpret archetypes and guidance for you.",
+        palmTitle:"AI Palm Reading", palmDesc:"Scan your palm and discover patterns and meanings through AI analysis.",
+        energyTitle:"Energy & Dreams", energyDesc:"Upload your dreams or energy symbols and receive reflective AI interpretations.",
+        start:"Start Reading",
+        comingTitle:"🔒 Coming Soon", comingText:"Our reading system is almost ready. Payment and membership features are being finalized.<br><br>✨ Stay tuned — your digital fortune awaits!",
+        ok:"OK", rights:"All Rights Reserved.", dev:"Developed by GALAXY 🌌"
+      },
+      tr:{
+        login:"Giriş Yap", signup:"Kayıt Ol",
+        choose:"Falını Seç",
+        desc:"Yapay zekâ gücüyle kadim fal sanatını keşfet.<br>Aşağıdan yolunu seç ve mistik yolculuğuna başla.",
+        coffeeTitle:"Yapay Zekâ Kahve Falı", coffeeDesc:"Fincan fotoğrafını yükle; sembolik ve duygusal içgörüler yapay zekâ tarafından çözümlensin.",
+        tarotTitle:"Yapay Zekâ Tarot Açılımı", tarotDesc:"Kartlarını dijital olarak seç; arketipler ve rehberlik yapay zekâ tarafından yorumlansın.",
+        palmTitle:"Yapay Zekâ El Falı", palmDesc:"Avucunu tara; çizgi ve desenleri yapay zekâ analiz etsin.",
+        energyTitle:"Enerji & Rüyalar", energyDesc:"Rüyalarını veya enerji sembollerini yükle; AI bunları farkındalıkla yorumlasın.",
+        start:"Falını Başlat",
+        comingTitle:"🔒 Çok Yakında", comingText:"Fal sistemimiz neredeyse hazır. Üyelik ve ödeme özellikleri tamamlanmak üzere.<br><br>✨ Takipte kal — dijital falın yakında seni bekliyor!",
+        ok:"Tamam", rights:"Tüm Hakları Saklıdır.", dev:"GALAXY tarafından geliştirilmiştir 🌌"
+      }
+    };
+
+    function setLang(lang){
+      const dict=i18n[lang]||i18n.en;
+      document.querySelectorAll("[data-i18n]").forEach(el=>{
+        const key=el.getAttribute("data-i18n");
+        if(key==="desc"||key==="comingText"){el.innerHTML=dict[key];}
+        else el.textContent=dict[key];
+      });
+      document.getElementById("btn-en").classList.toggle("secondary",lang!=="en");
+      document.getElementById("btn-tr").classList.toggle("secondary",lang!=="tr");
+      localStorage.setItem("myst_lang",lang);
     }
-    function hidePopup(){
-      document.getElementById('popup').style.display='none';
-    }
+
+    document.getElementById("btn-en").addEventListener("click",()=>setLang("en"));
+    document.getElementById("btn-tr").addEventListener("click",()=>setLang("tr"));
+
+    (function initLang(){
+      let lang=localStorage.getItem("myst_lang")||"en";
+      setLang(lang);
+    })();
+
+    function showPopup(){document.getElementById('popup').style.display='flex';}
+    function hidePopup(){document.getElementById('popup').style.display='none';}
   </script>
 </body>
 </html>
