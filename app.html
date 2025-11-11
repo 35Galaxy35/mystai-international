@@ -47,15 +47,16 @@
       padding:8px 18px; cursor:pointer;
       color:#0b0f1f; background:#ffd54f;
       font-size:14px; transition:all .3s ease;
+      text-decoration:none;
     }
     .btn:hover, .lang-btn:hover { filter:brightness(1.1); transform:translateY(-2px); }
 
     /* FLOATING LOGO */
     .floating-logo {
-      position:absolute; left:50%; top:90px; transform:translateX(-50%);
-      height:170px; width:auto;
+      position:absolute; left:50%; top:80px; transform:translateX(-50%);
+      height:200px; width:auto;
       animation:float 6s ease-in-out infinite alternate, glow 6s ease-in-out infinite alternate;
-      filter:drop-shadow(0 0 35px rgba(255,230,150,0.65)) brightness(1.05);
+      filter:drop-shadow(0 0 40px rgba(255,230,150,0.65)) brightness(1.1);
       z-index:5;
     }
     @keyframes float {
@@ -70,7 +71,7 @@
     /* HERO */
     .hero {
       text-align:center;
-      padding-top:280px; padding-bottom:50px;
+      padding-top:300px; padding-bottom:50px;
     }
     .hero h1 {
       color:#f5d76e; font-size:46px;
@@ -143,8 +144,8 @@
     .links { margin-bottom:8px; }
 
     @media (max-width:768px){
-      .floating-logo{height:120px; top:100px;}
-      .hero{padding-top:220px;}
+      .floating-logo{height:150px; top:100px;}
+      .hero{padding-top:240px;}
     }
   </style>
 </head>
@@ -156,13 +157,13 @@
       <button class="lang-btn secondary" id="btn-tr">TR</button>
     </div>
 
+    <img src="mystai-logo.png" alt="MystAI Logo" class="floating-logo">
+
     <div class="nav-btns">
-      <button class="btn" data-i18n="login">Login</button>
-      <button class="btn" data-i18n="signup">Sign up</button>
+      <a href="login.html" class="btn" data-i18n="login">Login</a>
+      <a href="signup.html" class="btn" data-i18n="signup">Sign up</a>
     </div>
   </header>
-
-  <img src="mystai-logo.png" alt="MystAI Logo" class="floating-logo">
 
   <section class="hero">
     <h1 data-i18n="choose">Choose Your Reading</h1>
