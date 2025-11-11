@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login — MystAI.ai</title>
+  <link rel="icon" type="image/png" href="mystai-logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --accent:#ffd54f; --bg1:#0d1440; --bg2:#0b0f1f; }
+    body {
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:radial-gradient(1200px 800px at 50% -10%, var(--bg1), var(--bg2));
+      color:#e6ecff; text-align:center;
+    }
+
+    header {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:16px 40px; background:rgba(10,15,30,0.35); backdrop-filter:blur(12px);
+      border-bottom:1px solid rgba(255,255,255,0.08);
+    }
+    .lang-box { display:flex; gap:10px; }
+    .lang-btn {
+      font-weight:700; border:none; border-radius:50px; padding:7px 13px;
+      background:linear-gradient(135deg,var(--accent),#ffe680); color:#111; cursor:pointer;
+      font-size:13px; transition:all .3s ease;
+    }
+    .lang-btn.secondary { background:rgba(255,255,255,0.1); color:#e6ecff; border:1px solid rgba(255,255,255,.12); }
+
+    .container {
+      display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:90vh;
+    }
+    img.logo { width:170px; margin-bottom:20px; filter:drop-shadow(0 0 25px rgba(255,230,120,0.5)); }
+    h1 { font-family:'Cinzel',serif; color:var(--accent); font-size:32px; margin-bottom:20px; }
+
+    form {
+      background:rgba(255,255,255,0.05); padding:40px; border-radius:16px;
+      box-shadow:0 0 30px rgba(255,215,0,0.15); width:320px; text-align:left;
+    }
+    label { font-weight:600; color:var(--accent); display:block; margin-top:10px; }
+    input {
+      width:100%; padding:10px; margin-top:6px; border:none; border-radius:8px;
+      background:rgba(255,255,255,0.1); color:#fff;
+    }
+    input:focus { outline:2px solid var(--accent); }
+    button {
+      width:100%; padding:12px; margin-top:20px;
+      background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);
+      border:none; border-radius:10px; font-weight:700; color:#111;
+      cursor:pointer; box-shadow:0 0 18px rgba(255,215,0,0.35);
+    }
+    button:hover { transform:scale(1.03); }
+
+    .links { margin-top:20px; text-align:center; }
+    a { color:#ffe680; text-decoration:none; }
+    a:hover { text-decoration:underline; }
+
+    #popup {
+      position:fixed; top:0; left:0; width:100%; height:100%;
+      background:rgba(0,0,0,.7); display:none; justify-content:center; align-items:center;
+    }
+    .popup-content {
+      background:#0d1a2b; border:1px solid rgba(255,255,255,.15);
+      border-radius:14px; padding:40px; max-width:400px;
+      box-shadow:0 0 35px rgba(255,215,0,.4);
+    }
+    .popup-content h2 { color:#ffd54f; margin-bottom:10px; }
+    .popup-content p { color:#d8e0ff; line-height:1.5; }
+    .popup-content button {
+      margin-top:20px; background:#ffd54f; border:none;
+      padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:700;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="lang-box">
+      <button class="lang-btn" id="btn-en">EN</button>
+      <button class="lang-btn secondary" id="btn-tr">TR</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <img src="mystai-logo.png" class="logo" alt="MystAI Logo">
+    <h1 data-i18n="title">Welcome Back</h1>
+    <form onsubmit="showPopup(); return false;">
+      <label data-i18n="email">Email</label>
+      <input type="email" placeholder="you@example.com" required>
+      <label data-i18n="password">Password</label>
+      <input type="password" placeholder="••••••••" required>
+      <button type="submit" data-i18n="login">Login</button>
+    </form>
+    <div class="links">
+      <p data-i18n="noacc">Don’t have an account? <a href="signup.html" data-i18n="signup">Sign up</a></p>
+      <p><a href="index.html" data-i18n="back">← Back to Home</a></p>
+    </div>
+  </div>
+
+  <div id="popup">
+    <div class="popup-content">
+      <h2 data-i18n="coming">🔒 Coming Soon</h2>
+      <p data-i18n="text">Membership and login features will be available soon.<br>✨ Stay tuned!</p>
+      <button onclick="hidePopup()" data-i18n="ok">OK</button>
+    </div>
+  </div>
+
+  <script>
+    const i18n={
+      en:{title:"Welcome Back",email:"Email",password:"Password",login:"Login",noacc:"Don’t have an account?",signup:"Sign up",back:"← Back to Home",coming:"🔒 Coming Soon",text:"Membership and login features will be available soon.<br>✨ Stay tuned!",ok:"OK"},
+      tr:{title:"Tekrar Hoş Geldin",email:"E-posta",password:"Şifre",login:"Giriş Yap",noacc:"Hesabın yok mu?",signup:"Kayıt Ol",back:"← Ana Sayfaya Dön",coming:"🔒 Çok Yakında",text:"Üyelik ve giriş özellikleri yakında aktif olacak.<br>✨ Takipte kal!",ok:"Tamam"}
+    };
+    function setLang(lang){const dict=i18n[lang];document.querySelectorAll("[data-i18n]").forEach(e=>{const k=e.dataset.i18n;if(["text"].includes(k))e.innerHTML=dict[k];else e.textContent=dict[k];});localStorage.setItem("myst_lang",lang);document.getElementById("btn-en").classList.toggle("secondary",lang!=="en");document.getElementById("btn-tr").classList.toggle("secondary",lang!=="tr");}
+    document.getElementById("btn-en").onclick=()=>setLang("en");
+    document.getElementById("btn-tr").onclick=()=>setLang("tr");
+    (function(){let lang=localStorage.getItem("myst_lang")||"en";setLang(lang);})();
+    function showPopup(){document.getElementById("popup").style.display="flex";}
+    function hidePopup(){document.getElementById("popup").style.display="none";}
+  </script>
+</body>
+</html>
