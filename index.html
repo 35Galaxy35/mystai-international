@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MystAI.ai — AI-Powered Fortune Readings & Digital Divination</title>
 
-  <!-- Canonical & Favicon -->
+  <!-- Canonical & Fav -->
   <link rel="canonical" href="https://mystai.ai/" />
   <link rel="icon" type="image/png" href="mystai-logo.png" />
 
@@ -13,7 +13,7 @@
   <link rel="alternate" hreflang="en" href="https://mystai.ai/" />
   <link rel="alternate" hreflang="tr" href="https://mystai.ai/" />
 
-  <!-- Social (JS dil değiştikçe güncellenir) -->
+  <!-- Social (default EN, JS ile dil değiştikçe güncellenir) -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="MystAI.ai — AI-Powered Fortune Readings" id="og-title"/>
   <meta property="og:description" content="Experience AI-powered fortune readings — mystical insights interpreted by advanced artificial intelligence." id="og-desc"/>
@@ -22,141 +22,88 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="MystAI.ai — AI-Powered Fortune Readings" id="tw-title"/>
   <meta name="twitter:description" content="Experience AI-powered fortune readings — mystical insights interpreted by advanced artificial intelligence." id="tw-desc"/>
+
+  <!-- SEO description (JS ile dil değiştirilecek) -->
   <meta name="description" content="Experience AI-powered fortune readings — mystical insights interpreted by advanced artificial intelligence." id="meta-desc"/>
 
-  <!-- Font -->
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --bg-start:#0d1a2b; --bg-end:#0b0f1f;
-      --text:#d8e0ff; --muted:#a9b4d0; --accent:#f2c84b; --gold:#ffd54f;
+      --bg-start:#0d1a2b;--bg-end:#0b0f1f;--text:#d8e0ff;--muted:#a9b4d0;--accent:#f2c84b;
     }
     html,body{
-      margin:0; padding:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      color:var(--text); text-align:center; overflow-x:hidden; scroll-behavior:smooth;
-      background:radial-gradient(1200px 600px at 50% 0%, var(--bg-start) 0%, var(--bg-end) 70%);
+      margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      color:var(--text);text-align:center;overflow-x:hidden;scroll-behavior:smooth;
+      background:radial-gradient(1200px 600px at 50% 0%,var(--bg-start) 0%,var(--bg-end) 70%);
     }
 
     /* Language Switcher */
     .topbar{
-      position:fixed; top:12px; right:12px; z-index:10; display:flex; gap:8px;
-      background:rgba(5,8,20,.5); backdrop-filter:blur(8px);
-      border:1px solid rgba(255,255,255,.12); padding:6px 8px; border-radius:12px;
+      position:fixed;top:12px;right:12px;z-index:10;display:flex;gap:8px;
+      background:rgba(5,8,20,.5);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);
+      padding:6px 8px;border-radius:12px;
     }
     .lang-btn{
-      font-weight:700; border:0; border-radius:10px; padding:6px 10px; cursor:pointer;
-      color:#0b0f1f; background:var(--gold); transition:filter .25s ease;
+      font-weight:700;border:0;border-radius:10px;padding:6px 10px;cursor:pointer;
+      color:#0b0f1f;background:#ffd54f;
     }
-    .lang-btn.secondary{ background:transparent; color:#e6ecff; border:1px solid #2b3f66 }
-    .lang-btn:focus{ outline:2px solid #89a7ff; outline-offset:2px }
+    .lang-btn.secondary{background:transparent;color:#e6ecff;border:1px solid #2b3f66}
 
     /* Starfield */
-    #starfield{
-      position:fixed; inset:0; z-index:-1;
-      background:radial-gradient(ellipse at center,#0d1a2b 0%,#050814 100%);
-      overflow:hidden;
-    }
-    .star{
-      position:absolute; width:2px; height:2px; border-radius:50%;
-      background:rgba(255,255,200,.9);
-      animation:twinkle 3s infinite ease-in-out;
-    }
-    @keyframes twinkle{ 0%,100%{opacity:.2; transform:scale(1)} 50%{opacity:1; transform:scale(1.35)} }
+    #starfield{position:fixed;inset:0;z-index:-1;background:radial-gradient(ellipse at center,#0d1a2b 0%,#050814 100%);overflow:hidden}
+    .star{position:absolute;width:2px;height:2px;background:rgba(255,255,200,.9);border-radius:50%;animation:twinkle 3s infinite ease-in-out}
+    @keyframes twinkle{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
 
     /* Hero */
-    .hero{ display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:75vh; padding-top:60px }
+    .hero{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:75vh;padding-top:60px}
     .hero-logo{
-      width:560px; max-width:95%;
+      width:560px;max-width:95%;
       filter:drop-shadow(0 0 35px rgba(255,215,0,.8)) brightness(1.2) contrast(1.15);
-      animation:pulseGlow 4s ease-in-out infinite alternate;
-      transition:transform 1s ease, filter 1s ease;
+      animation:pulseGlow 4s ease-in-out infinite alternate;transition:transform 1s ease,filter 1s ease
     }
-    .hero-logo:hover{ transform:scale(1.05); filter:drop-shadow(0 0 58px rgba(255,235,100,1)) brightness(1.25) contrast(1.2) }
-    @keyframes pulseGlow{ from{ filter:drop-shadow(0 0 20px rgba(255,215,0,.6)) } to{ filter:drop-shadow(0 0 45px rgba(255,235,100,1)) } }
+    .hero-logo:hover{transform:scale(1.05);filter:drop-shadow(0 0 58px rgba(255,235,100,1)) brightness(1.25) contrast(1.2)}
+    @keyframes pulseGlow{from{filter:drop-shadow(0 0 20px rgba(255,215,0,.6))}to{filter:drop-shadow(0 0 45px rgba(255,235,100,1))}}
 
     /* Content */
-    .wrap{ max-width:1100px; margin:0 auto; padding:0 20px 40px }
-    h1{ font-size:44px; color:#f5d76e; margin:20px 0 10px; text-shadow:0 0 10px rgba(255,215,0,.3) }
-    p.lead{ font-size:18px; color:var(--text); line-height:1.6; max-width:900px; margin:0 auto }
+    .wrap{max-width:1100px;margin:0 auto;padding:0 20px 40px}
+    h1{font-size:44px;color:#f5d76e;margin:20px 0 10px;text-shadow:0 0 10px rgba(255,215,0,.3)}
+    p.lead{font-size:18px;color:var(--text);line-height:1.6;max-width:900px;margin:0 auto}
 
     /* CTA */
-    .cta{ margin:30px 0; display:flex; justify-content:center }
+    .cta{margin:30px 0;display:flex;justify-content:center}
     .fortune-btn{
-      font-family:'Cinzel',serif; font-size:30px; font-weight:800; padding:24px 70px; border-radius:16px;
-      color:#111; background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680); background-size:300% 300%;
-      letter-spacing:2px; text-transform:uppercase; border:none; cursor:pointer;
-      box-shadow:0 0 25px rgba(255,215,0,.6);
-      animation:crystalGlow 5s ease infinite, pulseGlow 4s ease-in-out infinite;
-      transition:transform .3s ease, box-shadow .4s ease, filter .3s ease;
+      font-family:'Cinzel',serif;font-size:30px;font-weight:800;padding:24px 70px;border-radius:16px;
+      color:#111;background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);background-size:300% 300%;
+      letter-spacing:2px;text-transform:uppercase;border:none;cursor:pointer;box-shadow:0 0 25px rgba(255,215,0,.6);
+      animation:crystalGlow 5s ease infinite,pulseGlow 4s ease-in-out infinite;transition:transform .3s ease,box-shadow .4s ease
     }
-    .fortune-btn:hover{ transform:scale(1.1); box-shadow:0 0 45px rgba(255,240,150,.9); filter:brightness(1.2) }
-    @keyframes crystalGlow{ 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+    .fortune-btn:hover{transform:scale(1.1);box-shadow:0 0 45px rgba(255,240,150,.9);filter:brightness(1.2)}
+    @keyframes crystalGlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
     /* Grid */
-    .grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(250px,1fr)); gap:24px; margin-top:60px }
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px;margin-top:60px}
     .tile{
-      background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:14px;
-      transition:transform .3s ease, box-shadow .3s ease; opacity:0; transform:translateY(20px)
+      background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:14px;
+      transition:transform .3s ease,box-shadow .3s ease;opacity:0;transform:translateY(20px)
     }
-    .tile.visible{ opacity:1; transform:translateY(0); transition:all 1s ease }
-    .tile:hover{ transform:scale(1.02); box-shadow:0 0 30px rgba(255,215,0,.2) }
-    .tile h3{ color:#f5d76e; font-family:'Cinzel',serif; margin-top:10px }
-    .tile p{ color:var(--muted); font-size:15px }
+    .tile.visible{opacity:1;transform:translateY(0);transition:all 1s ease}
+    .tile:hover{transform:scale(1.02);box-shadow:0 0 30px rgba(255,215,0,.2)}
+    .tile h3{color:#f5d76e;font-family:'Cinzel',serif;margin-top:10px}
+    .tile p{color:var(--muted);font-size:15px}
 
     /* Images */
     .reading-img{
-      width:100%; height:320px; object-fit:cover; border-radius:14px; margin-bottom:12px;
-      box-shadow:0 0 22px rgba(255,215,0,.25);
-      transition:transform .35s ease, box-shadow .35s ease, filter .35s ease;
+      width:100%;height:320px;object-fit:cover;border-radius:14px;margin-bottom:12px;
+      box-shadow:0 0 22px rgba(255,215,0,.25);transition:transform .35s ease,box-shadow .35s ease,filter .35s ease
     }
-    .tile:hover .reading-img{ transform:scale(1.03); box-shadow:0 0 36px rgba(255,225,150,.45); filter:brightness(1.05) }
-    @media (max-width:640px){ .reading-img{ height:240px } }
+    .tile:hover .reading-img{transform:scale(1.03);box-shadow:0 0 36px rgba(255,225,150,.45);filter:brightness(1.05)}
+    @media (max-width:640px){.reading-img{height:240px}}
 
     /* Footer */
-    footer{
-      margin-top:60px; padding:36px 0 24px; border-top:1px solid rgba(255,255,255,.08);
-      text-align:center; color:#aeb6cf; text-shadow:0 0 10px rgba(255,215,0,.2)
-    }
-    footer a{ color:#cfe4ff; text-decoration:none }
-    footer a:hover{ color:#ffe680 }
-
-    /* Reduced motion */
-    @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important } }
-
-    /* ===== Desktop tek ekran sığdırma (≥1200px) ===== */
-    @media (min-width:1200px){
-      html,body{ height:100%; overflow:hidden; scrollbar-gutter:stable both-edges; }
-      .topbar{ top:8px; right:8px; }
-      .hero{ min-height:52vh; padding-top:44px; padding-bottom:0; }
-      .hero-logo{ max-width:90%; }
-      h1{ margin:10px 0 6px; font-size:38px; }
-      .lead{ max-width:840px; }
-      .cta{ margin:14px 0 8px; }
-      .grid{ margin-top:10px; gap:12px; grid-template-columns:repeat(4,1fr); }
-      .reading-img{ height:120px; } /* Gerekirse 116/112px yapabilirsin */
-      .tile h3{ font-size:15px }
-      .tile p{ font-size:12.5px }
-      footer{ margin-top:8px; padding:8px 0; }
-    }
-    @media (min-width:1200px) and (max-height:900px){
-      .hero{ min-height:48vh }
-      h1{ font-size:34px }
-      .reading-img{ height:104px }
-      .tile p{ font-size:12px }
-      footer{ padding:6px 0 }
-    }
-    @media (min-width:1200px) and (max-height:800px){
-      .hero{ min-height:44vh; padding-top:36px }
-      h1{ font-size:32px; margin:8px 0 4px }
-      .cta{ margin:10px 0 6px }
-      .grid{ gap:10px }
-      .reading-img{ height:96px }
-      .tile h3{ font-size:14px }
-      .tile p{ font-size:11.5px }
-      footer{ margin-top:6px; padding:6px 0 }
-    }
+    footer{margin-top:60px;padding:36px 0 24px;border-top:1px solid rgba(255,255,255,.08);text-align:center;color:#aeb6cf;text-shadow:0 0 10px rgba(255,215,0,.2)}
+    footer a{color:#cfe4ff;text-decoration:none}footer a:hover{color:#ffe680}
   </style>
 </head>
 <body>
@@ -167,12 +114,12 @@
     <button class="lang-btn secondary" id="btn-tr" aria-pressed="false">TR</button>
   </div>
 
-  <!-- Starfield BG -->
+  <!-- Starfield Background -->
   <div id="starfield" aria-hidden="true"></div>
 
   <!-- Hero -->
-  <section class="hero" aria-label="Hero">
-    <img src="mystai-logo.png" alt="MystAI.ai Logo" class="hero-logo" width="560" height="560" decoding="async" />
+  <section class="hero">
+    <img src="mystai-logo.png" alt="MystAI.ai Logo" class="hero-logo">
   </section>
 
   <div class="wrap">
@@ -188,26 +135,26 @@
 
     <!-- Reading Cards -->
     <section class="grid" aria-label="Reading types">
-      <article class="tile">
-        <img src="images/coffee.jpeg" loading="lazy" alt="AI Coffee Reading" class="reading-img" width="600" height="400">
+      <article class="tile fade-in">
+        <img src="images/coffee.jpeg" loading="lazy" alt="AI Coffee Reading" class="reading-img">
         <h3 data-i18n="coffeeTitle">AI Coffee Reading</h3>
         <p data-i18n="coffeeDesc">Upload your cup image and receive symbolic, cultural, and emotional layers decoded by AI.</p>
       </article>
 
-      <article class="tile">
-        <img src="images/tarot.jpeg" loading="lazy" alt="AI Tarot Reading" class="reading-img" width="600" height="400">
+      <article class="tile fade-in">
+        <img src="images/tarot.jpeg" loading="lazy" alt="AI Tarot Reading" class="reading-img">
         <h3 data-i18n="tarotTitle">AI Tarot Reading</h3>
         <p data-i18n="tarotDesc">Draw cards digitally and get spreads interpreted with archetypes, timeline & guidance.</p>
       </article>
 
-      <article class="tile">
-        <img src="images/palm.jpeg" loading="lazy" alt="AI Palm Reading" class="reading-img" width="600" height="400">
+      <article class="tile fade-in">
+        <img src="images/palm.jpeg" loading="lazy" alt="AI Palm Reading" class="reading-img">
         <h3 data-i18n="palmTitle">AI Palm Reading</h3>
         <p data-i18n="palmDesc">Scan your palm and discover line patterns, shapes and traits — processed with computer vision.</p>
       </article>
 
-      <article class="tile">
-        <img src="images/energy.jpeg" loading="lazy" alt="Energy & Dreams" class="reading-img" width="600" height="400">
+      <article class="tile fade-in">
+        <img src="images/energy.jpeg" loading="lazy" alt="Energy & Dreams" class="reading-img">
         <h3 data-i18n="energyTitle">Energy & Dreams</h3>
         <p data-i18n="energyDesc">Upload dreams for symbolism mapping, and explore energy reading with mindful prompts.</p>
       </article>
@@ -215,9 +162,9 @@
 
     <footer>
       <div class="links">
-        <a href="terms.html" data-i18n="terms">Terms</a> •
-        <a href="privacy.html" data-i18n="privacy">Privacy</a> •
-        <a href="cookies.html" data-i18n="cookies">Cookies</a> •
+        <a href="terms.html" data-i18n="terms">Terms</a> • 
+        <a href="privacy.html" data-i18n="privacy">Privacy</a> • 
+        <a href="cookies.html" data-i18n="cookies">Cookies</a> • 
         <a href="disclaimer.html" data-i18n="disclaimer">Disclaimer</a>
       </div>
       <p>© 2025 MystAI.ai — <span data-i18n="rights">All Rights Reserved.</span> <span data-i18n="devby">Developed by GALAXY 🌌</span></p>
@@ -225,21 +172,21 @@
   </div>
 
   <script>
-    // --- Starfield dots ---
+    // === Starfield ===
     (function(){
       const starfield=document.getElementById("starfield");
-      const STARS=160;
+      const STARS=150;
       for(let i=0;i<STARS;i++){
         const s=document.createElement("div");
         s.className="star";
         s.style.left=Math.random()*100+"vw";
         s.style.top=Math.random()*100+"vh";
-        s.style.animationDelay=(Math.random()*3).toFixed(2)+"s";
+        s.style.animationDelay=Math.random()*3+"s";
         starfield.appendChild(s);
       }
     })();
 
-    // --- Fade-in tiles ---
+    // === Fade-in Cards ===
     document.addEventListener("DOMContentLoaded",()=>{
       const tiles=document.querySelectorAll('.tile');
       const obs=new IntersectionObserver(es=>{
@@ -248,7 +195,7 @@
       tiles.forEach(t=>obs.observe(t));
     });
 
-    // --- i18n (EN/TR) ---
+    // === i18n (EN/TR) ===
     const i18n={
       en:{
         headline:"Experience AI-powered fortune reading",
@@ -265,7 +212,7 @@
         terms:"Terms", privacy:"Privacy", cookies:"Cookies", disclaimer:"Disclaimer",
         rights:"All Rights Reserved.", devby:"Developed by GALAXY 🌌",
         meta:"Experience AI-powered fortune readings — mystical insights interpreted by advanced artificial intelligence.",
-        ogt:"MystAI.ai — AI-Powered Fortune Readings", ogd:"Where Artificial Intelligence meets the ancient art of divination."
+        ogt:"MystAI.ai — AI-Powered Fortune Readings", ogd:"Where Artificial Intelligence meets the ancient art of divination.",
       },
       tr:{
         headline:"Yapay zekâ destekli fal deneyimi yaşa",
@@ -282,7 +229,7 @@
         terms:"Şartlar", privacy:"Gizlilik", cookies:"Çerezler", disclaimer:"Sorumluluk Reddi",
         rights:"Tüm Hakları Saklıdır.", devby:"GALAXY tarafından geliştirilmiştir 🌌",
         meta:"Yapay zekâ destekli fal deneyimleri — gelişmiş yapay zekâ tarafından yorumlanan mistik içgörüler.",
-        ogt:"MystAI.ai — Yapay Zekâ Destekli Fal", ogd:"Yapay zekâ ile kadim kehanet sanatının buluşma noktası."
+        ogt:"MystAI.ai — Yapay Zekâ Destekli Fal", ogd:"Yapay zekâ ile kadim kehanet sanatının buluşma noktası.",
       }
     };
 
@@ -290,7 +237,7 @@
       const dict=i18n[lang]||i18n.en;
       document.documentElement.lang=lang;
 
-      // Metinleri güncelle
+      // Metinler
       document.querySelectorAll("[data-i18n]").forEach(el=>{
         const key=el.getAttribute("data-i18n");
         if(!key) return;
@@ -310,7 +257,7 @@
       if(twTitle) twTitle.setAttribute("content",dict.ogt);
       if(twDesc) twDesc.setAttribute("content",dict.ogd);
 
-      // Buton halleri
+      // Toggle buton stilleri
       document.getElementById("btn-en").classList.toggle("secondary", lang!=="en");
       document.getElementById("btn-tr").classList.toggle("secondary", lang!=="tr");
       document.getElementById("btn-en").setAttribute("aria-pressed", lang==="en");
@@ -320,11 +267,11 @@
       try{ localStorage.setItem("myst_lang", lang); }catch(e){}
     }
 
-    // Dil butonları
+    // Dil seçim butonları
     document.getElementById("btn-en").addEventListener("click",()=>setLang("en"));
     document.getElementById("btn-tr").addEventListener("click",()=>setLang("tr"));
 
-    // İlk açılışta dil
+    // İlk açılışta dil algıla (localStorage > tarayıcı dili)
     (function initLang(){
       let lang="en";
       try{
