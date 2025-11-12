@@ -1,196 +1,194 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MystAI.ai — History</title>
+  <title>MystAI — My Reading History</title>
+  <link rel="icon" type="image/png" href="mystai-logo.png" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+
   <style>
-    :root {
-      --bg: radial-gradient(1400px 800px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
-      --text: #d8e0ff;
-      --accent: #f2c84b;
-    }
     body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      text-align: center;
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:radial-gradient(1000px 700px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
+      color:#e6ecff;text-align:center;
+      min-height:100vh;
+      display:flex;flex-direction:column;justify-content:space-between;
     }
     h1 {
-      font-family: 'Cinzel', serif;
-      color: var(--accent);
-      text-shadow: 0 0 14px rgba(255,220,120,.3);
-      margin-top: 80px;
+      font-family:'Cinzel',serif;
+      color:#ffd54f;
+      margin-top:60px;
+      text-shadow:0 0 10px rgba(255,215,0,.4);
     }
     .container {
-      max-width: 700px;
-      margin: 60px auto;
-      background: rgba(255,255,255,.05);
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 0 25px rgba(255,215,0,.15);
+      width:90%;max-width:700px;margin:40px auto;
+      display:flex;flex-direction:column;gap:15px;
     }
-    .reading {
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: 10px;
-      padding: 15px;
-      margin: 15px 0;
-      text-align: left;
-      transition: transform .3s ease;
+    .card {
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      padding:14px 18px;
+      display:flex;justify-content:space-between;align-items:center;
+      transition:transform .2s ease;
     }
-    .reading:hover { transform: scale(1.02); }
-    .reading strong { color: #ffe680; }
-    .view-btn {
-      margin-top: 10px;
-      display: inline-block;
-      background: linear-gradient(120deg, #ffd700, #ffe680);
-      color: #111;
-      padding: 8px 15px;
-      border-radius: 10px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform .3s ease;
-      text-decoration: none;
+    .card:hover {transform:scale(1.02);}
+    .text {text-align:left;}
+    .type {color:#ffd54f;font-weight:600;}
+    .date {font-size:14px;color:#aeb6cf;}
+    .btn, .delete-btn {
+      border:none;border-radius:8px;padding:7px 12px;font-weight:600;cursor:pointer;
+      transition:all .3s ease;
     }
-    .view-btn:hover { transform: scale(1.05); }
-    .buttons {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      display: flex;
-      gap: 10px;
+    .btn {background:linear-gradient(135deg,#ffd54f,#ffe680);color:#111;}
+    .btn:hover {filter:brightness(1.1);}
+    .delete-btn {
+      background:rgba(255,80,80,.15);
+      border:1px solid rgba(255,100,100,.3);
+      color:#ff6666;margin-left:10px;
     }
-    .btn {
-      background: linear-gradient(120deg, #ffd700, #ffe680);
-      color: #111;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 10px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform .3s ease;
+    .delete-btn:hover {
+      background:rgba(255,80,80,.35);
+      transform:scale(1.1);
     }
-    .btn:hover { transform: scale(1.05); }
+
+    .topbar {
+      display:flex;justify-content:flex-end;align-items:center;gap:10px;
+      padding:16px 24px;
+    }
+
+    .lang-btn {
+      border:none;
+      border-radius:50%;
+      width:36px;height:36px;
+      cursor:pointer;
+      background-size:cover;
+      background-position:center;
+      transition:transform .25s ease, box-shadow .25s ease;
+      border:2px solid transparent;
+    }
+    .lang-btn.active {
+      box-shadow:0 0 15px rgba(255,215,0,.6);
+      border-color:#ffd54f;
+      transform:scale(1.1);
+    }
+    .lang-btn:hover {transform:scale(1.15);}
+
+    .flag-en {background-image:url('https://flagcdn.com/w40/gb.png');}
+    .flag-tr {background-image:url('https://flagcdn.com/w40/tr.png');}
+
+    .nav-btn {
+      border:0;border-radius:20px;
+      background:rgba(255,255,255,.15);color:#fff;
+      padding:7px 14px;cursor:pointer;font-weight:600;
+    }
+    .nav-btn:hover {filter:brightness(1.2);}
+    
     footer {
-      margin-top: 60px;
-      font-size: 14px;
-      color: #aeb6cf;
-      border-top: 1px solid rgba(255,255,255,.08);
-      padding: 20px 0;
+      border-top:1px solid rgba(255,255,255,.08);
+      padding:20px;
+      font-size:14px;
+      color:#aeb6cf;
     }
+    footer a {color:#ffd54f;text-decoration:none;}
   </style>
 </head>
 <body>
-  <div class="buttons">
-    <button class="btn" id="langBtn">🌐 EN | TR</button>
-    <button class="btn" id="backBtn"></button>
-    <button class="btn" id="logoutBtn"></button>
+  <div class="topbar">
+    <button class="lang-btn flag-en" id="btn-en"></button>
+    <button class="lang-btn flag-tr" id="btn-tr"></button>
+    <button class="nav-btn" id="backBtn">⬅ Back</button>
+    <button class="nav-btn" id="logoutBtn">Logout</button>
   </div>
 
-  <h1 id="title"></h1>
-  <div class="container" id="historyBox">Loading...</div>
-  <footer>© 2025 MystAI.ai — Developed by GALAXY 🌌</footer>
+  <h1 id="title">My Reading History</h1>
+  <div class="container" id="historyList"></div>
+
+  <footer>
+    <p>© 2025 MystAI.ai — All Rights Reserved. Developed by GALAXY 🌌<br>
+    Contact us: <a href="mailto:support@mystai.ai">support@mystai.ai</a></p>
+  </footer>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, deleteDoc, doc, query, where } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
       authDomain: "mystai-6cca2.firebaseapp.com",
       projectId: "mystai-6cca2",
-      storageBucket: "mystai-6cca2.firebasestorage.app",
+      storageBucket: "mystai-6cca2.appspot.com",
       messagingSenderId: "624127781219",
       appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
     };
+
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    const historyBox = document.getElementById("historyBox");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const backBtn = document.getElementById("backBtn");
+    const list = document.getElementById("historyList");
     const title = document.getElementById("title");
-    const langBtn = document.getElementById("langBtn");
 
-    const lang = localStorage.getItem("lang") || "tr";
-
-    const text = {
-      tr: {
-        title: "Fal Geçmişim",
-        loading: "Kayıtlar yükleniyor...",
-        none: "Henüz bir fal geçmişin yok.",
-        back: "← Geri",
-        logout: "Çıkış Yap",
-        view: "🔮 Falını Görüntüle",
-        type: "Fal Türü",
-        date: "Tarih"
-      },
-      en: {
-        title: "My Reading History",
-        loading: "Loading your readings...",
-        none: "You have no readings yet.",
-        back: "← Back",
-        logout: "Logout",
-        view: "🔮 View Reading",
-        type: "Type",
-        date: "Date"
-      }
+    const i18n = {
+      en:{title:"My Reading History",type:"Type",date:"Date",view:"View Reading",del:"Delete",confirm:"Are you sure to delete this record?",logout:"Logout",back:"Back"},
+      tr:{title:"Fal Geçmişim",type:"Tür",date:"Tarih",view:"Falını Gör",del:"Sil",confirm:"Bu kaydı silmek istediğine emin misin?",logout:"Çıkış",back:"Geri"}
     };
 
-    const t = text[lang];
-    title.textContent = t.title;
-    historyBox.textContent = t.loading;
-    backBtn.textContent = t.back;
-    logoutBtn.textContent = t.logout;
+    let lang = localStorage.getItem("myst_lang") || "en";
+    function setLang(l){
+      lang=l;localStorage.setItem("myst_lang",l);
+      title.textContent=i18n[l].title;
+      document.getElementById("btn-en").classList.toggle("active",l==="en");
+      document.getElementById("btn-tr").classList.toggle("active",l==="tr");
+      document.getElementById("logoutBtn").textContent=i18n[l].logout;
+      document.getElementById("backBtn").textContent=i18n[l].back;
+      renderList();
+    }
 
-    langBtn.addEventListener("click", () => {
-      const newLang = lang === "tr" ? "en" : "tr";
-      localStorage.setItem("lang", newLang);
-      location.reload();
+    document.getElementById("btn-en").onclick=()=>setLang("en");
+    document.getElementById("btn-tr").onclick=()=>setLang("tr");
+    document.getElementById("logoutBtn").onclick=()=>signOut(auth).then(()=>location.href="login.html");
+    document.getElementById("backBtn").onclick=()=>location.href="app.html";
+
+    let dataList=[];
+    async function renderList(){
+      list.innerHTML="";
+      dataList.forEach(item=>{
+        const data=item.data;
+        const card=document.createElement("div");
+        card.className="card";
+        card.innerHTML=`
+          <div class="text">
+            <div class="type">${i18n[lang].type}: ${data.type}</div>
+            <div class="date">${i18n[lang].date}: ${new Date(data.createdAt).toLocaleString()}</div>
+          </div>
+          <div>
+            <button class="btn">${i18n[lang].view}</button>
+            <button class="delete-btn" title="${i18n[lang].del}">🗑️</button>
+          </div>`;
+        card.querySelector(".delete-btn").onclick=async()=>{
+          if(confirm(i18n[lang].confirm)){
+            await deleteDoc(doc(db,"fortunes",item.id));
+            card.remove();
+          }
+        };
+        list.appendChild(card);
+      });
+    }
+
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){location.href="login.html";return;}
+      const q=query(collection(db,"fortunes"),where("user","==",user.email));
+      const snap=await getDocs(q);
+      dataList=[];
+      snap.forEach(d=>dataList.push({id:d.id,data:d.data()}));
+      renderList();
     });
 
-    backBtn.addEventListener("click", () => window.location.href = "app.html");
-    logoutBtn.addEventListener("click", () => {
-      signOut(auth).then(() => window.location.href = "login.html");
-    });
-
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = "login.html";
-        return;
-      }
-      try {
-        const q = query(collection(db, "fortunes"), where("user", "==", user.email));
-        const querySnapshot = await getDocs(q);
-        if (querySnapshot.empty) {
-          historyBox.textContent = t.none;
-        } else {
-          const dataList = [];
-          querySnapshot.forEach((doc) => dataList.push({ id: doc.id, ...doc.data() }));
-          dataList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-          historyBox.innerHTML = "";
-          dataList.forEach((data) => {
-            const d = new Date(data.createdAt);
-            const formattedDate = isNaN(d) ? data.createdAt : d.toLocaleString(lang === "tr" ? "tr-TR" : "en-US");
-            const div = document.createElement("div");
-            div.className = "reading";
-            div.innerHTML = `
-              <strong>${t.type}:</strong> ${data.type}<br>
-              <strong>${t.date}:</strong> ${formattedDate}<br>
-              <a href="reading.html?id=${data.id}" class="view-btn">${t.view}</a>
-            `;
-            historyBox.appendChild(div);
-          });
-        }
-      } catch {
-        historyBox.textContent = "Error loading data.";
-      }
-    });
+    setLang(lang);
   </script>
 </body>
 </html>
