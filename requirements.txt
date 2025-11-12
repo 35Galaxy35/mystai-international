@@ -3,3 +3,4 @@ openai
 langdetect
 gunicorn
 requests
+gtts
