@@ -9,6 +9,7 @@ CORS(app)
 
 # OpenAI anahtarını ortam değişkeninden al
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+print("OPENAI_API_KEY loaded:", bool(os.getenv("OPENAI_API_KEY")))
 
 @app.route("/")
 def home():
