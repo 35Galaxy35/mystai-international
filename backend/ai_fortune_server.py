@@ -19,6 +19,8 @@ def predict():
     try:
         data = request.get_json()
         user_input = data.get("user_input", "")
+        print("=== Gelen veri:", data)
+        print("=== Kullanıcı girişi:", user_input)
 
         # OpenAI'den yanıt al
         completion = client.chat.completions.create(
@@ -30,19 +32,21 @@ def predict():
         )
 
         response_text = completion.choices[0].message.content
+        print("=== OpenAI cevabı:", response_text)
 
         # Ses dosyası oluştur
         tts = gTTS(text=response_text, lang="tr")
         audio_path = "fortune.mp3"
         tts.save(audio_path)
 
-        return jsonify({
-            "text": response_text,
-            "audio": f"/{audio_path}"
-        })
+        return jsonify({"text": response_text, "audio": "/" + audio_path})
 
     except Exception as e:
+        import traceback
+        print("=== HATA OLUŞTU ===")
+        traceback.print_exc()  # 🔴 Hatanın tamamını log'a yazdırır
         return jsonify({"error": str(e)}), 500
+
 
 
 if __name__ == "__main__":
