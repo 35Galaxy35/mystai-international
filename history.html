@@ -1,167 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MystAI.ai — My History</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MystAI.ai — My Reading History</title>
   <link rel="icon" type="image/png" href="mystai-logo.png" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
 
   <style>
+    :root {
+      --bg: radial-gradient(1400px 800px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
+      --text: #d8e0ff;
+      --accent: #f2c84b;
+    }
     body {
       margin: 0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-      color: #d8e0ff;
+      background: var(--bg);
+      color: var(--text);
       text-align: center;
-      background: radial-gradient(1400px 800px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
-      min-height: 100vh;
+      overflow-x: hidden;
     }
-
-    header {
-      padding: 16px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(10,15,30,0.35);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      z-index: 1000;
-    }
-
-    .btn {
-      font-weight: 700;
-      border: 0;
-      border-radius: 10px;
-      padding: 8px 18px;
-      cursor: pointer;
-      color: #0b0f1f;
-      background: #ffd54f;
-      font-size: 14px;
-      transition: all .3s ease;
-    }
-    .btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
-
     h1 {
       font-family: 'Cinzel', serif;
-      color: #f5d76e;
-      text-shadow: 0 0 14px rgba(255,220,120,.3);
-      margin-top: 60px;
+      color: var(--accent);
+      text-shadow: 0 0 14px rgba(255, 220, 120, .3);
+      margin-top: 80px;
     }
-
-    .history-container {
-      max-width: 800px;
-      margin: 40px auto;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 14px;
-      padding: 30px;
-      box-shadow: 0 0 25px rgba(255,215,0,0.1);
+    .container {
+      max-width: 700px;
+      margin: 60px auto;
+      background: rgba(255, 255, 255, .05);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 25px rgba(255, 215, 0, .15);
     }
-
-    .fortune {
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.1);
+    .reading {
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .1);
       border-radius: 10px;
       padding: 15px;
-      margin-bottom: 15px;
-      color: #cfe4ff;
+      margin: 10px 0;
       text-align: left;
-      font-size: 15px;
     }
-
-    .fortune strong {
-      color: #ffe680;
+    .reading strong { color: #ffe680; }
+    .buttons {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
     }
-
+    .btn {
+      background: linear-gradient(120deg, #ffd700, #ffe680);
+      color: #111;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .3s ease;
+    }
+    .btn:hover { transform: scale(1.05); }
     footer {
-      margin-top: 80px;
-      padding: 30px 0;
-      border-top: 1px solid rgba(255,255,255,.08);
-      color: #aeb6cf;
+      margin-top: 60px;
       font-size: 14px;
+      color: #aeb6cf;
+      border-top: 1px solid rgba(255, 255, 255, .08);
+      padding: 20px 0;
     }
-
-    a { color: #cfe4ff; text-decoration: none; }
-    a:hover { color: #ffe680; }
   </style>
 </head>
 <body>
-
-  <header>
-    <h2>MystAI.ai</h2>
-    <div>
-      <button class="btn" id="backBtn">← Back</button>
-      <button class="btn" id="logoutBtn">Logout</button>
-    </div>
-  </header>
-
-  <h1>My Reading History</h1>
-
-  <div class="history-container" id="historyList">
-    <p>Loading your readings...</p>
+  <div class="buttons">
+    <button class="btn" id="backBtn">← Back</button>
+    <button class="btn" id="logoutBtn">Logout</button>
   </div>
 
-  <footer>
-    <p>© 2025 MystAI.ai — All Rights Reserved. Developed by GALAXY 🌌</p>
-  </footer>
+  <h1 id="title" data-i18n="title">My Reading History</h1>
+  <div class="container" id="historyBox">Loading your readings...</div>
+
+  <footer>© 2025 MystAI.ai — <span data-i18n="dev">Developed by GALAXY 🌌</span></footer>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-    import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
       authDomain: "mystai-6cca2.firebaseapp.com",
       projectId: "mystai-6cca2",
-      storageBucket: "mystai-6cca2.appspot.com",
+      storageBucket: "mystai-6cca2.firebasestorage.app",
       messagingSenderId: "624127781219",
       appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
     };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
-    const logoutBtn = document.getElementById('logoutBtn');
-    const backBtn = document.getElementById('backBtn');
-    const historyList = document.getElementById('historyList');
+    const historyBox = document.getElementById("historyBox");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const backBtn = document.getElementById("backBtn");
 
-    logoutBtn.addEventListener('click', ()=>{
-      signOut(auth).then(()=>{
-        alert('Logged out!');
-        window.location.href = "login.html";
-      });
+    const i18n = {
+      en: {
+        title: "My Reading History",
+        loading: "Loading your readings...",
+        none: "You have no readings yet.",
+        dev: "Developed by GALAXY 🌌",
+        type: "Reading Type",
+        date: "Date"
+      },
+      tr: {
+        title: "Fal Geçmişim",
+        loading: "Fal kayıtların yükleniyor...",
+        none: "Henüz bir fal geçmişin yok.",
+        dev: "GALAXY tarafından geliştirildi 🌌",
+        type: "Fal Türü",
+        date: "Tarih"
+      }
+    };
+
+    let activeLang = localStorage.getItem("myst_lang") || "en";
+    function t(key) { return i18n[activeLang][key]; }
+
+    document.getElementById("title").textContent = t("title");
+    document.querySelector("footer span").textContent = t("dev");
+    historyBox.textContent = t("loading");
+
+    backBtn.addEventListener("click", () => window.location.href = "app.html");
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth).then(() => window.location.href = "login.html");
     });
 
-    backBtn.addEventListener('click', ()=> window.location.href = "app.html");
-
-    onAuthStateChanged(auth, async (user)=>{
+    onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = "login.html";
         return;
       }
-
-      const q = query(collection(db, "fortunes"), where("user", "==", user.email), orderBy("createdAt", "desc"));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        historyList.innerHTML = "<p>You have no readings yet.</p>";
-        return;
+      try {
+        const q = query(
+          collection(db, "fortunes"),
+          where("user", "==", user.email),
+          orderBy("createdAt", "desc")
+        );
+        const querySnapshot = await getDocs(q);
+        if (querySnapshot.empty) {
+          historyBox.textContent = t("none");
+        } else {
+          historyBox.innerHTML = "";
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const d = new Date(data.createdAt);
+            const formattedDate = d.toLocaleString();
+            const div = document.createElement("div");
+            div.className = "reading";
+            div.innerHTML = `<strong>${t("type")}: </strong>${data.type}<br>
+                             <strong>${t("date")}: </strong>${formattedDate}`;
+            historyBox.appendChild(div);
+          });
+        }
+      } catch (e) {
+        console.error("Error loading readings:", e);
+        historyBox.textContent = "Error loading data.";
       }
-
-      historyList.innerHTML = "";
-      querySnapshot.forEach(doc => {
-        const data = doc.data();
-        const item = document.createElement("div");
-        item.className = "fortune";
-        item.innerHTML = `
-          <strong>${data.type}</strong><br>
-          Date: ${new Date(data.createdAt).toLocaleString()}<br>
-          User: ${data.user}
-        `;
-        historyList.appendChild(item);
-      });
     });
   </script>
 </body>
