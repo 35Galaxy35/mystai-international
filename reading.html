@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Fal Detayı — MystAI.ai</title>
+  <title>MystAI.ai — Reading Detail</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
   <style>
     body {
@@ -12,7 +12,6 @@
       background: radial-gradient(1000px 600px at 50% -10%, #101a4d, #0b0f1f);
       color: #fff;
       text-align: center;
-      overflow-x: hidden;
     }
     h1 {
       font-family: 'Cinzel', serif;
@@ -30,7 +29,7 @@
       box-shadow: 0 0 20px rgba(255,215,0,.15);
       line-height: 1.8;
     }
-    .back-btn {
+    .btn {
       background: linear-gradient(120deg, #ffd700, #ffe680);
       color: #111;
       border: none;
@@ -40,14 +39,25 @@
       cursor: pointer;
       transition: transform .3s ease;
       text-decoration: none;
+      display: inline-block;
     }
-    .back-btn:hover { transform: scale(1.05); }
+    .btn:hover { transform: scale(1.05); }
+    .buttons {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+    }
   </style>
 </head>
 <body>
-  <h1>Fal Detayı 🔮</h1>
-  <div id="readingCard" class="card">Yükleniyor...</div>
-  <a href="history.html" class="back-btn">← Fal Geçmişine Dön</a>
+  <div class="buttons">
+    <button class="btn" id="langBtn">🌐 EN | TR</button>
+    <a href="history.html" class="btn" id="backBtn"></a>
+  </div>
+  <h1 id="title"></h1>
+  <div id="readingCard" class="card">Loading...</div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
@@ -61,32 +71,66 @@
       messagingSenderId: "624127781219",
       appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
     };
-
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    const lang = localStorage.getItem("lang") || "tr";
+    const text = {
+      tr: {
+        title: "Fal Detayı 🔮",
+        loading: "Yükleniyor...",
+        back: "← Fal Geçmişine Dön",
+        notFound: "Fal bilgisi bulunamadı.",
+        type: "Fal Türü",
+        date: "Tarih",
+        user: "Kullanıcı",
+        coming: "Fal yorumu yakında burada görünecek ✨"
+      },
+      en: {
+        title: "Reading Detail 🔮",
+        loading: "Loading...",
+        back: "← Back to History",
+        notFound: "Reading not found.",
+        type: "Type",
+        date: "Date",
+        user: "User",
+        coming: "Your AI interpretation will appear here soon ✨"
+      }
+    };
+    const t = text[lang];
+
+    document.getElementById("title").textContent = t.title;
+    const readingCard = document.getElementById("readingCard");
+    readingCard.textContent = t.loading;
+    document.getElementById("backBtn").textContent = t.back;
+
+    const langBtn = document.getElementById("langBtn");
+    langBtn.addEventListener("click", () => {
+      const newLang = lang === "tr" ? "en" : "tr";
+      localStorage.setItem("lang", newLang);
+      location.reload();
+    });
+
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
-    const readingCard = document.getElementById("readingCard");
-
     if (!id) {
-      readingCard.textContent = "Fal bilgisi bulunamadı.";
+      readingCard.textContent = t.notFound;
     } else {
       const docRef = doc(db, "fortunes", id);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
         const d = new Date(data.createdAt);
-        const formattedDate = isNaN(d) ? data.createdAt : d.toLocaleString("tr-TR");
+        const formattedDate = isNaN(d) ? data.createdAt : d.toLocaleString(lang === "tr" ? "tr-TR" : "en-US");
         readingCard.innerHTML = `
-          <strong>Fal Türü:</strong> ${data.type}<br>
-          <strong>Tarih:</strong> ${formattedDate}<br>
-          <strong>Kullanıcı:</strong> ${data.user}<br>
+          <strong>${t.type}:</strong> ${data.type}<br>
+          <strong>${t.date}:</strong> ${formattedDate}<br>
+          <strong>${t.user}:</strong> ${data.user}<br>
           <hr style="margin:20px 0;opacity:.3;">
-          <em>Fal yorumu yakında burada görünecek ✨</em>
+          <em>${t.coming}</em>
         `;
       } else {
-        readingCard.textContent = "Fal bulunamadı veya silinmiş.";
+        readingCard.textContent = t.notFound;
       }
     }
   </script>
