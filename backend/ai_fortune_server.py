@@ -1,13 +1,13 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from openai import OpenAI
 from gtts import gTTS
+from openai import OpenAI
 import os
 
 app = Flask(__name__)
 CORS(app)
 
-# Yeni OpenAI istemcisi
+# OpenAI anahtarını ortam değişkeninden al
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.route("/")
@@ -19,24 +19,27 @@ def predict():
     try:
         data = request.get_json()
         user_input = data.get("user_input", "")
-        lang = data.get("lang", "tr")
 
         # OpenAI'den yanıt al
         completion = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a mystical fortune teller who answers in a magical and wise tone."},
+                {"role": "system", "content": "You are a mystical fortune teller who speaks with wisdom and insight."},
                 {"role": "user", "content": user_input}
             ]
         )
 
-        reply = completion.choices[0].message.content
+        response_text = completion.choices[0].message.content
 
-        # Sesli yanıt oluştur
-        tts = gTTS(reply, lang=lang)
-        tts.save("fortune.mp3")
+        # Ses dosyası oluştur
+        tts = gTTS(text=response_text, lang="tr")
+        audio_path = "fortune.mp3"
+        tts.save(audio_path)
 
-        return jsonify({"response": reply})
+        return jsonify({
+            "text": response_text,
+            "audio": f"/{audio_path}"
+        })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
