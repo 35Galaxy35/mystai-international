@@ -388,7 +388,8 @@
         const res = await fetch(`${BACKEND_URL}/predict`, {
           method:'POST',
           headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ text: q })
+          body: JSON.stringify({ user_input: q })
+
         });
 
         if(!res.ok){
