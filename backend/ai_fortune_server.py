@@ -1,77 +1,59 @@
-# MystAI Backend - AI Fortune System (EN/TR Bilingual)
-# Developed for MystAI.ai by ChatGPT
-
 from flask import Flask, request, jsonify
+from langdetect import detect
 import openai
-import os
 from gtts import gTTS
-from io import BytesIO
-import base64
-import langdetect
+import os
 
 app = Flask(__name__)
 
-# ✅ OpenAI API anahtarını GitHub Secrets'ta OPENAI_API_KEY olarak kaydetmelisin
+# OpenAI API anahtarını ortam değişkeninden al
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def detect_language(text):
-    """Kullanıcının yazdığı dilin Türkçe mi İngilizce mi olduğunu algılar"""
+@app.route("/predict", methods=["POST"])
+def predict():
     try:
-        lang = langdetect.detect(text)
-        return "tr" if lang == "tr" else "en"
-    except:
-        return "en"
+        data = request.get_json()
+        user_input = data.get("text", "")
 
-def generate_prompt(category, input_text, lang):
-    """Dil ve fal türüne göre uygun prompt oluşturur"""
-    if lang == "tr":
-        prompts = {
-            "coffee": f"Sen MystAI adında yapay zekâ destekli bir fal yorumcususun. Kahve falı bakıyorsun. Fincandaki sembolleri, şekilleri ve duygusal enerjileri mistik bir dille açıkla. Kullanıcının girdisi: {input_text}",
-            "tarot": f"Sen MystAI adında mistik bir yapay zekâsın. Tarot kartlarını ruhsal, arketipsel ve zamansal bir şekilde yorumla. Kullanıcının girdiği bilgi: {input_text}",
-            "palm": f"Sen MystAI adında bir el falı uzmanısın. Kullanıcının avuç içi çizgilerini karakter, kader ve enerji yönlerinden analiz et. Girdi: {input_text}",
-            "dream": f"Sen MystAI adında bir rüya yorumcususun. Rüyadaki sembolleri, bilinçaltı temaları ve enerjileri çözümle. Girdi: {input_text}"
-        }
-    else:
-        prompts = {
-            "coffee": f"You are MystAI, an advanced AI fortune teller. Interpret the coffee cup’s symbols, shapes, and emotional energy with mystical depth. User input: {input_text}",
-            "tarot": f"You are MystAI, a mystical AI tarot reader. Interpret the drawn tarot cards in terms of archetypes, guidance, and destiny. User input: {input_text}",
-            "palm": f"You are MystAI, a spiritual AI palm reader. Analyze palm lines and patterns for life energy, destiny, and traits. User input: {input_text}",
-            "dream": f"You are MystAI, an AI dream interpreter. Decode symbols and emotions hidden in dreams. User input: {input_text}"
-        }
-    return prompts.get(category, prompts["coffee"])
+        if not user_input:
+            return jsonify({"error": "No input text provided."}), 400
 
-def generate_fortune_text(category, input_text, lang):
-    """Yapay zekâdan fal yorumunu üretir"""
-    prompt = generate_prompt(category, input_text, lang)
-    response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "system", "content": prompt}]
-    )
-    return response.choices[0].message["content"]
+        # Dil tespiti
+        lang = detect(user_input)
 
-def generate_audio(text, lang):
-    """Fal yorumunun sesli halini oluşturur"""
-    tts = gTTS(text=text, lang=lang)
-    mp3_buffer = BytesIO()
-    tts.write_to_fp(mp3_buffer)
-    mp3_data = base64.b64encode(mp3_buffer.getvalue()).decode('utf-8')
-    return mp3_data
+        # OpenAI cevabı oluştur
+        completion = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a mystical fortune teller named MystAI."},
+                {"role": "user", "content": user_input}
+            ]
+        )
 
-@app.route("/api/fortune", methods=["POST"])
-def fortune():
-    data = request.get_json()
-    category = data.get("category", "coffee").lower()
-    user_input = data.get("input", "")
+        prediction = completion.choices[0].message.content.strip()
 
-    lang = detect_language(user_input)
-    fortune_text = generate_fortune_text(category, user_input, lang)
-    audio_data = generate_audio(fortune_text, lang)
+        # Sesli çıktı oluştur (gTTS)
+        tts = gTTS(text=prediction, lang=lang)
+        audio_file = "fortune.mp3"
+        tts.save(audio_file)
 
-    return jsonify({
-        "fortune_text": fortune_text,
-        "audio_base64": audio_data,
-        "language": lang
-    })
+        return jsonify({
+            "text": prediction,
+            "audio": f"/{audio_file}"
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/fortune.mp3")
+def serve_audio():
+    return app.send_static_file("fortune.mp3")
+
+# Ana sayfa – kontrol için
+@app.route("/")
+def home():
+    return "🔮 MystAI backend is running successfully! 🔮"
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
