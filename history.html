@@ -3,10 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MystAI.ai — Fal Geçmişim</title>
-  <link rel="icon" type="image/png" href="mystai-logo.png" />
+  <title>MystAI.ai — History</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
-
   <style>
     :root {
       --bg: radial-gradient(1400px 800px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
@@ -19,25 +17,24 @@
       background: var(--bg);
       color: var(--text);
       text-align: center;
-      overflow-x: hidden;
     }
     h1 {
       font-family: 'Cinzel', serif;
       color: var(--accent);
-      text-shadow: 0 0 14px rgba(255, 220, 120, .3);
+      text-shadow: 0 0 14px rgba(255,220,120,.3);
       margin-top: 80px;
     }
     .container {
       max-width: 700px;
       margin: 60px auto;
-      background: rgba(255, 255, 255, .05);
+      background: rgba(255,255,255,.05);
       border-radius: 12px;
       padding: 20px;
-      box-shadow: 0 0 25px rgba(255, 215, 0, .15);
+      box-shadow: 0 0 25px rgba(255,215,0,.15);
     }
     .reading {
-      background: rgba(255, 255, 255, .08);
-      border: 1px solid rgba(255, 255, 255, .1);
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.1);
       border-radius: 10px;
       padding: 15px;
       margin: 15px 0;
@@ -81,21 +78,21 @@
       margin-top: 60px;
       font-size: 14px;
       color: #aeb6cf;
-      border-top: 1px solid rgba(255, 255, 255, .08);
+      border-top: 1px solid rgba(255,255,255,.08);
       padding: 20px 0;
     }
   </style>
 </head>
 <body>
   <div class="buttons">
-    <button class="btn" id="backBtn">← Geri</button>
-    <button class="btn" id="logoutBtn">Çıkış Yap</button>
+    <button class="btn" id="langBtn">🌐 EN | TR</button>
+    <button class="btn" id="backBtn"></button>
+    <button class="btn" id="logoutBtn"></button>
   </div>
 
-  <h1>Fal Geçmişim</h1>
-  <div class="container" id="historyBox">Fal kayıtların yükleniyor...</div>
-
-  <footer>© 2025 MystAI.ai — GALAXY tarafından geliştirildi 🌌</footer>
+  <h1 id="title"></h1>
+  <div class="container" id="historyBox">Loading...</div>
+  <footer>© 2025 MystAI.ai — Developed by GALAXY 🌌</footer>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
@@ -110,7 +107,6 @@
       messagingSenderId: "624127781219",
       appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
     };
-
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
@@ -118,21 +114,50 @@
     const historyBox = document.getElementById("historyBox");
     const logoutBtn = document.getElementById("logoutBtn");
     const backBtn = document.getElementById("backBtn");
+    const title = document.getElementById("title");
+    const langBtn = document.getElementById("langBtn");
+
+    const lang = localStorage.getItem("lang") || "tr";
+
+    const text = {
+      tr: {
+        title: "Fal Geçmişim",
+        loading: "Kayıtlar yükleniyor...",
+        none: "Henüz bir fal geçmişin yok.",
+        back: "← Geri",
+        logout: "Çıkış Yap",
+        view: "🔮 Falını Görüntüle",
+        type: "Fal Türü",
+        date: "Tarih"
+      },
+      en: {
+        title: "My Reading History",
+        loading: "Loading your readings...",
+        none: "You have no readings yet.",
+        back: "← Back",
+        logout: "Logout",
+        view: "🔮 View Reading",
+        type: "Type",
+        date: "Date"
+      }
+    };
+
+    const t = text[lang];
+    title.textContent = t.title;
+    historyBox.textContent = t.loading;
+    backBtn.textContent = t.back;
+    logoutBtn.textContent = t.logout;
+
+    langBtn.addEventListener("click", () => {
+      const newLang = lang === "tr" ? "en" : "tr";
+      localStorage.setItem("lang", newLang);
+      location.reload();
+    });
 
     backBtn.addEventListener("click", () => window.location.href = "app.html");
     logoutBtn.addEventListener("click", () => {
       signOut(auth).then(() => window.location.href = "login.html");
     });
-
-    const translateType = (type) => {
-      const map = {
-        "AI Coffee Reading": "Yapay Zekâ Kahve Falı",
-        "AI Tarot Reading": "Yapay Zekâ Tarot Açılımı",
-        "AI Palm Reading": "Yapay Zekâ El Falı",
-        "Energy & Dreams": "Enerji ve Rüyalar"
-      };
-      return map[type] || type;
-    };
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
@@ -142,31 +167,28 @@
       try {
         const q = query(collection(db, "fortunes"), where("user", "==", user.email));
         const querySnapshot = await getDocs(q);
-
         if (querySnapshot.empty) {
-          historyBox.textContent = "Henüz bir fal geçmişin yok.";
+          historyBox.textContent = t.none;
         } else {
           const dataList = [];
           querySnapshot.forEach((doc) => dataList.push({ id: doc.id, ...doc.data() }));
           dataList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
           historyBox.innerHTML = "";
           dataList.forEach((data) => {
             const d = new Date(data.createdAt);
-            const formattedDate = isNaN(d) ? data.createdAt : d.toLocaleString("tr-TR");
+            const formattedDate = isNaN(d) ? data.createdAt : d.toLocaleString(lang === "tr" ? "tr-TR" : "en-US");
             const div = document.createElement("div");
             div.className = "reading";
             div.innerHTML = `
-              <strong>Fal Türü:</strong> ${translateType(data.type)}<br>
-              <strong>Tarih:</strong> ${formattedDate}<br>
-              <a href="reading.html?id=${data.id}" class="view-btn">🔮 Falını Görüntüle</a>
+              <strong>${t.type}:</strong> ${data.type}<br>
+              <strong>${t.date}:</strong> ${formattedDate}<br>
+              <a href="reading.html?id=${data.id}" class="view-btn">${t.view}</a>
             `;
             historyBox.appendChild(div);
           });
         }
-      } catch (e) {
-        console.error("Error loading readings:", e);
-        historyBox.textContent = "Veriler yüklenirken hata oluştu.";
+      } catch {
+        historyBox.textContent = "Error loading data.";
       }
     });
   </script>
