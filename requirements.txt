@@ -1,0 +1,5 @@
+Flask
+openai
+langdetect
+gunicorn
+requests
