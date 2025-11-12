@@ -65,7 +65,7 @@
     .tile:hover{transform:scale(1.02);box-shadow:0 0 30px rgba(255,215,0,.2);}
     .reading-img{width:100%;height:320px;object-fit:cover;border-radius:14px;margin-bottom:14px;box-shadow:0 0 18px rgba(255,215,0,.18);}
     .tile h3{color:#f5d76e;font-family:'Cinzel',serif;margin-bottom:10px;}
-    .tile p{color:var(--muted);font-size:15px;min-height:60px;}
+    .tile p{color:#e0e6ff;font-size:15px;min-height:60px;text-shadow:0 0 8px rgba(0,0,0,.6);}
     .start-btn{background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);font-weight:700;color:#111;border:none;padding:10px 20px;border-radius:10px;cursor:pointer;transition:transform .3s ease;box-shadow:0 0 15px rgba(255,215,0,.4);}
     .start-btn:hover{transform:scale(1.08);}
 
@@ -165,16 +165,28 @@
       en: {
         choose:"Choose Your Reading",
         desc:"Explore the ancient art of divination through the power of AI.<br>Select your path below to begin your mystical journey.",
-        start:"Start Reading",
-        logout:"Logout",
-        history:"My History"
+        coffeeTitle:"AI Coffee Reading",
+        coffeeDesc:"Upload your cup image and receive symbolic and emotional insights decoded by AI.",
+        tarotTitle:"AI Tarot Reading",
+        tarotDesc:"Draw cards digitally and let AI interpret archetypes and guidance for you.",
+        palmTitle:"AI Palm Reading",
+        palmDesc:"Scan your palm and discover patterns and meanings through AI analysis.",
+        energyTitle:"Energy & Dreams",
+        energyDesc:"Upload your dreams or energy symbols and receive reflective AI interpretations.",
+        start:"Start Reading"
       },
       tr: {
         choose:"Falını Seç",
         desc:"Yapay zekâ gücüyle kadim fal sanatını keşfet.<br>Aşağıdan yolunu seç ve mistik yolculuğuna başla.",
-        start:"Falını Başlat",
-        logout:"Çıkış Yap",
-        history:"Geçmişim"
+        coffeeTitle:"Yapay Zekâ Kahve Falı",
+        coffeeDesc:"Fincan fotoğrafını yükle; sembolik ve duygusal içgörüler yapay zekâ tarafından çözümlensin.",
+        tarotTitle:"Yapay Zekâ Tarot Açılımı",
+        tarotDesc:"Kartlarını dijital olarak seç; arketipler ve rehberlik yapay zekâ tarafından yorumlansın.",
+        palmTitle:"Yapay Zekâ El Falı",
+        palmDesc:"Avucunu tara; çizgi ve desenleri yapay zekâ analiz etsin.",
+        energyTitle:"Enerji & Rüyalar",
+        energyDesc:"Rüyalarını veya enerji sembollerini yükle; AI bunları farkındalıkla yorumlasın.",
+        start:"Falını Başlat"
       }
     };
 
@@ -190,6 +202,10 @@
       });
       document.getElementById("btn-en").classList.toggle("active", lang==="en");
       document.getElementById("btn-tr").classList.toggle("active", lang==="tr");
+
+      if(auth.currentUser){
+        userWelcome.textContent = `${lang==='tr'?'Hoş geldin,':'Welcome,'} ${auth.currentUser.email}`;
+      }
     }
 
     document.getElementById("btn-en").addEventListener("click",()=>setLang("en"));
@@ -209,12 +225,11 @@
     document.querySelectorAll('.start-btn').forEach(btn=>{
       btn.addEventListener('click', async e=>{
         const user = auth.currentUser;
-        if(!user){ alert('Please log in first!'); return; }
+        if(!user){ alert(activeLang==='tr'?'Lütfen önce giriş yap!':'Please log in first!'); return; }
 
         const type = e.target.closest('.tile').dataset.type;
         const createdAt = new Date().toISOString();
 
-        // Backend API’ye istek gönder
         const response = await fetch("https://mystai-international.onrender.com/api/fortune", {
           method: "POST",
           headers: {"Content-Type": "application/json"},
@@ -222,9 +237,8 @@
         });
 
         const data = await response.json();
-        const fortune = data.fortune || "No fortune generated.";
+        const fortune = data.fortune || (activeLang==='tr'?"Henüz yanıt oluşturulamadı.":"No fortune generated yet.");
 
-        // Firestore’a kaydet
         await addDoc(collection(db,"fortunes"),{
           user:user.email,
           type:type,
@@ -232,7 +246,7 @@
           createdAt:createdAt
         });
 
-        alert(activeLang==='tr' ? "Fal oluşturuldu! Fal geçmişinden görüntüleyebilirsin." : "Fortune generated! You can view it in your history.");
+        alert(activeLang==='tr' ? "Fal oluşturuldu! Geçmiş sayfasından görebilirsin." : "Fortune generated! You can view it in your history.");
       });
     });
   </script>
