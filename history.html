@@ -84,7 +84,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -141,11 +141,7 @@
         return;
       }
       try {
-        const q = query(
-          collection(db, "fortunes"),
-          where("user", "==", user.email),
-          orderBy("createdAt", "desc")
-        );
+        const q = query(collection(db, "fortunes"), where("user", "==", user.email));
         const querySnapshot = await getDocs(q);
         if (querySnapshot.empty) {
           historyBox.textContent = t("none");
@@ -154,7 +150,7 @@
           querySnapshot.forEach((doc) => {
             const data = doc.data();
             const d = new Date(data.createdAt);
-            const formattedDate = d.toLocaleString();
+            const formattedDate = isNaN(d) ? data.createdAt : d.toLocaleString();
             const div = document.createElement("div");
             div.className = "reading";
             div.innerHTML = `<strong>${t("type")}: </strong>${data.type}<br>
