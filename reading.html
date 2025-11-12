@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fal Detayı — MystAI.ai</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(1000px 600px at 50% -10%, #101a4d, #0b0f1f);
+      color: #fff;
+      text-align: center;
+      overflow-x: hidden;
+    }
+    h1 {
+      font-family: 'Cinzel', serif;
+      color: #ffd700;
+      margin-top: 60px;
+      text-shadow: 0 0 10px rgba(255,215,0,.4);
+    }
+    .card {
+      background: rgba(255,255,255,.08);
+      border-radius: 12px;
+      padding: 25px;
+      margin: 40px auto;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 0 20px rgba(255,215,0,.15);
+      line-height: 1.8;
+    }
+    .back-btn {
+      background: linear-gradient(120deg, #ffd700, #ffe680);
+      color: #111;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .3s ease;
+      text-decoration: none;
+    }
+    .back-btn:hover { transform: scale(1.05); }
+  </style>
+</head>
+<body>
+  <h1>Fal Detayı 🔮</h1>
+  <div id="readingCard" class="card">Yükleniyor...</div>
+  <a href="history.html" class="back-btn">← Fal Geçmişine Dön</a>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
+      authDomain: "mystai-6cca2.firebaseapp.com",
+      projectId: "mystai-6cca2",
+      storageBucket: "mystai-6cca2.firebasestorage.app",
+      messagingSenderId: "624127781219",
+      appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    const readingCard = document.getElementById("readingCard");
+
+    if (!id) {
+      readingCard.textContent = "Fal bilgisi bulunamadı.";
+    } else {
+      const docRef = doc(db, "fortunes", id);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const d = new Date(data.createdAt);
+        const formattedDate = isNaN(d) ? data.createdAt : d.toLocaleString("tr-TR");
+        readingCard.innerHTML = `
+          <strong>Fal Türü:</strong> ${data.type}<br>
+          <strong>Tarih:</strong> ${formattedDate}<br>
+          <strong>Kullanıcı:</strong> ${data.user}<br>
+          <hr style="margin:20px 0;opacity:.3;">
+          <em>Fal yorumu yakında burada görünecek ✨</em>
+        `;
+      } else {
+        readingCard.textContent = "Fal bulunamadı veya silinmiş.";
+      }
+    }
+  </script>
+</body>
+</html>
