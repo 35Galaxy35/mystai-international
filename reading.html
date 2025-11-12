@@ -1,138 +1,99 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MystAI.ai — Reading Detail</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MystAI Reading</title>
+  <link rel="stylesheet" href="style.css" />
   <style>
     body {
-      margin: 0;
-      font-family: 'Inter', sans-serif;
-      background: radial-gradient(1000px 600px at 50% -10%, #101a4d, #0b0f1f);
-      color: #fff;
+      background: radial-gradient(circle at top, #0d0d3b, #000);
+      color: #f8e9c9;
+      font-family: 'Georgia', serif;
       text-align: center;
+      margin: 0;
+      padding: 40px;
     }
     h1 {
-      font-family: 'Cinzel', serif;
       color: #ffd700;
-      margin-top: 60px;
-      text-shadow: 0 0 10px rgba(255,215,0,.4);
+      font-size: 2.5em;
+      margin-bottom: 20px;
     }
-    .card {
-      background: rgba(255,255,255,.08);
-      border-radius: 12px;
-      padding: 25px;
-      margin: 40px auto;
-      width: 90%;
-      max-width: 600px;
-      box-shadow: 0 0 20px rgba(255,215,0,.15);
-      line-height: 1.8;
-    }
-    .btn {
-      background: linear-gradient(120deg, #ffd700, #ffe680);
-      color: #111;
+    select, textarea, button {
+      margin: 10px auto;
+      display: block;
+      width: 80%;
+      max-width: 400px;
+      font-size: 1em;
+      padding: 10px;
+      border-radius: 8px;
       border: none;
-      padding: 8px 15px;
-      border-radius: 10px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform .3s ease;
-      text-decoration: none;
-      display: inline-block;
     }
-    .btn:hover { transform: scale(1.05); }
-    .buttons {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      display: flex;
-      gap: 10px;
+    textarea {
+      height: 100px;
+    }
+    button {
+      background: #ffd700;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #ffb400;
+    }
+    #result {
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      font-size: 1.1em;
+      white-space: pre-line;
     }
   </style>
 </head>
 <body>
-  <div class="buttons">
-    <button class="btn" id="langBtn">🌐 EN | TR</button>
-    <a href="history.html" class="btn" id="backBtn"></a>
-  </div>
-  <h1 id="title"></h1>
-  <div id="readingCard" class="card">Loading...</div>
+  <h1>🔮 MystAI Fortune Reading 🔮</h1>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  <label for="fortuneType">Fal Türünü Seç:</label>
+  <select id="fortuneType">
+    <option value="coffee">☕ Kahve Falı</option>
+    <option value="tarot">🃏 Tarot Falı</option>
+    <option value="palm">✋ El Falı</option>
+    <option value="dream">💭 Rüya Yorumu</option>
+  </select>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
-      authDomain: "mystai-6cca2.firebaseapp.com",
-      projectId: "mystai-6cca2",
-      storageBucket: "mystai-6cca2.firebasestorage.app",
-      messagingSenderId: "624127781219",
-      appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  <label for="userInput">Ne sormak istiyorsun?</label>
+  <textarea id="userInput" placeholder="Bugün aşk hayatım nasıl olacak?"></textarea>
 
-    const lang = localStorage.getItem("lang") || "tr";
-    const text = {
-      tr: {
-        title: "Fal Detayı 🔮",
-        loading: "Yükleniyor...",
-        back: "← Fal Geçmişine Dön",
-        notFound: "Fal bilgisi bulunamadı.",
-        type: "Fal Türü",
-        date: "Tarih",
-        user: "Kullanıcı",
-        coming: "Fal yorumu yakında burada görünecek ✨"
-      },
-      en: {
-        title: "Reading Detail 🔮",
-        loading: "Loading...",
-        back: "← Back to History",
-        notFound: "Reading not found.",
-        type: "Type",
-        date: "Date",
-        user: "User",
-        coming: "Your AI interpretation will appear here soon ✨"
+  <button id="submitReading">Falımı Gör</button>
+
+  <div id="result">✨ Fal sonucu burada görünecek...</div>
+
+  <script>
+    document.getElementById("submitReading").addEventListener("click", async () => {
+      const type = document.getElementById("fortuneType").value;
+      const input = document.getElementById("userInput").value || "Kahve falı yorumu yap.";
+
+      document.getElementById("result").innerText = "🔮 Falın hazırlanıyor, lütfen bekle...";
+
+      try {
+        const response = await fetch("https://api.mystai.ai/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type, input })
+        });
+
+        const data = await response.json();
+        if (data.fortune) {
+          document.getElementById("result").innerText = data.fortune;
+        } else {
+          document.getElementById("result").innerText = "Bir hata oluştu: " + (data.error || "Bilinmeyen hata");
+        }
+      } catch (err) {
+        document.getElementById("result").innerText = "⚠️ Sunucuya bağlanılamadı. Lütfen daha sonra tekrar dene.";
       }
-    };
-    const t = text[lang];
-
-    document.getElementById("title").textContent = t.title;
-    const readingCard = document.getElementById("readingCard");
-    readingCard.textContent = t.loading;
-    document.getElementById("backBtn").textContent = t.back;
-
-    const langBtn = document.getElementById("langBtn");
-    langBtn.addEventListener("click", () => {
-      const newLang = lang === "tr" ? "en" : "tr";
-      localStorage.setItem("lang", newLang);
-      location.reload();
     });
-
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get("id");
-    if (!id) {
-      readingCard.textContent = t.notFound;
-    } else {
-      const docRef = doc(db, "fortunes", id);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        const d = new Date(data.createdAt);
-        const formattedDate = isNaN(d) ? data.createdAt : d.toLocaleString(lang === "tr" ? "tr-TR" : "en-US");
-        readingCard.innerHTML = `
-          <strong>${t.type}:</strong> ${data.type}<br>
-          <strong>${t.date}:</strong> ${formattedDate}<br>
-          <strong>${t.user}:</strong> ${data.user}<br>
-          <hr style="margin:20px 0;opacity:.3;">
-          <em>${t.coming}</em>
-        `;
-      } else {
-        readingCard.textContent = t.notFound;
-      }
-    }
   </script>
 </body>
 </html>
