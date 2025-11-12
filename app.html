@@ -48,6 +48,7 @@
     .hero{text-align:center;padding-top:280px;padding-bottom:50px;}
     .hero h1{color:#f5d76e;font-size:46px;margin-bottom:12px;text-shadow:0 0 14px rgba(255,220,120,.3);font-family:'Cinzel',serif;}
     .hero p{color:var(--text);max-width:720px;margin:0 auto;font-size:18px;line-height:1.6;}
+
     .welcome{font-weight:600;color:#ffe680;text-shadow:0 0 10px rgba(255,220,120,.4);margin-right:12px;}
 
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:28px;padding:60px 20px;max-width:1100px;margin:auto;}
@@ -63,33 +64,6 @@
     footer a{color:#cfe4ff;text-decoration:none;}footer a:hover{color:#ffe680;}
     .links{margin-bottom:8px;}
 
-    /* Backend kutusu */
-    .fortune-box {
-      margin: 60px auto;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 16px;
-      padding: 30px;
-      width: 80%;
-      max-width: 600px;
-      box-shadow: 0 0 25px rgba(255,230,150,0.15);
-    }
-    #userInput {
-      width: 90%;
-      border-radius: 8px;
-      border: none;
-      padding: 12px;
-      font-size: 16px;
-      outline: none;
-      resize: none;
-    }
-    #fortuneResult {
-      margin-top: 20px;
-      color: #ffe680;
-      font-size: 18px;
-      text-shadow: 0 0 10px rgba(255,220,120,0.6);
-    }
-
     @media(max-width:768px){.floating-logo{height:120px;top:100px}.hero{padding-top:220px}}
   </style>
 </head>
@@ -100,6 +74,7 @@
       <button class="lang-btn" id="btn-en">EN</button>
       <button class="lang-btn secondary" id="btn-tr">TR</button>
     </div>
+
     <div class="nav-btns">
       <span id="user-welcome" class="welcome"></span>
       <button class="btn" id="historyBtn">My History</button>
@@ -114,41 +89,33 @@
     <p data-i18n="desc">Explore the ancient art of divination through the power of AI.<br>Select your path below to begin your mystical journey.</p>
   </section>
 
-  <!-- Backend bağlantı kutusu -->
-  <section class="fortune-box">
-    <h2>🔮 Ask MystAI</h2>
-    <textarea id="userInput" rows="4" placeholder="Write your fortune question here..."></textarea><br><br>
-    <button class="start-btn" onclick="sendToAI()">Ask MystAI</button>
-    <p id="fortuneResult"></p>
-  </section>
-
   <section class="grid">
     <article class="tile" data-type="AI Coffee Reading">
       <img src="images/Coffee.png" class="reading-img">
-      <h3>AI Coffee Reading</h3>
-      <p>Upload your cup image and receive symbolic and emotional insights decoded by AI.</p>
-      <button class="start-btn">Start Reading</button>
+      <h3 data-i18n="coffeeTitle">AI Coffee Reading</h3>
+      <p data-i18n="coffeeDesc">Upload your cup image and receive symbolic and emotional insights decoded by AI.</p>
+      <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
     <article class="tile" data-type="AI Tarot Reading">
       <img src="images/Tarot.png" class="reading-img">
-      <h3>AI Tarot Reading</h3>
-      <p>Draw cards digitally and let AI interpret archetypes and guidance for you.</p>
-      <button class="start-btn">Start Reading</button>
+      <h3 data-i18n="tarotTitle">AI Tarot Reading</h3>
+      <p data-i18n="tarotDesc">Draw cards digitally and let AI interpret archetypes and guidance for you.</p>
+      <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
     <article class="tile" data-type="AI Palm Reading">
       <img src="images/Palm.png" class="reading-img">
-      <h3>AI Palm Reading</h3>
-      <p>Scan your palm and discover patterns and meanings through AI analysis.</p>
-      <button class="start-btn">Start Reading</button>
+      <h3 data-i18n="palmTitle">AI Palm Reading</h3>
+      <p data-i18n="palmDesc">Scan your palm and discover patterns and meanings through AI analysis.</p>
+      <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
     <article class="tile" data-type="Energy & Dreams">
       <img src="images/Energy.png" class="reading-img">
-      <h3>Energy & Dreams</h3>
-      <p>Upload your dreams or energy symbols and receive reflective AI interpretations.</p>
-      <button class="start-btn">Start Reading</button>
+      <h3 data-i18n="energyTitle">Energy & Dreams</h3>
+      <p data-i18n="energyDesc">Upload your dreams or energy symbols and receive reflective AI interpretations.</p>
+      <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
   </section>
 
@@ -159,26 +126,108 @@
       <a href="cookies.html">Cookies</a> • 
       <a href="disclaimer.html">Disclaimer</a>
     </div>
-    <p>© 2025 MystAI.ai — All Rights Reserved. Developed by GALAXY 🌌</p>
+    <p>© 2025 MystAI.ai — All Rights Reserved. Developed by GALAXY 🌌 | 
+    <a href="mailto:support@mystai.ai">support@mystai.ai</a></p>
   </footer>
 
-  <script>
-    async function sendToAI() {
-      const userInput = document.getElementById("userInput").value;
-      const resultBox = document.getElementById("fortuneResult");
-      resultBox.innerText = "🔮 MystAI is interpreting your fortune...";
-      try {
-        const response = await fetch("https://mystai-international.onrender.com/predict", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: userInput })
-        });
-        const data = await response.json();
-        resultBox.innerText = "✨ " + data.text;
-      } catch (err) {
-        resultBox.innerText = "⚠️ Connection error. Please try again later.";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
+      authDomain: "mystai-6cca2.firebaseapp.com",
+      projectId: "mystai-6cca2",
+      storageBucket: "mystai-6cca2.appspot.com",
+      messagingSenderId: "624127781219",
+      appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    const historyBtn = document.getElementById('historyBtn');
+    const userWelcome = document.getElementById('user-welcome');
+
+    const i18n = {
+      en: {
+        choose:"Choose Your Reading",
+        desc:"Explore the ancient art of divination through the power of AI.<br>Select your path below to begin your mystical journey.",
+        coffeeTitle:"AI Coffee Reading",
+        coffeeDesc:"Upload your cup image and receive symbolic and emotional insights decoded by AI.",
+        tarotTitle:"AI Tarot Reading",
+        tarotDesc:"Draw cards digitally and let AI interpret archetypes and guidance for you.",
+        palmTitle:"AI Palm Reading",
+        palmDesc:"Scan your palm and discover patterns and meanings through AI analysis.",
+        energyTitle:"Energy & Dreams",
+        energyDesc:"Upload your dreams or energy symbols and receive reflective AI interpretations.",
+        start:"Start Reading",
+        logout:"Logout",
+        history:"My History"
+      },
+      tr: {
+        choose:"Falını Seç",
+        desc:"Yapay zekâ gücüyle kadim fal sanatını keşfet.<br>Aşağıdan yolunu seç ve mistik yolculuğuna başla.",
+        coffeeTitle:"Yapay Zekâ Kahve Falı",
+        coffeeDesc:"Fincan fotoğrafını yükle; sembolik ve duygusal içgörüler yapay zekâ tarafından çözümlensin.",
+        tarotTitle:"Yapay Zekâ Tarot Açılımı",
+        tarotDesc:"Kartlarını dijital olarak seç; arketipler ve rehberlik yapay zekâ tarafından yorumlansın.",
+        palmTitle:"Yapay Zekâ El Falı",
+        palmDesc:"Avucunu tara; çizgi ve desenleri yapay zekâ analiz etsin.",
+        energyTitle:"Enerji & Rüyalar",
+        energyDesc:"Rüyalarını veya enerji sembollerini yükle; AI bunları farkındalıkla yorumlasın.",
+        start:"Falını Başlat",
+        logout:"Çıkış Yap",
+        history:"Geçmişim"
       }
+    };
+
+    let activeLang = localStorage.getItem("myst_lang") || "en";
+    function setLang(lang){
+      activeLang = lang;
+      localStorage.setItem("myst_lang", lang);
+      const dict = i18n[lang];
+      document.querySelectorAll("[data-i18n]").forEach(el=>{
+        const key = el.getAttribute("data-i18n");
+        if(key==="desc"){el.innerHTML=dict[key];}
+        else el.textContent=dict[key];
+      });
+      document.getElementById("btn-en").classList.toggle("secondary", lang!=="en");
+      document.getElementById("btn-tr").classList.toggle("secondary", lang!=="tr");
+      logoutBtn.textContent = dict.logout;
+      historyBtn.textContent = dict.history;
     }
+
+    document.getElementById("btn-en").addEventListener("click",()=>setLang("en"));
+    document.getElementById("btn-tr").addEventListener("click",()=>setLang("tr"));
+    setLang(activeLang);
+
+    logoutBtn.addEventListener('click', ()=>{
+      signOut(auth).then(()=>window.location.href = "login.html");
+    });
+    historyBtn.addEventListener('click', ()=>window.location.href="history.html");
+
+    onAuthStateChanged(auth, (user)=>{
+      if(user){ userWelcome.textContent = `${activeLang==='tr'?'Hoş geldin,':'Welcome,'} ${user.email}`; }
+      else window.location.href = "login.html";
+    });
+
+    document.querySelectorAll('.start-btn').forEach(btn=>{
+      btn.addEventListener('click', async e=>{
+        const user = auth.currentUser;
+        if(!user){ alert(activeLang==='tr' ? 'Lütfen önce giriş yap!' : 'Please log in first!'); return; }
+        const type = e.target.closest('.tile').dataset.type;
+        await addDoc(collection(db,"fortunes"),{
+          user:user.email,
+          type:type,
+          createdAt:new Date().toISOString()
+        });
+        alert(activeLang==='tr' ? `${type} kaydedildi!` : `${type} has been recorded!`);
+      });
+    });
   </script>
 </body>
 </html>
