@@ -6,60 +6,77 @@
   <title>MystAI — My Reading History</title>
   <link rel="icon" type="image/png" href="mystai-logo.png" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
-
   <style>
-    body {
+    body{
       margin:0;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
       background:radial-gradient(1000px 700px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
-      color:#e6ecff;text-align:center;
+      color:#e6ecff;
       min-height:100vh;
-      display:flex;flex-direction:column;justify-content:space-between;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      text-align:center;
     }
-    h1 {
+    h1{
       font-family:'Cinzel',serif;
       color:#ffd54f;
-      margin-top:60px;
       text-shadow:0 0 10px rgba(255,215,0,.4);
+      margin-top:60px;
     }
-    .container {
-      width:90%;max-width:700px;margin:40px auto;
-      display:flex;flex-direction:column;gap:15px;
+    #historyList{
+      width:90%;
+      max-width:700px;
+      margin:30px auto;
+      display:flex;
+      flex-direction:column;
+      gap:15px;
     }
-    .card {
+    .card{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
       background:rgba(255,255,255,.05);
       border:1px solid rgba(255,255,255,.08);
       border-radius:12px;
-      padding:14px 18px;
-      display:flex;justify-content:space-between;align-items:center;
-      transition:transform .2s ease;
+      padding:16px 20px;
+      box-shadow:0 0 20px rgba(255,215,0,.05);
     }
-    .card:hover {transform:scale(1.02);}
-    .text {text-align:left;}
-    .type {color:#ffd54f;font-weight:600;}
-    .date {font-size:14px;color:#aeb6cf;}
-    .btn, .delete-btn {
-      border:none;border-radius:8px;padding:7px 12px;font-weight:600;cursor:pointer;
+    .text{text-align:left;}
+    .type{color:#ffd54f;font-weight:600;}
+    .date{color:#cdd3ff;font-size:14px;margin-top:4px;}
+    .btn,.delete-btn{
+      border:none;
+      border-radius:8px;
+      padding:7px 14px;
+      cursor:pointer;
+      font-weight:600;
       transition:all .3s ease;
     }
-    .btn {background:linear-gradient(135deg,#ffd54f,#ffe680);color:#111;}
-    .btn:hover {filter:brightness(1.1);}
-    .delete-btn {
-      background:rgba(255,80,80,.15);
-      border:1px solid rgba(255,100,100,.3);
-      color:#ff6666;margin-left:10px;
+    .btn{
+      background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);
+      color:#111;
+      box-shadow:0 0 10px rgba(255,215,0,.3);
+      margin-right:8px;
     }
-    .delete-btn:hover {
-      background:rgba(255,80,80,.35);
+    .btn:hover{transform:scale(1.08);}
+    .delete-btn{
+      background:rgba(255,255,255,.1);
+      color:#f5f5f5;
+      border:1px solid rgba(255,255,255,.2);
+    }
+    .delete-btn:hover{
+      background:rgba(255,80,80,.3);
       transform:scale(1.1);
     }
-
-    .topbar {
-      display:flex;justify-content:flex-end;align-items:center;gap:10px;
+    .topbar{
+      display:flex;
+      justify-content:flex-end;
+      align-items:center;
+      gap:10px;
       padding:16px 24px;
     }
-
-    .lang-btn {
+    .lang-btn{
       border:none;
       border-radius:50%;
       width:36px;height:36px;
@@ -69,36 +86,35 @@
       transition:transform .25s ease, box-shadow .25s ease;
       border:2px solid transparent;
     }
-    .lang-btn.active {
+    .lang-btn.active{
       box-shadow:0 0 15px rgba(255,215,0,.6);
       border-color:#ffd54f;
       transform:scale(1.1);
     }
-    .lang-btn:hover {transform:scale(1.15);}
-
-    .flag-en {background-image:url('https://flagcdn.com/w40/gb.png');}
-    .flag-tr {background-image:url('https://flagcdn.com/w40/tr.png');}
-
-    .nav-btn {
+    .flag-en{background-image:url('https://flagcdn.com/w40/gb.png');}
+    .flag-tr{background-image:url('https://flagcdn.com/w40/tr.png');}
+    .lang-btn:hover{transform:scale(1.15);}
+    .nav-btn{
       border:0;border-radius:20px;
-      background:rgba(255,255,255,.15);color:#fff;
-      padding:7px 14px;cursor:pointer;font-weight:600;
+      background:rgba(255,255,255,.15);
+      color:#fff;
+      padding:7px 14px;
+      cursor:pointer;
+      font-weight:600;
     }
-    .nav-btn:hover {filter:brightness(1.2);}
-    
-    footer {
+    .nav-btn:hover{filter:brightness(1.2);}
+    footer{
       border-top:1px solid rgba(255,255,255,.08);
       padding:20px;
       font-size:14px;
       color:#aeb6cf;
     }
-    footer a {
+    footer a{
       color:#ffd54f;
       text-decoration:none;
       font-weight:600;
-      transition:all .3s ease;
     }
-    footer a:hover {
+    footer a:hover{
       color:#fff6b0;
       text-shadow:0 0 10px rgba(255,255,120,.6);
     }
@@ -113,11 +129,11 @@
   </div>
 
   <h1 id="title">My Reading History</h1>
-  <div class="container" id="historyList"></div>
+  <div id="historyList"></div>
 
   <footer>
     <p>© 2025 MystAI.ai — All Rights Reserved. Developed by GALAXY 🌌<br>
-    <span id="contact-label">Contact us:</span>
+    <span id="contact-label">Contact us:</span> 
     <a href="mailto:support@mystai.ai">support@mystai.ai</a></p>
   </footer>
 
@@ -139,22 +155,22 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const list = document.getElementById("historyList");
-    const title = document.getElementById("title");
+    const list=document.getElementById("historyList");
+    const title=document.getElementById("title");
 
-    const i18n = {
+    const i18n={
       en:{title:"My Reading History",type:"Type",date:"Date",view:"View Reading",del:"Delete",confirm:"Are you sure to delete this record?",logout:"Logout",back:"Back",contact:"Contact us:"},
       tr:{title:"Fal Geçmişim",type:"Tür",date:"Tarih",view:"Falını Gör",del:"Sil",confirm:"Bu kaydı silmek istediğine emin misin?",logout:"Çıkış",back:"Geri",contact:"İletişim:"}
     };
 
-    let lang = localStorage.getItem("myst_lang") || "en";
+    let lang=localStorage.getItem("myst_lang")||"en";
     function setLang(l){
       lang=l;localStorage.setItem("myst_lang",l);
       title.textContent=i18n[l].title;
       document.getElementById("btn-en").classList.toggle("active",l==="en");
       document.getElementById("btn-tr").classList.toggle("active",l==="tr");
       document.getElementById("logoutBtn").textContent=i18n[l].logout;
-      document.getElementById("backBtn").textContent=i18n[l].back;
+      document.getElementById("backBtn").textContent="⬅ "+i18n[l].back;
       document.getElementById("contact-label").textContent=i18n[l].contact;
       renderList();
     }
@@ -180,6 +196,10 @@
             <button class="btn">${i18n[lang].view}</button>
             <button class="delete-btn" title="${i18n[lang].del}">🗑️</button>
           </div>`;
+        
+        card.querySelector(".btn").onclick=()=>{
+          window.location.href=`reading.html?id=${item.id}`;
+        };
         card.querySelector(".delete-btn").onclick=async()=>{
           if(confirm(i18n[lang].confirm)){
             await deleteDoc(doc(db,"fortunes",item.id));
