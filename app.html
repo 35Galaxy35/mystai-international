@@ -77,8 +77,8 @@
 
     <div class="nav-btns">
       <span id="user-welcome" class="welcome"></span>
-      <button class="btn" id="historyBtn" data-i18n="history">My History</button>
-      <button class="btn" id="logoutBtn" data-i18n="logout">Logout</button>
+      <button class="btn" id="historyBtn">My History</button>
+      <button class="btn" id="logoutBtn">Logout</button>
     </div>
   </header>
 
@@ -148,39 +148,81 @@
     const db = getFirestore(app);
 
     const logoutBtn = document.getElementById('logoutBtn');
-    const userWelcome = document.getElementById('user-welcome');
     const historyBtn = document.getElementById('historyBtn');
+    const userWelcome = document.getElementById('user-welcome');
 
-    logoutBtn.addEventListener('click', () => {
-      signOut(auth).then(() => {
-        alert('Logged out!');
-        window.location.href = "login.html";
-      });
-    });
-
-    historyBtn.addEventListener('click', () => {
-      window.location.href = "history.html";
-    });
-
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        userWelcome.textContent = `Welcome, ${user.email}`;
-      } else {
-        window.location.href = "login.html";
+    const i18n = {
+      en: {
+        choose:"Choose Your Reading",
+        desc:"Explore the ancient art of divination through the power of AI.<br>Select your path below to begin your mystical journey.",
+        coffeeTitle:"AI Coffee Reading",
+        coffeeDesc:"Upload your cup image and receive symbolic and emotional insights decoded by AI.",
+        tarotTitle:"AI Tarot Reading",
+        tarotDesc:"Draw cards digitally and let AI interpret archetypes and guidance for you.",
+        palmTitle:"AI Palm Reading",
+        palmDesc:"Scan your palm and discover patterns and meanings through AI analysis.",
+        energyTitle:"Energy & Dreams",
+        energyDesc:"Upload your dreams or energy symbols and receive reflective AI interpretations.",
+        start:"Start Reading",
+        logout:"Logout",
+        history:"My History"
+      },
+      tr: {
+        choose:"Falını Seç",
+        desc:"Yapay zekâ gücüyle kadim fal sanatını keşfet.<br>Aşağıdan yolunu seç ve mistik yolculuğuna başla.",
+        coffeeTitle:"Yapay Zekâ Kahve Falı",
+        coffeeDesc:"Fincan fotoğrafını yükle; sembolik ve duygusal içgörüler yapay zekâ tarafından çözümlensin.",
+        tarotTitle:"Yapay Zekâ Tarot Açılımı",
+        tarotDesc:"Kartlarını dijital olarak seç; arketipler ve rehberlik yapay zekâ tarafından yorumlansın.",
+        palmTitle:"Yapay Zekâ El Falı",
+        palmDesc:"Avucunu tara; çizgi ve desenleri yapay zekâ analiz etsin.",
+        energyTitle:"Enerji & Rüyalar",
+        energyDesc:"Rüyalarını veya enerji sembollerini yükle; AI bunları farkındalıkla yorumlasın.",
+        start:"Falını Başlat",
+        logout:"Çıkış Yap",
+        history:"Geçmişim"
       }
+    };
+
+    let activeLang = localStorage.getItem("myst_lang") || "en";
+    function setLang(lang){
+      activeLang = lang;
+      localStorage.setItem("myst_lang", lang);
+      const dict = i18n[lang];
+      document.querySelectorAll("[data-i18n]").forEach(el=>{
+        const key = el.getAttribute("data-i18n");
+        if(key==="desc"){el.innerHTML=dict[key];}
+        else el.textContent=dict[key];
+      });
+      document.getElementById("btn-en").classList.toggle("secondary", lang!=="en");
+      document.getElementById("btn-tr").classList.toggle("secondary", lang!=="tr");
+    }
+
+    document.getElementById("btn-en").addEventListener("click",()=>setLang("en"));
+    document.getElementById("btn-tr").addEventListener("click",()=>setLang("tr"));
+    setLang(activeLang);
+
+    logoutBtn.addEventListener('click', ()=>{
+      signOut(auth).then(()=>window.location.href = "login.html");
+    });
+    historyBtn.addEventListener('click', ()=>window.location.href="history.html");
+
+    onAuthStateChanged(auth, (user)=>{
+      if(user){ userWelcome.textContent = `${activeLang==='tr'?'Hoş geldin,':'Welcome,'} ${user.email}`; }
+      else window.location.href = "login.html";
     });
 
-    document.querySelectorAll('.start-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
+    document.querySelectorAll('.start-btn').forEach(btn=>{
+      btn.addEventListener('click', async e=>{
         const user = auth.currentUser;
-        if (!user) return alert('Please log in first!');
+        if(!user){ alert('Please log in first!'); return; }
         const type = e.target.closest('.tile').dataset.type;
-        await addDoc(collection(db, "fortunes"), {
-          user: user.email,
-          type,
-          createdAt: new Date().toISOString()
+        await addDoc(collection(db,"fortunes"),{
+          user:user.email,
+          type:type,
+          createdAt:new Date().toISOString()
         });
-        alert(`Your ${type} has been recorded!`);
+        alert(activeLang==='tr' ? `${type} kaydedildi!` : `${type} has been recorded!`);
       });
     });
   </script>
