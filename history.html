@@ -92,14 +92,14 @@
     <button class="btn" id="logoutBtn">Çıkış Yap</button>
   </div>
 
-  <h1 id="title">Fal Geçmişim</h1>
+  <h1>Fal Geçmişim</h1>
   <div class="container" id="historyBox">Fal kayıtların yükleniyor...</div>
 
   <footer>© 2025 MystAI.ai — GALAXY tarafından geliştirildi 🌌</footer>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -147,9 +147,7 @@
           historyBox.textContent = "Henüz bir fal geçmişin yok.";
         } else {
           const dataList = [];
-          querySnapshot.forEach((doc) => dataList.push(doc.data()));
-
-          // En yeni kayıt en üstte
+          querySnapshot.forEach((doc) => dataList.push({ id: doc.id, ...doc.data() }));
           dataList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
           historyBox.innerHTML = "";
@@ -161,7 +159,7 @@
             div.innerHTML = `
               <strong>Fal Türü:</strong> ${translateType(data.type)}<br>
               <strong>Tarih:</strong> ${formattedDate}<br>
-              <a href="#" class="view-btn">🔮 Falını Görüntüle</a>
+              <a href="reading.html?id=${data.id}" class="view-btn">🔮 Falını Görüntüle</a>
             `;
             historyBox.appendChild(div);
           });
