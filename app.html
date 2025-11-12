@@ -94,28 +94,28 @@
       <img src="images/Coffee.png" alt="AI Coffee Reading" class="reading-img">
       <h3 data-i18n="coffeeTitle">AI Coffee Reading</h3>
       <p data-i18n="coffeeDesc">Upload your cup image and receive symbolic and emotional insights decoded by AI.</p>
-      <button class="start-btn" data-reading="Coffee" data-i18n="start">Start Reading</button>
+      <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
     <article class="tile">
       <img src="images/Tarot.png" alt="AI Tarot Reading" class="reading-img">
       <h3 data-i18n="tarotTitle">AI Tarot Reading</h3>
       <p data-i18n="tarotDesc">Draw cards digitally and let AI interpret archetypes and guidance for you.</p>
-      <button class="start-btn" data-reading="Tarot" data-i18n="start">Start Reading</button>
+      <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
     <article class="tile">
       <img src="images/Palm.png" alt="AI Palm Reading" class="reading-img">
       <h3 data-i18n="palmTitle">AI Palm Reading</h3>
       <p data-i18n="palmDesc">Scan your palm and discover patterns and meanings through AI analysis.</p>
-      <button class="start-btn" data-reading="Palm" data-i18n="start">Start Reading</button>
+      <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
     <article class="tile">
       <img src="images/Energy.png" alt="Energy & Dreams" class="reading-img">
       <h3 data-i18n="energyTitle">Energy & Dreams</h3>
       <p data-i18n="energyDesc">Upload your dreams or energy symbols and receive reflective AI interpretations.</p>
-      <button class="start-btn" data-reading="Energy" data-i18n="start">Start Reading</button>
+      <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
   </section>
 
@@ -132,7 +132,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+    import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
@@ -148,58 +148,74 @@
     const db = getFirestore(app);
 
     const logoutBtn = document.getElementById('logoutBtn');
-    const historyBtn = document.getElementById('historyBtn');
     const userWelcome = document.getElementById('user-welcome');
+    const historyBtn = document.getElementById('historyBtn');
 
-    logoutBtn.addEventListener('click', ()=>{ signOut(auth).then(()=>window.location.href="login.html"); });
-    historyBtn.addEventListener('click', ()=>window.location.href="history.html");
-
-    document.querySelectorAll('.start-btn').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        const user = auth.currentUser;
-        if(!user){ alert("Please login first!"); return; }
-        const type = btn.dataset.reading;
-        await addDoc(collection(db, "fortunes"), {
-          uid: user.uid,
-          type,
-          createdAt: serverTimestamp()
-        });
-        alert(`Your ${type} reading has been saved!`);
+    logoutBtn.addEventListener('click', ()=>{
+      signOut(auth).then(()=>{
+        alert(activeLang === 'tr' ? 'Çıkış yapıldı!' : 'Logged out!');
+        window.location.href = "login.html";
       });
     });
 
     onAuthStateChanged(auth, (user)=>{
-      if(user){
-        userWelcome.textContent = (activeLang === 'tr' ? 'Hoş geldin, ' : 'Welcome, ') + (user.email || '');
+      if (user) {
+        const name = user.displayName || user.email;
+        userWelcome.textContent = (activeLang === 'tr' ? 'Hoş geldin, ' : 'Welcome, ') + name;
       } else {
-        window.location.href="login.html";
+        window.location.href = "login.html";
       }
     });
 
     const i18n = {
-      en:{choose:"Choose Your Reading",desc:"Explore the ancient art of divination through the power of AI.<br>Select your path below to begin your mystical journey.",coffeeTitle:"AI Coffee Reading",coffeeDesc:"Upload your cup image and receive symbolic and emotional insights decoded by AI.",tarotTitle:"AI Tarot Reading",tarotDesc:"Draw cards digitally and let AI interpret archetypes and guidance for you.",palmTitle:"AI Palm Reading",palmDesc:"Scan your palm and discover patterns and meanings through AI analysis.",energyTitle:"Energy & Dreams",energyDesc:"Upload your dreams or energy symbols and receive reflective AI interpretations.",start:"Start Reading",logout:"Logout",history:"My History",terms:"Terms",privacy:"Privacy",cookies:"Cookies",disclaimer:"Disclaimer",rights:"All Rights Reserved.",dev:"Developed by GALAXY 🌌"},
-      tr:{choose:"Falını Seç",desc:"Yapay zekâ gücüyle kadim fal sanatını keşfet.<br>Aşağıdan yolunu seç ve mistik yolculuğuna başla.",coffeeTitle:"Yapay Zekâ Kahve Falı",coffeeDesc:"Fincan fotoğrafını yükle; sembolik ve duygusal içgörüler yapay zekâ tarafından çözümlensin.",tarotTitle:"Yapay Zekâ Tarot Açılımı",tarotDesc:"Kartlarını dijital olarak seç; arketipler ve rehberlik yapay zekâ tarafından yorumlansın.",palmTitle:"Yapay Zekâ El Falı",palmDesc:"Avucunu tara; çizgi ve desenleri yapay zekâ analiz etsin.",energyTitle:"Enerji & Rüyalar",energyDesc:"Rüyalarını veya enerji sembollerini yükle; AI bunları farkındalıkla yorumlasın.",start:"Falını Başlat",logout:"Çıkış Yap",history:"Geçmiş Fallarım",terms:"Şartlar",privacy:"Gizlilik",cookies:"Çerezler",disclaimer:"Sorumluluk Reddi",rights:"Tüm Hakları Saklıdır.",dev:"GALAXY tarafından geliştirilmiştir 🌌"}
+      en: { choose:"Choose Your Reading", desc:"Explore the ancient art of divination through the power of AI.<br>Select your path below to begin your mystical journey.", coffeeTitle:"AI Coffee Reading", coffeeDesc:"Upload your cup image and receive symbolic and emotional insights decoded by AI.", tarotTitle:"AI Tarot Reading", tarotDesc:"Draw cards digitally and let AI interpret archetypes and guidance for you.", palmTitle:"AI Palm Reading", palmDesc:"Scan your palm and discover patterns and meanings through AI analysis.", energyTitle:"Energy & Dreams", energyDesc:"Upload your dreams or energy symbols and receive reflective AI interpretations.", start:"Start Reading", logout:"Logout", terms:"Terms", privacy:"Privacy", cookies:"Cookies", disclaimer:"Disclaimer", rights:"All Rights Reserved.", dev:"Developed by GALAXY 🌌", history:"My History" },
+      tr: { choose:"Falını Seç", desc:"Yapay zekâ gücüyle kadim fal sanatını keşfet.<br>Aşağıdan yolunu seç ve mistik yolculuğuna başla.", coffeeTitle:"Yapay Zekâ Kahve Falı", coffeeDesc:"Fincan fotoğrafını yükle; sembolik ve duygusal içgörüler yapay zekâ tarafından çözümlensin.", tarotTitle:"Yapay Zekâ Tarot Açılımı", tarotDesc:"Kartlarını dijital olarak seç; arketipler ve rehberlik yapay zekâ tarafından yorumlansın.", palmTitle:"Yapay Zekâ El Falı", palmDesc:"Avucunu tara; çizgi ve desenleri yapay zekâ analiz etsin.", energyTitle:"Enerji & Rüyalar", energyDesc:"Rüyalarını veya enerji sembollerini yükle; AI bunları farkındalıkla yorumlasın.", start:"Falını Başlat", logout:"Çıkış Yap", terms:"Şartlar", privacy:"Gizlilik", cookies:"Çerezler", disclaimer:"Sorumluluk Reddi", rights:"Tüm Hakları Saklıdır.", dev:"GALAXY tarafından geliştirilmiştir 🌌", history:"Geçmiş Fallarım" }
     };
 
     let activeLang = localStorage.getItem("myst_lang") || "en";
     function setLang(lang){
       activeLang = lang;
-      localStorage.setItem("myst_lang",lang);
+      localStorage.setItem("myst_lang", lang);
       const dict = i18n[lang];
       document.querySelectorAll("[data-i18n]").forEach(el=>{
-        const key=el.getAttribute("data-i18n");
+        const key = el.getAttribute("data-i18n");
         if(key==="desc"){el.innerHTML=dict[key];}
         else el.textContent=dict[key];
       });
-      document.getElementById("btn-en").classList.toggle("secondary",lang!=="en");
-      document.getElementById("btn-tr").classList.toggle("secondary",lang!=="tr");
-      const user=auth.currentUser;
-      if(user){userWelcome.textContent=(lang==="tr"?"Hoş geldin, ":"Welcome, ")+(user.email||"");}
+      if(auth.currentUser){
+        const name = auth.currentUser.displayName || auth.currentUser.email;
+        userWelcome.textContent = (lang === 'tr' ? 'Hoş geldin, ' : 'Welcome, ') + name;
+      }
+      document.getElementById("btn-en").classList.toggle("secondary", lang!=="en");
+      document.getElementById("btn-tr").classList.toggle("secondary", lang!=="tr");
     }
 
     document.getElementById("btn-en").addEventListener("click",()=>setLang("en"));
     document.getElementById("btn-tr").addEventListener("click",()=>setLang("tr"));
     setLang(activeLang);
+
+    // Firestore kayıt işlemi
+    document.querySelectorAll(".start-btn").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        const readingType = btn.parentElement.querySelector("h3").textContent;
+        const user = auth.currentUser;
+        if(!user) return alert(activeLang === "tr" ? "Lütfen giriş yap." : "Please login.");
+
+        try {
+          await addDoc(collection(db, "fortunes"), {
+            type: readingType,
+            user: user.email,
+            createdAt: new Date().toISOString()
+          });
+          alert(activeLang === "tr" ? `${readingType} kaydedildi!` : `${readingType} saved!`);
+        } catch (e) {
+          console.error("Firestore error:", e);
+          alert("Error saving to Firestore.");
+        }
+      });
+    });
+
+    historyBtn.addEventListener("click", ()=> window.location.href = "history.html");
   </script>
 </body>
 </html>
