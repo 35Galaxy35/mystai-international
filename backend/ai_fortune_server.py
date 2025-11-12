@@ -49,5 +49,16 @@ def predict():
 
 
 
+# 🔍 Bağlantı testi için ek rota
+@app.route("/test_connection")
+def test_connection():
+    import requests
+    try:
+        r = requests.get("https://api.openai.com/v1/models", timeout=10)
+        return f"Connection OK: {r.status_code}"
+    except Exception as e:
+        return f"Connection failed: {str(e)}"
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
