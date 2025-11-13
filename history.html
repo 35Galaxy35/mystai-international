@@ -6,6 +6,7 @@
   <title>MystAI — My Reading History</title>
   <link rel="icon" type="image/png" href="mystai-logo.png" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+
   <style>
     body{
       margin:0;
@@ -45,6 +46,7 @@
     .text{text-align:left;}
     .type{color:#ffd54f;font-weight:600;}
     .date{color:#cdd3ff;font-size:14px;margin-top:4px;}
+
     .btn,.delete-btn{
       border:none;
       border-radius:8px;
@@ -185,12 +187,18 @@
       list.innerHTML="";
       dataList.forEach(item=>{
         const data=item.data;
+
+        // 🔥 Tarih hatası düzeltilmiş profesyonel tarih kontrolü
+        const dateString = data.createdAt?.toDate
+          ? data.createdAt.toDate().toLocaleString()
+          : new Date(data.createdAt).toLocaleString();
+
         const card=document.createElement("div");
         card.className="card";
         card.innerHTML=`
           <div class="text">
             <div class="type">${i18n[lang].type}: ${data.type}</div>
-            <div class="date">${i18n[lang].date}: ${new Date(data.createdAt).toLocaleString()}</div>
+            <div class="date">${i18n[lang].date}: ${dateString}</div>
           </div>
           <div>
             <button class="btn">${i18n[lang].view}</button>
@@ -198,7 +206,7 @@
           </div>`;
         
         card.querySelector(".btn").onclick=()=>{
-          window.location.href=`reading.html?id=${item.id}`;
+          window.location.href=\`reading.html?id=\${item.id}\`;
         };
         card.querySelector(".delete-btn").onclick=async()=>{
           if(confirm(i18n[lang].confirm)){
