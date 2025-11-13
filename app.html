@@ -8,96 +8,333 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
 
   <style>
-    :root { --bg-start:#0d1440; --bg-end:#0b0f1f; --text:#d8e0ff; --muted:#a9b4d0; --accent:#f2c84b; }
+    :root{
+      --bg-start:#0d1440;
+      --bg-end:#0b0f1f;
+      --text:#d8e0ff;
+      --muted:#a9b4d0;
+      --accent:#f2c84b;
+    }
     html,body{
-      margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      color:var(--text);text-align:center;overflow-x:hidden;
+      margin:0;
+      padding:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      color:var(--text);
+      text-align:center;
+      overflow-x:hidden;
       background:radial-gradient(1400px 800px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
     }
 
+    /* HEADER */
     header{
       position:relative;
-      padding:16px 40px;display:flex;justify-content:space-between;align-items:center;
-      background:rgba(10,15,30,0.35);backdrop-filter:blur(12px);
-      border-bottom:1px solid rgba(255,255,255,0.06);z-index:1000;
+      padding:16px 40px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background:rgba(10,15,30,0.35);
+      backdrop-filter:blur(12px);
+      border-bottom:1px solid rgba(255,255,255,0.06);
+      z-index:1000;
     }
-
-    .lang-box,.nav-btns{display:flex;gap:10px;align-items:center;}
+    .lang-box,.nav-btns{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
     .lang-btn{
-      font-weight:700;border:0;border-radius:50px;padding:7px 13px;cursor:pointer;font-size:13px;
-      background:linear-gradient(135deg,#ffd54f,#ffe680);color:#111;transition:all .3s ease;
+      font-weight:700;
+      border:0;
+      border-radius:999px;
+      padding:7px 13px;
+      cursor:pointer;
+      font-size:13px;
+      background:linear-gradient(135deg,#ffd54f,#ffe680);
+      color:#111;
+      transition:all .3s ease;
+      box-shadow:0 0 10px rgba(255,215,0,.3);
     }
-    .lang-btn.secondary{background:rgba(255,255,255,.1);color:#e6ecff;border:1px solid rgba(255,255,255,.12)}
-    .btn{
-      font-weight:700;border:0;border-radius:10px;padding:8px 18px;cursor:pointer;
-      color:#0b0f1f;background:#ffd54f;font-size:14px;transition:all .3s ease;
+    .lang-btn.secondary{
+      background:rgba(15,22,46,.9);
+      color:#e6ecff;
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:none;
     }
-    .btn:hover,.lang-btn:hover{filter:brightness(1.1);transform:translateY(-2px)}
+    .lang-btn:hover{
+      filter:brightness(1.08);
+      transform:translateY(-1.5px);
+    }
 
-    /* Logo */
+    .btn{
+      font-weight:700;
+      border:0;
+      border-radius:10px;
+      padding:8px 18px;
+      cursor:pointer;
+      color:#0b0f1f;
+      background:#ffd54f;
+      font-size:14px;
+      transition:all .3s ease;
+      box-shadow:0 0 10px rgba(255,215,0,.35);
+    }
+    .btn:hover{
+      filter:brightness(1.08);
+      transform:translateY(-1.5px);
+    }
+    .welcome{
+      font-weight:600;
+      color:#ffe680;
+      text-shadow:0 0 10px rgba(255,220,120,.4);
+      margin-right:12px;
+    }
+
+    /* LOGO */
     .floating-logo{
-      position:absolute;left:50%;top:90px;transform:translateX(-50%);
-      height:170px;width:auto;pointer-events:none;
+      position:absolute;
+      left:50%;
+      top:90px;
+      transform:translateX(-50%);
+      height:170px;
+      width:auto;
+      pointer-events:none;
       animation:float 6s ease-in-out infinite alternate, glow 6s ease-in-out infinite alternate;
       filter:drop-shadow(0 0 35px rgba(255,230,150,.65)) brightness(1.05);
       z-index:5;
     }
-    @keyframes float{from{transform:translate(-50%,-12px)}to{transform:translate(-50%,8px)}}
-    @keyframes glow{from{filter:drop-shadow(0 0 25px rgba(255,240,180,.4))}to{filter:drop-shadow(0 0 55px rgba(255,250,200,.8))}}
+    @keyframes float{
+      from{transform:translate(-50%,-12px);}
+      to{transform:translate(-50%,8px);}
+    }
+    @keyframes glow{
+      from{filter:drop-shadow(0 0 25px rgba(255,240,180,.4));}
+      to{filter:drop-shadow(0 0 55px rgba(255,250,200,.8));}
+    }
 
-    /* Hero */
-    .hero{text-align:center;padding-top:280px;padding-bottom:50px}
-    .hero h1{color:#f5d76e;font-size:46px;margin-bottom:12px;text-shadow:0 0 14px rgba(255,220,120,.3);font-family:'Cinzel',serif}
-    .hero p{color:var(--text);max-width:720px;margin:0 auto;font-size:18px;line-height:1.6}
-    .welcome{font-weight:600;color:#ffe680;text-shadow:0 0 10px rgba(255,220,120,.4);margin-right:12px}
+    /* HERO */
+    .hero{
+      text-align:center;
+      padding-top:280px;
+      padding-bottom:50px;
+    }
+    .hero h1{
+      color:#f5d76e;
+      font-size:46px;
+      margin-bottom:12px;
+      text-shadow:0 0 14px rgba(255,220,120,.3);
+      font-family:'Cinzel',serif;
+    }
+    .hero p{
+      color:var(--text);
+      max-width:720px;
+      margin:0 auto;
+      font-size:18px;
+      line-height:1.6;
+    }
 
-    /* Grid */
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:28px;padding:60px 20px;max-width:1100px;margin:auto}
-    .tile{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:14px;transition:transform .3s ease,box-shadow .3s ease}
-    .tile:hover{transform:scale(1.02);box-shadow:0 0 30px rgba(255,215,0,.2)}
-    .reading-img{width:100%;height:320px;object-fit:cover;border-radius:14px;margin-bottom:14px;box-shadow:0 0 18px rgba(255,215,0,.18)}
-    .tile h3{color:#f5d76e;font-family:'Cinzel',serif;margin-bottom:10px}
-    .tile p{color:var(--muted);font-size:15px;min-height:60px}
-    .start-btn{background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);font-weight:700;color:#111;border:none;padding:10px 20px;border-radius:10px;cursor:pointer;transition:transform .3s ease;box-shadow:0 0 15px rgba(255,215,0,.4)}
-    .start-btn:hover{transform:scale(1.08)}
+    /* GRID */
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:28px;
+      padding:60px 20px;
+      max-width:1100px;
+      margin:auto;
+    }
+    .tile{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:14px;
+      padding:14px;
+      transition:transform .3s ease,box-shadow .3s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .tile::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background:radial-gradient(circle at top,#ffd54f11 0,#0000 55%);
+      opacity:0;
+      transition:opacity .3s ease;
+    }
+    .tile:hover{
+      transform:scale(1.02);
+      box-shadow:0 0 30px rgba(255,215,0,.22);
+    }
+    .tile:hover::before{opacity:1;}
+    .reading-img{
+      width:100%;
+      height:320px;
+      object-fit:cover;
+      border-radius:14px;
+      margin-bottom:14px;
+      box-shadow:0 0 18px rgba(255,215,0,.18);
+    }
+    .tile h3{
+      color:#f5d76e;
+      font-family:'Cinzel',serif;
+      margin-bottom:10px;
+    }
+    .tile p{
+      color:var(--muted);
+      font-size:15px;
+      min-height:60px;
+    }
+    .start-btn{
+      background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);
+      font-weight:700;
+      color:#111;
+      border:none;
+      padding:10px 20px;
+      border-radius:10px;
+      cursor:pointer;
+      transition:transform .25s ease;
+      box-shadow:0 0 15px rgba(255,215,0,.4);
+    }
+    .start-btn:hover{
+      transform:scale(1.08);
+    }
 
-    /* Footer */
-    footer{margin-top:80px;padding:36px 0;border-top:1px solid rgba(255,255,255,.08);color:#aeb6cf;font-size:14px}
-    footer a{color:#cfe4ff;text-decoration:none}
-    footer a:hover{color:#ffe680}
-    .links{margin-bottom:8px}
+    /* FOOTER */
+    footer{
+      margin-top:80px;
+      padding:36px 0;
+      border-top:1px solid rgba(255,255,255,.08);
+      color:#aeb6cf;
+      font-size:14px;
+    }
+    footer a{
+      color:#cfe4ff;
+      text-decoration:none;
+      font-weight:600;
+    }
+    footer a:hover{
+      color:#ffe680;
+    }
+    .links{margin-bottom:8px;}
 
-    /* Ask MystAI Button (bottom-right) */
+    /* ASK MYSTAI FAB */
     .ask-fab{
-      position:fixed; right:18px; bottom:18px; z-index:1200;
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      z-index:1200;
       background:linear-gradient(135deg,#ffd54f,#ffe680);
-      color:#111; border:none; border-radius:999px; padding:12px 18px;
-      font-weight:800; box-shadow:0 8px 30px rgba(0,0,0,.35);
-      cursor:pointer; display:flex; align-items:center; gap:8px;
+      color:#111;
+      border:none;
+      border-radius:999px;
+      padding:12px 18px;
+      font-weight:800;
+      box-shadow:0 8px 30px rgba(0,0,0,.35);
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
-    .ask-fab:hover{filter:brightness(1.06); transform:translateY(-2px)}
+    .ask-fab:hover{
+      filter:brightness(1.06);
+      transform:translateY(-2px);
+    }
 
-    /* Ask MystAI Modal */
-    .ask-modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;justify-content:center;align-items:center;z-index:1300}
+    /* ASK MYSTAI MODAL */
+    .ask-modal{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.65);
+      display:none;
+      justify-content:center;
+      align-items:center;
+      z-index:1300;
+    }
     .ask-card{
-      width:min(720px,92vw); background:#0d1a2b; border:1px solid rgba(255,255,255,.12);
-      border-radius:16px; padding:20px;
-      box-shadow:0 0 40px rgba(255,215,0,.35)
+      width:min(720px,92vw);
+      background:#0d1a2b;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:16px;
+      padding:20px;
+      box-shadow:0 0 40px rgba(255,215,0,.35);
+      text-align:left;
     }
-    .ask-title{margin:0 0 10px; color:#ffd54f; font-family:'Cinzel',serif}
-    .ask-row{display:flex; gap:12px; margin-top:10px}
+    .ask-title{
+      margin:0 0 10px;
+      color:#ffd54f;
+      font-family:'Cinzel',serif;
+    }
+    .ask-row{
+      display:flex;
+      gap:12px;
+      margin-top:10px;
+    }
     .ask-row textarea{
-      flex:1; height:110px; resize:vertical; border-radius:10px; border:1px solid rgba(255,255,255,.15);
-      background:#0b132a; color:#e6ecff; padding:10px; font-family:inherit; font-size:15px;
+      flex:1;
+      height:110px;
+      resize:vertical;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.15);
+      background:#0b132a;
+      color:#e6ecff;
+      padding:10px;
+      font-family:inherit;
+      font-size:15px;
     }
-    .ask-actions{display:flex; gap:10px; justify-content:flex-end; margin-top:10px}
-    .ask-btn{background:#ffd54f;color:#111;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
-    .ask-secondary{background:transparent; color:#e6ecff; border:1px solid rgba(255,255,255,.2)}
-    .ask-output{margin-top:14px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); padding:12px; border-radius:10px; display:none; text-align:left; white-space:pre-wrap}
-    .ask-hint{color:#a9b4d0; font-size:12px; margin-top:6px}
-    .spinner{display:none; margin-left:6px}
+    .ask-actions{
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      margin-top:10px;
+    }
+    .ask-btn{
+      background:#ffd54f;
+      color:#111;
+      border:none;
+      border-radius:10px;
+      padding:10px 14px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .ask-secondary{
+      background:transparent;
+      color:#e6ecff;
+      border:1px solid rgba(255,255,255,.2);
+    }
+    .ask-output{
+      margin-top:14px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.06);
+      padding:12px;
+      border-radius:10px;
+      display:none;
+      white-space:pre-wrap;
+      color:#dde6ff;
+    }
+    .ask-hint{
+      color:#a9b4d0;
+      font-size:12px;
+      margin-top:6px;
+    }
+    .spinner{
+      display:none;
+      margin-left:6px;
+    }
 
-    @media(max-width:768px){.floating-logo{height:120px;top:100px}.hero{padding-top:220px}}
+    @media(max-width:768px){
+      header{
+        padding:12px 16px;
+      }
+      .floating-logo{
+        height:120px;
+        top:100px;
+      }
+      .hero{
+        padding-top:220px;
+      }
+      .nav-btns{
+        gap:6px;
+      }
+      .welcome{
+        display:none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -119,35 +356,46 @@
 
   <section class="hero">
     <h1 data-i18n="choose">Choose Your Reading</h1>
-    <p data-i18n="desc">Explore the ancient art of divination through the power of AI.<br>Select your path below to begin your mystical journey.</p>
+    <p data-i18n="desc">
+      Explore the ancient art of divination through the power of AI.<br>
+      Select your path below to begin your mystical journey.
+    </p>
   </section>
 
   <section class="grid">
     <article class="tile" data-type="AI Coffee Reading">
       <img src="images/Coffee.png" class="reading-img" alt="Coffee Reading">
       <h3 data-i18n="coffeeTitle">AI Coffee Reading</h3>
-      <p data-i18n="coffeeDesc">Upload your cup image and receive symbolic and emotional insights decoded by AI.</p>
+      <p data-i18n="coffeeDesc">
+        Upload your cup image and receive symbolic and emotional insights decoded by AI.
+      </p>
       <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
     <article class="tile" data-type="AI Tarot Reading">
       <img src="images/Tarot.png" class="reading-img" alt="Tarot Reading">
       <h3 data-i18n="tarotTitle">AI Tarot Reading</h3>
-      <p data-i18n="tarotDesc">Draw cards digitally and let AI interpret archetypes and guidance for you.</p>
+      <p data-i18n="tarotDesc">
+        Draw cards digitally and let AI interpret archetypes and guidance for you.
+      </p>
       <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
     <article class="tile" data-type="AI Palm Reading">
       <img src="images/Palm.png" class="reading-img" alt="Palm Reading">
       <h3 data-i18n="palmTitle">AI Palm Reading</h3>
-      <p data-i18n="palmDesc">Scan your palm and discover patterns and meanings through AI analysis.</p>
+      <p data-i18n="palmDesc">
+        Scan your palm and discover patterns and meanings through AI analysis.
+      </p>
       <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
     <article class="tile" data-type="Energy & Dreams">
       <img src="images/Energy.png" class="reading-img" alt="Energy & Dreams">
       <h3 data-i18n="energyTitle">Energy & Dreams</h3>
-      <p data-i18n="energyDesc">Upload your dreams or energy symbols and receive reflective AI interpretations.</p>
+      <p data-i18n="energyDesc">
+        Upload your dreams or energy symbols and receive reflective AI interpretations.
+      </p>
       <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
   </section>
@@ -160,7 +408,8 @@
       <a href="disclaimer.html" data-i18n="disclaimer">Disclaimer</a>
     </div>
     <p>
-      © 2025 MystAI.ai — <span data-i18n="rights">All Rights Reserved.</span> 
+      © 2025 MystAI.ai — 
+      <span data-i18n="rights">All Rights Reserved.</span>
       <span data-i18n="dev">Developed by GALAXY 🌌</span><br>
       <a href="mailto:support@mystai.ai">support@mystai.ai</a>
     </p>
@@ -178,7 +427,9 @@
       <div class="ask-row">
         <textarea id="askInput" placeholder="Type your question..."></textarea>
       </div>
-      <div class="ask-hint" id="askHint">Tip: You can ask about your energy, dreams, love, career, or destiny.</div>
+      <div class="ask-hint" id="askHint">
+        Tip: You can ask about your energy, dreams, love, career, or destiny.
+      </div>
       <div class="ask-actions">
         <button class="ask-btn ask-secondary" id="askClose" data-i18n="close">Close</button>
         <button class="ask-btn" id="askSend">
@@ -192,11 +443,10 @@
   </div>
 
   <script type="module">
-    /* ====== CONFIG ====== */
+    /* ===== CONFIG: BACKEND URL (Render) ===== */
     const BACKEND_URL = "https://mystai-international-1.onrender.com";
 
-
-    /* ====== Firebase ====== */
+    /* ===== Firebase ===== */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
@@ -214,12 +464,11 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    /* ====== UI Elemanları ====== */
-    const logoutBtn   = document.getElementById('logoutBtn');
-    const historyBtn  = document.getElementById('historyBtn');
-    const userWelcome = document.getElementById('user-welcome');
+    const logoutBtn   = document.getElementById("logoutBtn");
+    const historyBtn  = document.getElementById("historyBtn");
+    const userWelcome = document.getElementById("user-welcome");
 
-    /* ====== i18n ====== */
+    /* ===== i18n ===== */
     const i18n = {
       en: {
         choose:"Choose Your Reading",
@@ -235,8 +484,12 @@
         start:"Start Reading",
         logout:"Logout",
         history:"My History",
-        terms:"Terms", privacy:"Privacy", cookies:"Cookies", disclaimer:"Disclaimer",
-        rights:"All Rights Reserved.", dev:"Developed by GALAXY 🌌",
+        terms:"Terms",
+        privacy:"Privacy",
+        cookies:"Cookies",
+        disclaimer:"Disclaimer",
+        rights:"All Rights Reserved.",
+        dev:"Developed by GALAXY 🌌",
         ask:"Ask MystAI",
         askTitle:"Ask MystAI 🔮",
         send:"Send",
@@ -258,8 +511,12 @@
         start:"Falını Başlat",
         logout:"Çıkış Yap",
         history:"Geçmişim",
-        terms:"Şartlar", privacy:"Gizlilik", cookies:"Çerezler", disclaimer:"Sorumluluk Reddi",
-        rights:"Tüm Hakları Saklıdır.", dev:"GALAXY tarafından geliştirilmiştir 🌌",
+        terms:"Şartlar",
+        privacy:"Gizlilik",
+        cookies:"Çerezler",
+        disclaimer:"Sorumluluk Reddi",
+        rights:"Tüm Hakları Saklıdır.",
+        dev:"GALAXY tarafından geliştirilmiştir 🌌",
         ask:"MystAI'ye Sor",
         askTitle:"MystAI'ye Sor 🔮",
         send:"Gönder",
@@ -270,215 +527,170 @@
     };
 
     let activeLang = localStorage.getItem("myst_lang") || "en";
-    function setLang(lang){
+
+    function applyLanguage(lang){
       activeLang = lang;
       localStorage.setItem("myst_lang", lang);
       const dict = i18n[lang];
 
-      // Texts
+      // Tüm data-i18n elementlerini güncelle
       document.querySelectorAll("[data-i18n]").forEach(el=>{
         const key = el.getAttribute("data-i18n");
-        if(key==="desc"){ el.innerHTML = dict[key]; }
-        else { el.textContent = dict[key]; }
+        if(!dict[key]) return;
+        if(key === "desc"){
+          el.innerHTML = dict[key];
+        }else{
+          el.textContent = dict[key];
+        }
       });
 
-      // Ask MystAI placeholders
-      document.getElementById("askInput").placeholder = dict.placeholder;
-      document.getElementById("askHint").textContent = dict.hint;
+      // Ask MystAI placeholder + ipucu
+      const askInput = document.getElementById("askInput");
+      const askHint  = document.getElementById("askHint");
+      if(askInput) askInput.placeholder = dict.placeholder;
+      if(askHint)  askHint.textContent  = dict.hint;
 
-      // Button states
+      // Dil butonlarının görsel durumu
       document.getElementById("btn-en").classList.toggle("secondary", lang!=="en");
       document.getElementById("btn-tr").classList.toggle("secondary", lang!=="tr");
 
-      // Welcome line (auth ile birlikte güncel tut)
+      // Welcome metni
       if(auth.currentUser){
         const name = auth.currentUser.displayName || auth.currentUser.email;
-        userWelcome.textContent = (lang === 'tr' ? 'Hoş geldin, ' : 'Welcome, ') + name;
+        userWelcome.textContent = (lang === "tr" ? "Hoş geldin, " : "Welcome, ") + name;
       }
     }
 
-    document.getElementById("btn-en").addEventListener("click",()=>setLang("en"));
-    document.getElementById("btn-tr").addEventListener("click",()=>setLang("tr"));
-    setLang(activeLang);
+    document.getElementById("btn-en").addEventListener("click", ()=>applyLanguage("en"));
+    document.getElementById("btn-tr").addEventListener("click", ()=>applyLanguage("tr"));
+    applyLanguage(activeLang);
 
-    /* ====== Auth / Nav ====== */
-    logoutBtn.addEventListener('click', ()=> {
+    /* ===== Auth / Navigation ===== */
+    logoutBtn.addEventListener("click", ()=>{
       signOut(auth).then(()=>window.location.href = "login.html");
     });
 
-    historyBtn.addEventListener('click', ()=>window.location.href="history.html");
+    historyBtn.addEventListener("click", ()=>{
+      window.location.href = "history.html";
+    });
 
     onAuthStateChanged(auth, (user)=>{
       if(user){
         const name = user.displayName || user.email;
-        userWelcome.textContent = (activeLang === 'tr' ? 'Hoş geldin, ' : 'Welcome, ') + name;
-      } else {
+        userWelcome.textContent = (activeLang === "tr" ? "Hoş geldin, " : "Welcome, ") + name;
+      }else{
         window.location.href = "login.html";
       }
     });
 
-        /* ====== Start Reading -> Gerçek MystAI fal + Firestore kayıt ====== */
-    document.querySelectorAll('.start-btn').forEach(btn=>{
-      btn.addEventListener('click', async e=>{
+    /* ===== Start Reading -> Firestore test kaydı ===== */
+    document.querySelectorAll(".start-btn").forEach(btn=>{
+      btn.addEventListener("click", async (e)=>{
         const user = auth.currentUser;
-        if (!user) {
-          alert(activeLang === 'tr'
-            ? 'Lütfen önce giriş yapın.'
-            : 'Please log in first.');
+        if(!user){
+          alert(activeLang === "tr" ? "Lütfen önce giriş yapın." : "Please log in first.");
           return;
         }
-
-        const tile = e.target.closest('.tile');
-        const type = tile?.dataset?.type || 'MystAI Reading';
-
-        // Kullanıcıdan soru al
-        const question = prompt(
-          activeLang === 'tr'
-            ? `✨ ${type} ✨\nFalını yorumlamam için bana biraz detay yazar mısın?\n(Örnek: aşk, kariyer, para, genel...)`
-            : `✨ ${type} ✨\nPlease write a bit about what you want me to read for you.\n(For example: love, career, money, general...)`
-        );
-
-        if (!question) {
-          // Kullanıcı iptal etti veya boş bıraktı
-          return;
-        }
-
-        // Ekranda küçük bilgi vermek için
-        const loadingMsg = activeLang === 'tr'
-          ? 'Falın hazırlanıyor, lütfen bekle...'
-          : 'Your reading is being prepared, please wait...';
-        alert(loadingMsg);
-
-        try {
-          // Backend'e istek at
-          const promptText =
-            activeLang === 'tr'
-              ? `Fal türü: ${type}\nKullanıcı sorusu: ${question}`
-              : `Reading type: ${type}\nUser question: ${question}`;
-
-          const res = await fetch(`${BACKEND_URL}/predict`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_input: promptText })
+        const type = e.target.closest(".tile").dataset.type;
+        try{
+          await addDoc(collection(db,"fortunes"),{
+            user: user.email,
+            type,
+            createdAt: serverTimestamp()
           });
-
-          if (!res.ok) {
-            throw new Error(
-              (activeLang === 'tr' ? 'İstek başarısız: ' : 'Request failed: ')
-              + res.status
-            );
-          }
-
-          const data = await res.json();
-          const text = data?.text || (
-            activeLang === 'tr'
-              ? 'Şu anda yanıt oluşturulamadı.'
-              : 'No response could be generated.'
+          alert(activeLang === "tr"
+            ? `${type} kaydedildi!`
+            : `${type} has been recorded!`
           );
-
-          // Firestore'a kaydet
-          try {
-            await addDoc(collection(db, "fortunes"), {
-              user: user.email,
-              type,
-              question,
-              result: text,
-              createdAt: serverTimestamp()
-            });
-          } catch (fireErr) {
-            console.error('Firestore error:', fireErr);
-            // Kayıt hata verse bile kullanıcıya falı gösterelim
-          }
-
-          // Kullanıcıya falı göster
-          alert(text);
-
-        } catch (err) {
-          console.error(err);
-          alert(
-            (activeLang === 'tr' ? 'Hata: ' : 'Error: ')
-            + (err?.message || err)
-          );
+        }catch(err){
+          alert((activeLang === "tr" ? "Hata: " : "Error: ") + (err?.message || err));
         }
       });
     });
 
+    /* ===== Ask MystAI ===== */
+    const askFab    = document.getElementById("askFab");
+    const askModal  = document.getElementById("askModal");
+    const askClose  = document.getElementById("askClose");
+    const askSend   = document.getElementById("askSend");
+    const askInput  = document.getElementById("askInput");
+    const askOutput = document.getElementById("askOutput");
+    const askSpin   = document.getElementById("askSpin");
+    const askAudio  = document.getElementById("askAudio");
 
-    /* ====== Ask MystAI - Modal ve backend çağrısı ====== */
-    const askFab    = document.getElementById('askFab');
-    const askModal  = document.getElementById('askModal');
-    const askClose  = document.getElementById('askClose');
-    const askSend   = document.getElementById('askSend');
-    const askInput  = document.getElementById('askInput');
-    const askOutput = document.getElementById('askOutput');
-    const askSpin   = document.getElementById('askSpin');
-    const askAudio  = document.getElementById('askAudio');
-
-    askFab.addEventListener('click', ()=> {
-      askModal.style.display='flex';
+    askFab.addEventListener("click", ()=>{
+      askModal.style.display = "flex";
       askInput.focus();
     });
-    askClose.addEventListener('click', ()=> {
-      askModal.style.display='none';
-      askOutput.style.display='none';
-      askInput.value='';
-      askAudio.pause(); askAudio.currentTime=0; askAudio.src='';
-    });
-    askModal.addEventListener('click', (e)=>{
-      if(e.target === askModal){ askClose.click(); }
+
+    askClose.addEventListener("click", ()=>{
+      askModal.style.display = "none";
+      askOutput.style.display = "none";
+      askInput.value = "";
+      askAudio.pause();
+      askAudio.currentTime = 0;
+      askAudio.src = "";
     });
 
-    askSend.addEventListener('click', async ()=>{
+    askModal.addEventListener("click", (e)=>{
+      if(e.target === askModal){
+        askClose.click();
+      }
+    });
+
+    askSend.addEventListener("click", async ()=>{
       const q = askInput.value.trim();
       if(!q){
-        alert(activeLang==='tr' ? 'Lütfen bir soru yazın.' : 'Please type a question.');
+        alert(activeLang === "tr"
+          ? "Lütfen bir soru yazın."
+          : "Please type a question."
+        );
         return;
       }
 
-      askSpin.style.display='inline-block';
+      askSpin.style.display = "inline-block";
       askSend.disabled = true;
-      askOutput.style.display='none';
-      askOutput.textContent = '';
+      askOutput.style.display = "none";
+      askOutput.textContent = "";
 
       try{
-        if(!BACKEND_URL || BACKEND_URL.includes("YOUR-BACKEND-URL")){
-          // Backend URL girilmemişse nazik uyarı (site bozulmaz)
-          askOutput.style.display='block';
-          askOutput.textContent = activeLang==='tr'
-            ? 'Backend adresi yapılandırılmadı. Lütfen BACKEND_URL değerini kendi Render URL’inle değiştir.'
-            : 'Backend URL is not configured. Please set BACKEND_URL to your Render URL.';
+        if(!BACKEND_URL){
+          askOutput.style.display = "block";
+          askOutput.textContent = activeLang === "tr"
+            ? "Backend adresi tanımlı değil."
+            : "Backend URL is not configured.";
           return;
         }
 
         const res = await fetch(`${BACKEND_URL}/predict`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
           body: JSON.stringify({ user_input: q })
-
         });
 
         if(!res.ok){
-          throw new Error((activeLang==='tr'?'İstek başarısız: ':'Request failed: ')+res.status);
+          throw new Error((activeLang === "tr" ? "İstek başarısız: " : "Request failed: ") + res.status);
         }
 
         const data = await res.json();
-        const text = data?.text || (activeLang==='tr'?'Yanıt alınamadı.':'No response.');
+        const text = data?.text || (activeLang === "tr" ? "Yanıt alınamadı." : "No response.");
         const audioPath = data?.audio;
 
-        askOutput.style.display='block';
+        askOutput.style.display = "block";
         askOutput.textContent = text;
 
         if(audioPath){
-          // Tam URL’e çevir
-          const audioURL = audioPath.startsWith('http') ? audioPath : `${BACKEND_URL}${audioPath}`;
+          const audioURL = audioPath.startsWith("http")
+            ? audioPath
+            : `${BACKEND_URL}${audioPath}`;
           askAudio.src = audioURL;
-          askAudio.play().catch(()=>{ /* sessiz hatayı yut */ });
+          askAudio.play().catch(()=>{});
         }
       }catch(err){
-        askOutput.style.display='block';
-        askOutput.textContent = (activeLang==='tr'?'Hata: ':'Error: ') + (err?.message||err);
+        askOutput.style.display = "block";
+        askOutput.textContent = (activeLang === "tr" ? "Hata: " : "Error: ") + (err?.message || err);
       }finally{
-        askSpin.style.display='none';
+        askSpin.style.display = "none";
         askSend.disabled = false;
       }
     });
