@@ -317,27 +317,92 @@
       }
     });
 
-    /* ====== Start Reading -> Firestore kayıt (deneme kaydı) ====== */
+        /* ====== Start Reading -> Gerçek MystAI fal + Firestore kayıt ====== */
     document.querySelectorAll('.start-btn').forEach(btn=>{
       btn.addEventListener('click', async e=>{
         const user = auth.currentUser;
-        if(!user){
-          alert(activeLang==='tr' ? 'Lütfen önce giriş yapın.' : 'Please log in first.');
+        if (!user) {
+          alert(activeLang === 'tr'
+            ? 'Lütfen önce giriş yapın.'
+            : 'Please log in first.');
           return;
         }
-        const type = e.target.closest('.tile').dataset.type;
-        try{
-          await addDoc(collection(db,"fortunes"),{
-            user: user.email,
-            type,
-            createdAt: serverTimestamp()
+
+        const tile = e.target.closest('.tile');
+        const type = tile?.dataset?.type || 'MystAI Reading';
+
+        // Kullanıcıdan soru al
+        const question = prompt(
+          activeLang === 'tr'
+            ? `✨ ${type} ✨\nFalını yorumlamam için bana biraz detay yazar mısın?\n(Örnek: aşk, kariyer, para, genel...)`
+            : `✨ ${type} ✨\nPlease write a bit about what you want me to read for you.\n(For example: love, career, money, general...)`
+        );
+
+        if (!question) {
+          // Kullanıcı iptal etti veya boş bıraktı
+          return;
+        }
+
+        // Ekranda küçük bilgi vermek için
+        const loadingMsg = activeLang === 'tr'
+          ? 'Falın hazırlanıyor, lütfen bekle...'
+          : 'Your reading is being prepared, please wait...';
+        alert(loadingMsg);
+
+        try {
+          // Backend'e istek at
+          const promptText =
+            activeLang === 'tr'
+              ? `Fal türü: ${type}\nKullanıcı sorusu: ${question}`
+              : `Reading type: ${type}\nUser question: ${question}`;
+
+          const res = await fetch(`${BACKEND_URL}/predict`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_input: promptText })
           });
-          alert(activeLang==='tr' ? `${type} kaydedildi!` : `${type} has been recorded!`);
-        }catch(err){
-          alert((activeLang==='tr'?'Hata: ':'Error: ')+ (err?.message || err));
+
+          if (!res.ok) {
+            throw new Error(
+              (activeLang === 'tr' ? 'İstek başarısız: ' : 'Request failed: ')
+              + res.status
+            );
+          }
+
+          const data = await res.json();
+          const text = data?.text || (
+            activeLang === 'tr'
+              ? 'Şu anda yanıt oluşturulamadı.'
+              : 'No response could be generated.'
+          );
+
+          // Firestore'a kaydet
+          try {
+            await addDoc(collection(db, "fortunes"), {
+              user: user.email,
+              type,
+              question,
+              result: text,
+              createdAt: serverTimestamp()
+            });
+          } catch (fireErr) {
+            console.error('Firestore error:', fireErr);
+            // Kayıt hata verse bile kullanıcıya falı gösterelim
+          }
+
+          // Kullanıcıya falı göster
+          alert(text);
+
+        } catch (err) {
+          console.error(err);
+          alert(
+            (activeLang === 'tr' ? 'Hata: ' : 'Error: ')
+            + (err?.message || err)
+          );
         }
       });
     });
+
 
     /* ====== Ask MystAI - Modal ve backend çağrısı ====== */
     const askFab    = document.getElementById('askFab');
