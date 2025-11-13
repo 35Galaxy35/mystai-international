@@ -157,59 +157,97 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const list=document.getElementById("historyList");
-    const title=document.getElementById("title");
+    const list = document.getElementById("historyList");
+    const title = document.getElementById("title");
 
-    const i18n={
-      en:{title:"My Reading History",type:"Type",date:"Date",view:"View Reading",del:"Delete",confirm:"Are you sure to delete this record?",logout:"Logout",back:"Back",contact:"Contact us:"},
-      tr:{title:"Fal Geçmişim",type:"Tür",date:"Tarih",view:"Falını Gör",del:"Sil",confirm:"Bu kaydı silmek istediğine emin misin?",logout:"Çıkış",back:"Geri",contact:"İletişim:"}
+    const i18n = {
+      en:{
+        title:"My Reading History",
+        type:"Type",
+        date:"Date",
+        view:"View Reading",
+        del:"Delete",
+        confirm:"Are you sure to delete this record?",
+        logout:"Logout",
+        back:"Back",
+        contact:"Contact us:"
+      },
+      tr:{
+        title:"Fal Geçmişim",
+        type:"Tür",
+        date:"Tarih",
+        view:"Falını Gör",
+        del:"Sil",
+        confirm:"Bu kaydı silmek istediğine emin misin?",
+        logout:"Çıkış",
+        back:"Geri",
+        contact:"İletişim:"
+      }
     };
 
-    let lang=localStorage.getItem("myst_lang")||"en";
+    let lang = localStorage.getItem("myst_lang") || "en";
+
     function setLang(l){
-      lang=l;localStorage.setItem("myst_lang",l);
-      title.textContent=i18n[l].title;
-      document.getElementById("btn-en").classList.toggle("active",l==="en");
-      document.getElementById("btn-tr").classList.toggle("active",l==="tr");
-      document.getElementById("logoutBtn").textContent=i18n[l].logout;
-      document.getElementById("backBtn").textContent="⬅ "+i18n[l].back;
-      document.getElementById("contact-label").textContent=i18n[l].contact;
+      lang = l;
+      localStorage.setItem("myst_lang", l);
+      title.textContent = i18n[l].title;
+      document.getElementById("btn-en").classList.toggle("active", l === "en");
+      document.getElementById("btn-tr").classList.toggle("active", l === "tr");
+      document.getElementById("logoutBtn").textContent = i18n[l].logout;
+      document.getElementById("backBtn").textContent = "⬅ " + i18n[l].back;
+      document.getElementById("contact-label").textContent = i18n[l].contact;
       renderList();
     }
 
-    document.getElementById("btn-en").onclick=()=>setLang("en");
-    document.getElementById("btn-tr").onclick=()=>setLang("tr");
-    document.getElementById("logoutBtn").onclick=()=>signOut(auth).then(()=>location.href="login.html");
-    document.getElementById("backBtn").onclick=()=>location.href="app.html";
+    document.getElementById("btn-en").onclick = function(){ setLang("en"); };
+    document.getElementById("btn-tr").onclick = function(){ setLang("tr"); };
+    document.getElementById("logoutBtn").onclick = function(){
+      signOut(auth).then(function(){ location.href = "login.html"; });
+    };
+    document.getElementById("backBtn").onclick = function(){
+      location.href = "app.html";
+    };
 
-    let dataList=[];
+    let dataList = [];
+
     async function renderList(){
-      list.innerHTML="";
-      dataList.forEach(item=>{
-        const data=item.data;
+      list.innerHTML = "";
+      dataList.forEach(function(item){
+        const data = item.data;
 
-        // 🔥 Tarih hatası düzeltilmiş profesyonel tarih kontrolü
-        const dateString = data.createdAt?.toDate
-          ? data.createdAt.toDate().toLocaleString()
-          : new Date(data.createdAt).toLocaleString();
+        // TARİH DÜZELTME: Firebase Timestamp + string destekli, eski tarayıcı uyumlu
+        var dateObj = null;
+        if (data.createdAt && typeof data.createdAt.toDate === "function") {
+          // Firestore Timestamp
+          dateObj = data.createdAt.toDate();
+        } else if (data.createdAt) {
+          // String veya number
+          dateObj = new Date(data.createdAt);
+        }
+        var dateString;
+        if (dateObj && !isNaN(dateObj.getTime())) {
+          dateString = dateObj.toLocaleString();
+        } else {
+          dateString = (lang === "tr") ? "Tarih yok" : "No date";
+        }
 
-        const card=document.createElement("div");
-        card.className="card";
-        card.innerHTML=`
-          <div class="text">
-            <div class="type">${i18n[lang].type}: ${data.type}</div>
-            <div class="date">${i18n[lang].date}: ${dateString}</div>
-          </div>
-          <div>
-            <button class="btn">${i18n[lang].view}</button>
-            <button class="delete-btn" title="${i18n[lang].del}">🗑️</button>
-          </div>`;
-        
-        card.querySelector(".btn").onclick=()=>{
-          window.location.href=\`reading.html?id=\${item.id}\`;
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML =
+          '<div class="text">' +
+            '<div class="type">' + i18n[lang].type + ': ' + (data.type || '') + '</div>' +
+            '<div class="date">' + i18n[lang].date + ': ' + dateString + '</div>' +
+          '</div>' +
+          '<div>' +
+            '<button class="btn">' + i18n[lang].view + '</button>' +
+            '<button class="delete-btn" title="' + i18n[lang].del + '">🗑️</button>' +
+          '</div>';
+
+        card.querySelector(".btn").onclick = function(){
+          window.location.href = "reading.html?id=" + item.id;
         };
-        card.querySelector(".delete-btn").onclick=async()=>{
-          if(confirm(i18n[lang].confirm)){
+        card.querySelector(".delete-btn").onclick = async function(){
+          if (confirm(i18n[lang].confirm)) {
             await deleteDoc(doc(db,"fortunes",item.id));
             card.remove();
           }
@@ -218,12 +256,17 @@
       });
     }
 
-    onAuthStateChanged(auth, async (user)=>{
-      if(!user){location.href="login.html";return;}
-      const q=query(collection(db,"fortunes"),where("user","==",user.email));
-      const snap=await getDocs(q);
-      dataList=[];
-      snap.forEach(d=>dataList.push({id:d.id,data:d.data()}));
+    onAuthStateChanged(auth, async function(user){
+      if(!user){
+        location.href = "login.html";
+        return;
+      }
+      const q = query(collection(db,"fortunes"), where("user","==", user.email));
+      const snap = await getDocs(q);
+      dataList = [];
+      snap.forEach(function(d){
+        dataList.push({ id: d.id, data: d.data() });
+      });
       renderList();
     });
 
