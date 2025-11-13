@@ -3,3 +3,4 @@ flask-cors
 openai>=1.33.0
 gtts
 gunicorn
+langdetect
