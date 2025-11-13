@@ -10,7 +10,7 @@ import uuid
 app = Flask(__name__)
 CORS(app)
 
-# ENV'den API KEY oku
+# ENV'den API KEY okunur
 OPENAI_KEY = os.environ.get("OPENAI_API_KEY")
 
 if not OPENAI_KEY:
@@ -29,14 +29,14 @@ def home():
 def predict():
     try:
         data = request.get_json() or {}
-        user_input = data.get("user_input", "")
+        user_input = data.get("user_input", "").strip()
 
         if not user_input:
             return jsonify({"error": "user_input boş olamaz"}), 400
 
         print("=== Kullanıcı girişi:", user_input)
 
-        # Dil tespiti (en / tr için)
+        # Dil tespiti
         try:
             detected = detect(user_input)
         except LangDetectException:
@@ -45,7 +45,7 @@ def predict():
         if detected not in ("en", "tr"):
             detected = "en"
 
-        # OpenAI'den fal metni al
+        # OpenAI fal cevabı
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
@@ -53,8 +53,8 @@ def predict():
                     "role": "system",
                     "content": (
                         "You are a mystical fortune teller named MystAI. "
-                        "You speak warmly and clearly. If the user writes Turkish, answer in Turkish. "
-                        "If the user writes English, answer in English."
+                        "If the user writes Turkish, respond in Turkish. "
+                        "If the user writes English, respond in English."
                     ),
                 },
                 {"role": "user", "content": user_input},
@@ -63,7 +63,7 @@ def predict():
 
         response_text = completion.choices[0].message.content.strip()
 
-        # gTTS ile ses dosyası üret
+        # Ses dosyası oluşturma
         file_id = uuid.uuid4().hex
         filename = f"{file_id}.mp3"
         filepath = os.path.join("/tmp", filename)  # Render'da yazılabilir dizin
@@ -84,14 +84,12 @@ def predict():
 
 @app.route("/audio/<file_id>")
 def serve_audio(file_id):
-    """
-    /audio/<file_id> → /tmp/<file_id>.mp3 dosyasını döner
-    Frontend JSON'da "audio": "/audio/<file_id>" alıyor.
-    """
-    filename = f"{file_id}.mp3"
-    filepath = os.path.join("/tmp", filename)
+    """GTTs tarafından üretilen MP3 dosyasını döner."""
+    filepath = os.path.join("/tmp", f"{file_id}.mp3")
+
     if not os.path.exists(filepath):
         return jsonify({"error": "Audio not found"}), 404
+
     return send_file(filepath, mimetype="audio/mpeg")
 
 
@@ -109,5 +107,4 @@ def test_openai():
 
 
 if __name__ == "__main__":
-    # Lokal çalıştırma için
     app.run(host="0.0.0.0", port=10000)
