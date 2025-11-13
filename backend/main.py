@@ -24,7 +24,7 @@ def predict():
         print("=== Kullanıcı girişi:", user_input)
 
         completion = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o-mini"
             messages=[
                 {"role": "system", "content": "You are a mystical fortune teller."},
                 {"role": "user", "content": user_input}
