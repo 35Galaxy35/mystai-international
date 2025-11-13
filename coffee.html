@@ -5,208 +5,685 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MystAI — AI Coffee Reading</title>
   <link rel="icon" type="image/png" href="mystai-logo.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
 
   <style>
-    body{
+    :root {
+      --bg-start:#0d1440;
+      --bg-end:#0b0f1f;
+      --text:#d8e0ff;
+      --muted:#a9b4d0;
+      --accent:#f2c84b;
+    }
+    * { box-sizing:border-box; }
+
+    body {
       margin:0;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      background:radial-gradient(1000px 700px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
-      color:#e6ecff;
+      background:radial-gradient(1100px 700px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
+      color:var(--text);
       min-height:100vh;
       display:flex;
       flex-direction:column;
-      text-align:center;
     }
-    .topbar{
+
+    /* TOP BAR */
+    .topbar {
       display:flex;
-      justify-content:flex-end;
+      justify-content:space-between;
+      align-items:center;
+      padding:14px 24px;
+      background:rgba(10,15,30,0.45);
+      backdrop-filter:blur(12px);
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      position:sticky;
+      top:0;
+      z-index:20;
+    }
+    .top-left, .top-right {
+      display:flex;
       align-items:center;
       gap:10px;
-      padding:16px 24px;
     }
-    .lang-btn{
-      border:none;border-radius:50%;
-      width:36px;height:36px;
+
+    .lang-btn {
+      border:none;
+      border-radius:50%;
+      width:34px; height:34px;
       cursor:pointer;
       background-size:cover;
       background-position:center;
-      transition:transform .25s ease;
+      transition:transform .25s ease, box-shadow .25s ease;
       border:2px solid transparent;
     }
-    .lang-btn.active{
-      box-shadow:0 0 15px rgba(255,215,0,.6);
+    .lang-btn.active {
+      box-shadow:0 0 12px rgba(255,215,0,.7);
       border-color:#ffd54f;
-      transform:scale(1.1);
+      transform:scale(1.08);
     }
-    .flag-en{background-image:url('https://flagcdn.com/w40/gb.png');}
-    .flag-tr{background-image:url('https://flagcdn.com/w40/tr.png');}
+    .lang-btn:hover { transform:scale(1.12); }
+    .flag-en { background-image:url('https://flagcdn.com/w40/gb.png'); }
+    .flag-tr { background-image:url('https://flagcdn.com/w40/tr.png'); }
 
-    .nav-btn{
-      border:0;border-radius:20px;
-      background:rgba(255,255,255,.15);
+    .nav-btn {
+      border:0;
+      border-radius:20px;
+      background:rgba(255,255,255,.12);
       color:#fff;
       padding:7px 14px;
       cursor:pointer;
       font-weight:600;
+      font-size:13px;
+      display:flex;
+      align-items:center;
+      gap:4px;
+      transition:all .25s ease;
     }
-    .nav-btn:hover{filter:brightness(1.2);}
+    .nav-btn:hover { filter:brightness(1.2); transform:translateY(-1px); }
 
-    h1{
-      margin-top:40px;
+    .user-label {
+      font-size:13px;
+      color:#ffe680;
+      text-shadow:0 0 8px rgba(255,215,0,.4);
+      margin-right:4px;
+    }
+
+    /* MAIN WRAPPER */
+    .wrapper {
+      flex:1;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      padding:30px 16px 40px;
+    }
+    .card {
+      width:100%;
+      max-width:1020px;
+      background:rgba(8,12,30,.92);
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 0 40px rgba(0,0,0,.55);
+      padding:24px;
+      display:grid;
+      grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);
+      gap:22px;
+    }
+    @media(max-width:900px){
+      .card {
+        grid-template-columns:1fr;
+      }
+    }
+
+    /* LEFT SIDE – TITLE + FORM */
+    .section-title {
       font-family:'Cinzel',serif;
       color:#ffd54f;
-      text-shadow:0 0 10px rgba(255,215,0,.4);
+      font-size:28px;
+      margin-bottom:8px;
+      text-shadow:0 0 12px rgba(255,220,120,.5);
+      text-align:left;
     }
-
-    #uploadBox{
-      width:80%;
-      max-width:500px;
-      border:2px dashed rgba(255,255,255,.2);
-      background:rgba(255,255,255,.04);
-      margin:50px auto;
-      padding:40px;
-      border-radius:15px;
-      cursor:pointer;
-      transition:0.3s;
-    }
-    #uploadBox:hover{
-      background:rgba(255,255,255,.1);
-      transform:scale(1.02);
-    }
-
-    #previewImage{
-      max-width:300px;
-      display:none;
-      margin:20px auto;
-      border-radius:10px;
-      box-shadow:0px 0px 10px rgba(255,255,255,0.2);
-    }
-
-    #result{
-      width:85%;
-      max-width:700px;
-      margin:20px auto;
-      padding:20px;
-      border-radius:12px;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.15);
-      display:none;
+    .section-sub {
+      font-size:14px;
+      color:#c5cfff;
       text-align:left;
       line-height:1.6;
+      margin-bottom:20px;
+    }
+
+    .label {
+      text-align:left;
+      font-size:13px;
+      font-weight:600;
+      color:#ffe680;
+      margin-bottom:4px;
+      margin-top:12px;
+    }
+
+    .upload-box {
+      border:1px dashed rgba(255,255,255,.25);
+      border-radius:12px;
+      padding:12px;
+      text-align:center;
+      background:rgba(5,10,30,.8);
+    }
+    .upload-inner {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .upload-info {
+      text-align:left;
+      font-size:13px;
+      color:#cfd6ff;
+      flex:1;
+    }
+    .upload-info span {
+      display:block;
+      font-size:12px;
+      color:#a2addf;
+      margin-top:4px;
+    }
+    .upload-btn {
+      border:0;
+      border-radius:999px;
+      padding:8px 16px;
+      background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);
+      color:#111;
+      font-weight:700;
+      cursor:pointer;
+      font-size:13px;
+      box-shadow:0 0 12px rgba(255,215,0,.35);
+      transition:all .25s ease;
+      white-space:nowrap;
+    }
+    .upload-btn:hover { transform:scale(1.05); }
+
+    #coffeeImage {
+      display:none;
+    }
+
+    .preview {
+      margin-top:10px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-size:12px;
+      color:#aeb6ff;
+    }
+    .preview img {
+      width:60px;height:60px;border-radius:8px;object-fit:cover;
+      box-shadow:0 0 12px rgba(0,0,0,.7);
+    }
+
+    textarea {
+      width:100%;
+      min-height:90px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.18);
+      background:#050b20;
+      color:#e6ecff;
+      padding:10px;
+      font-family:inherit;
+      font-size:14px;
+      resize:vertical;
+      outline:none;
+      box-shadow:inset 0 0 10px rgba(0,0,0,.35);
+    }
+    textarea::placeholder {
+      color:#808abf;
+      font-size:13px;
+    }
+
+    .primary-btn {
+      margin-top:14px;
+      border:0;
+      border-radius:12px;
+      padding:10px 18px;
+      background:linear-gradient(120deg,#ffd700,#ffb600,#ffe680);
+      color:#111;
+      font-weight:800;
+      font-size:14px;
+      cursor:pointer;
+      box-shadow:0 0 18px rgba(255,215,0,.4);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      transition:all .25s ease;
+    }
+    .primary-btn:hover { transform:translateY(-1px) scale(1.03); }
+    .primary-btn:disabled {
+      opacity:.6;
+      cursor:not-allowed;
+      transform:none;
+      box-shadow:none;
+    }
+
+    .status {
+      margin-top:8px;
+      font-size:12px;
+      color:#aeb6ff;
+      text-align:left;
+    }
+
+    /* RIGHT SIDE – RESULT */
+    .result-box {
+      border-radius:14px;
+      background:radial-gradient(circle at top,#1f254f,#070c24);
+      border:1px solid rgba(255,255,255,.15);
+      padding:16px;
+      box-shadow:0 0 22px rgba(0,0,0,.4);
+      display:flex;
+      flex-direction:column;
+      height:100%;
+    }
+    .result-header {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:8px;
+    }
+    .result-title {
+      font-size:15px;
+      font-weight:700;
+      color:#ffd966;
+    }
+    .audio-btn {
+      border:0;
+      border-radius:999px;
+      padding:6px 12px;
+      font-size:12px;
+      font-weight:600;
+      background:rgba(255,255,255,.12);
+      color:#fff;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .audio-btn[disabled] {
+      opacity:.5;
+      cursor:not-allowed;
+    }
+    .result-content {
+      margin-top:6px;
+      font-size:14px;
+      color:#dbe3ff;
+      text-align:left;
+      line-height:1.7;
+      overflow-y:auto;
+      max-height:260px;
+      padding-right:4px;
+    }
+    .result-hint {
+      font-size:12px;
+      color:#9098d0;
+      margin-top:6px;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top:1px solid rgba(255,255,255,.08);
+      padding:18px;
+      font-size:13px;
+      color:#aeb6cf;
+      text-align:center;
+    }
+    footer a {
+      color:#ffd54f;
+      text-decoration:none;
+      font-weight:600;
+    }
+    footer a:hover {
+      color:#fff6b0;
+      text-shadow:0 0 10px rgba(255,255,120,.6);
     }
   </style>
 </head>
-
 <body>
+  <!-- TOP BAR -->
   <div class="topbar">
-    <button class="lang-btn flag-en" id="btn-en"></button>
-    <button class="lang-btn flag-tr" id="btn-tr"></button>
-    <button class="nav-btn" id="backBtn">⬅ Back</button>
-    <button class="nav-btn" id="logoutBtn">Logout</button>
+    <div class="top-left">
+      <button class="lang-btn flag-en" id="btn-en"></button>
+      <button class="lang-btn flag-tr" id="btn-tr"></button>
+    </div>
+    <div class="top-right">
+      <span class="user-label" id="userLabel"></span>
+      <button class="nav-btn" id="backBtn">⬅ App</button>
+      <button class="nav-btn" id="logoutBtn">Logout</button>
+    </div>
   </div>
 
-  <h1 id="title">AI Coffee Reading</h1>
+  <div class="wrapper">
+    <div class="card">
+      <!-- LEFT: FORM -->
+      <div>
+        <h1 class="section-title" id="title">AI Coffee Reading</h1>
+        <p class="section-sub" id="subtitle">
+          Upload your cup photo and share what’s on your mind. MystAI will read your energy and symbols with AI.
+        </p>
 
-  <div id="uploadBox">
-    <span id="uploadText">Click to upload your coffee cup photo</span>
-    <input type="file" id="fileInput" accept="image/*" style="display:none" />
+        <div class="label" id="labelUpload">Cup Photo</div>
+        <div class="upload-box">
+          <div class="upload-inner">
+            <div class="upload-info">
+              <strong id="uploadMain">Upload your coffee cup image</strong>
+              <span id="uploadSub">For now, MystAI focuses mainly on your question and energy. Image support will expand soon.</span>
+            </div>
+            <button class="upload-btn" id="uploadBtn">📷 <span id="uploadBtnText">Choose Image</span></button>
+            <input type="file" id="coffeeImage" accept="image/*" />
+          </div>
+          <div class="preview" id="previewBox" style="display:none;">
+            <img id="previewImg" alt="Preview" />
+            <span id="previewText">Image selected.</span>
+          </div>
+        </div>
+
+        <div class="label" id="labelQuestion">Your Question / Intention</div>
+        <textarea id="coffeeQuestion" placeholder="Write what you’d like MystAI to focus on (love, career, future, energy...)"></textarea>
+
+        <button class="primary-btn" id="analyzeBtn">
+          🔮 <span id="analyzeText">Read My Coffee</span>
+        </button>
+
+        <div class="status" id="statusText"></div>
+      </div>
+
+      <!-- RIGHT: RESULT -->
+      <div class="result-box">
+        <div class="result-header">
+          <div class="result-title" id="resultTitle">Your Fortune</div>
+          <button class="audio-btn" id="listenBtn" disabled>
+            🔊 <span id="listenLabel">Listen</span>
+          </button>
+        </div>
+        <div class="result-content" id="resultText">
+          ✨ Your AI coffee reading will appear here after you send your question. ✨
+        </div>
+        <div class="result-hint" id="resultHint">
+          MystAI is an AI-based entertainment tool and should not be taken as professional advice.
+        </div>
+      </div>
+    </div>
   </div>
 
-  <img id="previewImage" />
+  <footer>
+    <p>
+      © 2025 MystAI.ai — <span id="rightsLabel">All Rights Reserved.</span>
+      <span id="devLabel">Developed by GALAXY 🌌</span><br />
+      <span id="contactLabel">Contact us:</span>
+      <a href="mailto:support@mystai.ai">support@mystai.ai</a>
+    </p>
+  </footer>
 
-  <div id="result"></div>
+  <audio id="audioPlayer" style="display:none;"></audio>
 
   <script type="module">
+    /* ====== CONFIG ====== */
+    const BACKEND_URL = "https://mystai-international.onrender.com";
 
-    // ==== LANGUAGE SYSTEM ====
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
+      authDomain: "mystai-6cca2.firebaseapp.com",
+      projectId: "mystai-6cca2",
+      storageBucket: "mystai-6cca2.appspot.com",
+      messagingSenderId: "624127781219",
+      appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    /* ====== ELEMENTS ====== */
+    const btnEn       = document.getElementById("btn-en");
+    const btnTr       = document.getElementById("btn-tr");
+    const backBtn     = document.getElementById("backBtn");
+    const logoutBtn   = document.getElementById("logoutBtn");
+    const userLabel   = document.getElementById("userLabel");
+
+    const titleEl     = document.getElementById("title");
+    const subtitleEl  = document.getElementById("subtitle");
+    const labelUpload = document.getElementById("labelUpload");
+    const uploadMain  = document.getElementById("uploadMain");
+    const uploadSub   = document.getElementById("uploadSub");
+    const uploadBtn   = document.getElementById("uploadBtn");
+    const uploadBtnText = document.getElementById("uploadBtnText");
+    const coffeeImage = document.getElementById("coffeeImage");
+    const previewBox  = document.getElementById("previewBox");
+    const previewImg  = document.getElementById("previewImg");
+    const previewText = document.getElementById("previewText");
+    const labelQuestion = document.getElementById("labelQuestion");
+    const textarea    = document.getElementById("coffeeQuestion");
+    const analyzeBtn  = document.getElementById("analyzeBtn");
+    const analyzeText = document.getElementById("analyzeText");
+    const statusText  = document.getElementById("statusText");
+
+    const resultTitle = document.getElementById("resultTitle");
+    const resultText  = document.getElementById("resultText");
+    const resultHint  = document.getElementById("resultHint");
+    const listenBtn   = document.getElementById("listenBtn");
+    const listenLabel = document.getElementById("listenLabel");
+    const audioPlayer = document.getElementById("audioPlayer");
+
+    const rightsLabel  = document.getElementById("rightsLabel");
+    const devLabel     = document.getElementById("devLabel");
+    const contactLabel = document.getElementById("contactLabel");
+
+    /* ====== i18n ====== */
     const i18n = {
       en: {
         title: "AI Coffee Reading",
-        upload: "Click to upload your coffee cup photo",
-        analyzing: "Your coffee reading is being prepared...",
-        resultTitle: "Your Coffee Reading",
-        back: "Back",
-        logout: "Logout"
+        subtitle: "Upload your cup photo and share what’s on your mind. MystAI will read your energy and symbols with AI.",
+        uploadLabel: "Cup Photo",
+        uploadMain: "Upload your coffee cup image",
+        uploadSub: "For now, MystAI focuses mainly on your question and energy. Image support will expand soon.",
+        uploadBtn: "Choose Image",
+        imageSelected: "Image selected.",
+        questionLabel: "Your Question / Intention",
+        placeholder: "Write what you’d like MystAI to focus on (love, career, future, energy...)",
+        analyze: "Read My Coffee",
+        statusIdle: "",
+        statusLoading: "Reading your coffee… the symbols are forming…",
+        statusDone: "Your coffee reading has been generated.",
+        statusError: "An error occurred. Please try again.",
+        mustText: "Please write at least a short question or focus.",
+        userWelcome: "Welcome, ",
+        resultTitle: "Your Fortune",
+        resultInitial: "✨ Your AI coffee reading will appear here after you send your question. ✨",
+        resultHint: "MystAI is an AI-based entertainment tool and should not be taken as professional advice.",
+        listen: "Listen",
+        listening: "Playing...",
+        back: "Back to App",
+        logout: "Logout",
+        rights: "All Rights Reserved.",
+        dev: "Developed by GALAXY 🌌",
+        contact: "Contact us:"
       },
       tr: {
         title: "Yapay Zekâ Kahve Falı",
-        upload: "Kahve fincanı fotoğrafını yüklemek için tıkla",
-        analyzing: "Falın hazırlanıyor, lütfen bekle...",
-        resultTitle: "Kahve Falın",
-        back: "Geri",
-        logout: "Çıkış"
+        subtitle: "Fincanının fotoğrafını ekle ve aklındaki soruyu yaz. MystAI, enerjini ve sembolleri yapay zekâ ile yorumlasın.",
+        uploadLabel: "Fincan Fotoğrafı",
+        uploadMain: "Kahve fincanının fotoğrafını yükle",
+        uploadSub: "Şimdilik MystAI daha çok soruna ve enerjine odaklanıyor. Görsel yorumlama yakında geliştirilecek.",
+        uploadBtn: "Görsel Seç",
+        imageSelected: "Görsel seçildi.",
+        questionLabel: "Sorun / Niyetin",
+        placeholder: "Aşk, kariyer, gelecek veya enerjinle ilgili merak ettiklerini buraya yaz...",
+        analyze: "Kahvemi Yorumla",
+        statusIdle: "",
+        statusLoading: "Kahven okunuyor… semboller beliriyor…",
+        statusDone: "Kahve falın hazır.",
+        statusError: "Bir hata oluştu. Lütfen tekrar dene.",
+        mustText: "Lütfen en azından kısa bir soru veya niyet yaz.",
+        userWelcome: "Hoş geldin, ",
+        resultTitle: "Falın",
+        resultInitial: "✨ Sorunu gönderdikten sonra yapay zekâ kahve falın burada görünecek. ✨",
+        resultHint: "MystAI eğlence amaçlı bir yapay zekâ fal yorumlayıcısıdır; profesyonel tavsiye yerine geçmez.",
+        listen: "Dinle",
+        listening: "Çalıyor...",
+        back: "Uygulamaya Dön",
+        logout: "Çıkış Yap",
+        rights: "Tüm Hakları Saklıdır.",
+        dev: "GALAXY tarafından geliştirilmiştir 🌌",
+        contact: "İletişim:"
       }
     };
 
-    let lang = localStorage.getItem("myst_lang") || "en";
+    let activeLang = localStorage.getItem("myst_lang") || "en";
 
-    function applyLanguage() {
-      document.getElementById("title").textContent = i18n[lang].title;
-      document.getElementById("uploadText").textContent = i18n[lang].upload;
-      document.getElementById("backBtn").textContent = "⬅ " + i18n[lang].back;
-      document.getElementById("logoutBtn").textContent = i18n[lang].logout;
+    function applyLang(lang) {
+      activeLang = lang;
+      localStorage.setItem("myst_lang", lang);
+      const t = i18n[lang];
 
-      document.getElementById("btn-en").classList.toggle("active", lang === "en");
-      document.getElementById("btn-tr").classList.toggle("active", lang === "tr");
+      titleEl.textContent       = t.title;
+      subtitleEl.textContent    = t.subtitle;
+      labelUpload.textContent   = t.uploadLabel;
+      uploadMain.textContent    = t.uploadMain;
+      uploadSub.textContent     = t.uploadSub;
+      uploadBtnText.textContent = t.uploadBtn;
+      previewText.textContent   = t.imageSelected;
+      labelQuestion.textContent = t.questionLabel;
+      textarea.placeholder      = t.placeholder;
+      analyzeText.textContent   = t.analyze;
+      resultTitle.textContent   = t.resultTitle;
+      resultText.textContent    = t.resultInitial;
+      resultHint.textContent    = t.resultHint;
+      listenLabel.textContent   = t.listen;
+      rightsLabel.textContent   = t.rights;
+      devLabel.textContent      = t.dev;
+      contactLabel.textContent  = t.contact;
+      backBtn.textContent       = "⬅ " + t.back;
+      logoutBtn.textContent     = t.logout;
+
+      btnEn.classList.toggle("active", lang === "en");
+      btnTr.classList.toggle("active", lang === "tr");
+
+      if (auth.currentUser) {
+        const name = auth.currentUser.displayName || auth.currentUser.email;
+        userLabel.textContent = t.userWelcome + name;
+      }
     }
 
-    document.getElementById("btn-en").onclick = () => {
-      lang = "en"; localStorage.setItem("myst_lang","en"); applyLanguage();
-    };
-    document.getElementById("btn-tr").onclick = () => {
-      lang = "tr"; localStorage.setItem("myst_lang","tr"); applyLanguage();
-    };
+    btnEn.addEventListener("click", () => applyLang("en"));
+    btnTr.addEventListener("click", () => applyLang("tr"));
 
-    applyLanguage();
+    backBtn.addEventListener("click", () => {
+      window.location.href = "app.html";
+    });
 
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth).then(() => window.location.href = "login.html");
+    });
 
-    // ==== IMAGE UPLOAD LOGIC ====
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+      const t = i18n[activeLang];
+      const name = user.displayName || user.email;
+      userLabel.textContent = t.userWelcome + name;
+    });
 
-    const uploadBox = document.getElementById("uploadBox");
-    const fileInput = document.getElementById("fileInput");
-    const preview = document.getElementById("previewImage");
-    const result = document.getElementById("result");
+    applyLang(activeLang);
 
-    uploadBox.onclick = () => fileInput.click();
+    /* ====== IMAGE PREVIEW (şimdilik sadece görsel gösterimi) ====== */
+    uploadBtn.addEventListener("click", () => {
+      coffeeImage.click();
+    });
 
-    fileInput.onchange = async () => {
-      const file = fileInput.files[0];
-      if (!file) return;
+    coffeeImage.addEventListener("change", () => {
+      const file = coffeeImage.files[0];
+      if (!file) {
+        previewBox.style.display = "none";
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      previewImg.src = url;
+      previewBox.style.display = "flex";
+    });
 
-      preview.src = URL.createObjectURL(file);
-      preview.style.display = "block";
+    /* ====== ANALYZE (backend + Firestore) ====== */
+    analyzeBtn.addEventListener("click", async () => {
+      const t = i18n[activeLang];
+      const user = auth.currentUser;
+      if (!user) {
+        alert(activeLang === "tr" ? "Lütfen önce giriş yap." : "Please log in first.");
+        return;
+      }
 
-      result.style.display = "block";
-      result.innerHTML = `<h3>${i18n[lang].analyzing}</h3>`;
+      const question = textarea.value.trim();
+      if (!question) {
+        alert(t.mustText);
+        return;
+      }
 
-      const formData = new FormData();
-      formData.append("image", file);
+      analyzeBtn.disabled = true;
+      statusText.textContent = t.statusLoading;
+      resultText.textContent = "";
+      listenBtn.disabled = true;
+      audioPlayer.pause();
+      audioPlayer.currentTime = 0;
+      audioPlayer.src = "";
 
-      const r = await fetch("https://mystai-international-1.onrender.com/predict_coffee", {
-        method: "POST",
-        body: formData
-      });
+      try {
+        if (!BACKEND_URL || BACKEND_URL.includes("YOUR-BACKEND-URL")) {
+          statusText.textContent = "Backend URL is not configured.";
+          analyzeBtn.disabled = false;
+          return;
+        }
 
-      const j = await r.json();
+        // Backend'e gönderilecek metin
+        const payloadText =
+          (activeLang === "tr"
+            ? "Bu bir kahve falıdır. Kullanıcının sorusunu ve enerjisini mistik ve samimi bir dille, detaylı şekilde yorumla.\n"
+            : "This is a Turkish-style coffee fortune reading. Interpret the user's question and energy in a mystical, warm and detailed way.\n") +
+          "Question / Soru: " +
+          question;
 
-      result.innerHTML = `
-        <h3>${i18n[lang].resultTitle}</h3>
-        <p>${j.text}</p>
-        ${j.audio ? `<audio controls src="${j.audio}"></audio>` : ""}
-      `;
-    };
+        const res = await fetch(`${BACKEND_URL}/predict`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_input: payloadText })
+        });
 
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status);
+        }
 
-    document.getElementById("backBtn").onclick = () => {
-      location.href = "app.html";
-    };
+        const data = await res.json();
+        const text = data?.text || (activeLang === "tr" ? "Yanıt alınamadı." : "No response.");
+        const audioPath = data?.audio;
 
-    document.getElementById("logoutBtn").onclick = () => {
-      location.href = "login.html";
-    };
+        resultText.textContent = text;
+        statusText.textContent = t.statusDone;
 
+        // Firestore'a kaydet
+        try {
+          await addDoc(collection(db, "fortunes"), {
+            user: user.email,
+            type: "AI Coffee Reading",
+            question,
+            result: text,
+            createdAt: new Date().toISOString(),
+            source: "coffee-page"
+          });
+        } catch (e) {
+          console.warn("Firestore save error:", e);
+        }
+
+        if (audioPath) {
+          const fullURL = audioPath.startsWith("http") ? audioPath : `${BACKEND_URL}${audioPath}`;
+          audioPlayer.src = fullURL;
+          listenBtn.disabled = false;
+        }
+      } catch (err) {
+        console.error(err);
+        statusText.textContent = t.statusError;
+        resultText.textContent =
+          (activeLang === "tr" ? "Hata: " : "Error: ") + (err?.message || String(err));
+      } finally {
+        analyzeBtn.disabled = false;
+      }
+    });
+
+    listenBtn.addEventListener("click", () => {
+      if (!audioPlayer.src) return;
+      const t = i18n[activeLang];
+      listenLabel.textContent = t.listening;
+      audioPlayer.play().catch(() => {});
+      audioPlayer.onended = () => {
+        listenLabel.textContent = t.listen;
+      };
+    });
   </script>
-
 </body>
 </html>
