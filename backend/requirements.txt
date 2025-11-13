@@ -1,5 +1,7 @@
-flask
-flask-cors
+Flask
 openai
-gtts
+langdetect
 gunicorn
+requests
+gtts
+flask-cors
