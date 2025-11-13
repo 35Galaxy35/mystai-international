@@ -1,161 +1,190 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from openai import OpenAI
 from gtts import gTTS
+from langdetect import detect, LangDetectException
 import os
 import traceback
-import base64
 import uuid
 
 app = Flask(__name__)
 CORS(app)
 
-# =========================== 
-# OpenAI API Key
-# ===========================
+# ENV'den API KEY oku
 OPENAI_KEY = os.environ.get("OPENAI_API_KEY")
+
 if not OPENAI_KEY:
     raise Exception("OPENAI_API_KEY bulunamadı!")
 
+# OpenAI client
 client = OpenAI(api_key=OPENAI_KEY)
 
 
-# ===========================
-# Root Test Route
-# ===========================
 @app.route("/")
 def home():
     return "MystAI backend is running! 🔮"
 
 
-# ===========================
-# Ask MystAI — TEXT + TTS
-# ===========================
+def build_system_prompt(reading_type: str, lang: str) -> str:
+    """
+    Fal türüne göre profesyonel sistem mesajı üretir.
+    reading_type: 'coffee', 'tarot', 'palm', 'energy', 'general' vb.
+    lang: 'tr' ya da 'en'
+    """
+    # Türkçe / İngilizce başlıklar
+    if lang == "tr":
+        base = (
+            "Sen MystAI adında mistik, sıcak ve profesyonel bir fal yorumcusun. "
+            "Kullanıcıya asla korkutucu veya umutsuz mesajlar verme. "
+            "Gerçekçi ama pozitif, yol gösterici ve sakin bir tonda konuş. "
+        )
+        types = {
+            "coffee": (
+                base +
+                "Kahve falı uzmanısın. Fincandaki şekilleri, sembolleri ve enerjiyi hissedip "
+                "ilişkiler, kariyer, gelecek fırsatlar ve ruhsal mesajlar hakkında detaylı yorumlar yap."
+            ),
+            "tarot": (
+                base +
+                "Tarot ustasısın. Kartların arketiplerini, sayıları ve enerjilerini yorumlayarak "
+                "kullanıcıya hem spiritüel hem de pratik rehberlik ver."
+            ),
+            "palm": (
+                base +
+                "El falı (palmistry) uzmanısın. Yaşam çizgisi, akıl çizgisi, kalp çizgisi ve diğer işaretleri "
+                "yorumlayarak karakter, hayat yolu ve potansiyel deneyimler hakkında konuş."
+            ),
+            "energy": (
+                base +
+                "Rüyalar ve enerji sembolleri üzerinde çalışan sezgisel bir yorumcusun. "
+                "Sembolleri, duyguları ve bilinçdışı mesajları analiz edip, içsel denge ve farkındalık için rehberlik ver."
+            ),
+            "general": (
+                base +
+                "Genel bir mistik fal yorumcususun. Kullanıcının sorusuna göre aşk, kariyer, para, "
+                "sağlık, ruhsal yol ve kader hakkında sezgisel yorumlar yap."
+            ),
+        }
+    else:
+        base = (
+            "You are MystAI, a mystical, warm and professional fortune teller. "
+            "Never give scary or hopeless messages. Be realistic but positive, "
+            "supportive and calm. "
+        )
+        types = {
+            "coffee": (
+                base +
+                "You are an expert in coffee cup readings. You interpret shapes, symbols and energy in the cup, "
+                "giving insights about relationships, career, future opportunities and spiritual messages."
+            ),
+            "tarot": (
+                base +
+                "You are a tarot master. You interpret archetypes, numbers and energies of the cards, "
+                "offering both spiritual and practical guidance."
+            ),
+            "palm": (
+                base +
+                "You are a palm reading expert. You interpret life line, head line, heart line and other marks "
+                "to talk about personality, life path and potential experiences."
+            ),
+            "energy": (
+                base +
+                "You are an oracle for dreams and subtle energies. You interpret symbols, emotions and subconscious messages "
+                "to help with inner balance and awareness."
+            ),
+            "general": (
+                base +
+                "You are a general mystical fortune teller. According to the user's question, "
+                "you speak about love, career, money, health, spiritual path and destiny."
+            ),
+        }
+
+    return types.get(reading_type, types["general"])
+
+
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
-        data = request.get_json()
-        user_input = data.get("user_input", "")
-
-        print("=== Kullanıcı Sordu:", user_input)
-
-        completion = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are a mystical fortune teller."},
-                {"role": "user", "content": user_input}
-            ]
-        )
-
-        response_text = completion.choices[0].message.content
-        print("=== Cevap:", response_text)
-
-        # ========== TTS (Google gTTS) ==========
-        audio_filename = f"voice_{uuid.uuid4().hex}.mp3"
-        audio_path = f"static/{audio_filename}"
-
-        os.makedirs("static", exist_ok=True)
-
-        tts = gTTS(text=response_text, lang="tr")
-        tts.save(audio_path)
-
-        return jsonify({
-            "text": response_text,
-            "audio": f"/static/{audio_filename}"
-        })
-
-    except Exception as e:
-        print("=== HATA /predict ===")
-        traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
-
-
-# ===========================
-# NEW: Kahve Falı — Image + Question
-# ===========================
-@app.route("/coffee_fortune", methods=["POST"])
-def coffee_fortune():
-    """
-    Beklenen JSON:
-    {
-      "image_url": "data:image/jpeg;base64,...",
-      "question": "Aşk hayatım?",
-      "lang": "tr"
-    }
-    """
-    try:
         data = request.get_json() or {}
-        image_url = data.get("image_url", "")
-        question = data.get("question", "")
-        lang = data.get("lang", "tr")
+        user_input = data.get("user_input", "") or ""
+        reading_type = (data.get("reading_type") or "general").lower()
 
-        if not image_url:
-            return jsonify({"error": "image_url eksik"}), 400
+        if not user_input.strip():
+            return jsonify({"error": "user_input boş olamaz"}), 400
 
-        print("=== Kahve Fincanı Geldi ===")
-        print("Soru:", question)
+        print("=== Kullanıcı girişi:", user_input)
+        print("=== Fal türü:", reading_type)
 
-        # Sistem prompt'u
-        system_prompt_tr = (
-            "Sen mistik bir Türk kahve falcısısın. "
-            "Telve şekillerini, sembolleri ve enerjiyi spiritüel bir dille yorumlarsın. "
-            "Korkutucu veya medikal şeyler söyleme. Duygusal, pozitif ama gerçekçi konuş."
-        )
+        # Dil tespiti
+        try:
+            detected = detect(user_input)
+            print("=== Tespit edilen dil:", detected)
+        except LangDetectException:
+            detected = "en"
 
-        system_prompt_en = (
-            "You are a mystical Turkish coffee fortune teller. "
-            "Interpret the shapes in the coffee grounds with spiritual symbolism."
-        )
+        if detected not in ("en", "tr"):
+            detected = "en"
 
-        system_prompt = system_prompt_tr if lang == "tr" else system_prompt_en
+        # Eğer front-end reading_type göndermediyse / garip bir şeyse:
+        valid_types = {"coffee", "tarot", "palm", "energy", "general"}
+        if reading_type not in valid_types:
+            reading_type = "general"
 
-        # Görsel + metin birlikte gönderiyoruz
-        user_content = [
-            {"type": "text", "text": question or (
-                "Genel bir kahve falı yorumu yap." if lang == "tr"
-                else "Give a general coffee fortune reading."
-            )},
-            {"type": "image_url", "image_url": {"url": image_url}}
-        ]
+        system_prompt = build_system_prompt(reading_type, detected)
 
+        # OpenAI'den fal metni al
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_content}
-            ]
+                {"role": "user", "content": user_input},
+            ],
         )
 
-        response_text = completion.choices[0].message.content
-        print("=== Kahve Yorum:", response_text)
+        response_text = completion.choices[0].message.content.strip()
 
-        # ========== TTS ==========
-        audio_filename = f"coffee_{uuid.uuid4().hex}.mp3"
-        audio_path = f"static/{audio_filename}"
+        # gTTS ile ses dosyası üret
+        file_id = uuid.uuid4().hex
+        filename = f"{file_id}.mp3"
+        filepath = os.path.join("/tmp", filename)  # Render'da yazılabilir dizin
 
-        tts = gTTS(text=response_text, lang="tr")
-        tts.save(audio_path)
+        tts = gTTS(text=response_text, lang=detected)
+        tts.save(filepath)
 
-        return jsonify({
-            "text": response_text,
-            "audio": f"/static/{audio_filename}"
-        })
+        return jsonify(
+            {
+                "text": response_text,
+                # Frontend için /audio/<id> şeklinde path dönüyoruz
+                "audio": f"/audio/{file_id}",
+                "reading_type": reading_type,
+                "language": detected,
+            }
+        )
 
     except Exception as e:
-        print("=== HATA /coffee_fortune ===")
+        print("=== HATA OLUŞTU ===")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 
-# ===========================
-# OpenAI Test
-# ===========================
+@app.route("/audio/<file_id>")
+def serve_audio(file_id):
+    """
+    /audio/<file_id> → /tmp/<file_id>.mp3 dosyasını döner.
+    """
+    filename = f"{file_id}.mp3"
+    filepath = os.path.join("/tmp", filename)
+    if not os.path.exists(filepath):
+        return jsonify({"error": "Audio not found"}), 404
+    return send_file(filepath, mimetype="audio/mpeg")
+
+
 @app.route("/test_openai")
 def test_openai():
     try:
         r = client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[{"role": "user", "content": "Test message"}]
+            messages=[{"role": "user", "content": "Test message"}],
         )
         return "OpenAI OK → " + r.choices[0].message.content
 
@@ -163,8 +192,6 @@ def test_openai():
         return "OpenAI ERROR → " + str(e)
 
 
-# ===========================
-# Run — Render uses Gunicorn
-# ===========================
 if __name__ == "__main__":
+    # Lokal çalıştırma için
     app.run(host="0.0.0.0", port=10000)
