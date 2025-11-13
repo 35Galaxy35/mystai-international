@@ -177,21 +177,45 @@
     const params=new URLSearchParams(window.location.search);
     const id=params.get("id");
 
+    // ⭐ AI BACKEND FONKSİYONU EKLENDİ
+    async function fetchAIResult(prompt) {
+      try {
+        const response = await fetch("https://mystai-international-1.onrender.com/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_input: prompt })
+        });
+        const data = await response.json();
+        return data.text || "⚠ AI error.";
+      } catch {
+        return "⚠ Could not connect to AI server.";
+      }
+    }
+
+    // ⭐ Firebase + AI entegrasyonu
     onAuthStateChanged(auth, async (user)=>{
       if(!user){location.href="login.html";return;}
       if(!id){document.getElementById("readingText").textContent=i18n[lang].empty;return;}
+
       const ref=doc(db,"fortunes",id);
       const snap=await getDoc(ref);
+
       if(snap.exists()){
         const data=snap.data();
+
         document.getElementById("readingType").textContent=data.type;
         document.getElementById("readingDate").textContent=new Date(data.createdAt).toLocaleString();
-        // If AI fortune exists, show it; otherwise, placeholder
-        document.getElementById("readingText").textContent=data.result || i18n[lang].empty;
-      } else {
-        document.getElementById("readingText").textContent=i18n[lang].empty;
+
+        if (data.result) {
+          document.getElementById("readingText").textContent=data.result;
+        } else {
+          document.getElementById("readingText").textContent="🔮 AI is generating your reading…";
+          const aiText = await fetchAIResult("Generate a mystical fortune about: " + data.type);
+          document.getElementById("readingText").textContent = aiText;
+        }
       }
     });
   </script>
+
 </body>
 </html>
