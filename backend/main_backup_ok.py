@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MystAI — My Reading History</title>
+  <link rel="icon" type="image/png" href="mystai-logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:radial-gradient(1000px 700px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
+      color:#e6ecff;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      text-align:center;
+    }
+    h1{
+      font-family:'Cinzel',serif;
+      color:#ffd54f;
+      text-shadow:0 0 10px rgba(255,215,0,.4);
+      margin-top:60px;
+    }
+    #historyList{
+      width:90%;
+      max-width:700px;
+      margin:30px auto;
+      display:flex;
+      flex-direction:column;
+      gap:15px;
+    }
+    .card{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      padding:16px 20px;
+      box-shadow:0 0 20px rgba(255,215,0,.05);
+    }
+    .text{text-align:left;}
+    .type{color:#ffd54f;font-weight:600;}
+    .date{color:#cdd3ff;font-size:14px;margin-top:4px;}
+
+    .btn,.delete-btn{
+      border:none;
+      border-radius:8px;
+      padding:7px 14px;
+      cursor:pointer;
+      font-weight:600;
+      transition:all .3s ease;
+    }
+    .btn{
+      background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);
+      color:#111;
+      box-shadow:0 0 10px rgba(255,215,0,.3);
+      margin-right:8px;
+    }
+    .btn:hover{transform:scale(1.08);}
+    .delete-btn{
+      background:rgba(255,255,255,.1);
+      color:#f5f5f5;
+      border:1px solid rgba(255,255,255,.2);
+    }
+    .delete-btn:hover{
+      background:rgba(255,80,80,.3);
+      transform:scale(1.1);
+    }
+    .topbar{
+      display:flex;
+      justify-content:flex-end;
+      align-items:center;
+      gap:10px;
+      padding:16px 24px;
+    }
+    .lang-btn{
+      border:none;
+      border-radius:50%;
+      width:36px;height:36px;
+      cursor:pointer;
+      background-size:cover;
+      background-position:center;
+      transition:transform .25s ease, box-shadow .25s ease;
+      border:2px solid transparent;
+    }
+    .lang-btn.active{
+      box-shadow:0 0 15px rgba(255,215,0,.6);
+      border-color:#ffd54f;
+      transform:scale(1.1);
+    }
+    .flag-en{background-image:url('https://flagcdn.com/w40/gb.png');}
+    .flag-tr{background-image:url('https://flagcdn.com/w40/tr.png');}
+    .lang-btn:hover{transform:scale(1.15);}
+    .nav-btn{
+      border:0;border-radius:20px;
+      background:rgba(255,255,255,.15);
+      color:#fff;
+      padding:7px 14px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    .nav-btn:hover{filter:brightness(1.2);}
+    footer{
+      border-top:1px solid rgba(255,255,255,.08);
+      padding:20px;
+      font-size:14px;
+      color:#aeb6cf;
+    }
+    footer a{
+      color:#ffd54f;
+      text-decoration:none;
+      font-weight:600;
+    }
+    footer a:hover{
+      color:#fff6b0;
+      text-shadow:0 0 10px rgba(255,255,120,.6);
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <button class="lang-btn flag-en" id="btn-en"></button>
+    <button class="lang-btn flag-tr" id="btn-tr"></button>
+    <button class="nav-btn" id="backBtn">⬅ Back</button>
+    <button class="nav-btn" id="logoutBtn">Logout</button>
+  </div>
+
+  <h1 id="title">My Reading History</h1>
+  <div id="historyList"></div>
+
+  <footer>
+    <p>© 2025 MystAI.ai — All Rights Reserved. Developed by GALAXY 🌌<br>
+    <span id="contact-label">Contact us:</span> 
+    <a href="mailto:support@mystai.ai">support@mystai.ai</a></p>
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, deleteDoc, doc, query, where } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
+      authDomain: "mystai-6cca2.firebaseapp.com",
+      projectId: "mystai-6cca2",
+      storageBucket: "mystai-6cca2.appspot.com",
+      messagingSenderId: "624127781219",
+      appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const list = document.getElementById("historyList");
+    const title = document.getElementById("title");
+
+    const i18n = {
+      en:{
+        title:"My Reading History",
+        type:"Type",
+        date:"Date",
+        view:"View Reading",
+        del:"Delete",
+        confirm:"Are you sure to delete this record?",
+        logout:"Logout",
+        back:"Back",
+        contact:"Contact us:"
+      },
+      tr:{
+        title:"Fal Geçmişim",
+        type:"Tür",
+        date:"Tarih",
+        view:"Falını Gör",
+        del:"Sil",
+        confirm:"Bu kaydı silmek istediğine emin misin?",
+        logout:"Çıkış",
+        back:"Geri",
+        contact:"İletişim:"
+      }
+    };
+
+    let lang = localStorage.getItem("myst_lang") || "en";
+
+    function setLang(l){
+      lang = l;
+      localStorage.setItem("myst_lang", l);
+      title.textContent = i18n[l].title;
+      document.getElementById("btn-en").classList.toggle("active", l === "en");
+      document.getElementById("btn-tr").classList.toggle("active", l === "tr");
+      document.getElementById("logoutBtn").textContent = i18n[l].logout;
+      document.getElementById("backBtn").textContent = "⬅ " + i18n[l].back;
+      document.getElementById("contact-label").textContent = i18n[l].contact;
+      renderList();
+    }
+
+    document.getElementById("btn-en").onclick = function(){ setLang("en"); };
+    document.getElementById("btn-tr").onclick = function(){ setLang("tr"); };
+    document.getElementById("logoutBtn").onclick = function(){
+      signOut(auth).then(function(){ location.href = "login.html"; });
+    };
+    document.getElementById("backBtn").onclick = function(){
+      location.href = "app.html";
+    };
+
+    let dataList = [];
+
+    async function renderList(){
+      list.innerHTML = "";
+      dataList.forEach(function(item){
+        const data = item.data;
+
+        // TARİH DÜZELTME: Firebase Timestamp + string destekli, eski tarayıcı uyumlu
+        var dateObj = null;
+        if (data.createdAt && typeof data.createdAt.toDate === "function") {
+          // Firestore Timestamp
+          dateObj = data.createdAt.toDate();
+        } else if (data.createdAt) {
+          // String veya number
+          dateObj = new Date(data.createdAt);
+        }
+        var dateString;
+        if (dateObj && !isNaN(dateObj.getTime())) {
+          dateString = dateObj.toLocaleString();
+        } else {
+          dateString = (lang === "tr") ? "Tarih yok" : "No date";
+        }
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML =
+          '<div class="text">' +
+            '<div class="type">' + i18n[lang].type + ': ' + (data.type || '') + '</div>' +
+            '<div class="date">' + i18n[lang].date + ': ' + dateString + '</div>' +
+          '</div>' +
+          '<div>' +
+            '<button class="btn">' + i18n[lang].view + '</button>' +
+            '<button class="delete-btn" title="' + i18n[lang].del + '">🗑️</button>' +
+          '</div>';
+
+        card.querySelector(".btn").onclick = function(){
+          window.location.href = "reading.html?id=" + item.id;
+        };
+        card.querySelector(".delete-btn").onclick = async function(){
+          if (confirm(i18n[lang].confirm)) {
+            await deleteDoc(doc(db,"fortunes",item.id));
+            card.remove();
+          }
+        };
+        list.appendChild(card);
+      });
+    }
+
+    onAuthStateChanged(auth, async function(user){
+      if(!user){
+        location.href = "login.html";
+        return;
+      }
+      const q = query(collection(db,"fortunes"), where("user","==", user.email));
+      const snap = await getDocs(q);
+      dataList = [];
+      snap.forEach(function(d){
+        dataList.push({ id: d.id, data: d.data() });
+      });
+      renderList();
+    });
+
+    setLang(lang);
+  </script>
+</body>
+</html>
