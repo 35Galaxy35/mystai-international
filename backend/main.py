@@ -11,9 +11,11 @@ CORS(app)
 # OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+
 @app.route("/")
 def home():
     return "MystAI backend is running! 🔮"
+
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -23,8 +25,9 @@ def predict():
 
         print("=== Kullanıcı girişi:", user_input)
 
+        # OpenAI response (Yeni API formatı)
         completion = client.chat.completions.create(
-            model="gpt-4o-mini"
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a mystical fortune teller."},
                 {"role": "user", "content": user_input}
