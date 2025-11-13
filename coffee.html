@@ -1,213 +1,212 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MystAI — AI Coffee Reading</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MystAI — AI Coffee Reading</title>
+  <link rel="icon" type="image/png" href="mystai-logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
 
-<style>
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-  background:radial-gradient(1200px 800px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
-  color:#e6ecff;
-  min-height:100vh;
-  text-align:center;
-}
+  <style>
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:radial-gradient(1000px 700px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
+      color:#e6ecff;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      text-align:center;
+    }
+    .topbar{
+      display:flex;
+      justify-content:flex-end;
+      align-items:center;
+      gap:10px;
+      padding:16px 24px;
+    }
+    .lang-btn{
+      border:none;border-radius:50%;
+      width:36px;height:36px;
+      cursor:pointer;
+      background-size:cover;
+      background-position:center;
+      transition:transform .25s ease;
+      border:2px solid transparent;
+    }
+    .lang-btn.active{
+      box-shadow:0 0 15px rgba(255,215,0,.6);
+      border-color:#ffd54f;
+      transform:scale(1.1);
+    }
+    .flag-en{background-image:url('https://flagcdn.com/w40/gb.png');}
+    .flag-tr{background-image:url('https://flagcdn.com/w40/tr.png');}
 
-header{
-  padding:18px 30px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  background:rgba(10,15,30,0.35);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid rgba(255,255,255,0.05);
-}
+    .nav-btn{
+      border:0;border-radius:20px;
+      background:rgba(255,255,255,.15);
+      color:#fff;
+      padding:7px 14px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    .nav-btn:hover{filter:brightness(1.2);}
 
-.logo{
-  font-family:'Cinzel',serif;
-  font-size:26px;
-  color:#ffd54f;
-  text-shadow:0 0 10px rgba(255,215,0,.4);
-}
+    h1{
+      margin-top:40px;
+      font-family:'Cinzel',serif;
+      color:#ffd54f;
+      text-shadow:0 0 10px rgba(255,215,0,.4);
+    }
 
-.nav-btn{
-  border:0;
-  background:rgba(255,255,255,.15);
-  padding:8px 18px;
-  border-radius:12px;
-  cursor:pointer;
-  color:white;
-  font-weight:600;
-  transition:.3s;
-}
-.nav-btn:hover{filter:brightness(1.2);}
+    #uploadBox{
+      width:80%;
+      max-width:500px;
+      border:2px dashed rgba(255,255,255,.2);
+      background:rgba(255,255,255,.04);
+      margin:50px auto;
+      padding:40px;
+      border-radius:15px;
+      cursor:pointer;
+      transition:0.3s;
+    }
+    #uploadBox:hover{
+      background:rgba(255,255,255,.1);
+      transform:scale(1.02);
+    }
 
-.container{
-  width:90%;
-  max-width:900px;
-  margin:40px auto;
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:14px;
-  padding:24px;
-  box-shadow:0 0 40px rgba(255,215,0,.1);
-}
+    #previewImage{
+      max-width:300px;
+      display:none;
+      margin:20px auto;
+      border-radius:10px;
+      box-shadow:0px 0px 10px rgba(255,255,255,0.2);
+    }
 
-h1{
-  font-family:'Cinzel',serif;
-  color:#ffd54f;
-}
-
-.upload-box{
-  border:2px dashed rgba(255,255,255,.3);
-  padding:30px;
-  border-radius:14px;
-  cursor:pointer;
-}
-
-.upload-box:hover{background:rgba(255,255,255,.05);}
-
-.preview-img{
-  margin-top:20px;
-  max-width:100%;
-  max-height:300px;
-  border-radius:10px;
-  box-shadow:0 0 25px rgba(255,215,0,.2);
-}
-
-.btn{
-  margin-top:20px;
-  padding:12px 24px;
-  background:linear-gradient(120deg,#ffd700,#ffe680);
-  border-radius:10px;
-  border:none;
-  color:#111;
-  font-weight:700;
-  cursor:pointer;
-  font-size:16px;
-  transition:.3s;
-}
-.btn:hover{transform:scale(1.06);}
-
-.loading{
-  margin-top:25px;
-  font-size:20px;
-  color:#ffe680;
-  display:none;
-}
-
-.result-box{
-  margin-top:30px;
-  padding:20px;
-  background:rgba(255,255,255,.05);
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.1);
-  display:none;
-  text-align:left;
-  white-space:pre-line;
-}
-
-audio{
-  margin-top:15px;
-  width:100%;
-}
-</style>
+    #result{
+      width:85%;
+      max-width:700px;
+      margin:20px auto;
+      padding:20px;
+      border-radius:12px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.15);
+      display:none;
+      text-align:left;
+      line-height:1.6;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="topbar">
+    <button class="lang-btn flag-en" id="btn-en"></button>
+    <button class="lang-btn flag-tr" id="btn-tr"></button>
+    <button class="nav-btn" id="backBtn">⬅ Back</button>
+    <button class="nav-btn" id="logoutBtn">Logout</button>
+  </div>
 
-<header>
-  <div class="logo">MystAI 🔮</div>
-  <button class="nav-btn" onclick="window.location.href='app.html'">⬅ Back</button>
-</header>
+  <h1 id="title">AI Coffee Reading</h1>
 
-<h1>AI Coffee Reading</h1>
+  <div id="uploadBox">
+    <span id="uploadText">Click to upload your coffee cup photo</span>
+    <input type="file" id="fileInput" accept="image/*" style="display:none" />
+  </div>
 
-<div class="container">
+  <img id="previewImage" />
 
-  <label class="upload-box" id="uploadBox">
-    <strong>Click to upload your coffee cup photo</strong>
-    <input type="file" id="fileInput" accept="image/*" hidden />
-  </label>
+  <div id="result"></div>
 
-  <img id="preview" class="preview-img" style="display:none" />
+  <script type="module">
 
-  <button class="btn" id="analyzeBtn" style="display:none">Read My Coffee Cup</button>
+    // ==== LANGUAGE SYSTEM ====
+    const i18n = {
+      en: {
+        title: "AI Coffee Reading",
+        upload: "Click to upload your coffee cup photo",
+        analyzing: "Your coffee reading is being prepared...",
+        resultTitle: "Your Coffee Reading",
+        back: "Back",
+        logout: "Logout"
+      },
+      tr: {
+        title: "Yapay Zekâ Kahve Falı",
+        upload: "Kahve fincanı fotoğrafını yüklemek için tıkla",
+        analyzing: "Falın hazırlanıyor, lütfen bekle...",
+        resultTitle: "Kahve Falın",
+        back: "Geri",
+        logout: "Çıkış"
+      }
+    };
 
-  <div class="loading" id="loading">🔮 Preparing your fortune... Please wait...</div>
+    let lang = localStorage.getItem("myst_lang") || "en";
 
-  <div class="result-box" id="resultBox"></div>
-  <audio id="audioPlayer" controls style="display:none"></audio>
+    function applyLanguage() {
+      document.getElementById("title").textContent = i18n[lang].title;
+      document.getElementById("uploadText").textContent = i18n[lang].upload;
+      document.getElementById("backBtn").textContent = "⬅ " + i18n[lang].back;
+      document.getElementById("logoutBtn").textContent = i18n[lang].logout;
 
-</div>
+      document.getElementById("btn-en").classList.toggle("active", lang === "en");
+      document.getElementById("btn-tr").classList.toggle("active", lang === "tr");
+    }
 
-<script>
-const BACKEND_URL = "https://mystai-international-1.onrender.com";
+    document.getElementById("btn-en").onclick = () => {
+      lang = "en"; localStorage.setItem("myst_lang","en"); applyLanguage();
+    };
+    document.getElementById("btn-tr").onclick = () => {
+      lang = "tr"; localStorage.setItem("myst_lang","tr"); applyLanguage();
+    };
 
-const fileInput = document.getElementById("fileInput");
-const preview = document.getElementById("preview");
-const analyzeBtn = document.getElementById("analyzeBtn");
-const loading = document.getElementById("loading");
-const resultBox = document.getElementById("resultBox");
-const audioPlayer = document.getElementById("audioPlayer");
+    applyLanguage();
 
-document.getElementById("uploadBox").onclick = () => fileInput.click();
 
-fileInput.onchange = () => {
-  const file = fileInput.files[0];
-  if (!file) return;
+    // ==== IMAGE UPLOAD LOGIC ====
 
-  preview.src = URL.createObjectURL(file);
-  preview.style.display = "block";
-  analyzeBtn.style.display = "inline-block";
-};
+    const uploadBox = document.getElementById("uploadBox");
+    const fileInput = document.getElementById("fileInput");
+    const preview = document.getElementById("previewImage");
+    const result = document.getElementById("result");
 
-analyzeBtn.onclick = async () => {
-  const file = fileInput.files[0];
-  if (!file) {
-    alert("Please upload a cup photo.");
-    return;
-  }
+    uploadBox.onclick = () => fileInput.click();
 
-  loading.style.display = "block";
-  resultBox.style.display = "none";
-  audioPlayer.style.display = "none";
+    fileInput.onchange = async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
 
-  // Fotoğrafı base64'e çevir
-  const base64 = await toBase64(file);
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = "block";
 
-  const res = await fetch(`${BACKEND_URL}/predict`, {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({
-      user_input:"This is a coffee cup reading. Please read it.",
-      image: base64
-    })
-  });
+      result.style.display = "block";
+      result.innerHTML = `<h3>${i18n[lang].analyzing}</h3>`;
 
-  const data = await res.json();
+      const formData = new FormData();
+      formData.append("image", file);
 
-  loading.style.display = "none";
-  resultBox.style.display = "block";
-  resultBox.textContent = data.text || "No result.";
+      const r = await fetch("https://mystai-international-1.onrender.com/predict_coffee", {
+        method: "POST",
+        body: formData
+      });
 
-  if (data.audio){
-    audioPlayer.src = BACKEND_URL + data.audio;
-    audioPlayer.style.display="block";
-  }
-};
+      const j = await r.json();
 
-function toBase64(file){
-  return new Promise((resolve,reject)=>{
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = ()=>resolve(reader.result);
-    reader.onerror = err=>reject(err);
-  });
-}
-</script>
+      result.innerHTML = `
+        <h3>${i18n[lang].resultTitle}</h3>
+        <p>${j.text}</p>
+        ${j.audio ? `<audio controls src="${j.audio}"></audio>` : ""}
+      `;
+    };
+
+
+    document.getElementById("backBtn").onclick = () => {
+      location.href = "app.html";
+    };
+
+    document.getElementById("logoutBtn").onclick = () => {
+      location.href = "login.html";
+    };
+
+  </script>
+
 </body>
 </html>
