@@ -321,9 +321,10 @@
       else if(type === 'palm') target = 'palm.html';
       else if(type === 'energy') target = 'energy.html';
 
-      btn.addEventListener('click', ()=>{
-        window.location.href = target;
-      });
+    btn.addEventListener('click', ()=>{
+    runReading(type);
+});
+
     });
 /* ====== REAL READING + FIRESTORE SAVE ====== */
 async function runReading(type) {
