@@ -1,1 +1,254 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fal Geçmişim</title>
 
+<style>
+    body {
+        margin: 0;
+        background: radial-gradient(circle at top, #0b1a3a, #020916);
+        font-family: 'Arial', sans-serif;
+        color: #fff;
+    }
+
+    h1 {
+        text-align: center;
+        margin-top: 80px;
+        font-size: 38px;
+        font-weight: bold;
+        color: #f2d16b;
+        letter-spacing: 3px;
+    }
+
+    /* LANG BUTTONS */
+    #langSwitch {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        display: flex;
+        gap: 10px;
+    }
+    .lang-btn {
+        background: #1f3b6e;
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        padding: 6px 15px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: 0.3s;
+        opacity: 0.7;
+    }
+    .lang-btn:hover {
+        opacity: 1;
+        box-shadow: 0 0 8px rgba(255,255,255,0.4);
+    }
+    .lang-btn.active {
+        background: #ffd23f;
+        color: #000;
+        opacity: 1;
+    }
+
+    /* TOP RIGHT */
+    #topRight {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    #topRight button {
+        background: #ffd23f;
+        border: none;
+        padding: 6px 14px;
+        border-radius: 20px;
+        cursor: pointer;
+    }
+
+    /* LIST */
+    .item {
+        width: 70%;
+        margin: 20px auto;
+        padding: 18px;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(6px);
+        box-shadow: 0 0 12px rgba(0,0,0,0.3);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .info {
+        font-size: 15px;
+        line-height: 22px;
+    }
+
+    .btn-see {
+        background: #ffd23f;
+        color: #000;
+        padding: 7px 14px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: bold;
+        box-shadow: 0 0 6px rgba(255,255,255,0.3);
+    }
+
+    .btn-del {
+        background: #ff4d4d;
+        padding: 7px 10px;
+        border-radius: 50%;
+        margin-left: 12px;
+        cursor: pointer;
+    }
+</style>
+</head>
+
+<body>
+
+<!-- LANG SWITCH -->
+<div id="langSwitch">
+    <button id="btnEn" class="lang-btn">EN</button>
+    <button id="btnTr" class="lang-btn">TR</button>
+</div>
+
+<!-- TOP RIGHT NAV -->
+<div id="topRight">
+    <span id="welcome"></span>
+    <button onclick="location.href='app.html'">&larr; <span id='backText'></span></button>
+    <button onclick="logout()"><span id='logoutText'></span></button>
+</div>
+
+<h1 id="title"></h1>
+
+<div id="list"></div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, orderBy, getDocs, deleteDoc, doc } 
+    from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+    /* FIREBASE CONFIG */
+    const firebaseConfig = {
+        apiKey: "AIzaSyDj7OvGAF0JHbTm-5P6Q6XsRClFfPLj00",
+        authDomain: "mystai-6cca2.firebaseapp.com",
+        projectId: "mystai-6cca2",
+        storageBucket: "mystai-6cca2.appspot.com",
+        messagingSenderId: "624127781219",
+        appId: "1:624127781219:web:a580ac6e860cc26e694c56"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    /* LANG SYSTEM */
+    const i18n = {
+        tr: {
+            title: "FAL GEÇMİŞİM",
+            see: "Falını Gör",
+            back: "Geri",
+            logout: "Çıkış",
+            type: "Tür",
+            date: "Tarih"
+        },
+        en: {
+            title: "MY READING HISTORY",
+            see: "View",
+            back: "Back",
+            logout: "Logout",
+            type: "Type",
+            date: "Date"
+        }
+    };
+
+    let lang = localStorage.getItem("lang") || "tr";
+
+    // Update language buttons
+    const btnEn = document.getElementById("btnEn");
+    const btnTr = document.getElementById("btnTr");
+
+    function refreshLangUI() {
+        btnEn.classList.remove("active");
+        btnTr.classList.remove("active");
+        if(lang === "en") btnEn.classList.add("active");
+        else btnTr.classList.add("active");
+    }
+    btnEn.onclick = () => { localStorage.setItem("lang", "en"); location.reload(); };
+    btnTr.onclick = () => { localStorage.setItem("lang", "tr"); location.reload(); };
+    refreshLangUI();
+
+    /* UI TEXT */
+    document.getElementById("title").textContent = i18n[lang].title;
+    document.getElementById("backText").textContent = i18n[lang].back;
+    document.getElementById("logoutText").textContent = i18n[lang].logout;
+
+    /* AUTH */
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) return location.href = "login.html";
+        document.getElementById("welcome").textContent = "Hoş geldin, " + user.email;
+
+        loadHistory(user.email);
+    });
+
+    /* LOAD HISTORY */
+    async function loadHistory(email) {
+        const listEl = document.getElementById("list");
+        listEl.innerHTML = "";
+
+        const q = query(
+            collection(db, "fortunes"),
+            where("user", "==", email),
+            orderBy("createdAt", "desc")
+        );
+
+        const snap = await getDocs(q);
+        snap.forEach(docSnap => {
+            const d = docSnap.data();
+            const id = docSnap.id;
+
+            // Date
+            let dateText = "";
+            if (d.createdAt?.toDate) {
+                dateText = d.createdAt.toDate().toLocaleString();
+            } else {
+                dateText = d.createdAt;
+            }
+
+            // Build list item
+            const item = document.createElement("div");
+            item.className = "item";
+
+            item.innerHTML = `
+                <div class="info">
+                    <strong>${i18n[lang].type}:</strong> ${d.type}<br>
+                    <strong>${i18n[lang].date}:</strong> ${dateText}
+                </div>
+                <div>
+                    <a class="btn-see" href="view.html?id=${id}">${i18n[lang].see}</a>
+                    <button class="btn-del" onclick="deleteItem('${id}')">🗑️</button>
+                </div>
+            `;
+
+            listEl.appendChild(item);
+        });
+    }
+
+    /* DELETE ITEM */
+    window.deleteItem = async function(id) {
+        await deleteDoc(doc(db, "fortunes", id));
+        location.reload();
+    };
+
+    /* LOGOUT */
+    window.logout = function() {
+        signOut(auth);
+    };
+</script>
+
+</body>
+</html>
