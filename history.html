@@ -1,290 +1,256 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MystAI — My Reading History</title>
-  <link rel="icon" type="image/png" href="mystai-logo.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MystAI — My Reading History</title>
+<link rel="icon" type="image/png" href="mystai-logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
 
-  <style>
+<style>
     body {
-      margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      background:radial-gradient(1100px 700px at 50% -10%, #101a4d 0%, #0b0f1f 80%);
-      color:#e6ecff;
-      text-align:center;
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
+        margin:0;
+        padding:0;
+        font-family:system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+        background:radial-gradient(1100px 700px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
+        color:#e6ecff;
+        text-align:center;
     }
 
-    header{
-      display:flex;
-      justify-content:flex-end;
-      padding:15px 25px;
-      gap:10px;
-    }
-    .lang-btn{
-      width:36px;height:36px;
-      border-radius:50%;
-      border:none;
-      background-size:cover;
-      cursor:pointer;
-    }
-    .flag-en{background-image:url('https://flagcdn.com/w40/gb.png');}
-    .flag-tr{background-image:url('https://flagcdn.com/w40/tr.png');}
-
-    .btn{
-      background:rgba(255,255,255,.12);
-      color:white;
-      padding:8px 16px;
-      border-radius:20px;
-      border:none;
-      cursor:pointer;
-      font-weight:600;
+    header {
+        display:flex;
+        justify-content:flex-end;
+        align-items:center;
+        padding:12px 20px;
+        gap:10px;
     }
 
-    h1{
-      font-family:'Cinzel',serif;
-      color:#ffd54f;
-      margin-top:20px;
-      text-shadow:0 0 12px rgba(255,215,0,.4);
+    .flag {
+        width:32px;
+        height:32px;
+        cursor:pointer;
+        border-radius:50%;
+        transition:.2s;
+    }
+    .flag:hover { transform:scale(1.1); }
+
+    .btn {
+        padding:6px 14px;
+        border:0;
+        border-radius:20px;
+        background:#ffd54f;
+        color:#111;
+        cursor:pointer;
+        font-weight:700;
     }
 
-    #historyList{
-      width:100%;
-      max-width:760px;
-      margin:30px auto;
+    h1 {
+        font-family:'Cinzel', serif;
+        color:#ffd54f;
+        font-size:36px;
+        margin-top:40px;
+        text-shadow:0 0 10px rgba(255,215,100,.4);
     }
 
-    .item{
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:14px;
-      padding:15px;
-      margin-bottom:14px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:15px;
+    .card {
+        background:rgba(255,255,255,.05);
+        border:1px solid rgba(255,255,255,.1);
+        padding:15px;
+        margin:15px auto;
+        border-radius:12px;
+        width:90%;
+        max-width:700px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
     }
 
-    .info{text-align:left;}
-    .type{font-weight:700;color:#ffd54f;}
-    .date{font-size:13px;color:#c7ceff;}
-
-    .see-btn{
-      background:linear-gradient(120deg,#ffd700,#ffe680);
-      color:#111;
-      padding:7px 14px;
-      border-radius:10px;
-      border:none;
-      cursor:pointer;
-      font-weight:700;
-      margin-right:8px;
+    .left {
+        text-align:left;
+        font-size:14px;
     }
 
-    .del-btn{
-      background:#e04747;
-      color:white;
-      padding:7px 14px;
-      border-radius:10px;
-      border:none;
-      cursor:pointer;
-      font-weight:700;
+    .view-btn {
+        padding:6px 12px;
+        font-size:13px;
+        background:#ffd54f;
+        border-radius:8px;
+        border:0;
+        cursor:pointer;
+        font-weight:700;
     }
 
-    footer{
-      margin-top:auto;
-      padding:25px;
-      color:#aeb6d0;
-      font-size:13px;
-      border-top:1px solid rgba(255,255,255,.1);
+    .delete-btn {
+        padding:6px 10px;
+        background:#ff4d4d;
+        border:0;
+        border-radius:8px;
+        color:#fff;
+        cursor:pointer;
+        font-weight:700;
+        margin-left:10px;
     }
 
-    /* Modal */
-    #modal{
-      display:none;
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.7);
-      justify-content:center;
-      align-items:center;
-      z-index:2000;
-    }
-    #modalBox{
-      background:#0b132a;
-      border-radius:12px;
-      padding:20px;
-      width:90%;
-      max-width:650px;
-      border:1px solid rgba(255,255,255,.12);
-      text-align:left;
-      color:#e6ecff;
-      white-space:pre-wrap;
-      position:relative;
+    .modal {
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,.7);
+        display:none;
+        justify-content:center;
+        align-items:center;
     }
 
-    #closeModal{
-      background:#ffd54f;
-      border:none;
-      padding:6px 12px;
-      border-radius:6px;
-      font-weight:700;
-      cursor:pointer;
-      margin-top:12px;
+    .modal-content {
+        background:#0d1a2b;
+        padding:20px;
+        border-radius:14px;
+        width:90%;
+        max-width:600px;
+        border:1px solid rgba(255,255,255,.15);
+        box-shadow:0 0 30px rgba(0,0,0,.4);
+        text-align:left;
+        color:#e6ecff;
+        white-space:pre-wrap;
     }
 
-    #modalCloseX{
-      position:absolute;
-      top:10px;
-      right:10px;
-      background:#ffd54f;
-      border:none;
-      width:28px;
-      height:28px;
-      border-radius:50%;
-      cursor:pointer;
-      font-weight:900;
+    footer {
+        margin-top:50px;
+        padding:20px;
+        font-size:13px;
+        color:#aeb6cf;
     }
-  </style>
+</style>
 </head>
 
 <body>
 
 <header>
-  <button class="lang-btn flag-en" id="btn-en"></button>
-  <button class="lang-btn flag-tr" id="btn-tr"></button>
-  <button class="btn" id="backBtn">⬅ App</button>
-  <button class="btn" id="logoutBtn">Logout</button>
+    <img src="https://flagcdn.com/w40/gb.png" class="flag" id="btn-en">
+    <img src="https://flagcdn.com/w40/tr.png" class="flag" id="btn-tr">
+    <button class="btn" onclick="history.back()">⬅ <span id="backLabel">Geri</span></button>
+    <button class="btn" id="logoutBtn">Çıkış</button>
 </header>
 
-<h1 id="title">My Reading History</h1>
-<div id="historyList"></div>
+<h1 id="title">FAL GEÇMİŞİM</h1>
 
-<footer>
-  © 2025 MystAI.ai — <span id="rights">All Rights Reserved.</span>
-</footer>
+<div id="list"></div>
 
-<!-- Modal -->
-<div id="modal">
-  <div id="modalBox">
-    <button id="modalCloseX">X</button>
-    <div id="modalText"></div>
-  </div>
+<!-- MODAL -->
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <h3 id="modalType" style="color:#ffd54f; font-family:'Cinzel';"></h3>
+        <div id="modalText"></div><br>
+        <button class="btn" id="closeModal">Kapat</button>
+    </div>
 </div>
 
+<footer>
+    © 2025 MystAI.ai — All Rights Reserved. Developed by GALAXY 🌌
+</footer>
+
 <script type="module">
+/* Firebase */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { 
+    getFirestore, 
+    collection, 
+    query, 
+    where, 
+    getDocs,
+    deleteDoc,
+    doc
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
-  /* FIREBASE */
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-  import { getFirestore, collectionGroup, query, where, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-
-  const firebaseConfig = {
+const firebaseConfig = {
     apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
     authDomain: "mystai-6cca2.firebaseapp.com",
     projectId: "mystai-6cca2",
     storageBucket: "mystai-6cca2.appspot.com",
     messagingSenderId: "624127781219",
     appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
-  };
+};
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  /* ELEMENTS */
-  const list = document.getElementById("historyList");
-  const modal = document.getElementById("modal");
-  const modalText = document.getElementById("modalText");
-  const modalCloseX = document.getElementById("modalCloseX");
+const list = document.getElementById("list");
 
-  /* LANG */
-  const btnEn = document.getElementById("btn-en");
-  const btnTr = document.getElementById("btn-tr");
-  let lang = localStorage.getItem("myst_lang") || "en";
+/* LANGUAGE */
+let lang = localStorage.getItem("myst_lang") || "tr";
+function applyLang() {
+    if(lang==="tr"){
+        document.getElementById("title").textContent = "FAL GEÇMİŞİM";
+        document.getElementById("logoutBtn").textContent = "Çıkış";
+        document.getElementById("backLabel").textContent = "Geri";
+    } else {
+        document.getElementById("title").textContent = "My Reading History";
+        document.getElementById("logoutBtn").textContent = "Logout";
+        document.getElementById("backLabel").textContent = "Back";
+    }
+}
+applyLang();
 
-  const dict = {
-    en:{title:"My Reading History", rights:"All Rights Reserved.", back:"⬅ App", logout:"Logout", see:"See", del:"Delete"},
-    tr:{title:"Fal Geçmişim", rights:"Tüm Hakları Saklıdır.", back:"⬅ Geri", logout:"Çıkış", see:"Falı Gör", del:"Sil"}
-  };
+document.getElementById("btn-en").onclick = ()=>{ lang="en"; localStorage.setItem("myst_lang","en"); applyLang(); };
+document.getElementById("btn-tr").onclick = ()=>{ lang="tr"; localStorage.setItem("myst_lang","tr"); applyLang(); };
 
-  function applyLang(){
-    const t=dict[lang];
-    document.getElementById("title").textContent=t.title;
-    document.getElementById("rights").textContent=t.rights;
-    document.getElementById("backBtn").textContent=t.back;
-    document.getElementById("logoutBtn").textContent=t.logout;
-  }
+/* AUTH */
+document.getElementById("logoutBtn").onclick = () => {
+    signOut(auth).then(()=>window.location.href="login.html");
+};
 
-  btnEn.onclick=()=>{lang="en";localStorage.setItem("myst_lang","en");applyLang();location.reload();}
-  btnTr.onclick=()=>{lang="tr";localStorage.setItem("myst_lang","tr");applyLang();location.reload();}
-  applyLang();
+onAuthStateChanged(auth, async (user)=>{
+    if(!user){ window.location.href="login.html"; return; }
 
-  modalCloseX.onclick=()=>{modal.style.display="none";};
-
-  /* Geri */
-  document.getElementById("backBtn").onclick=()=>location.href="app.html";
-
-  /* Logout */
-  document.getElementById("logoutBtn").onclick=()=>signOut(auth).then(()=>location.href="login.html");
-
-  /* LOAD HISTORY */
-  onAuthStateChanged(auth, async user=>{
-    if(!user){location.href="login.html";return;}
-
-    list.innerHTML="";
-
-    const q=query(collectionGroup(db,"fortunes"), where("user","==",user.email));
-    const snap=await getDocs(q);
+    /* 🔥 DOĞRU SORGULAMA — collectionGroup YOK! */
+    const q = query(collection(db,"fortunes"), where("user","==",user.email));
+    const snap = await getDocs(q);
 
     if(snap.empty){
-      list.innerHTML="<p>Fal bulunamadı.</p>";
-      return;
+        list.innerHTML = `<p style="margin-top:40px; color:#aeb6cf;">${lang==="tr"?"Hiç fal bulunamadı.":"No readings found."}</p>`;
+        return;
     }
 
-    const records=[];
-    snap.forEach(d=>records.push({...d.data(), id:d.id, path:d.ref.path}));
+    snap.forEach(docu=>{
+        const data = docu.data();
 
-    records.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+        const div = document.createElement("div");
+        div.className = "card";
 
-    records.forEach(rec=>{
-      const div=document.createElement("div");
-      div.className="item";
+        div.innerHTML = `
+            <div class="left">
+                <strong>Tür: ${data.type || "-"} </strong><br>
+                Tarih: ${data.createdAt || "-"}
+            </div>
 
-      const t=dict[lang];
+            <div>
+                <button class="view-btn"> ${lang==="tr"?"Falı Gör":"View"} </button>
+                <button class="delete-btn">🗑</button>
+            </div>
+        `;
 
-      div.innerHTML=`
-        <div class="info">
-          <div class="type">${rec.type}</div>
-          <div class="date">${rec.createdAt}</div>
-        </div>
-        <div style="display:flex;gap:8px;">
-          <button class="see-btn">${t.see}</button>
-          <button class="del-btn">${t.del}</button>
-        </div>
-      `;
+        /* VIEW BUTTON */
+        div.querySelector(".view-btn").onclick = ()=>{
+            modalType.textContent = data.type;
+            modalText.textContent = data.result;
+            modal.style.display="flex";
+        };
 
-      /* Falı gör */
-      div.querySelector(".see-btn").onclick=()=>{
-        modalText.textContent=rec.result;
-        modal.style.display="flex";
-      };
+        /* DELETE BUTTON */
+        div.querySelector(".delete-btn").onclick = async ()=>{
+            await deleteDoc(doc(db,"fortunes",docu.id));
+            div.remove();
+        };
 
-      /* Silme */
-      div.querySelector(".del-btn").onclick=async()=>{
-        if(!confirm(lang==="tr" ? "Bu falı silmek istediğine emin misin?" : "Are you sure to delete this reading?"))
-          return;
-
-        await deleteDoc(doc(db, rec.path));
-        div.remove();
-      };
-
-      list.appendChild(div);
+        list.appendChild(div);
     });
-  });
+});
+
+/* modal close */
+const modal = document.getElementById("modal");
+document.getElementById("closeModal").onclick = ()=> modal.style.display="none";
+modal.onclick = (e)=>{ if(e.target===modal) modal.style.display="none"; };
 
 </script>
 </body>
