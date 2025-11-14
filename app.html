@@ -350,10 +350,11 @@ window.location.href = type + ".html";
 
         try {
           // Backend'e istek at
-          const promptText =
-            activeLang === 'tr'
-              ? `Fal türü: ${type}\nKullanıcı sorusu: ${question}`
-              : `Reading type: ${type}\nUser question: ${question}`;
+         const promptText =
+    activeLang === 'tr'
+        ? `Fal türü: ${type}\nKullanıcı sorusu: (soru sorulmadı)`
+        : `Reading type: ${type}\nUser question: (no question)`;
+
 
           const res = await fetch(`${BACKEND_URL}/predict`, {
             method: 'POST',
