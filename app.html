@@ -325,6 +325,54 @@
         window.location.href = target;
       });
     });
+/* ====== REAL READING + FIRESTORE SAVE ====== */
+async function runReading(type) {
+
+  const user = auth.currentUser;
+  if (!user) {
+    alert(activeLang === 'tr' ? 'Lütfen önce giriş yapın.' : 'Please log in first.');
+    return;
+  }
+
+  const loadingMsg = activeLang === 'tr'
+    ? 'Falın hazırlanıyor, lütfen bekle...'
+    : 'Your reading is being prepared, please wait...';
+  alert(loadingMsg);
+
+  try {
+    const promptText =
+      activeLang === 'tr'
+        ? `Fal türü: ${type}\nKullanıcı sorusu: (soru sorulmadı)`
+        : `Reading type: ${type}\nUser question: (no question)`;
+
+    const res = await fetch(`${BACKEND_URL}/predict`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_input: promptText })
+    });
+
+    if (!res.ok) {
+      throw new Error('Request failed: ' + res.status);
+    }
+
+    const data = await res.json();
+    const text = data?.text || (activeLang==='tr' ? 'Yanıt üretilemedi.' : 'No response.');
+
+    // Firestore kayıt
+    await addDoc(collection(db, "fortunes"), {
+      user: user.email,
+      type,
+      question: "(no question)",
+      result: text,
+      createdAt: serverTimestamp()
+    });
+
+    alert(text);
+
+  } catch (err) {
+    alert((activeLang==='tr' ? 'Hata: ' : 'Error: ') + err.message);
+  }
+}
 
     /* ====== Ask MystAI - Modal ve backend çağrısı ====== */
     const askFab    = document.getElementById('askFab');
