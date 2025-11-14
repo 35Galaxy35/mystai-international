@@ -742,7 +742,9 @@
         resultText.textContent = text;
         statusText.textContent = t.statusDone;
 
-       // Firestore save
+// Firestore save
+import { serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
 try {
   await addDoc(collection(db, "fortunes"), {
     user: user.email,
@@ -750,12 +752,13 @@ try {
     hand,
     question,
     result: text,
-    createdAt: serverTimestamp(),   // ✔ DOĞRU
+    createdAt: serverTimestamp(),   // ✔ DOĞRU timestamp
     source: "palm-page"
   });
 } catch (e) {
   console.warn("Firestore save error:", e);
 }
+
 
 
         if (audioPath) {
