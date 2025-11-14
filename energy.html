@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MystAI — Energy & Dreams</title>
+  <link rel="icon" type="image/png" href="mystai-logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{
+      --bg-start:#050921;
+      --bg-end:#020313;
+      --text:#dde5ff;
+      --muted:#97a3d1;
+      --accent:#f2c84b;
+      --accent-soft:#ffec9a33;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+
+    body{
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:
+        radial-gradient(circle at 10% 0%, #2a3a80 0%, transparent 55%),
+        radial-gradient(circle at 90% 0%, #462a80 0%, transparent 55%),
+        radial-gradient(circle at 50% 110%, #12335f 0%, transparent 55%),
+        linear-gradient(180deg,var(--bg-start),var(--bg-end));
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* TOP BAR */
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:14px 24px;
+      background:rgba(6,10,30,0.80);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      position:sticky;
+      top:0;
+      z-index:20;
+    }
+    .top-left,.top-right{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .lang-btn{
+      border:none;
+      border-radius:50%;
+      width:34px;height:34px;
+      cursor:pointer;
+      background-size:cover;
+      background-position:center;
+      transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;
+      border:2px solid transparent;
+    }
+    .flag-en{background-image:url('https://flagcdn.com/w40/gb.png');}
+    .flag-tr{background-image:url('https://flagcdn.com/w40/tr.png');}
+    .lang-btn.active{
+      box-shadow:0 0 12px rgba(255,215,0,.8);
+      border-color:#ffd54f;
+      transform:scale(1.08);
+    }
+    .lang-btn:hover{transform:scale(1.12);}
+
+    .nav-btn{
+      border:0;
+      border-radius:20px;
+      background:rgba(255,255,255,.09);
+      color:#fff;
+      padding:7px 14px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:13px;
+      display:flex;
+      align-items:center;
+      gap:4px;
+      transition:all .25s ease;
+    }
+    .nav-btn:hover{filter:brightness(1.2);transform:translateY(-1px);}
+    .user-label{
+      font-size:13px;
+      color:#ffe680;
+      text-shadow:0 0 8px rgba(255,215,0,.4);
+      margin-right:4px;
+    }
+
+    /* MAIN LAYOUT */
+    .wrapper{
+      flex:1;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      padding:32px 16px 42px;
+    }
+    .shell{
+      width:100%;
+      max-width:1120px;
+      background:radial-gradient(circle at 0% 0%,#1b2754 0%,transparent 55%)
+                ,radial-gradient(circle at 100% 0%,#35215b 0%,transparent 55%)
+                ,rgba(4,8,30,.96);
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:
+        0 0 40px rgba(0,0,0,.75),
+        0 0 60px rgba(26,76,182,.45);
+      padding:24px;
+      display:grid;
+      grid-template-columns:minmax(0,1.15fr) minmax(0,0.95fr);
+      gap:26px;
+    }
+    @media(max-width:960px){
+      .shell{grid-template-columns:1fr;}
+    }
+
+    /* LEFT SIDE */
+    .section-title{
+      font-family:'Cinzel',serif;
+      color:#ffe37a;
+      font-size:26px;
+      letter-spacing:0.05em;
+      margin-bottom:8px;
+      text-shadow:0 0 14px rgba(255,220,120,.7);
+      text-align:left;
+    }
+    .section-sub{
+      font-size:14px;
+      color:#c5d0ff;
+      text-align:left;
+      line-height:1.7;
+      margin-bottom:16px;
+    }
+
+    .label{
+      text-align:left;
+      font-size:13px;
+      font-weight:600;
+      color:#ffe680;
+      margin-bottom:6px;
+      margin-top:14px;
+    }
+
+    .pill-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .pill{
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.18);
+      padding:6px 12px;
+      font-size:12px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      cursor:pointer;
+      background:rgba(4,8,30,.9);
+      color:#d7e0ff;
+      transition:all .2s ease;
+    }
+    .pill input{display:none;}
+    .pill span.icon{
+      width:18px;height:18px;
+      border-radius:50%;
+      border:2px solid rgba(255,255,255,.35);
+      display:inline-block;
+      position:relative;
+    }
+    .pill span.icon::after{
+      content:"";
+      position:absolute;
+      inset:3px;
+      border-radius:50%;
+      background:linear-gradient(120deg,#ffd700,#ffb600);
+      opacity:0;
+      transform:scale(.3);
+      transition:all .2s ease;
+    }
+    .pill.active{
+      border-color:#ffd54f;
+      box-shadow:0 0 14px rgba(255,215,0,.55);
+      background:radial-gradient(circle at 0% 0%,#403000,#120c30);
+    }
+    .pill.active span.icon::after{
+      opacity:1;
+      transform:scale(1);
+    }
+
+    /* UPLOAD BOX */
+    .upload-box{
+      border-radius:14px;
+      border:1px dashed rgba(255,255,255,.25);
+      background:rgba(6,10,35,.9);
+      padding:12px;
+      margin-top:4px;
+    }
+    .upload-inner{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+    .upload-info{
+      flex:1;
+      text-align:left;
+      font-size:13px;
+      color:#d0d6ff;
+    }
+    .upload-info span{
+      display:block;
+      font-size:12px;
+      color:#9aa5dd;
+      margin-top:3px;
+    }
+    .upload-btn{
+      border:0;
+      border-radius:999px;
+      padding:8px 16px;
+      background:linear-gradient(120deg,#ffd700,#ffb600,#ffe680);
+      color:#111;
+      font-weight:700;
+      cursor:pointer;
+      font-size:13px;
+      box-shadow:0 0 12px rgba(255,215,0,.4);
+      white-space:nowrap;
+      transition:all .25s ease;
+    }
+    .upload-btn:hover{transform:scale(1.05);}
+    #energyImage{display:none;}
+
+    .preview{
+      margin-top:10px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-size:12px;
+      color:#aeb6ff;
+    }
+    .preview img{
+      width:60px;height:60px;
+      border-radius:10px;
+      object-fit:cover;
+      box-shadow:0 0 14px rgba(0,0,0,.8);
+    }
+
+    textarea{
+      width:100%;
+      min-height:100px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.18);
+      background:radial-gradient(circle at 0% 0%,#141c46 0%,#050922 55%);
+      color:#f0f4ff;
+      padding:10px;
+      font-family:inherit;
+      font-size:14px;
+      resize:vertical;
+      outline:none;
+      box-shadow:inset 0 0 12px rgba(0,0,0,.45);
+      margin-top:4px;
+    }
+    textarea::placeholder{
+      color:#808abf;
+      font-size:13px;
+    }
+
+    .primary-btn{
+      margin-top:16px;
+      border:0;
+      border-radius:12px;
+      padding:10px 18px;
+      background:linear-gradient(120deg,#ffd700,#ffb600,#ffe680);
+      color:#111;
+      font-weight:800;
+      font-size:14px;
+      cursor:pointer;
+      box-shadow:
+        0 0 18px rgba(255,215,0,.4),
+        0 0 32px rgba(255,215,0,.25);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      transition:all .25s ease;
+    }
+    .primary-btn:hover{transform:translateY(-1px) scale(1.03);}
+    .primary-btn:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+      transform:none;
+      box-shadow:none;
+    }
+
+    .status{
+      margin-top:8px;
+      font-size:12px;
+      color:#aeb6ff;
+      text-align:left;
+      min-height:16px;
+    }
+
+    /* RIGHT SIDE – RESULT */
+    .result-box{
+      border-radius:18px;
+      background:
+        radial-gradient(circle at 0% 0%,rgba(255,215,120,.13) 0%,transparent 55%),
+        radial-gradient(circle at 100% 100%,rgba(90,180,255,.18) 0%,transparent 55%),
+        rgba(4,9,35,.94);
+      border:1px solid rgba(255,255,255,.18);
+      padding:18px;
+      box-shadow:0 0 26px rgba(0,0,0,.5);
+      display:flex;
+      flex-direction:column;
+      height:100%;
+    }
+    .result-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:8px;
+      gap:8px;
+    }
+    .result-title{
+      font-size:15px;
+      font-weight:700;
+      color:#ffd966;
+    }
+    .energy-tags{
+      font-size:11px;
+      color:#b1c0ff;
+      margin-bottom:4px;
+    }
+    .audio-btn{
+      border:0;
+      border-radius:999px;
+      padding:6px 12px;
+      font-size:12px;
+      font-weight:600;
+      background:rgba(255,255,255,.12);
+      color:#fff;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .audio-btn[disabled]{opacity:.5;cursor:not-allowed;}
+
+    .result-content{
+      margin-top:6px;
+      font-size:14px;
+      color:#dbe3ff;
+      text-align:left;
+      line-height:1.7;
+      overflow-y:auto;
+      max-height:270px;
+      padding-right:4px;
+      white-space:pre-wrap;
+    }
+    .result-hint{
+      font-size:12px;
+      color:#9098d0;
+      margin-top:8px;
+    }
+
+    /* FOOTER */
+    footer{
+      border-top:1px solid rgba(255,255,255,.08);
+      padding:18px;
+      font-size:13px;
+      color:#aeb6cf;
+      text-align:center;
+    }
+    footer a{
+      color:#ffd54f;
+      text-decoration:none;
+      font-weight:600;
+    }
+    footer a:hover{
+      color:#fff6b0;
+      text-shadow:0 0 10px rgba(255,255,120,.6);
+    }
+  </style>
+</head>
+<body>
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="top-left">
+      <button class="lang-btn flag-en" id="btn-en"></button>
+      <button class="lang-btn flag-tr" id="btn-tr"></button>
+    </div>
+    <div class="top-right">
+      <span class="user-label" id="userLabel"></span>
+      <button class="nav-btn" id="backBtn">⬅ App</button>
+      <button class="nav-btn" id="logoutBtn">Logout</button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="wrapper">
+    <div class="shell">
+      <!-- LEFT PANEL -->
+      <div>
+        <h1 class="section-title" id="title">Energy & Dreams Reading</h1>
+        <p class="section-sub" id="subtitle">
+          Share your dream or energy state. MystAI will read your emotional, spiritual and subconscious patterns through AI.
+        </p>
+
+        <div class="label" id="focusLabel">Energy Focus</div>
+        <div class="pill-row" id="focusRow">
+          <label class="pill active" data-value="love">
+            <input type="radio" name="focus" value="love" checked />
+            <span class="icon"></span>
+            <span id="focusLoveText">Love & Relationships</span>
+          </label>
+          <label class="pill" data-value="career">
+            <input type="radio" name="focus" value="career" />
+            <span class="icon"></span>
+            <span id="focusCareerText">Career & Money</span>
+          </label>
+          <label class="pill" data-value="spiritual">
+            <input type="radio" name="focus" value="spiritual" />
+            <span class="icon"></span>
+            <span id="focusSpiritualText">Spiritual Path</span>
+          </label>
+          <label class="pill" data-value="health">
+            <input type="radio" name="focus" value="health" />
+            <span class="icon"></span>
+            <span id="focusHealthText">Health & Balance</span>
+          </label>
+          <label class="pill" data-value="general">
+            <input type="radio" name="focus" value="general" />
+            <span class="icon"></span>
+            <span id="focusGeneralText">General Energy</span>
+          </label>
+        </div>
+
+        <div class="label" id="uploadLabel">Optional Image</div>
+        <div class="upload-box">
+          <div class="upload-inner">
+            <div class="upload-info">
+              <strong id="uploadMain">Upload a dream, aura or symbol image (optional)</strong>
+              <span id="uploadSub">For now, MystAI focuses mainly on your written energy & dream description. Visual analysis will be enhanced later.</span>
+            </div>
+            <button class="upload-btn" id="uploadBtn">📷 <span id="uploadBtnText">Choose Image</span></button>
+            <input type="file" id="energyImage" accept="image/*" />
+          </div>
+          <div class="preview" id="previewBox" style="display:none;">
+            <img id="previewImg" alt="Preview" />
+            <span id="previewText">Image selected.</span>
+          </div>
+        </div>
+
+        <div class="label" id="dreamLabel">Your Dream / Energy Story</div>
+        <textarea id="dreamText"
+          placeholder="Describe your dream, current energy, repeating symbols or feelings in as much detail as you like..."></textarea>
+
+        <button class="primary-btn" id="analyzeBtn">
+          ✨ <span id="analyzeText">Read My Energy</span>
+        </button>
+
+        <div class="status" id="statusText"></div>
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div class="result-box">
+        <div class="result-header">
+          <div>
+            <div class="result-title" id="resultTitle">Your Energy Reading</div>
+            <div class="energy-tags" id="resultFocusText">Focus: Love & Relationships</div>
+          </div>
+          <button class="audio-btn" id="listenBtn" disabled>
+            🔊 <span id="listenLabel">Listen</span>
+          </button>
+        </div>
+        <div class="result-content" id="resultText">
+          ✨ After you describe your dream or energy and send it, MystAI will reveal your intuitive energy reading here. ✨
+        </div>
+        <div class="result-hint" id="resultHint">
+          MystAI is an AI-based entertainment tool and should not be taken as professional, financial, psychological or medical advice.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>
+      © 2025 MystAI.ai — <span id="rightsLabel">All Rights Reserved.</span>
+      <span id="devLabel">Developed by GALAXY 🌌</span><br />
+      <span id="contactLabel">Contact us:</span>
+      <a href="mailto:support@mystai.ai">support@mystai.ai</a>
+    </p>
+  </footer>
+
+  <audio id="audioPlayer" style="display:none;"></audio>
+
+  <script type="module">
+    /* ====== CONFIG ====== */
+    const BACKEND_URL = "https://mystai-international-1.onrender.com";
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
+      authDomain: "mystai-6cca2.firebaseapp.com",
+      projectId: "mystai-6cca2",
+      storageBucket: "mystai-6cca2.appspot.com",
+      messagingSenderId: "624127781219",
+      appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    /* ====== ELEMENTS ====== */
+    const btnEn       = document.getElementById("btn-en");
+    const btnTr       = document.getElementById("btn-tr");
+    const backBtn     = document.getElementById("backBtn");
+    const logoutBtn   = document.getElementById("logoutBtn");
+    const userLabel   = document.getElementById("userLabel");
+
+    const titleEl       = document.getElementById("title");
+    const subtitleEl    = document.getElementById("subtitle");
+    const focusLabel    = document.getElementById("focusLabel");
+    const focusRow      = document.getElementById("focusRow");
+    const focusLoveText = document.getElementById("focusLoveText");
+    const focusCareerText = document.getElementById("focusCareerText");
+    const focusSpiritualText = document.getElementById("focusSpiritualText");
+    const focusHealthText = document.getElementById("focusHealthText");
+    const focusGeneralText = document.getElementById("focusGeneralText");
+
+    const uploadLabel   = document.getElementById("uploadLabel");
+    const uploadMain    = document.getElementById("uploadMain");
+    const uploadSub     = document.getElementById("uploadSub");
+    const uploadBtn     = document.getElementById("uploadBtn");
+    const uploadBtnText = document.getElementById("uploadBtnText");
+    const energyImage   = document.getElementById("energyImage");
+    const previewBox    = document.getElementById("previewBox");
+    const previewImg    = document.getElementById("previewImg");
+    const previewText   = document.getElementById("previewText");
+
+    const dreamLabel    = document.getElementById("dreamLabel");
+    const dreamText     = document.getElementById("dreamText");
+    const analyzeBtn    = document.getElementById("analyzeBtn");
+    const analyzeText   = document.getElementById("analyzeText");
+    const statusText    = document.getElementById("statusText");
+
+    const resultTitle   = document.getElementById("resultTitle");
+    const resultFocusText = document.getElementById("resultFocusText");
+    const resultText    = document.getElementById("resultText");
+    const resultHint    = document.getElementById("resultHint");
+    const listenBtn     = document.getElementById("listenBtn");
+    const listenLabel   = document.getElementById("listenLabel");
+    const audioPlayer   = document.getElementById("audioPlayer");
+
+    const rightsLabel  = document.getElementById("rightsLabel");
+    const devLabel     = document.getElementById("devLabel");
+    const contactLabel = document.getElementById("contactLabel");
+
+    /* ====== i18n ====== */
+    const i18n = {
+      en:{
+        title:"Energy & Dreams Reading",
+        subtitle:"Share your dream or energy state. MystAI will read your emotional, spiritual and subconscious patterns through AI.",
+        focusLabel:"Energy Focus",
+        focusLove:"Love & Relationships",
+        focusCareer:"Career & Money",
+        focusSpiritual:"Spiritual Path",
+        focusHealth:"Health & Balance",
+        focusGeneral:"General Energy",
+        uploadLabel:"Optional Image",
+        uploadMain:"Upload a dream, aura or symbol image (optional)",
+        uploadSub:"For now, MystAI focuses mainly on your written energy & dream description. Visual analysis will be enhanced later.",
+        uploadBtn:"Choose Image",
+        imageSelected:"Image selected.",
+        dreamLabel:"Your Dream / Energy Story",
+        placeholder:"Describe your dream, current energy, repeating symbols or feelings in as much detail as you like...",
+        analyze:"Read My Energy",
+        statusIdle:"",
+        statusLoading:"Reading your aura and dream energy...",
+        statusDone:"Your energy reading is ready.",
+        statusError:"An error occurred. Please try again.",
+        mustText:"Please write at least a short dream or energy description.",
+        resultTitle:"Your Energy Reading",
+        resultInitial:"✨ After you describe your dream or energy and send it, MystAI will reveal your intuitive energy reading here. ✨",
+        resultHint:"MystAI is an AI-based entertainment tool and should not be taken as professional, financial, psychological or medical advice.",
+        resultFocusPrefix:"Focus: ",
+        listen:"Listen",
+        listening:"Playing...",
+        back:"Back to App",
+        logout:"Logout",
+        userWelcome:"Welcome, ",
+        rights:"All Rights Reserved.",
+        dev:"Developed by GALAXY 🌌",
+        contact:"Contact us:"
+      },
+      tr:{
+        title:"Enerji & Rüyalar Yorumu",
+        subtitle:"Rüyanı veya şu anki enerjini paylaş. MystAI, duygusal ve ruhsal kalıplarını yapay zekâ ile sezgisel olarak yorumlasın.",
+        focusLabel:"Enerji Odağı",
+        focusLove:"Aşk & İlişkiler",
+        focusCareer:"Kariyer & Para",
+        focusSpiritual:"Ruhsal Yol",
+        focusHealth:"Sağlık & Denge",
+        focusGeneral:"Genel Enerji",
+        uploadLabel:"Opsiyonel Görsel",
+        uploadMain:"Rüya, aura veya sembol görseli yükle (isteğe bağlı)",
+        uploadSub:"Şimdilik MystAI daha çok yazdığın rüya ve enerji metnine odaklanıyor. Görsel analiz yakında güçlendirilecek.",
+        uploadBtn:"Görsel Seç",
+        imageSelected:"Görsel seçildi.",
+        dreamLabel:"Rüyan / Enerji Hikâyen",
+        placeholder:"Rüyanı, hislerini, tekrar eden sembolleri veya enerjini dilediğin kadar detaylı anlat...",
+        analyze:"Enerjimi Yorumla",
+        statusIdle:"",
+        statusLoading:"Enerjin okunuyor, rüya sembollerin çözümleniyor...",
+        statusDone:"Enerji yorumun hazır.",
+        statusError:"Bir hata oluştu. Lütfen tekrar dene.",
+        mustText:"Lütfen en azından kısa bir rüya/enerji açıklaması yaz.",
+        resultTitle:"Enerji Yorumun",
+        resultInitial:"✨ Rüyanı veya enerjini yazıp gönderdikten sonra yapay zekâ enerji yorumun burada görünecek. ✨",
+        resultHint:"MystAI eğlence amaçlı bir yapay zekâ yorumlayıcısıdır; tıbbi, finansal veya profesyonel tavsiye yerine geçmez.",
+        resultFocusPrefix:"Odağı: ",
+        listen:"Dinle",
+        listening:"Çalıyor...",
+        back:"Uygulamaya Dön",
+        logout:"Çıkış Yap",
+        userWelcome:"Hoş geldin, ",
+        rights:"Tüm Hakları Saklıdır.",
+        dev:"GALAXY tarafından geliştirilmiştir 🌌",
+        contact:"İletişim:"
+      }
+    };
+
+    let activeLang = localStorage.getItem("myst_lang") || "en";
+    let currentFocus = "love";
+
+    function applyLang(lang){
+      activeLang = lang;
+      localStorage.setItem("myst_lang",lang);
+      const t = i18n[lang];
+
+      titleEl.textContent       = t.title;
+      subtitleEl.textContent    = t.subtitle;
+      focusLabel.textContent    = t.focusLabel;
+      focusLoveText.textContent = t.focusLove;
+      focusCareerText.textContent = t.focusCareer;
+      focusSpiritualText.textContent = t.focusSpiritual;
+      focusHealthText.textContent = t.focusHealth;
+      focusGeneralText.textContent = t.focusGeneral;
+      uploadLabel.textContent   = t.uploadLabel;
+      uploadMain.textContent    = t.uploadMain;
+      uploadSub.textContent     = t.uploadSub;
+      uploadBtnText.textContent = t.uploadBtn;
+      previewText.textContent   = t.imageSelected;
+      dreamLabel.textContent    = t.dreamLabel;
+      dreamText.placeholder     = t.placeholder;
+      analyzeText.textContent   = t.analyze;
+      resultTitle.textContent   = t.resultTitle;
+      resultText.textContent    = t.resultInitial;
+      resultHint.textContent    = t.resultHint;
+      listenLabel.textContent   = t.listen;
+      rightsLabel.textContent   = t.rights;
+      devLabel.textContent      = t.dev;
+      contactLabel.textContent  = t.contact;
+      backBtn.textContent       = "⬅ " + t.back;
+      logoutBtn.textContent     = t.logout;
+
+      updateResultFocusLabel();
+
+      btnEn.classList.toggle("active",lang==="en");
+      btnTr.classList.toggle("active",lang==="tr");
+
+      if(auth.currentUser){
+        const name = auth.currentUser.displayName || auth.currentUser.email;
+        userLabel.textContent = t.userWelcome + name;
+      }
+    }
+
+    function updateResultFocusLabel(){
+      const t = i18n[activeLang];
+      let focusText = "";
+      switch(currentFocus){
+        case "love": focusText = t.focusLove; break;
+        case "career": focusText = t.focusCareer; break;
+        case "spiritual": focusText = t.focusSpiritual; break;
+        case "health": focusText = t.focusHealth; break;
+        default: focusText = t.focusGeneral;
+      }
+      resultFocusText.textContent = t.resultFocusPrefix + focusText;
+    }
+
+    btnEn.addEventListener("click",()=>applyLang("en"));
+    btnTr.addEventListener("click",()=>applyLang("tr"));
+
+    backBtn.addEventListener("click",()=>{ window.location.href = "app.html"; });
+    logoutBtn.addEventListener("click",()=>{ signOut(auth).then(()=>window.location.href="login.html"); });
+
+    onAuthStateChanged(auth,(user)=>{
+      if(!user){
+        window.location.href = "login.html";
+        return;
+      }
+      const t = i18n[activeLang];
+      const name = user.displayName || user.email;
+      userLabel.textContent = t.userWelcome + name;
+    });
+
+    applyLang(activeLang);
+
+    /* ====== FOCUS PILL LOGIC ====== */
+    Array.from(focusRow.querySelectorAll(".pill")).forEach(pill=>{
+      pill.addEventListener("click",()=>{
+        Array.from(focusRow.querySelectorAll(".pill")).forEach(p=>p.classList.remove("active"));
+        pill.classList.add("active");
+        currentFocus = pill.getAttribute("data-value");
+        const radio = pill.querySelector("input[type='radio']");
+        if(radio) radio.checked = true;
+        updateResultFocusLabel();
+      });
+    });
+
+    /* ====== IMAGE PREVIEW (opsiyonel) ====== */
+    uploadBtn.addEventListener("click",()=>energyImage.click());
+    energyImage.addEventListener("change",()=>{
+      const file = energyImage.files[0];
+      if(!file){
+        previewBox.style.display = "none";
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      previewImg.src = url;
+      previewBox.style.display = "flex";
+    });
+
+    /* ====== ANALYZE (BACKEND + FIRESTORE) ====== */
+    analyzeBtn.addEventListener("click",async()=>{
+      const t = i18n[activeLang];
+      const user = auth.currentUser;
+      if(!user){
+        alert(activeLang==="tr" ? "Lütfen önce giriş yap." : "Please log in first.");
+        return;
+      }
+
+      const text = dreamText.value.trim();
+      if(!text){
+        alert(t.mustText);
+        return;
+      }
+
+      analyzeBtn.disabled = true;
+      statusText.textContent = t.statusLoading;
+      resultText.textContent = "";
+      listenBtn.disabled = true;
+      audioPlayer.pause();
+      audioPlayer.currentTime = 0;
+      audioPlayer.src = "";
+
+      try{
+        if(!BACKEND_URL || BACKEND_URL.includes("YOUR-BACKEND-URL")){
+          statusText.textContent = "Backend URL is not configured.";
+          analyzeBtn.disabled = false;
+          return;
+        }
+
+        const focusLabelForPrompt = (() => {
+          if(activeLang==="tr"){
+            switch(currentFocus){
+              case "love": return "Aşk & ilişkiler odaklı enerji";
+              case "career": return "Kariyer & para odaklı enerji";
+              case "spiritual": return "Ruhsal yol & farkındalık enerjisi";
+              case "health": return "Sağlık & yaşam gücü enerjisi";
+              default: return "Genel enerji dengesi";
+            }
+          }else{
+            switch(currentFocus){
+              case "love": return "Love & relationships focus";
+              case "career": return "Career & money focus";
+              case "spiritual": return "Spiritual path & awakening focus";
+              case "health": return "Health & vitality focus";
+              default: return "General energy balance focus";
+            }
+          }
+        })();
+
+        const systemPrompt =
+          activeLang==="tr"
+            ? "Sen MystAI adında sezgisel ama net konuşan bir enerji ve rüya yorumcususun. Kullanıcının rüyasını ve enerjisini sıcak, mistik ama aynı zamanda toparlayıcı ve motive edici bir dille yorumla."
+            : "You are an intuitive but clear energy and dream reader named MystAI. Interpret the user's energy in a mystical, warm and empowering style.";
+
+        const userPrompt =
+          (activeLang==="tr"
+            ? "Bu bir enerji & rüya yorumudur.\nEnerji odağı: "
+            : "This is an energy & dreams reading.\nEnergy focus: ") +
+          focusLabelForPrompt +
+          "\n\n" +
+          (activeLang==="tr"
+            ? "Kullanıcının rüyası / enerji hikâyesi:\n"
+            : "User's dream / energy story:\n") +
+          text;
+
+        const res = await fetch(`${BACKEND_URL}/predict`,{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({ user_input: userPrompt })
+        });
+
+        if(!res.ok){
+          throw new Error("HTTP "+res.status);
+        }
+
+        const data = await res.json();
+        const replyText = data?.text || (activeLang==="tr" ? "Yanıt alınamadı." : "No response.");
+        const audioPath = data?.audio;
+
+        resultText.textContent = replyText;
+        statusText.textContent = t.statusDone;
+
+        // Firestore kaydı
+        try{
+          await addDoc(collection(db,"fortunes"),{
+            user: user.email,
+            type: "Energy & Dreams Reading",
+            focus: currentFocus,
+            story: text,
+            result: replyText,
+            createdAt: new Date().toISOString(),
+            source: "energy-page"
+          });
+        }catch(e){
+          console.warn("Firestore save error:",e);
+        }
+
+        if(audioPath){
+          const fullURL = audioPath.startsWith("http") ? audioPath : `${BACKEND_URL}${audioPath}`;
+          audioPlayer.src = fullURL;
+          listenBtn.disabled = false;
+        }
+      }catch(err){
+        console.error(err);
+        statusText.textContent = t.statusError;
+        resultText.textContent =
+          (activeLang==="tr" ? "Hata: " : "Error: ") + (err?.message || String(err));
+      }finally{
+        analyzeBtn.disabled = false;
+      }
+    });
+
+    listenBtn.addEventListener("click",()=>{
+      if(!audioPlayer.src) return;
+      const t = i18n[activeLang];
+      listenLabel.textContent = t.listening;
+      audioPlayer.play().catch(()=>{});
+      audioPlayer.onended = ()=>{ listenLabel.textContent = t.listen; };
+    });
+  </script>
+</body>
+</html>
