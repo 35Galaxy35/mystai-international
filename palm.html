@@ -1,1 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MystAI — AI Palm Reading</title>
+  <link rel="icon" type="image/png" href="mystai-logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
 
+  <style>
+    :root {
+      --bg-start:#050716;
+      --bg-end:#050915;
+      --card:#060e26;
+      --card-soft:#0b1636;
+      --accent:#f6d35f;
+      --accent-soft:#f3d97f;
+      --text:#e4e9ff;
+      --muted:#9ba5d2;
+      --danger:#ff4b6b;
+    }
+
+    *{box-sizing:border-box;}
+
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 20% -10%, #293b86 0, transparent 55%),
+        radial-gradient(circle at 80% -10%, #5a378e 0, transparent 60%),
+        radial-gradient(circle at 50% 120%, #1b285a 0, transparent 60%),
+        linear-gradient(180deg, var(--bg-start), var(--bg-end));
+      background-attachment:fixed;
+    }
+
+    /* Top Bar */
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:14px 22px;
+      background:rgba(3,5,18,.80);
+      backdrop-filter:blur(18px);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .top-left,.top-right{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .flag-btn{
+      width:34px;height:34px;
+      border-radius:50%;
+      border:2px solid transparent;
+      background-size:cover;
+      background-position:center;
+      cursor:pointer;
+      box-shadow:0 0 0 1px rgba(255,255,255,.08);
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    .flag-btn.en{background-image:url("https://flagcdn.com/w40/gb.png");}
+    .flag-btn.tr{background-image:url("https://flagcdn.com/w40/tr.png");}
+    .flag-btn.active{
+      transform:scale(1.06);
+      border-color:var(--accent);
+      box-shadow:0 0 12px rgba(246,211,95,.85);
+    }
+    .flag-btn:hover{transform:scale(1.08);}
+
+    .user-label{
+      font-size:13px;
+      color:var(--accent-soft);
+      text-shadow:0 0 12px rgba(246,211,95,.6);
+      white-space:nowrap;
+    }
+
+    .nav-pill{
+      border:0;
+      border-radius:999px;
+      padding:7px 14px;
+      font-size:13px;
+      font-weight:600;
+      cursor:pointer;
+      background:rgba(255,255,255,.12);
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      gap:5px;
+      transition:all .18s ease;
+    }
+    .nav-pill:hover{
+      filter:brightness(1.15);
+      transform:translateY(-1px);
+    }
+
+    /* Layout */
+    .wrapper{
+      flex:1;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      padding:30px 14px 40px;
+    }
+
+    .shell{
+      width:100%;
+      max-width:1120px;
+      background:radial-gradient(circle at top,#1a2658 0,#080d22 55%,#050812 100%);
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:
+        0 0 40px rgba(0,0,0,.55),
+        0 0 90px rgba(78,56,163,.55);
+      padding:26px 26px 24px;
+      display:grid;
+      grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);
+      gap:22px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .shell::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(255,255,255,.06), transparent 55%),
+        radial-gradient(circle at 100% 0%, rgba(246,211,95,.18), transparent 50%);
+      opacity:.55;
+      mix-blend-mode:soft-light;
+      pointer-events:none;
+    }
+
+    @media(max-width:930px){
+      .shell{
+        grid-template-columns:1fr;
+        padding:22px 18px 20px;
+      }
+    }
+
+    /* Section headers */
+    .section-kicker{
+      font-size:11px;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--accent-soft);
+      text-align:left;
+      margin-bottom:4px;
+    }
+    .section-title{
+      font-family:"Cinzel",serif;
+      font-size:28px;
+      color:#ffe8a8;
+      text-align:left;
+      margin:0 0 10px;
+      text-shadow:0 0 14px rgba(246,211,95,.7);
+    }
+    .section-sub{
+      text-align:left;
+      font-size:14px;
+      color:var(--muted);
+      line-height:1.6;
+      margin-bottom:18px;
+    }
+
+    .step-row{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      margin-bottom:8px;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .step-badge{
+      width:18px;height:18px;
+      border-radius:50%;
+      background:linear-gradient(135deg,var(--accent),#ffefb5);
+      color:#221b03;
+      display:flex;align-items:center;justify-content:center;
+      font-size:11px;
+      font-weight:800;
+      box-shadow:0 0 10px rgba(246,211,95,.85);
+      flex-shrink:0;
+      margin-top:2px;
+    }
+
+    .divider{
+      height:1px;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.24),transparent);
+      margin:14px 0 10px;
+      opacity:.7;
+    }
+
+    /* Labels & controls */
+    .field-label{
+      font-size:12px;
+      font-weight:600;
+      color:var(--accent-soft);
+      margin-bottom:6px;
+      text-align:left;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+
+    .hand-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .hand-pill{
+      flex:1;
+      min-width:150px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(4,9,30,.7);
+      border:1px solid rgba(255,255,255,.16);
+      cursor:pointer;
+      font-size:12px;
+      color:var(--muted);
+      transition:all .18s ease;
+    }
+    .hand-pill input{accent-color:var(--accent);}
+    .hand-pill span strong{color:var(--text);}
+    .hand-pill.active{
+      background:linear-gradient(120deg,var(--accent),#ffecb0);
+      box-shadow:0 0 18px rgba(246,211,95,.9);
+      color:#241c04;
+      border-color:rgba(0,0,0,.4);
+    }
+    .hand-pill.active span strong{color:#241c04;}
+    .hand-pill:hover{transform:translateY(-1px);}
+
+    /* Upload box */
+    .upload-box{
+      border-radius:14px;
+      border:1px dashed rgba(255,255,255,.32);
+      background:rgba(4,8,26,.92);
+      padding:11px 11px 10px;
+    }
+    .upload-inner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .upload-copy{
+      text-align:left;
+      font-size:13px;
+      color:var(--text);
+      flex:1;
+    }
+    .upload-copy span{
+      display:block;
+      font-size:11px;
+      color:var(--muted);
+      margin-top:3px;
+    }
+    .upload-btn{
+      border:0;
+      border-radius:999px;
+      padding:8px 15px;
+      font-size:13px;
+      font-weight:700;
+      cursor:pointer;
+      background:radial-gradient(circle at 0 0,#fff7d2 0,#ffdf7a 35%,#f8c94c 100%);
+      color:#241b03;
+      box-shadow:0 0 18px rgba(246,211,95,.9);
+      display:flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+      transition:all .18s ease;
+    }
+    .upload-btn:hover{
+      transform:translateY(-1px) scale(1.02);
+      filter:brightness(1.05);
+    }
+    #palmImage{display:none;}
+
+    .preview{
+      margin-top:7px;
+      display:none;
+      align-items:center;
+      gap:10px;
+      font-size:11px;
+      color:var(--muted);
+    }
+    .preview img{
+      width:62px;height:62px;
+      border-radius:10px;
+      object-fit:cover;
+      box-shadow:0 0 14px rgba(0,0,0,.7);
+    }
+
+    textarea{
+      width:100%;
+      min-height:90px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.15);
+      background:radial-gradient(circle at top,#111a46,#04081c);
+      color:var(--text);
+      padding:10px 11px;
+      font-size:13px;
+      font-family:inherit;
+      resize:vertical;
+      outline:none;
+      box-shadow:inset 0 0 12px rgba(0,0,0,.55);
+    }
+    textarea::placeholder{
+      color:#767fb3;
+    }
+
+    .primary-btn{
+      margin-top:14px;
+      border:0;
+      border-radius:14px;
+      padding:10px 18px;
+      font-size:14px;
+      font-weight:800;
+      cursor:pointer;
+      background:conic-gradient(from 210deg at 50% 50%,#ffe9b0,#fbd36a,#f8c24a,#ffe9b0);
+      color:#241b03;
+      box-shadow:
+        0 0 22px rgba(246,211,95,.95),
+        0 0 60px rgba(246,211,95,.45);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      transition:all .18s ease;
+    }
+    .primary-btn:hover{
+      transform:translateY(-2px) scale(1.02);
+      filter:brightness(1.03);
+    }
+    .primary-btn:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+      transform:none;
+      box-shadow:none;
+    }
+
+    .status{
+      margin-top:6px;
+      font-size:11px;
+      color:var(--muted);
+      text-align:left;
+      min-height:14px;
+    }
+
+    /* Right side – Result */
+    .result-panel{
+      position:relative;
+      border-radius:18px;
+      background:radial-gradient(circle at 0 0,#324089,#080f2a 40%,#040816 100%);
+      border:1px solid rgba(255,255,255,.18);
+      padding:14px 13px 12px;
+      box-shadow:0 0 26px rgba(0,0,0,.75);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+    .result-panel::before{
+      content:"";
+      position:absolute;
+      inset:-20%;
+      background:
+        radial-gradient(circle at 0 0,rgba(246,211,95,.2),transparent 50%),
+        radial-gradient(circle at 100% 0,rgba(146,214,255,.18),transparent 55%);
+      opacity:.9;
+      mix-blend-mode:soft-light;
+      pointer-events:none;
+    }
+
+    .result-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      position:relative;
+      z-index:1;
+    }
+    .result-title{
+      font-size:14px;
+      font-weight:700;
+      color:#ffe6a0;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .result-sub{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:2px;
+    }
+
+    .audio-btn{
+      border-radius:999px;
+      border:0;
+      padding:6px 11px;
+      font-size:11px;
+      font-weight:600;
+      cursor:pointer;
+      background:rgba(3,7,26,.9);
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      gap:6px;
+      box-shadow:0 0 0 1px rgba(255,255,255,.22);
+      transition:all .18s ease;
+    }
+    .audio-btn:hover{filter:brightness(1.1);}
+    .audio-btn:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+      box-shadow:none;
+    }
+
+    .result-body{
+      position:relative;
+      z-index:1;
+      margin-top:10px;
+      flex:1;
+      display:flex;
+      flex-direction:column;
+    }
+    .result-text{
+      flex:1;
+      font-size:13px;
+      color:var(--text);
+      line-height:1.7;
+      white-space:pre-wrap;
+      overflow-y:auto;
+      max-height:260px;
+      padding-right:4px;
+    }
+    .result-hint{
+      margin-top:8px;
+      font-size:11px;
+      color:var(--muted);
+    }
+
+    /* Footer */
+    footer{
+      border-top:1px solid rgba(255,255,255,.08);
+      padding:16px 10px 18px;
+      text-align:center;
+      font-size:12px;
+      color:#a9b3dc;
+    }
+    footer a{
+      color:var(--accent-soft);
+      text-decoration:none;
+      font-weight:600;
+    }
+    footer a:hover{
+      color:#fffad0;
+      text-shadow:0 0 9px rgba(246,211,95,.8);
+    }
+  </style>
+</head>
+<body>
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="top-left">
+      <button id="btn-en" class="flag-btn en"></button>
+      <button id="btn-tr" class="flag-btn tr"></button>
+    </div>
+    <div class="top-right">
+      <span id="userLabel" class="user-label"></span>
+      <button id="backBtn" class="nav-pill">⬅ Back</button>
+      <button id="logoutBtn" class="nav-pill">Logout</button>
+    </div>
+  </div>
+
+  <div class="wrapper">
+    <div class="shell">
+      <!-- LEFT SIDE -->
+      <div>
+        <div class="section-kicker" id="kickerLabel">MystAI · Palm Oracle</div>
+        <h1 class="section-title" id="titleLabel">AI Palm Reading</h1>
+        <p class="section-sub" id="subtitleLabel">
+          Upload one clear photo of your palm, choose your hand and share your intention.
+          MystAI will read your lines, symbols and energy with AI.
+        </p>
+
+        <div class="step-row">
+          <div class="step-badge">1</div>
+          <div id="step1Text">Choose whether you want to read your left or right hand.</div>
+        </div>
+        <div class="step-row">
+          <div class="step-badge">2</div>
+          <div id="step2Text">Upload a single, clear palm photo (fingers relaxed, full palm visible).</div>
+        </div>
+        <div class="step-row">
+          <div class="step-badge">3</div>
+          <div id="step3Text">Write your question or intention and let MystAI reveal your palm reading.</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- HAND CHOICE -->
+        <div class="field-label" id="handLabel">Which hand will we read?</div>
+        <div class="hand-row">
+          <label class="hand-pill" id="pillLeft">
+            <input type="radio" name="hand" value="left" checked />
+            <span><strong id="leftStrong">Left hand</strong> · <span id="leftDesc">inner world, emotional patterns</span></span>
+          </label>
+          <label class="hand-pill" id="pillRight">
+            <input type="radio" name="hand" value="right" />
+            <span><strong id="rightStrong">Right hand</strong> · <span id="rightDesc">outer world, choices and actions</span></span>
+          </label>
+        </div>
+
+        <!-- UPLOAD -->
+        <div class="field-label" id="uploadLabel">Palm photo</div>
+        <div class="upload-box">
+          <div class="upload-inner">
+            <div class="upload-copy">
+              <strong id="uploadMain">Upload a single, clear photo of your palm</strong>
+              <span id="uploadSub">Place your hand flat, centre it in the frame and make sure the lines are visible. MystAI currently uses the photo as energy context and focuses mainly on your question.</span>
+            </div>
+            <button id="uploadBtn" class="upload-btn">
+              📷 <span id="uploadBtnText">Choose Image</span>
+            </button>
+            <input id="palmImage" type="file" accept="image/*" />
+          </div>
+          <div class="preview" id="previewBox">
+            <img id="previewImg" alt="Palm preview" />
+            <span id="previewText">Image selected.</span>
+          </div>
+        </div>
+
+        <!-- QUESTION -->
+        <div class="field-label" style="margin-top:12px;" id="questionLabel">Your question / intention</div>
+        <textarea id="questionInput" placeholder="Write what you’d like MystAI to focus on: love, destiny, life path, career, health themes..."></textarea>
+
+        <!-- ACTION -->
+        <button id="readBtn" class="primary-btn">
+          🔮 <span id="readBtnText">Read My Palm</span>
+        </button>
+        <div id="statusText" class="status"></div>
+      </div>
+
+      <!-- RIGHT – RESULT -->
+      <div class="result-panel">
+        <div class="result-header">
+          <div>
+            <div class="result-title" id="resultTitle">Your Palm Reading</div>
+            <div class="result-sub" id="resultSub">The AI reading will appear here after you send your palm and question.</div>
+          </div>
+          <button id="listenBtn" class="audio-btn" disabled>
+            🔊 <span id="listenLabel">Listen</span>
+          </button>
+        </div>
+
+        <div class="result-body">
+          <div id="resultText" class="result-text">
+✨ After you choose your hand, upload your palm photo and write your intention, MystAI will reveal your palm reading here. ✨
+          </div>
+          <div id="resultHint" class="result-hint">
+MystAI is an AI-based entertainment tool. It does not replace medical, psychological or professional advice.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 MystAI.ai — <span id="rightsLabel">All Rights Reserved.</span>
+    <span id="devLabel">Developed by GALAXY 🌌</span><br>
+    <span id="contactLabel">Contact us:</span>
+    <a href="mailto:support@mystai.ai">support@mystai.ai</a>
+  </footer>
+
+  <audio id="audioPlayer" style="display:none;"></audio>
+
+  <script type="module">
+    /* ========= CONFIG ========= */
+    const BACKEND_URL = "https://mystai-international-1.onrender.com";
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
+      authDomain: "mystai-6cca2.firebaseapp.com",
+      projectId: "mystai-6cca2",
+      storageBucket: "mystai-6cca2.appspot.com",
+      messagingSenderId: "624127781219",
+      appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    /* ========= ELEMENTS ========= */
+    const btnEn       = document.getElementById("btn-en");
+    const btnTr       = document.getElementById("btn-tr");
+    const backBtn     = document.getElementById("backBtn");
+    const logoutBtn   = document.getElementById("logoutBtn");
+    const userLabel   = document.getElementById("userLabel");
+
+    const kickerLabel  = document.getElementById("kickerLabel");
+    const titleLabel   = document.getElementById("titleLabel");
+    const subtitleLabel= document.getElementById("subtitleLabel");
+    const step1Text    = document.getElementById("step1Text");
+    const step2Text    = document.getElementById("step2Text");
+    const step3Text    = document.getElementById("step3Text");
+
+    const handLabel    = document.getElementById("handLabel");
+    const pillLeft     = document.getElementById("pillLeft");
+    const pillRight    = document.getElementById("pillRight");
+    const leftStrong   = document.getElementById("leftStrong");
+    const rightStrong  = document.getElementById("rightStrong");
+    const leftDesc     = document.getElementById("leftDesc");
+    const rightDesc    = document.getElementById("rightDesc");
+
+    const uploadLabel  = document.getElementById("uploadLabel");
+    const uploadMain   = document.getElementById("uploadMain");
+    const uploadSub    = document.getElementById("uploadSub");
+    const uploadBtn    = document.getElementById("uploadBtn");
+    const uploadBtnText= document.getElementById("uploadBtnText");
+    const palmImage    = document.getElementById("palmImage");
+    const previewBox   = document.getElementById("previewBox");
+    const previewImg   = document.getElementById("previewImg");
+    const previewText  = document.getElementById("previewText");
+
+    const questionLabel= document.getElementById("questionLabel");
+    const questionInput= document.getElementById("questionInput");
+    const readBtn      = document.getElementById("readBtn");
+    const readBtnText  = document.getElementById("readBtnText");
+    const statusText   = document.getElementById("statusText");
+
+    const resultTitle  = document.getElementById("resultTitle");
+    const resultSub    = document.getElementById("resultSub");
+    const resultText   = document.getElementById("resultText");
+    const resultHint   = document.getElementById("resultHint");
+    const listenBtn    = document.getElementById("listenBtn");
+    const listenLabel  = document.getElementById("listenLabel");
+    const audioPlayer  = document.getElementById("audioPlayer");
+
+    const rightsLabel  = document.getElementById("rightsLabel");
+    const devLabel     = document.getElementById("devLabel");
+    const contactLabel = document.getElementById("contactLabel");
+
+    /* ========= i18n ========= */
+    const i18n = {
+      en:{
+        kicker:"MystAI · Palm Oracle",
+        title:"AI Palm Reading",
+        subtitle:"Upload one clear photo of your palm, choose your hand and share your intention. MystAI will read your lines, symbols and energy with AI.",
+        step1:"Choose whether you want to read your left or right hand.",
+        step2:"Upload a single, clear palm photo (fingers relaxed, full palm visible).",
+        step3:"Write your question or intention and let MystAI reveal your palm reading.",
+        handLabel:"Which hand will we read?",
+        leftStrong:"Left hand",
+        rightStrong:"Right hand",
+        leftDesc:"inner world, emotional and spiritual patterns",
+        rightDesc:"outer world, decisions and daily life",
+        uploadLabel:"Palm photo",
+        uploadMain:"Upload a single, clear photo of your palm",
+        uploadSub:"Place your hand flat and centred. MystAI uses the image as energy context and focuses mainly on your question.",
+        uploadBtn:"Choose Image",
+        imageSelected:"Image selected.",
+        questionLabel:"Your question / intention",
+        questionPlaceholder:"Write what you’d like MystAI to focus on: love, destiny, life path, career, health themes...",
+        readBtn:"Read My Palm",
+        statusIdle:"",
+        statusLoading:"Reading your palm… lines, symbols and energy are being interpreted.",
+        statusDone:"Your palm reading is ready.",
+        statusError:"An error occurred. Please try again.",
+        mustQuestion:"Please write at least a short question or intention.",
+        mustImage:"For best results, please upload a palm photo.",
+        resultTitle:"Your Palm Reading",
+        resultSub:"The AI reading will appear here after you send your palm and question.",
+        resultInitial:"✨ After you choose your hand, upload your palm photo and write your intention, MystAI will reveal your palm reading here. ✨",
+        resultHint:"MystAI is an AI-based entertainment tool. It does not replace medical, psychological or professional advice.",
+        listen:"Listen",
+        listening:"Playing...",
+        back:"Back to App",
+        logout:"Logout",
+        rights:"All Rights Reserved.",
+        dev:"Developed by GALAXY 🌌",
+        contact:"Contact us:",
+        welcome:"Welcome, "
+      },
+      tr:{
+        kicker:"MystAI · El Falı Kapısı",
+        title:"Yapay Zekâ El Falı",
+        subtitle:"Avucunun net bir fotoğrafını yükle, okunacak elini seç ve niyetini yaz. MystAI çizgilerini, sembollerini ve enerjini yapay zekâ ile yorumlasın.",
+        step1:"Önce hangi elinin okunacağını seç: sol el mi, sağ el mi?",
+        step2:"Avucunun tek, net bir fotoğrafını yükle (parmaklar rahat, tüm avuç içi görünsün).",
+        step3:"Sorunu veya niyetini yaz; MystAI el falını mistik ama anlaşılır bir dille yorumlasın.",
+        handLabel:"Hangi elini okuyalım?",
+        leftStrong:"Sol el",
+        rightStrong:"Sağ el",
+        leftDesc:"iç dünya, duygusal ve ruhsal yapın",
+        rightDesc:"dış dünya, seçimlerin ve günlük yaşamın",
+        uploadLabel:"Avuç içi fotoğrafı",
+        uploadMain:"Avucunun tek, net bir fotoğrafını yükle",
+        uploadSub:"Elini düz ve ortalı tut; çizgilerin görünür olsun. MystAI şu anda fotoğrafı enerji bağlamı olarak kullanıyor ve esasen soruna odaklanıyor.",
+        uploadBtn:"Görsel Seç",
+        imageSelected:"Görsel seçildi.",
+        questionLabel:"Sorun / niyetin",
+        questionPlaceholder:"MystAI'nin odaklanmasını istediğin şeyi yaz: aşk, kader, yaşam yolu, kariyer, sağlık temaları...",
+        readBtn:"El Falımı Oku",
+        statusIdle:"",
+        statusLoading:"Elin okunuyor… çizgilerin ve enerjin yorumlanıyor.",
+        statusDone:"El falın hazır.",
+        statusError:"Bir hata oluştu. Lütfen tekrar dene.",
+        mustQuestion:"Lütfen en azından kısa bir soru veya niyet yaz.",
+        mustImage:"En iyi sonuç için bir avuç içi fotoğrafı yükle lütfen.",
+        resultTitle:"El Falın",
+        resultSub:"El fotoğrafını ve sorun/niyetini gönderdikten sonra yapay zekâ el falın burada görünecek.",
+        resultInitial:"✨ Elini seç, avuç içini yükle ve niyetini yaz. MystAI; çizgilerini, sembollerini ve enerjini yorumlayarak el falını burada gösterecek. ✨",
+        resultHint:"MystAI eğlence amaçlı bir yapay zekâ fal yorumlayıcısıdır; tıbbi, psikolojik veya profesyonel tavsiye yerine geçmez.",
+        listen:"Dinle",
+        listening:"Çalıyor...",
+        back:"Uygulamaya Dön",
+        logout:"Çıkış Yap",
+        rights:"Tüm Hakları Saklıdır.",
+        dev:"GALAXY tarafından geliştirilmiştir 🌌",
+        contact:"İletişim:",
+        welcome:"Hoş geldin, "
+      }
+    };
+
+    let activeLang = localStorage.getItem("myst_lang") || "en";
+
+    function applyLang(lang){
+      activeLang = lang;
+      localStorage.setItem("myst_lang", lang);
+      const t = i18n[lang];
+
+      kickerLabel.textContent   = t.kicker;
+      titleLabel.textContent    = t.title;
+      subtitleLabel.textContent = t.subtitle;
+      step1Text.textContent     = t.step1;
+      step2Text.textContent     = t.step2;
+      step3Text.textContent     = t.step3;
+
+      handLabel.textContent     = t.handLabel;
+      leftStrong.textContent    = t.leftStrong;
+      rightStrong.textContent   = t.rightStrong;
+      leftDesc.textContent      = t.leftDesc;
+      rightDesc.textContent     = t.rightDesc;
+
+      uploadLabel.textContent   = t.uploadLabel;
+      uploadMain.textContent    = t.uploadMain;
+      uploadSub.textContent     = t.uploadSub;
+      uploadBtnText.textContent = t.uploadBtn;
+      previewText.textContent   = t.imageSelected;
+
+      questionLabel.textContent = t.questionLabel;
+      questionInput.placeholder = t.questionPlaceholder;
+      readBtnText.textContent   = t.readBtn;
+
+      resultTitle.textContent   = t.resultTitle;
+      resultSub.textContent     = t.resultSub;
+      resultText.textContent    = t.resultInitial;
+      resultHint.textContent    = t.resultHint;
+      listenLabel.textContent   = t.listen;
+
+      rightsLabel.textContent   = t.rights;
+      devLabel.textContent      = t.dev;
+      contactLabel.textContent  = t.contact;
+      backBtn.textContent       = "⬅ " + t.back;
+      logoutBtn.textContent     = t.logout;
+
+      btnEn.classList.toggle("active", lang === "en");
+      btnTr.classList.toggle("active", lang === "tr");
+
+      if (auth.currentUser){
+        const name = auth.currentUser.displayName || auth.currentUser.email;
+        userLabel.textContent = t.welcome + name;
+      }
+    }
+
+    btnEn.addEventListener("click", ()=>applyLang("en"));
+    btnTr.addEventListener("click", ()=>applyLang("tr"));
+
+    /* ========= AUTH & NAV ========= */
+    backBtn.addEventListener("click", ()=>{ window.location.href = "app.html"; });
+
+    logoutBtn.addEventListener("click", ()=>{
+      signOut(auth).then(()=> window.location.href="login.html");
+    });
+
+    onAuthStateChanged(auth, user=>{
+      if(!user){
+        window.location.href = "login.html";
+        return;
+      }
+      const t = i18n[activeLang];
+      const name = user.displayName || user.email;
+      userLabel.textContent = t.welcome + name;
+    });
+
+    applyLang(activeLang);
+
+    /* ========= HAND PILL TOGGLE ========= */
+    function updatePills(){
+      const val = document.querySelector('input[name="hand"]:checked')?.value || "left";
+      pillLeft.classList.toggle("active", val === "left");
+      pillRight.classList.toggle("active", val === "right");
+    }
+    pillLeft.addEventListener("click", ()=>{
+      pillLeft.querySelector('input[name="hand"]').checked = true;
+      updatePills();
+    });
+    pillRight.addEventListener("click", ()=>{
+      pillRight.querySelector('input[name="hand"]').checked = true;
+      updatePills();
+    });
+    updatePills();
+
+    /* ========= IMAGE UPLOAD PREVIEW ========= */
+    uploadBtn.addEventListener("click", ()=>palmImage.click());
+
+    palmImage.addEventListener("change", ()=>{
+      const file = palmImage.files[0];
+      if(!file){
+        previewBox.style.display = "none";
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      previewImg.src = url;
+      previewBox.style.display = "flex";
+    });
+
+    /* ========= MAIN READING ACTION ========= */
+    readBtn.addEventListener("click", async ()=>{
+      const t = i18n[activeLang];
+      const user = auth.currentUser;
+
+      if(!user){
+        alert(activeLang === "tr" ? "Lütfen önce giriş yap." : "Please log in first.");
+        return;
+      }
+
+      const question = questionInput.value.trim();
+      if(!question){
+        alert(t.mustQuestion);
+        return;
+      }
+
+      const hand = document.querySelector('input[name="hand"]:checked')?.value || "left";
+      const hasImage = !!palmImage.files[0];
+
+      // UI state
+      readBtn.disabled = true;
+      statusText.textContent = t.statusLoading;
+      resultText.textContent = "";
+      listenBtn.disabled = true;
+      audioPlayer.pause();
+      audioPlayer.currentTime = 0;
+      audioPlayer.src = "";
+
+      try{
+        if(!BACKEND_URL || BACKEND_URL.includes("YOUR-BACKEND-URL")){
+          statusText.textContent = "Backend URL is not configured.";
+          readBtn.disabled = false;
+          return;
+        }
+
+        const handLabelForPrompt =
+          activeLang === "tr"
+            ? (hand === "left" ? "Sol el" : "Sağ el")
+            : (hand === "left" ? "Left hand" : "Right hand");
+
+        const imageInfoForPrompt =
+          activeLang === "tr"
+            ? (hasImage ? "Kullanıcı avuç içi fotoğrafı yükledi (tek fotoğraf)." :
+                          "Kullanıcı şu anda avuç içi fotoğrafı yüklemedi.")
+            : (hasImage ? "The user uploaded a single palm photo." :
+                          "The user did not upload a palm photo.");
+
+        const systemIntro =
+          activeLang === "tr"
+            ? "Bu bir yapay zekâ el falıdır. Kullanıcının el çizgilerini, avuç içi formunu ve enerjisini; aşk, kader, yaşam yolu, kariyer ve ruhsal gelişim temaları üzerinden mistik ama net bir dille yorumla.\n"
+            : "This is an AI palm reading. Interpret the palm lines, shape and energy in a mystical yet clear style, touching on love, destiny, life path, career and spiritual growth.\n";
+
+        const payloadText =
+          systemIntro +
+          (activeLang === "tr" ? "Okunan el: " : "Hand to read: ") + handLabelForPrompt + "\n" +
+          imageInfoForPrompt + "\n\n" +
+          (activeLang === "tr" ? "Kullanıcının sorusu/niyeti: " : "User's question/intention: ") +
+          question;
+
+        const res = await fetch(`${BACKEND_URL}/predict`, {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({ user_input: payloadText })
+        });
+
+        if(!res.ok){
+          throw new Error("HTTP " + res.status);
+        }
+
+        const data = await res.json();
+        const text = data?.text || (activeLang === "tr" ? "Yanıt alınamadı." : "No response.");
+        const audioPath = data?.audio;
+
+        resultText.textContent = text;
+        statusText.textContent = t.statusDone;
+
+        // Firestore save
+        try{
+          await addDoc(collection(db, "fortunes"), {
+            user: user.email,
+            type: "AI Palm Reading",
+            hand,
+            question,
+            result: text,
+            createdAt: serverTimestamp(),
+            source: "palm-page"
+          });
+        }catch(e){
+          console.warn("Firestore save error:", e);
+        }
+
+        if(audioPath){
+          const audioURL = audioPath.startsWith("http") ? audioPath : `${BACKEND_URL}${audioPath}`;
+          audioPlayer.src = audioURL;
+          listenBtn.disabled = false;
+        }
+      }catch(err){
+        console.error(err);
+        statusText.textContent = t.statusError;
+        resultText.textContent =
+          (activeLang === "tr" ? "Hata: " : "Error: ") + (err?.message || String(err));
+      }finally{
+        readBtn.disabled = false;
+      }
+    });
+
+    /* ========= AUDIO PLAY ========= */
+    listenBtn.addEventListener("click", ()=>{
+      if(!audioPlayer.src) return;
+      const t = i18n[activeLang];
+      listenLabel.textContent = t.listening;
+      audioPlayer.play().catch(()=>{});
+      audioPlayer.onended = ()=>{
+        listenLabel.textContent = t.listen;
+      };
+    });
+  </script>
+</body>
+</html>
