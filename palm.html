@@ -448,7 +448,7 @@
 
   <script type="module">
     /* ====== CONFIG ====== */
-    const BACKEND_URL = "https://mystai-international-1.onrender.com";
+    const BACKEND_URL = "https://mystai-international.onrender.com";
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
@@ -742,24 +742,20 @@
         resultText.textContent = text;
         statusText.textContent = t.statusDone;
 
-// Firestore save
-import { serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-
-try {
-  await addDoc(collection(db, "fortunes"), {
-    user: user.email,
-    type: "AI Palm Reading",
-    hand,
-    question,
-    result: text,
-    createdAt: serverTimestamp(),   // ✔ DOĞRU timestamp
-    source: "palm-page"
-  });
-} catch (e) {
-  console.warn("Firestore save error:", e);
-}
-
-
+        // Firestore save
+        try {
+          await addDoc(collection(db, "fortunes"), {
+            user: user.email,
+            type: "AI Palm Reading",
+            hand,
+            question,
+            result: text,
+            createdAt: new Date().toISOString(),
+            source: "palm-page"
+          });
+        } catch (e) {
+          console.warn("Firestore save error:", e);
+        }
 
         if (audioPath) {
           const fullURL = audioPath.startsWith("http") ? audioPath : `${BACKEND_URL}${audioPath}`;
