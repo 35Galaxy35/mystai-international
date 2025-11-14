@@ -742,20 +742,21 @@
         resultText.textContent = text;
         statusText.textContent = t.statusDone;
 
-        // Firestore save
-        try {
-          await addDoc(collection(db, "fortunes"), {
-            user: user.email,
-            type: "AI Palm Reading",
-            hand,
-            question,
-            result: text,
-            createdAt: new Date().toISOString(),
-            source: "palm-page"
-          });
-        } catch (e) {
-          console.warn("Firestore save error:", e);
-        }
+       // Firestore save
+try {
+  await addDoc(collection(db, "fortunes"), {
+    user: user.email,
+    type: "AI Palm Reading",
+    hand,
+    question,
+    result: text,
+    createdAt: serverTimestamp(),   // ✔ DOĞRU
+    source: "palm-page"
+  });
+} catch (e) {
+  console.warn("Firestore save error:", e);
+}
+
 
         if (audioPath) {
           const fullURL = audioPath.startsWith("http") ? audioPath : `${BACKEND_URL}${audioPath}`;
