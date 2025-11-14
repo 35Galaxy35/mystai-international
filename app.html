@@ -123,28 +123,28 @@
   </section>
 
   <section class="grid">
-    <article class="tile" data-type="AI Coffee Reading">
+    <article class="tile" data-type="coffee">
       <img src="images/Coffee.png" class="reading-img" alt="Coffee Reading">
       <h3 data-i18n="coffeeTitle">AI Coffee Reading</h3>
       <p data-i18n="coffeeDesc">Upload your cup image and receive symbolic and emotional insights decoded by AI.</p>
       <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
-    <article class="tile" data-type="AI Tarot Reading">
+    <article class="tile" data-type="tarot">
       <img src="images/Tarot.png" class="reading-img" alt="Tarot Reading">
       <h3 data-i18n="tarotTitle">AI Tarot Reading</h3>
       <p data-i18n="tarotDesc">Draw cards digitally and let AI interpret archetypes and guidance for you.</p>
       <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
-    <article class="tile" data-type="AI Palm Reading">
+    <article class="tile" data-type="palm">
       <img src="images/Palm.png" class="reading-img" alt="Palm Reading">
       <h3 data-i18n="palmTitle">AI Palm Reading</h3>
       <p data-i18n="palmDesc">Scan your palm and discover patterns and meanings through AI analysis.</p>
       <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
-    <article class="tile" data-type="Energy & Dreams">
+    <article class="tile" data-type="energy">
       <img src="images/Energy.png" class="reading-img" alt="Energy & Dreams">
       <h3 data-i18n="energyTitle">Energy & Dreams</h3>
       <p data-i18n="energyDesc">Upload your dreams or energy symbols and receive reflective AI interpretations.</p>
@@ -195,11 +195,9 @@
     /* ====== CONFIG ====== */
     const BACKEND_URL = "https://mystai-international-1.onrender.com";
 
-
-    /* ====== Firebase ====== */
+    /* ====== Firebase (sadece auth için) ====== */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
@@ -212,7 +210,6 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db   = getFirestore(app);
 
     /* ====== UI Elemanları ====== */
     const logoutBtn   = document.getElementById('logoutBtn');
@@ -275,22 +272,18 @@
       localStorage.setItem("myst_lang", lang);
       const dict = i18n[lang];
 
-      // Texts
       document.querySelectorAll("[data-i18n]").forEach(el=>{
         const key = el.getAttribute("data-i18n");
         if(key==="desc"){ el.innerHTML = dict[key]; }
         else { el.textContent = dict[key]; }
       });
 
-      // Ask MystAI placeholders
       document.getElementById("askInput").placeholder = dict.placeholder;
       document.getElementById("askHint").textContent = dict.hint;
 
-      // Button states
       document.getElementById("btn-en").classList.toggle("secondary", lang!=="en");
       document.getElementById("btn-tr").classList.toggle("secondary", lang!=="tr");
 
-      // Welcome line (auth ile birlikte güncel tut)
       if(auth.currentUser){
         const name = auth.currentUser.displayName || auth.currentUser.email;
         userWelcome.textContent = (lang === 'tr' ? 'Hoş geldin, ' : 'Welcome, ') + name;
@@ -317,92 +310,21 @@
       }
     });
 
-        /* ====== Start Reading -> Gerçek MystAI fal + Firestore kayıt ====== */
-    document.querySelectorAll('.start-btn').forEach(btn=>{
-      btn.addEventListener('click', async e=>{
-        const user = auth.currentUser;
-        if (!user) {
-          alert(activeLang === 'tr'
-            ? 'Lütfen önce giriş yapın.'
-            : 'Please log in first.');
-          return;
-        }
+    /* ====== Start Reading -> İlgili sayfaya yönlendir ====== */
+    document.querySelectorAll('.tile').forEach(tile=>{
+      const btn  = tile.querySelector('.start-btn');
+      const type = tile.dataset.type; // coffee, tarot, palm, energy
 
-        const tile = e.target.closest('.tile');
-        const type = tile?.dataset?.type || 'MystAI Reading';
+      let target = 'app.html';
+      if(type === 'coffee') target = 'coffee.html';
+      else if(type === 'tarot') target = 'tarot.html';
+      else if(type === 'palm') target = 'palm.html';
+      else if(type === 'energy') target = 'energy.html';
 
-        // Kullanıcıdan soru al
-        const question = prompt(
-          activeLang === 'tr'
-            ? `✨ ${type} ✨\nFalını yorumlamam için bana biraz detay yazar mısın?\n(Örnek: aşk, kariyer, para, genel...)`
-            : `✨ ${type} ✨\nPlease write a bit about what you want me to read for you.\n(For example: love, career, money, general...)`
-        );
-
-        if (!question) {
-          // Kullanıcı iptal etti veya boş bıraktı
-          return;
-        }
-
-        // Ekranda küçük bilgi vermek için
-        const loadingMsg = activeLang === 'tr'
-          ? 'Falın hazırlanıyor, lütfen bekle...'
-          : 'Your reading is being prepared, please wait...';
-        alert(loadingMsg);
-
-        try {
-          // Backend'e istek at
-          const promptText =
-            activeLang === 'tr'
-              ? `Fal türü: ${type}\nKullanıcı sorusu: ${question}`
-              : `Reading type: ${type}\nUser question: ${question}`;
-
-          const res = await fetch(`${BACKEND_URL}/predict`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_input: promptText })
-          });
-
-          if (!res.ok) {
-            throw new Error(
-              (activeLang === 'tr' ? 'İstek başarısız: ' : 'Request failed: ')
-              + res.status
-            );
-          }
-
-          const data = await res.json();
-          const text = data?.text || (
-            activeLang === 'tr'
-              ? 'Şu anda yanıt oluşturulamadı.'
-              : 'No response could be generated.'
-          );
-
-          // Firestore'a kaydet
-          try {
-            await addDoc(collection(db, "fortunes"), {
-              user: user.email,
-              type,
-              question,
-              result: text,
-              createdAt: serverTimestamp()
-            });
-          } catch (fireErr) {
-            console.error('Firestore error:', fireErr);
-            // Kayıt hata verse bile kullanıcıya falı gösterelim
-          }
-
-          // Kullanıcıya falı göster
-          alert(text);
-
-        } catch (err) {
-          console.error(err);
-          alert(
-            (activeLang === 'tr' ? 'Hata: ' : 'Error: ')
-            + (err?.message || err)
-          );
-        }
+      btn.addEventListener('click', ()=>{
+        window.location.href = target;
       });
     });
-
 
     /* ====== Ask MystAI - Modal ve backend çağrısı ====== */
     const askFab    = document.getElementById('askFab');
@@ -442,7 +364,6 @@
 
       try{
         if(!BACKEND_URL || BACKEND_URL.includes("YOUR-BACKEND-URL")){
-          // Backend URL girilmemişse nazik uyarı (site bozulmaz)
           askOutput.style.display='block';
           askOutput.textContent = activeLang==='tr'
             ? 'Backend adresi yapılandırılmadı. Lütfen BACKEND_URL değerini kendi Render URL’inle değiştir.'
@@ -454,7 +375,6 @@
           method:'POST',
           headers:{'Content-Type':'application/json'},
           body: JSON.stringify({ user_input: q })
-
         });
 
         if(!res.ok){
@@ -469,10 +389,9 @@
         askOutput.textContent = text;
 
         if(audioPath){
-          // Tam URL’e çevir
           const audioURL = audioPath.startsWith('http') ? audioPath : `${BACKEND_URL}${audioPath}`;
           askAudio.src = audioURL;
-          askAudio.play().catch(()=>{ /* sessiz hatayı yut */ });
+          askAudio.play().catch(()=>{});
         }
       }catch(err){
         askOutput.style.display='block';
