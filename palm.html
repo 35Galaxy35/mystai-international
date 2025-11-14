@@ -98,20 +98,18 @@
     }
     .card {
       width:100%;
-      max-width:1020px;
-      background:rgba(8,12,30,.92);
-      border-radius:18px;
+      max-width:1100px;
+      background:rgba(8,12,30,.94);
+      border-radius:20px;
       border:1px solid rgba(255,255,255,.14);
       box-shadow:0 0 40px rgba(0,0,0,.55);
       padding:24px;
       display:grid;
-      grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);
-      gap:22px;
+      grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);
+      gap:24px;
     }
-    @media(max-width:900px){
-      .card {
-        grid-template-columns:1fr;
-      }
+    @media(max-width:960px){
+      .card { grid-template-columns:1fr; }
     }
 
     /* LEFT SIDE – TITLE + FORM */
@@ -128,7 +126,7 @@
       color:#c5cfff;
       text-align:left;
       line-height:1.6;
-      margin-bottom:20px;
+      margin-bottom:18px;
     }
 
     .label {
@@ -136,7 +134,7 @@
       font-size:13px;
       font-weight:600;
       color:#ffe680;
-      margin-bottom:4px;
+      margin-bottom:6px;
       margin-top:12px;
     }
 
@@ -172,63 +170,63 @@
       box-shadow:0 0 18px rgba(255,215,0,.45);
     }
 
-    /* UPLOAD BOX */
-    .upload-box {
-      border:1px dashed rgba(255,255,255,.25);
-      border-radius:12px;
-      padding:12px;
-      text-align:center;
-      background:rgba(5,10,30,.85);
-    }
-    .upload-inner {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
+    /* MULTI UPLOAD BOXES */
+    .photos-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
       gap:12px;
-      flex-wrap:wrap;
     }
-    .upload-info {
+    .photo-card {
+      background:rgba(5,10,30,.9);
+      border-radius:12px;
+      border:1px dashed rgba(255,255,255,.25);
+      padding:10px;
       text-align:left;
-      font-size:13px;
-      color:#cfd6ff;
-      flex:1;
     }
-    .upload-info span {
-      display:block;
+    .photo-title {
       font-size:12px;
+      font-weight:600;
+      color:#ffe680;
+      margin-bottom:2px;
+    }
+    .photo-hint {
+      font-size:11px;
       color:#a2addf;
-      margin-top:4px;
+      margin-bottom:8px;
+      min-height:28px;
     }
     .upload-btn {
       border:0;
       border-radius:999px;
-      padding:8px 16px;
+      padding:7px 12px;
       background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);
       color:#111;
       font-weight:700;
       cursor:pointer;
-      font-size:13px;
-      box-shadow:0 0 12px rgba(255,215,0,.35);
+      font-size:12px;
+      box-shadow:0 0 10px rgba(255,215,0,.35);
       transition:all .25s ease;
       white-space:nowrap;
     }
-    .upload-btn:hover { transform:scale(1.05); }
+    .upload-btn:hover { transform:scale(1.04); }
 
-    #palmImage {
-      display:none;
-    }
-
-    .preview {
-      margin-top:10px;
+    .preview-row {
+      margin-top:8px;
       display:flex;
       align-items:center;
-      gap:12px;
-      font-size:12px;
+      gap:8px;
+      font-size:11px;
       color:#aeb6ff;
     }
-    .preview img {
-      width:60px;height:60px;border-radius:8px;object-fit:cover;
-      box-shadow:0 0 12px rgba(0,0,0,.7);
+    .preview-row img {
+      width:46px;height:46px;border-radius:8px;object-fit:cover;
+      box-shadow:0 0 10px rgba(0,0,0,.7);
+    }
+    .preview-name {
+      max-width:120px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
 
     textarea {
@@ -279,11 +277,12 @@
       font-size:12px;
       color:#aeb6ff;
       text-align:left;
+      min-height:16px;
     }
 
     /* RIGHT SIDE – RESULT */
     .result-box {
-      border-radius:14px;
+      border-radius:16px;
       background:radial-gradient(circle at top,#202760,#070c24);
       border:1px solid rgba(255,255,255,.15);
       padding:16px;
@@ -327,7 +326,7 @@
       text-align:left;
       line-height:1.7;
       overflow-y:auto;
-      max-height:260px;
+      max-height:270px;
       padding-right:4px;
       white-space:pre-wrap;
     }
@@ -376,7 +375,7 @@
       <div>
         <h1 class="section-title" id="title">AI Palm Reading</h1>
         <p class="section-sub" id="subtitle">
-          Upload your palm photo, choose your hand and share your intention. MystAI will read your lines, energy and patterns with AI.
+          Upload your palm photos, choose your hand and share your intention. MystAI will read your lines, energy and patterns with AI.
         </p>
 
         <div class="label" id="labelHand">Which hand?</div>
@@ -391,19 +390,66 @@
           </label>
         </div>
 
-        <div class="label" id="labelUpload">Palm Photo</div>
-        <div class="upload-box">
-          <div class="upload-inner">
-            <div class="upload-info">
-              <strong id="uploadMain">Upload a clear photo of your palm</strong>
-              <span id="uploadSub">For now, MystAI focuses mainly on your question and energy. Visual palm analysis will be enhanced soon.</span>
+        <div class="label" id="labelPhotos">Palm Photos (5 angles)</div>
+        <div class="photos-grid">
+          <!-- Main palm -->
+          <div class="photo-card">
+            <div class="photo-title" id="slot1Title">Main palm – center</div>
+            <div class="photo-hint" id="slot1Hint">Flat, full palm, all main lines visible.</div>
+            <button class="upload-btn" data-slot="1" id="btnSlot1">📷 <span id="btnSlot1Text">Choose Image</span></button>
+            <input type="file" id="fileSlot1" accept="image/*" style="display:none;" />
+            <div class="preview-row" id="previewSlot1" style="display:none;">
+              <img id="imgSlot1" alt="Palm 1">
+              <div class="preview-name" id="nameSlot1"></div>
             </div>
-            <button class="upload-btn" id="uploadBtn">📷 <span id="uploadBtnText">Choose Image</span></button>
-            <input type="file" id="palmImage" accept="image/*" />
           </div>
-          <div class="preview" id="previewBox" style="display:none;">
-            <img id="previewImg" alt="Preview" />
-            <span id="previewText">Image selected.</span>
+
+          <!-- Left angle -->
+          <div class="photo-card">
+            <div class="photo-title" id="slot2Title">Left angle</div>
+            <div class="photo-hint" id="slot2Hint">Palm slightly turned to show left side curves.</div>
+            <button class="upload-btn" data-slot="2" id="btnSlot2">📷 <span id="btnSlot2Text">Choose Image</span></button>
+            <input type="file" id="fileSlot2" accept="image/*" style="display:none;" />
+            <div class="preview-row" id="previewSlot2" style="display:none;">
+              <img id="imgSlot2" alt="Palm 2">
+              <div class="preview-name" id="nameSlot2"></div>
+            </div>
+          </div>
+
+          <!-- Right angle -->
+          <div class="photo-card">
+            <div class="photo-title" id="slot3Title">Right angle</div>
+            <div class="photo-hint" id="slot3Hint">Palm slightly turned to show right side & fingers.</div>
+            <button class="upload-btn" data-slot="3" id="btnSlot3">📷 <span id="btnSlot3Text">Choose Image</span></button>
+            <input type="file" id="fileSlot3" accept="image/*" style="display:none;" />
+            <div class="preview-row" id="previewSlot3" style="display:none;">
+              <img id="imgSlot3" alt="Palm 3">
+              <div class="preview-name" id="nameSlot3"></div>
+            </div>
+          </div>
+
+          <!-- Wrist area -->
+          <div class="photo-card">
+            <div class="photo-title" id="slot4Title">Wrist / base lines</div>
+            <div class="photo-hint" id="slot4Hint">Focus on wrist lines and lower palm.</div>
+            <button class="upload-btn" data-slot="4" id="btnSlot4">📷 <span id="btnSlot4Text">Choose Image</span></button>
+            <input type="file" id="fileSlot4" accept="image/*" style="display:none;" />
+            <div class="preview-row" id="previewSlot4" style="display:none;">
+              <img id="imgSlot4" alt="Palm 4">
+              <div class="preview-name" id="nameSlot4"></div>
+            </div>
+          </div>
+
+          <!-- Back of hand -->
+          <div class="photo-card">
+            <div class="photo-title" id="slot5Title">Back of the hand</div>
+            <div class="photo-hint" id="slot5Hint">Top of the hand, knuckles and finger bases.</div>
+            <button class="upload-btn" data-slot="5" id="btnSlot5">📷 <span id="btnSlot5Text">Choose Image</span></button>
+            <input type="file" id="fileSlot5" accept="image/*" style="display:none;" />
+            <div class="preview-row" id="previewSlot5" style="display:none;">
+              <img id="imgSlot5" alt="Palm 5">
+              <div class="preview-name" id="nameSlot5"></div>
+            </div>
           </div>
         </div>
 
@@ -426,7 +472,7 @@
           </button>
         </div>
         <div class="result-content" id="resultText">
-          ✨ After you upload your palm and send your intention, MystAI will reveal your AI palm reading here. ✨
+          ✨ After you upload your palm photos and send your intention, MystAI will reveal your AI palm reading here. ✨
         </div>
         <div class="result-hint" id="resultHint">
           MystAI is an AI-based entertainment tool and should not be taken as medical, psychological or professional advice.
@@ -448,7 +494,7 @@
 
   <script type="module">
     /* ====== CONFIG ====== */
-    const BACKEND_URL = "https://mystai-international.onrender.com";
+    const BACKEND_URL = "https://mystai-international-1.onrender.com";
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
@@ -483,18 +529,9 @@
     const labelLeftText  = document.getElementById("labelLeftText");
     const labelRightText = document.getElementById("labelRightText");
 
-    const labelUpload = document.getElementById("labelUpload");
-    const uploadMain  = document.getElementById("uploadMain");
-    const uploadSub   = document.getElementById("uploadSub");
-    const uploadBtn   = document.getElementById("uploadBtn");
-    const uploadBtnText = document.getElementById("uploadBtnText");
-    const palmImage   = document.getElementById("palmImage");
-    const previewBox  = document.getElementById("previewBox");
-    const previewImg  = document.getElementById("previewImg");
-    const previewText = document.getElementById("previewText");
-
-    const labelQuestion = document.getElementById("labelQuestion");
+    const labelPhotos = document.getElementById("labelPhotos");
     const textarea    = document.getElementById("palmQuestion");
+    const labelQuestion = document.getElementById("labelQuestion");
     const analyzeBtn  = document.getElementById("analyzeBtn");
     const analyzeText = document.getElementById("analyzeText");
     const statusText  = document.getElementById("statusText");
@@ -510,19 +547,78 @@
     const devLabel     = document.getElementById("devLabel");
     const contactLabel = document.getElementById("contactLabel");
 
+    // slot element helpers
+    const SLOT_IDS = [1,2,3,4,5];
+    const slotTitleEls = {
+      1: document.getElementById("slot1Title"),
+      2: document.getElementById("slot2Title"),
+      3: document.getElementById("slot3Title"),
+      4: document.getElementById("slot4Title"),
+      5: document.getElementById("slot5Title"),
+    };
+    const slotHintEls = {
+      1: document.getElementById("slot1Hint"),
+      2: document.getElementById("slot2Hint"),
+      3: document.getElementById("slot3Hint"),
+      4: document.getElementById("slot4Hint"),
+      5: document.getElementById("slot5Hint"),
+    };
+    const slotBtnTextEls = {
+      1: document.getElementById("btnSlot1Text"),
+      2: document.getElementById("btnSlot2Text"),
+      3: document.getElementById("btnSlot3Text"),
+      4: document.getElementById("btnSlot4Text"),
+      5: document.getElementById("btnSlot5Text"),
+    };
+    const slotFileEls = {
+      1: document.getElementById("fileSlot1"),
+      2: document.getElementById("fileSlot2"),
+      3: document.getElementById("fileSlot3"),
+      4: document.getElementById("fileSlot4"),
+      5: document.getElementById("fileSlot5"),
+    };
+    const slotPreviewBoxEls = {
+      1: document.getElementById("previewSlot1"),
+      2: document.getElementById("previewSlot2"),
+      3: document.getElementById("previewSlot3"),
+      4: document.getElementById("previewSlot4"),
+      5: document.getElementById("previewSlot5"),
+    };
+    const slotImgEls = {
+      1: document.getElementById("imgSlot1"),
+      2: document.getElementById("imgSlot2"),
+      3: document.getElementById("imgSlot3"),
+      4: document.getElementById("imgSlot4"),
+      5: document.getElementById("imgSlot5"),
+    };
+    const slotNameEls = {
+      1: document.getElementById("nameSlot1"),
+      2: document.getElementById("nameSlot2"),
+      3: document.getElementById("nameSlot3"),
+      4: document.getElementById("nameSlot4"),
+      5: document.getElementById("nameSlot5"),
+    };
+
     /* ====== i18n ====== */
     const i18n = {
       en: {
         title: "AI Palm Reading",
-        subtitle: "Upload your palm photo, choose your hand and share your intention. MystAI will read your lines, energy and patterns with AI.",
+        subtitle: "Upload your palm photos, choose your hand and share your intention. MystAI will read your lines, energy and patterns with AI.",
         handLabel: "Which hand?",
         leftText: "Left hand (inner world, emotional and spiritual patterns)",
         rightText:"Right hand (outer world, choices and daily life)",
-        uploadLabel: "Palm Photo",
-        uploadMain: "Upload a clear photo of your palm",
-        uploadSub: "For now, MystAI focuses mainly on your question and energy. Visual palm analysis will be enhanced soon.",
+        photosLabel: "Palm Photos (5 angles)",
+        slot1Title: "Main palm – center",
+        slot1Hint:  "Flat, full palm, all main lines visible.",
+        slot2Title: "Left angle",
+        slot2Hint:  "Palm slightly turned to show left side curves.",
+        slot3Title: "Right angle",
+        slot3Hint:  "Palm slightly turned to show right side & fingers.",
+        slot4Title: "Wrist / base lines",
+        slot4Hint:  "Focus on wrist lines and lower palm.",
+        slot5Title: "Back of the hand",
+        slot5Hint:  "Top of the hand, knuckles and finger bases.",
         uploadBtn: "Choose Image",
-        imageSelected: "Image selected.",
         questionLabel: "Your Question / Intention",
         placeholder: "Write what you’d like MystAI to focus on (love, fate, life path, career, health themes...)",
         analyze: "Read My Palm",
@@ -533,7 +629,7 @@
         mustText: "Please write at least a short question or intention.",
         userWelcome: "Welcome, ",
         resultTitle: "Your Palm Reading",
-        resultInitial: "✨ After you upload your palm and send your intention, MystAI will reveal your AI palm reading here. ✨",
+        resultInitial: "✨ After you upload your palm photos and send your intention, MystAI will reveal your AI palm reading here. ✨",
         resultHint: "MystAI is an AI-based entertainment tool and should not be taken as medical, psychological or professional advice.",
         listen: "Listen",
         listening: "Playing...",
@@ -545,15 +641,22 @@
       },
       tr: {
         title: "Yapay Zekâ El Falı",
-        subtitle: "Avucunun fotoğrafını yükle, elini seç ve niyetini yaz. MystAI; çizgilerini, sembollerini ve enerjini yapay zekâ ile yorumlasın.",
+        subtitle: "Avucunun fotoğraflarını yükle, elini seç ve niyetini yaz. MystAI; çizgilerini, sembollerini ve enerjini yapay zekâ ile yorumlasın.",
         handLabel: "Hangi elin?",
         leftText: "Sol el (iç dünya, duygusal ve ruhsal yapın)",
         rightText:"Sağ el (dış dünya, seçimlerin ve günlük hayatın)",
-        uploadLabel: "Avuç İçi Fotoğrafı",
-        uploadMain: "Avucunun net bir fotoğrafını yükle",
-        uploadSub: "Şimdilik MystAI daha çok soruna ve enerjine odaklanıyor. Görsel el analizi yakında geliştirilecek.",
+        photosLabel: "Avuç İçi Fotoğrafları (5 açı)",
+        slot1Title: "Ana avuç – merkez",
+        slot1Hint:  "Avuç içini düz ve tam göster; tüm ana çizgiler görünsün.",
+        slot2Title: "Sol açı",
+        slot2Hint:  "Avuç hafif sola dönük; sol kenardaki kıvrımlar görünsün.",
+        slot3Title: "Sağ açı",
+        slot3Hint:  "Avuç hafif sağa dönük; parmak ve sağ kenar belirgin olsun.",
+        slot4Title: "Bilek / alt çizgiler",
+        slot4Hint:  "Bilek çizgileri ve avuç alt kısmı net görünsün.",
+        slot5Title: "Elin üstü",
+        slot5Hint:  "Elin üst kısmı, boğumlar ve parmak dipleri görünsün.",
         uploadBtn: "Görsel Seç",
-        imageSelected: "Görsel seçildi.",
         questionLabel: "Sorun / Niyetin",
         placeholder: "Aşk, kaderin, yaşam yolun, kariyerin veya sağlık temalarıyla ilgili merak ettiklerini buraya yaz...",
         analyze: "El Falımı Yorumla",
@@ -564,7 +667,7 @@
         mustText: "Lütfen en azından kısa bir soru veya niyet yaz.",
         userWelcome: "Hoş geldin, ",
         resultTitle: "El Falın",
-        resultInitial: "✨ Avucunu yükleyip niyetini yazdıktan sonra yapay zekâ el falın burada görünecek. ✨",
+        resultInitial: "✨ Avuç fotoğraflarını yükleyip niyetini yazdıktan sonra yapay zekâ el falın burada görünecek. ✨",
         resultHint: "MystAI eğlence amaçlı bir yapay zekâ fal yorumlayıcısıdır; tıbbi, psikolojik veya profesyonel tavsiye yerine geçmez.",
         listen: "Dinle",
         listening: "Çalıyor...",
@@ -588,12 +691,22 @@
       labelHand.textContent     = t.handLabel;
       labelLeftText.textContent = t.leftText;
       labelRightText.textContent= t.rightText;
+      labelPhotos.textContent   = t.photosLabel;
 
-      labelUpload.textContent   = t.uploadLabel;
-      uploadMain.textContent    = t.uploadMain;
-      uploadSub.textContent     = t.uploadSub;
-      uploadBtnText.textContent = t.uploadBtn;
-      previewText.textContent   = t.imageSelected;
+      slotTitleEls[1].textContent = t.slot1Title;
+      slotHintEls[1].textContent  = t.slot1Hint;
+      slotTitleEls[2].textContent = t.slot2Title;
+      slotHintEls[2].textContent  = t.slot2Hint;
+      slotTitleEls[3].textContent = t.slot3Title;
+      slotHintEls[3].textContent  = t.slot3Hint;
+      slotTitleEls[4].textContent = t.slot4Title;
+      slotHintEls[4].textContent  = t.slot4Hint;
+      slotTitleEls[5].textContent = t.slot5Title;
+      slotHintEls[5].textContent  = t.slot5Hint;
+
+      SLOT_IDS.forEach(id=>{
+        slotBtnTextEls[id].textContent = t.uploadBtn;
+      });
 
       labelQuestion.textContent = t.questionLabel;
       textarea.placeholder      = t.placeholder;
@@ -658,20 +771,26 @@
     });
     updatePills();
 
-    /* ====== IMAGE PREVIEW ====== */
-    uploadBtn.addEventListener("click", () => {
-      palmImage.click();
-    });
+    /* ====== MULTI IMAGE PREVIEW ====== */
+    SLOT_IDS.forEach(id=>{
+      const btn = document.getElementById(`btnSlot${id}`);
+      const fileInput = slotFileEls[id];
+      const previewBox = slotPreviewBoxEls[id];
+      const imgEl = slotImgEls[id];
+      const nameEl = slotNameEls[id];
 
-    palmImage.addEventListener("change", () => {
-      const file = palmImage.files[0];
-      if (!file) {
-        previewBox.style.display = "none";
-        return;
-      }
-      const url = URL.createObjectURL(file);
-      previewImg.src = url;
-      previewBox.style.display = "flex";
+      btn.addEventListener("click", ()=> fileInput.click());
+      fileInput.addEventListener("change", ()=>{
+        const file = fileInput.files[0];
+        if(!file){
+          previewBox.style.display="none";
+          return;
+        }
+        const url = URL.createObjectURL(file);
+        imgEl.src = url;
+        nameEl.textContent = file.name;
+        previewBox.style.display = "flex";
+      });
     });
 
     /* ====== ANALYZE (backend + Firestore) ====== */
@@ -706,19 +825,33 @@
           return;
         }
 
+        // Kaç fotoğraf seçilmiş (sadece bilgi amaçlı)
+        const usedSlots = SLOT_IDS.filter(id => slotFileEls[id].files[0]);
+        const imagesInfo = usedSlots.map(id => ({
+          slot: id,
+          name: slotFileEls[id].files[0]?.name || ""
+        }));
+
         const handText =
           activeLang === "tr"
             ? (hand === "left" ? "Sol el" : "Sağ el")
             : (hand === "left" ? "Left hand" : "Right hand");
 
+        const photosLine =
+          activeLang === "tr"
+            ? `Kullanıcı ${usedSlots.length} adet avuç içi fotoğrafı yükledi (farklı açılardan).`
+            : `User has uploaded ${usedSlots.length} palm photos from different angles.`;
+
         const payloadText =
           (activeLang === "tr"
-            ? "Bu bir el falıdır. Kullanıcının seçtiği eli ve niyetini, çizgiler, enerjiler ve yaşam temaları üzerinden mistik ama net bir dille yorumla.\n"
-            : "This is an AI palm reading. Interpret the chosen hand and the user's intention through lines, symbols, energy and life themes in a mystical yet clear style.\n") +
+            ? "Bu bir el falıdır. Seçilen elin enerjisini, yaşam çizgilerini, aşk, kader ve yaşam yolu temalarını mistik ama net bir dille yorumla.\n"
+            : "This is an AI palm reading. Interpret the chosen hand and the user's life themes (love, fate, life path, career) in a mystical yet clear style.\n") +
           (activeLang === "tr"
             ? "Seçilen el: "
             : "Selected hand: ") +
           handText +
+          "\n" +
+          photosLine +
           "\n\n" +
           (activeLang === "tr"
             ? "Kullanıcının sorusu/niyeti: "
@@ -742,7 +875,7 @@
         resultText.textContent = text;
         statusText.textContent = t.statusDone;
 
-        // Firestore save
+        // Firestore save (history.html bunu zaten okuyor)
         try {
           await addDoc(collection(db, "fortunes"), {
             user: user.email,
@@ -750,6 +883,8 @@
             hand,
             question,
             result: text,
+            photosCount: usedSlots.length,
+            photosMeta: imagesInfo,
             createdAt: new Date().toISOString(),
             source: "palm-page"
           });
