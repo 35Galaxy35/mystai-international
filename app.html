@@ -344,24 +344,9 @@
 
         const tile = e.target.closest('.tile');
         const type = tile?.dataset?.type || 'MystAI Reading';
+window.location.href = type + ".html";
 
-        // Kullanıcıdan soru al
-        const question = prompt(
-          activeLang === 'tr'
-            ? `✨ ${type} ✨\nFalını yorumlamam için bana biraz detay yazar mısın?\n(Örnek: aşk, kariyer, para, genel...)`
-            : `✨ ${type} ✨\nPlease write a bit about what you want me to read for you.\n(For example: love, career, money, general...)`
-        );
-
-        if (!question) {
-          // Kullanıcı iptal etti veya boş bıraktı
-          return;
-        }
-
-        // Ekranda küçük bilgi vermek için
-        const loadingMsg = activeLang === 'tr'
-          ? 'Falın hazırlanıyor, lütfen bekle...'
-          : 'Your reading is being prepared, please wait...';
-        alert(loadingMsg);
+       
 
         try {
           // Backend'e istek at
