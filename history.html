@@ -1,257 +1,220 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>MystAI — My Reading History</title>
-<link rel="icon" type="image/png" href="mystai-logo.png">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
 
 <style>
-    body {
-        margin:0;
-        padding:0;
-        font-family:system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-        background:radial-gradient(1100px 700px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
-        color:#e6ecff;
-        text-align:center;
-    }
+:root {
+  --text:#e4e8ff;
+  --muted:#a6b0d4;
+  --accent:#ffd550;
+  --accent2:#ff4d4d;
+}
+body {
+  margin:0;
+  background:radial-gradient(1000px 600px at 50% -10%, #15206d 0%, #070c23 80%);
+  font-family:system-ui;
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
 
-    header {
-        display:flex;
-        justify-content:flex-end;
-        align-items:center;
-        padding:12px 20px;
-        gap:10px;
-    }
+/* TOP BAR */
+.topbar{
+  padding:14px 22px;
+  display:flex;
+  justify-content:space-between;
+  background:rgba(8,12,30,0.75);
+  backdrop-filter:blur(10px);
+}
+.flags{display:flex;gap:10px;}
+.flag-btn{
+  width:34px;height:34px;border-radius:50%;
+  cursor:pointer;background-size:cover;background-position:center;
+  border:2px solid transparent;transition:.25s;
+}
+.flag-btn.active{border-color:var(--accent);box-shadow:0 0 10px var(--accent);}
+.flag-en{background-image:url('https://flagcdn.com/w40/gb.png');}
+.flag-tr{background-image:url('https://flagcdn.com/w40/tr.png');}
 
-    .flag {
-        width:32px;
-        height:32px;
-        cursor:pointer;
-        border-radius:50%;
-        transition:.2s;
-    }
-    .flag:hover { transform:scale(1.1); }
+.nav-btn{
+  border:0;border-radius:20px;padding:7px 14px;
+  background:rgba(255,255,255,.12);color:#fff;cursor:pointer;
+}
 
-    .btn {
-        padding:6px 14px;
-        border:0;
-        border-radius:20px;
-        background:#ffd54f;
-        color:#111;
-        cursor:pointer;
-        font-weight:700;
-    }
+.title{
+  font-family:'Cinzel',serif;
+  text-align:center;font-size:32px;margin-top:30px;
+  color:var(--accent);text-shadow:0 0 15px rgba(255,215,0,.5);
+}
 
-    h1 {
-        font-family:'Cinzel', serif;
-        color:#ffd54f;
-        font-size:36px;
-        margin-top:40px;
-        text-shadow:0 0 10px rgba(255,215,100,.4);
-    }
+.list{
+  width:100%;max-width:830px;margin:30px auto 50px;
+  display:flex;flex-direction:column;gap:18px;
+}
+.item{
+  background:rgba(8,12,32,0.85);
+  padding:16px 20px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.12);
+  display:flex;flex-wrap:wrap;
+  justify-content:space-between;
+}
+.item p{margin:4px 0;font-size:14px;}
+.btns{display:flex;gap:10px;margin-top:10px;}
+.view-btn{
+  background:var(--accent);border:0;padding:7px 15px;
+  font-weight:700;border-radius:10px;cursor:pointer;color:#000;
+}
+.delete-btn{
+  background:var(--accent2);border:0;width:36px;height:36px;
+  border-radius:50%;cursor:pointer;color:#fff;font-size:18px;
+  display:flex;align-items:center;justify-content:center;
+}
 
-    .card {
-        background:rgba(255,255,255,.05);
-        border:1px solid rgba(255,255,255,.1);
-        padding:15px;
-        margin:15px auto;
-        border-radius:12px;
-        width:90%;
-        max-width:700px;
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-    }
-
-    .left {
-        text-align:left;
-        font-size:14px;
-    }
-
-    .view-btn {
-        padding:6px 12px;
-        font-size:13px;
-        background:#ffd54f;
-        border-radius:8px;
-        border:0;
-        cursor:pointer;
-        font-weight:700;
-    }
-
-    .delete-btn {
-        padding:6px 10px;
-        background:#ff4d4d;
-        border:0;
-        border-radius:8px;
-        color:#fff;
-        cursor:pointer;
-        font-weight:700;
-        margin-left:10px;
-    }
-
-    .modal {
-        position:fixed;
-        inset:0;
-        background:rgba(0,0,0,.7);
-        display:none;
-        justify-content:center;
-        align-items:center;
-    }
-
-    .modal-content {
-        background:#0d1a2b;
-        padding:20px;
-        border-radius:14px;
-        width:90%;
-        max-width:600px;
-        border:1px solid rgba(255,255,255,.15);
-        box-shadow:0 0 30px rgba(0,0,0,.4);
-        text-align:left;
-        color:#e6ecff;
-        white-space:pre-wrap;
-    }
-
-    footer {
-        margin-top:50px;
-        padding:20px;
-        font-size:13px;
-        color:#aeb6cf;
-    }
+footer{
+  margin-top:auto;padding:22px;font-size:13px;
+  color:var(--muted);text-align:center;
+}
+footer a{color:var(--accent);text-decoration:none;}
 </style>
 </head>
 
 <body>
 
-<header>
-    <img src="https://flagcdn.com/w40/gb.png" class="flag" id="btn-en">
-    <img src="https://flagcdn.com/w40/tr.png" class="flag" id="btn-tr">
-    <button class="btn" onclick="history.back()">⬅ <span id="backLabel">Geri</span></button>
-    <button class="btn" id="logoutBtn">Çıkış</button>
-</header>
-
-<h1 id="title">FAL GEÇMİŞİM</h1>
-
-<div id="list"></div>
-
-<!-- MODAL -->
-<div class="modal" id="modal">
-    <div class="modal-content">
-        <h3 id="modalType" style="color:#ffd54f; font-family:'Cinzel';"></h3>
-        <div id="modalText"></div><br>
-        <button class="btn" id="closeModal">Kapat</button>
-    </div>
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="flags">
+    <div id="btn-en" class="flag-btn flag-en"></div>
+    <div id="btn-tr" class="flag-btn flag-tr"></div>
+  </div>
+  <div>
+    <button id="backBtn" class="nav-btn">⬅ Geri</button>
+    <button id="logoutBtn" class="nav-btn">Çıkış</button>
+  </div>
 </div>
 
+<h1 id="pageTitle" class="title">FAL GEÇMİŞİM</h1>
+
+<div class="list" id="historyList"></div>
+
 <footer>
-    © 2025 MystAI.ai — All Rights Reserved. Developed by GALAXY 🌌
+  © 2025 MystAI.ai — All Rights Reserved.<br>
+  <a href="mailto:support@mystai.ai">support@mystai.ai</a>
 </footer>
 
 <script type="module">
-/* Firebase */
+/* FIREBASE */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-import { 
-    getFirestore, 
-    collection, 
-    query, 
-    where, 
-    getDocs,
-    deleteDoc,
-    doc
-} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, deleteDoc, doc, query, where } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
-    authDomain: "mystai-6cca2.firebaseapp.com",
-    projectId: "mystai-6cca2",
-    storageBucket: "mystai-6cca2.appspot.com",
-    messagingSenderId: "624127781219",
-    appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
+  apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
+  authDomain: "mystai-6cca2.firebaseapp.com",
+  projectId: "mystai-6cca2",
+  storageBucket: "mystai-6cca2.appspot.com",
+  messagingSenderId: "624127781219",
+  appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const list = document.getElementById("list");
-
 /* LANGUAGE */
-let lang = localStorage.getItem("myst_lang") || "tr";
-function applyLang() {
-    if(lang==="tr"){
-        document.getElementById("title").textContent = "FAL GEÇMİŞİM";
-        document.getElementById("logoutBtn").textContent = "Çıkış";
-        document.getElementById("backLabel").textContent = "Geri";
-    } else {
-        document.getElementById("title").textContent = "My Reading History";
-        document.getElementById("logoutBtn").textContent = "Logout";
-        document.getElementById("backLabel").textContent = "Back";
-    }
-}
-applyLang();
+let activeLang = localStorage.getItem("myst_lang") || "tr";
 
-document.getElementById("btn-en").onclick = ()=>{ lang="en"; localStorage.setItem("myst_lang","en"); applyLang(); };
-document.getElementById("btn-tr").onclick = ()=>{ lang="tr"; localStorage.setItem("myst_lang","tr"); applyLang(); };
-
-/* AUTH */
-document.getElementById("logoutBtn").onclick = () => {
-    signOut(auth).then(()=>window.location.href="login.html");
+const i18n = {
+  tr:{ title:"FAL GEÇMİŞİM", back:"Geri", logout:"Çıkış", view:"Falını Gör", type:"Tür", date:"Tarih" },
+  en:{ title:"MY READING HISTORY", back:"Back", logout:"Logout", view:"View Reading", type:"Type", date:"Date" }
 };
 
-onAuthStateChanged(auth, async (user)=>{
-    if(!user){ window.location.href="login.html"; return; }
+function translateType(type, lang){
+  const map={
+    "AI Coffee Reading":{tr:"Yapay Zekâ Kahve Falı",en:"AI Coffee Reading"},
+    "AI Tarot Reading":{tr:"Yapay Zekâ Tarot Falı",en:"AI Tarot Reading"},
+    "AI Palm Reading":{tr:"Yapay Zekâ El Falı",en:"AI Palm Reading"},
+    "Energy & Dreams Reading":{tr:"Enerji & Rüya Yorumu",en:"Energy & Dreams Reading"}
+  };
+  return map[type] ? map[type][lang] : type;
+}
 
-    /* 🔥 DOĞRU SORGULAMA — collectionGroup YOK! */
-    const q = query(collection(db,"fortunes"), where("user","==",user.email));
-    const snap = await getDocs(q);
+function applyLang(){
+  const t=i18n[activeLang];
+  document.getElementById("pageTitle").textContent=t.title;
+  document.getElementById("backBtn").textContent="⬅ "+t.back;
+  document.getElementById("logoutBtn").textContent=t.logout;
+}
 
-    if(snap.empty){
-        list.innerHTML = `<p style="margin-top:40px; color:#aeb6cf;">${lang==="tr"?"Hiç fal bulunamadı.":"No readings found."}</p>`;
-        return;
-    }
+/* LOAD HISTORY — NO ORDERBY */
+async function loadHistory(){
+  applyLang();
 
-    snap.forEach(docu=>{
-        const data = docu.data();
+  const user=auth.currentUser;
+  if(!user) return;
 
-        const div = document.createElement("div");
-        div.className = "card";
+  const list=document.getElementById("historyList");
+  list.innerHTML="";
 
-        div.innerHTML = `
-            <div class="left">
-                <strong>Tür: ${data.type || "-"} </strong><br>
-                Tarih: ${data.createdAt || "-"}
-            </div>
+  const q=query(collection(db,"fortunes"), where("user","==",user.email));
+  const snap=await getDocs(q);
 
-            <div>
-                <button class="view-btn"> ${lang==="tr"?"Falı Gör":"View"} </button>
-                <button class="delete-btn">🗑</button>
-            </div>
-        `;
+  if(snap.empty){
+    list.innerHTML="<p style='text-align:center;color:#ccc;'>Kayıt bulunamadı.</p>";
+    return;
+  }
 
-        /* VIEW BUTTON */
-        div.querySelector(".view-btn").onclick = ()=>{
-            modalType.textContent = data.type;
-            modalText.textContent = data.result;
-            modal.style.display="flex";
-        };
+  snap.forEach(docx=>{
+    const item=docx.data();
+    const id=docx.id;
+    const t=i18n[activeLang];
 
-        /* DELETE BUTTON */
-        div.querySelector(".delete-btn").onclick = async ()=>{
-            await deleteDoc(doc(db,"fortunes",docu.id));
-            div.remove();
-        };
+    const div=document.createElement("div");
+    div.className="item";
 
-        list.appendChild(div);
-    });
+    div.innerHTML=`
+      <div>
+        <p><b>${t.type}:</b> ${translateType(item.type, activeLang)}</p>
+        <p><b>${t.date}:</b> ${item.createdAt}</p>
+      </div>
+      <div class="btns">
+        <button class="view-btn">${t.view}</button>
+        <button class="delete-btn">🗑</button>
+      </div>
+    `;
+
+    div.querySelector(".view-btn").onclick=()=>{
+      localStorage.setItem("myst_view_reading", JSON.stringify(item));
+      window.location.href="view.html";
+    };
+
+    div.querySelector(".delete-btn").onclick=async()=>{
+      if(confirm(activeLang==="tr"?"Silinsin mi?":"Delete?")){
+        await deleteDoc(doc(db,"fortunes",id));
+        loadHistory();
+      }
+    };
+
+    list.appendChild(div);
+  });
+}
+
+document.getElementById("btn-en").onclick=()=>{activeLang="en";localStorage.setItem("myst_lang","en");loadHistory()};
+document.getElementById("btn-tr").onclick=()=>{activeLang="tr";localStorage.setItem("myst_lang","tr");loadHistory()};
+
+onAuthStateChanged(auth,(user)=>{
+  if(!user) window.location.href="login.html";
+  loadHistory();
 });
 
-/* modal close */
-const modal = document.getElementById("modal");
-document.getElementById("closeModal").onclick = ()=> modal.style.display="none";
-modal.onclick = (e)=>{ if(e.target===modal) modal.style.display="none"; };
-
+document.getElementById("backBtn").onclick=()=>window.location.href="app.html";
+document.getElementById("logoutBtn").onclick=()=>signOut(auth).then(()=>window.location.href="login.html");
 </script>
+
 </body>
 </html>
