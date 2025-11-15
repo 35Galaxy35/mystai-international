@@ -1,12 +1,11 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from openai import OpenAI
-from gtts import gTTS
 from langdetect import detect, LangDetectException
+from gtts import gTTS
 import os
 import traceback
 import uuid
-import base64
 
 app = Flask(__name__)
 
@@ -15,7 +14,7 @@ CORS(
     app,
     resources={
         r"/*": {
-            "origins": "*",  # Tüm origin'lere izin ver
+            "origins": "*",
             "methods": ["GET", "POST", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
         }
@@ -37,130 +36,57 @@ def home():
     return "MystAI backend is running! 🔮"
 
 
+# === Sistem prompt oluşturucu ===
 def build_system_prompt(reading_type: str, lang: str) -> str:
-    """
-    Fal / astroloji türüne göre profesyonel sistem mesajı üretir.
-    reading_type: 'coffee', 'tarot', 'palm', 'energy', 'astrology', 'general'
-    lang: 'tr' ya da 'en'
-    """
     if lang == "tr":
         base = (
             "Sen MystAI adında mistik, sıcak ve profesyonel bir fal ve astroloji yorumcusun. "
             "Kullanıcıya asla korkutucu veya umutsuz mesajlar verme. "
-            "Gerçekçi ama pozitif, yol gösterici ve sakin bir tonda konuş. "
-            "Her zaman kullanıcıyı güçlendiren, sorumluluğu eline almasını teşvik eden bir anlatım kullan. "
+            "Gerçekçi ama pozitif, yol gösterici ve sakin bir tonda konuş."
         )
         types = {
-            "coffee": (
-                base
-                + "Kahve falı uzmanısın. Fincandaki şekilleri, sembolleri ve enerjiyi hissedip "
-                "ilişkiler, kariyer, gelecek fırsatlar ve ruhsal mesajlar hakkında detaylı yorumlar yap."
-            ),
-            "tarot": (
-                base
-                + "Tarot ustasısın. Kartların arketiplerini, sayıları ve enerjilerini yorumlayarak "
-                "kullanıcıya hem spiritüel hem de pratik rehberlik ver."
-            ),
-            "palm": (
-                base
-                + "El falı (palmistry) uzmanısın. Yaşam çizgisi, akıl çizgisi, kalp çizgisi ve diğer işaretleri "
-                "yorumlayarak karakter, hayat yolu ve potansiyel deneyimler hakkında konuş."
-            ),
-            "energy": (
-                base
-                + "Rüyalar ve enerji sembolleri üzerinde çalışan sezgisel bir yorumcusun. "
-                "Sembolleri, duyguları ve bilinçdışı mesajları analiz edip, içsel denge ve farkındalık için rehberlik ver."
-            ),
             "astrology": (
                 base
-                + "Profesyonel bir doğum haritası ve transit yorumcusun. "
-                "Natal haritayı, gezegenleri, burçları, evleri ve açıları kullanarak; "
-                "kişilik, yaşam amacı, aşk ve ilişkiler, kariyer ve para, ruhsal gelişim, karmik temalar ve "
-                "önümüzdeki dönem için astrolojik etkiler hakkında detaylı ve anlaşılır bir rapor yazarsın. "
-                "Teknik terimleri basit ve günlük dile çevir, kullanıcıyı korkutma; her zorlu göstergeyi bile "
-                "\"büyüme fırsatı\" şeklinde yorumla."
+                + " Doğum haritasını, gezegenleri, burçları, evleri ve açıları kullanarak; "
+                "kişilik, yaşam amacı, aşk, kariyer, para ve ruhsal gelişim hakkında geniş bir rapor yaz."
             ),
-            "general": (
-                base
-                + "Genel bir mistik fal yorumcususun. Kullanıcının sorusuna göre aşk, kariyer, para, "
-                "sağlık, ruhsal yol ve kader hakkında sezgisel yorumlar yap."
-            ),
+            "general": base + " Genel bir mistik fal yorumcususun.",
         }
     else:
         base = (
-            "You are MystAI, a mystical, warm and professional fortune and astrology interpreter. "
-            "Never give scary or hopeless messages. Be realistic but positive, supportive and calm. "
-            "Always empower the user and frame challenges as opportunities for growth. "
+            "You are MystAI, a mystical, warm and professional astrology interpreter. "
+            "Never give scary or hopeless messages. Be positive, realistic and calm."
         )
         types = {
-            "coffee": (
-                base
-                + "You are an expert in coffee cup readings. You interpret shapes, symbols and energy in the cup, "
-                "giving insights about relationships, career, future opportunities and spiritual messages."
-            ),
-            "tarot": (
-                base
-                + "You are a tarot master. You interpret archetypes, numbers and energies of the cards, "
-                "offering both spiritual and practical guidance."
-            ),
-            "palm": (
-                base
-                + "You are a palm reading expert. You interpret life line, head line, heart line and other marks "
-                "to talk about personality, life path and potential experiences."
-            ),
-            "energy": (
-                base
-                + "You are an oracle for dreams and subtle energies. You interpret symbols, emotions and subconscious messages "
-                "to help with inner balance and awareness."
-            ),
             "astrology": (
                 base
-                + "You are a professional astrologer. You interpret natal charts, houses, planets, aspects and transits "
-                "to describe personality, life purpose, love and relationships, career and money, spiritual lessons "
-                "and upcoming trends. Explain any technical terms in simple language."
+                + " Interpret the natal chart: planets, houses, aspects. Provide kind and deep insights."
             ),
-            "general": (
-                base
-                + "You are a general mystical fortune teller. According to the user's question, "
-                "you speak about love, career, money, health, spiritual path and destiny."
-            ),
+            "general": base + " A general oracle giving intuitive guidance.",
         }
 
     return types.get(reading_type, types["general"])
 
 
+# ========= /predict =========
 @app.route("/predict", methods=["POST"])
 def predict():
-    """
-    Kahve / tarot / el falı / enerji & rüyalar için genel uç nokta.
-    Frontend 'reading_type' gönderiyorsa ona göre sistem prompt seçilir.
-    """
     try:
         data = request.get_json() or {}
-        user_input = data.get("user_input", "") or ""
-        reading_type = (data.get("reading_type") or "general").lower()
+        user_input = data.get("user_input", "").strip()
 
-        if not user_input.strip():
+        if not user_input:
             return jsonify({"error": "user_input boş olamaz"}), 400
 
-        print("=== /predict Kullanıcı girişi:", user_input)
-        print("=== Fal türü:", reading_type)
-
-        # Dil tespiti
         try:
             detected = detect(user_input)
-            print("=== Tespit edilen dil:", detected)
-        except LangDetectException:
+        except:
             detected = "en"
 
-        if detected not in ("en", "tr"):
+        if detected not in ("tr", "en"):
             detected = "en"
 
-        valid_types = {"coffee", "tarot", "palm", "energy", "astrology", "general"}
-        if reading_type not in valid_types:
-            reading_type = "general"
-
-        system_prompt = build_system_prompt(reading_type, detected)
+        system_prompt = build_system_prompt("general", detected)
 
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
@@ -172,11 +98,9 @@ def predict():
 
         response_text = completion.choices[0].message.content.strip()
 
-        # gTTS ile ses
+        # Ses oluştur
         file_id = uuid.uuid4().hex
-        audio_filename = f"{file_id}.mp3"
-        audio_path = os.path.join("/tmp", audio_filename)
-
+        audio_path = f"/tmp/{file_id}.mp3"
         tts = gTTS(text=response_text, lang=detected)
         tts.save(audio_path)
 
@@ -184,72 +108,60 @@ def predict():
             {
                 "text": response_text,
                 "audio": f"/audio/{file_id}",
-                "reading_type": reading_type,
-                "language": detected,
             }
         )
 
     except Exception as e:
-        print("=== /predict HATA ===")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 
+# ========= /astrology (sorunsuz – sadece metin) =========
 @app.route("/astrology", methods=["POST"])
 def astrology():
     """
-    Otomatik astroloji raporu + ses. (ŞİMDİLİK HARİTA RESMİ YOK – daha sonra ekleriz.)
+    Astroloji raporu – hızlı çalışır, timeout yemez.
+    Sadece METİN döner (audio yok, chart yok).
     """
     try:
         data = request.get_json() or {}
 
-        birth_date = (data.get("birth_date") or "").strip()
-        birth_time = (data.get("birth_time") or "").strip()
-        birth_place = (data.get("birth_place") or "").strip()
-        name = (data.get("name") or "").strip()
-        focus_areas = data.get("focus_areas") or []
-        question = (data.get("question") or "").strip()
-        forced_lang = (data.get("language") or "").lower()
+        birth_date = data.get("birth_date", "").strip()
+        birth_time = data.get("birth_time", "").strip()
+        birth_place = data.get("birth_place", "").strip()
+        name = data.get("name", "").strip()
+        focus_areas = data.get("focus_areas", [])
+        question = data.get("question", "").strip()
 
         if not birth_date or not birth_time or not birth_place:
-            return (
-                jsonify(
-                    {"error": "birth_date, birth_time ve birth_place zorunludur."}
-                ),
-                400,
-            )
+            return jsonify({"error": "Eksik bilgi: birth_date, birth_time, birth_place zorunlu."}), 400
 
-        # Dil tespiti: önce parametre, yoksa sorudan / isimden
-        if forced_lang in ("tr", "en"):
-            detected = forced_lang
-        else:
-            sample_text = " ".join([question, name, birth_place]).strip() or question or "test"
-            try:
-                detected = detect(sample_text)
-            except LangDetectException:
-                detected = "en"
+        # Dil tespiti
+        sample_text = " ".join([birth_place, name, question]).strip() or "test"
+        try:
+            detected = detect(sample_text)
+        except:
+            detected = "en"
 
         if detected not in ("tr", "en"):
             detected = "en"
 
-        print("=== /astrology dil:", detected)
+        print("=== astrology dil:", detected)
 
+        # Sistem prompt
         system_prompt = build_system_prompt("astrology", detected)
 
-        # Kullanıcıya özel metin (model için)
+        # Kullanıcı prompt
         if detected == "tr":
             focus_text = ", ".join(focus_areas) if focus_areas else "genel yaşam temaları"
             user_prompt = (
                 f"Doğum tarihi: {birth_date}\n"
                 f"Doğum saati: {birth_time}\n"
                 f"Doğum yeri: {birth_place}\n"
-                f"İsim (opsiyonel): {name or 'Belirtilmedi'}\n"
-                f"Odaklanmak istediği alanlar: {focus_text}\n"
-                f"Özel soru / niyet: {question or 'Belirtilmedi'}\n\n"
-                "Lütfen kullanıcının natal haritasını, yaşam temasını, aşk/ilişkiler, kariyer/para, "
-                "ruhsal gelişim ve karmik dersler başlıklarıyla detaylı ama okunaklı bir şekilde yorumla. "
-                "Son bölümde bu yılki genel gökyüzü etkilerini (solar return + transit temaları gibi) "
-                "yumuşak bir dille özetle."
+                f"İsim: {name or 'Belirtilmedi'}\n"
+                f"Odak: {focus_text}\n"
+                f"Soru: {question or 'Belirtilmedi'}\n\n"
+                "Kapsamlı bir astroloji raporu hazırla."
             )
         else:
             focus_text = ", ".join(focus_areas) if focus_areas else "general life themes"
@@ -257,95 +169,77 @@ def astrology():
                 f"Birth date: {birth_date}\n"
                 f"Birth time: {birth_time}\n"
                 f"Birth place: {birth_place}\n"
-                f"Name (optional): {name or 'Not provided'}\n"
+                f"Name: {name or 'Not provided'}\n"
                 f"Focus areas: {focus_text}\n"
-                f"Question / intention: {question or 'Not provided'}\n\n"
-                "Please interpret the natal chart with sections for personality, life purpose, "
-                "love & relationships, career & money, spiritual growth and karmic lessons. "
-                "At the end, add a short forecast for the coming year based on symbolic solar return "
-                "and transits, in a gentle, encouraging tone."
+                f"Question: {question or 'Not provided'}\n\n"
+                "Write a detailed astrology reading."
             )
 
-        # Metin yorumu
+        # OpenAI – hızlı olsun diye max_tokens sınırlı
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
+            max_tokens=900,
         )
+
         report_text = completion.choices[0].message.content.strip()
+        print("Rapor uzunluğu:", len(report_text))
 
-        # Ses dosyası (hata olsa bile raporu döndürelim)
-        audio_id = None
-        try:
-            audio_id = uuid.uuid4().hex
-            audio_filename = f"{audio_id}.mp3"
-            audio_path = os.path.join("/tmp", audio_filename)
-            tts = gTTS(text=report_text, lang=detected)
-            tts.save(audio_path)
-        except Exception as e:
-            print("=== /astrology gTTS HATA ===", e)
-            audio_id = None
-
+        # Sadece METİN döner
         return jsonify(
             {
                 "text": report_text,
-                "audio": f"/audio/{audio_id}" if audio_id else None,
-                "chart": None,  # Şimdilik yok, frontend placeholder gösterecek
+                "audio": None,
+                "chart": None,
                 "language": detected,
             }
         )
 
     except Exception as e:
-        print("=== /astrology GENEL HATA ===")
+        print("=== astrology HATA ===")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 
+# ========= Ses dosyası =========
 @app.route("/audio/<file_id>")
 def serve_audio(file_id):
-    """
-    /audio/<file_id> -> /tmp/<file_id>.mp3 dosyasını döner.
-    """
-    filename = f"{file_id}.mp3"
-    filepath = os.path.join("/tmp", filename)
-    if not os.path.exists(filepath):
+    filename = f"/tmp/{file_id}.mp3"
+    if not os.path.exists(filename):
         return jsonify({"error": "Audio not found"}), 404
-    return send_file(filepath, mimetype="audio/mpeg")
+    return send_file(filename, mimetype="audio/mpeg")
 
 
+# ========= Chart dosyası =========
 @app.route("/chart/<chart_id>")
 def serve_chart(chart_id):
-    """
-    /chart/<chart_id> -> /tmp/<chart_id>.png dosyasını döner.
-    Şu an astroloji endpoint'i chart üretmediği için kullanılmıyor ama
-    ileride tekrar eklediğimizde hazır olsun diye bırakıyoruz.
-    """
-    filename = f"{chart_id}.png"
-    filepath = os.path.join("/tmp", filename)
-    if not os.path.exists(filepath):
+    filename = f"/tmp/{chart_id}.png"
+    if not os.path.exists(filename):
         return jsonify({"error": "Chart not found"}), 404
-    return send_file(filepath, mimetype="image/png")
+    return send_file(filename, mimetype="image/png")
 
 
+# ========= Ping testi =========
 @app.route("/ping")
 def ping():
     return jsonify({"status": "ok"})
 
 
+# ========= OpenAI bağlantı testi =========
 @app.route("/test_openai")
 def test_openai():
     try:
         r = client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[{"role": "user", "content": "Hello! How can I assist you today?"}],
+            messages=[{"role": "user", "content": "Hello"}],
         )
         return "OK -> " + r.choices[0].message.content
     except Exception as e:
-        return "OpenAI ERROR -> " + str(e)
+        return "OpenAI ERROR: " + str(e)
 
 
 if __name__ == "__main__":
-    # Lokal çalıştırma için
     app.run(host="0.0.0.0", port=10000)
