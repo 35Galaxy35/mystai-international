@@ -870,11 +870,12 @@
         chartPlaceholder.style.display = "flex";
         downloadLink.style.display = "none";
 
-        const res = await fetch(`${BACKEND_URL}/astrology`, {
-          method:"POST",
-          headers:{ "Content-Type":"application/json" },
-          body:JSON.stringify(payload)
-        });
+       const res = await fetch("https://mystai-international-1.onrender.com/astrology", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+});
+
 
         if(!res.ok){
           throw new Error("HTTP " + res.status);
