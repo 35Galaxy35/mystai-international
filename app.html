@@ -51,14 +51,43 @@
     .hero p{color:var(--text);max-width:720px;margin:0 auto;font-size:18px;line-height:1.6}
     .welcome{font-weight:600;color:#ffe680;text-shadow:0 0 10px rgba(255,220,120,.4);margin-right:12px}
 
-    /* Grid */
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:28px;padding:60px 20px;max-width:1100px;margin:auto}
-    .tile{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:14px;transition:transform .3s ease,box-shadow .3s ease}
+    /* Grid — 5 kart yan yana (desktop) */
+    .grid{
+      display:grid;
+      gap:28px;
+      padding:60px 20px;
+      max-width:1150px;
+      margin:auto;
+      grid-template-columns:repeat(5, 1fr);
+    }
+    @media (max-width:1100px){
+      .grid{
+        grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      }
+    }
+
+    .tile{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:14px;
+      padding:14px;
+      transition:transform .3s ease,box-shadow .3s ease;
+    }
     .tile:hover{transform:scale(1.02);box-shadow:0 0 30px rgba(255,215,0,.2)}
-    .reading-img{width:100%;height:320px;object-fit:cover;border-radius:14px;margin-bottom:14px;box-shadow:0 0 18px rgba(255,215,0,.18)}
+    .reading-img{
+      width:100%;height:320px;object-fit:cover;
+      border-radius:14px;margin-bottom:14px;
+      box-shadow:0 0 18px rgba(255,215,0,.18)
+    }
     .tile h3{color:#f5d76e;font-family:'Cinzel',serif;margin-bottom:10px}
     .tile p{color:var(--muted);font-size:15px;min-height:60px}
-    .start-btn{background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);font-weight:700;color:#111;border:none;padding:10px 20px;border-radius:10px;cursor:pointer;transition:transform .3s ease;box-shadow:0 0 15px rgba(255,215,0,.4)}
+    .start-btn{
+      background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);
+      font-weight:700;color:#111;border:none;
+      padding:10px 20px;border-radius:10px;cursor:pointer;
+      transition:transform .3s ease;
+      box-shadow:0 0 15px rgba(255,215,0,.4)
+    }
     .start-btn:hover{transform:scale(1.08)}
 
     /* Footer */
@@ -78,7 +107,10 @@
     .ask-fab:hover{filter:brightness(1.06); transform:translateY(-2px)}
 
     /* Ask MystAI Modal */
-    .ask-modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;justify-content:center;align-items:center;z-index:1300}
+    .ask-modal{
+      position:fixed;inset:0;background:rgba(0,0,0,.65);
+      display:none;justify-content:center;align-items:center;z-index:1300;
+    }
     .ask-card{
       width:min(720px,92vw); background:#0d1a2b; border:1px solid rgba(255,255,255,.12);
       border-radius:16px; padding:20px;
@@ -93,11 +125,18 @@
     .ask-actions{display:flex; gap:10px; justify-content:flex-end; margin-top:10px}
     .ask-btn{background:#ffd54f;color:#111;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
     .ask-secondary{background:transparent; color:#e6ecff; border:1px solid rgba(255,255,255,.2)}
-    .ask-output{margin-top:14px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); padding:12px; border-radius:10px; display:none; text-align:left; white-space:pre-wrap}
+    .ask-output{
+      margin-top:14px; background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.06); padding:12px;
+      border-radius:10px; display:none; text-align:left; white-space:pre-wrap
+    }
     .ask-hint{color:#a9b4d0; font-size:12px; margin-top:6px}
     .spinner{display:none; margin-left:6px}
 
-    @media(max-width:768px){.floating-logo{height:120px;top:100px}.hero{padding-top:220px}}
+    @media(max-width:768px){
+      .floating-logo{height:120px;top:100px}
+      .hero{padding-top:220px}
+    }
   </style>
 </head>
 <body>
@@ -119,35 +158,57 @@
 
   <section class="hero">
     <h1 data-i18n="choose">Choose Your Reading</h1>
-    <p data-i18n="desc">Explore the ancient art of divination through the power of AI.<br>Select your path below to begin your mystical journey.</p>
+    <p data-i18n="desc">
+      Explore the ancient art of divination through the power of AI.<br>
+      Select your path below to begin your mystical journey.
+    </p>
   </section>
 
+  <!-- 5 KART -->
   <section class="grid">
     <article class="tile" data-type="coffee">
       <img src="images/Coffee.png" class="reading-img" alt="Coffee Reading">
       <h3 data-i18n="coffeeTitle">AI Coffee Reading</h3>
-      <p data-i18n="coffeeDesc">Upload your cup image and receive symbolic and emotional insights decoded by AI.</p>
+      <p data-i18n="coffeeDesc">
+        Upload your cup image and receive symbolic and emotional insights decoded by AI.
+      </p>
       <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
     <article class="tile" data-type="tarot">
       <img src="images/Tarot.png" class="reading-img" alt="Tarot Reading">
       <h3 data-i18n="tarotTitle">AI Tarot Reading</h3>
-      <p data-i18n="tarotDesc">Draw cards digitally and let AI interpret archetypes and guidance for you.</p>
+      <p data-i18n="tarotDesc">
+        Draw cards digitally and let AI interpret archetypes and guidance for you.
+      </p>
       <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
     <article class="tile" data-type="palm">
       <img src="images/Palm.png" class="reading-img" alt="Palm Reading">
       <h3 data-i18n="palmTitle">AI Palm Reading</h3>
-      <p data-i18n="palmDesc">Scan your palm and discover patterns and meanings through AI analysis.</p>
+      <p data-i18n="palmDesc">
+        Scan your palm and discover patterns and meanings through AI analysis.
+      </p>
       <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
     <article class="tile" data-type="energy">
       <img src="images/Energy.png" class="reading-img" alt="Energy & Dreams">
       <h3 data-i18n="energyTitle">Energy & Dreams</h3>
-      <p data-i18n="energyDesc">Upload your dreams or energy symbols and receive reflective AI interpretations.</p>
+      <p data-i18n="energyDesc">
+        Upload your dreams or energy symbols and receive reflective AI interpretations.
+      </p>
+      <button class="start-btn" data-i18n="start">Start Reading</button>
+    </article>
+
+    <!-- YENİ 5. KART: ASTROLOJİ -->
+    <article class="tile" data-type="astrology">
+      <img src="images/Astrology.png" class="reading-img" alt="Astrology & Birth Chart">
+      <h3 data-i18n="astroTitle">Astrology & Birth Chart</h3>
+      <p data-i18n="astroDesc">
+        Discover your personal birth chart and explore AI-generated zodiac and planet insights.
+      </p>
       <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
   </section>
@@ -166,7 +227,7 @@
     </p>
   </footer>
 
-  <!-- Ask MystAI FAB -->
+  <!-- Ask MystAI FAB (AYNEN ESKİ GİBİ) -->
   <button class="ask-fab" id="askFab">
     🔮 <span data-i18n="ask">Ask MystAI</span>
   </button>
@@ -178,7 +239,9 @@
       <div class="ask-row">
         <textarea id="askInput" placeholder="Type your question..."></textarea>
       </div>
-      <div class="ask-hint" id="askHint">Tip: You can ask about your energy, dreams, love, career, or destiny.</div>
+      <div class="ask-hint" id="askHint">
+        Tip: You can ask about your energy, dreams, love, career, or destiny.
+      </div>
       <div class="ask-actions">
         <button class="ask-btn ask-secondary" id="askClose" data-i18n="close">Close</button>
         <button class="ask-btn" id="askSend">
@@ -229,6 +292,8 @@
         palmDesc:"Scan your palm and discover patterns and meanings through AI analysis.",
         energyTitle:"Energy & Dreams",
         energyDesc:"Upload your dreams or energy symbols and receive reflective AI interpretations.",
+        astroTitle:"AI Astrology Reading",
+        astroDesc:"Discover your personal birth chart, zodiac energies and AI-generated interpretations.",
         start:"Start Reading",
         logout:"Logout",
         history:"My History",
@@ -252,6 +317,8 @@
         palmDesc:"Avucunu tara; çizgi ve desenleri yapay zekâ analiz etsin.",
         energyTitle:"Enerji & Rüyalar",
         energyDesc:"Rüyalarını veya enerji sembollerini yükle; AI bunları farkındalıkla yorumlasın.",
+        astroTitle:"Astroloji & Doğum Haritası",
+        astroDesc:"AI yorumlu doğum haritanı, yıldıznameni ve gezegen etkilerini keşfet.",
         start:"Falını Başlat",
         logout:"Çıkış Yap",
         history:"Geçmişim",
@@ -267,6 +334,7 @@
     };
 
     let activeLang = localStorage.getItem("myst_lang") || "en";
+
     function setLang(lang){
       activeLang = lang;
       localStorage.setItem("myst_lang", lang);
@@ -310,23 +378,22 @@
       }
     });
 
-    /* ====== Start Reading -> İlgili sayfaya yönlendir ====== */
+    /* ====== Start Reading yönlendirme ====== */
     document.querySelectorAll('.tile').forEach(tile=>{
       const btn  = tile.querySelector('.start-btn');
-      const type = tile.dataset.type; // coffee, tarot, palm, energy
+      const type = tile.dataset.type; // coffee, tarot, palm, energy, astrology
 
       let target = 'app.html';
-      if(type === 'coffee') target = 'coffee.html';
-      else if(type === 'tarot') target = 'tarot.html';
-      else if(type === 'palm') target = 'palm.html';
-      else if(type === 'energy') target = 'energy.html';
+      if(type === 'coffee')    target = 'coffee.html';
+      else if(type === 'tarot')     target = 'tarot.html';
+      else if(type === 'palm')      target = 'palm.html';
+      else if(type === 'energy')    target = 'energy.html';
+      else if(type === 'astrology') target = 'astrology.html';
 
-      btn.addEventListener('click', ()=>{
-        window.location.href = target;
-      });
+      btn.addEventListener('click', ()=>{ window.location.href = target; });
     });
 
-    /* ====== Ask MystAI - Modal ve backend çağrısı ====== */
+    /* ====== Ask MystAI ====== */
     const askFab    = document.getElementById('askFab');
     const askModal  = document.getElementById('askModal');
     const askClose  = document.getElementById('askClose');
@@ -340,12 +407,14 @@
       askModal.style.display='flex';
       askInput.focus();
     });
+
     askClose.addEventListener('click', ()=> {
       askModal.style.display='none';
       askOutput.style.display='none';
       askInput.value='';
       askAudio.pause(); askAudio.currentTime=0; askAudio.src='';
     });
+
     askModal.addEventListener('click', (e)=>{
       if(e.target === askModal){ askClose.click(); }
     });
@@ -363,11 +432,11 @@
       askOutput.textContent = '';
 
       try{
-        if(!BACKEND_URL || BACKEND_URL.includes("YOUR-BACKEND-URL")){
+        if(!BACKEND_URL){
           askOutput.style.display='block';
           askOutput.textContent = activeLang==='tr'
-            ? 'Backend adresi yapılandırılmadı. Lütfen BACKEND_URL değerini kendi Render URL’inle değiştir.'
-            : 'Backend URL is not configured. Please set BACKEND_URL to your Render URL.';
+            ? 'Backend adresi yapılandırılmadı.'
+            : 'Backend URL is not configured.';
           return;
         }
 
