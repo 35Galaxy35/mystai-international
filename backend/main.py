@@ -16,12 +16,15 @@ CORS(app, resources={
         "origins": [
             "https://mystai.ai",
             "https://www.mystai.ai",
-            "https://mystaiai.vercel.app"
+            "https://mystai-international-1.onrender.com",
+            "http://localhost:3000",
+            "http://127.0.0.1:3000"
         ],
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type"]
+        "allow_headers": ["Content-Type", "Authorization"]
     }
 })
+
 
 # ENV'den API KEY oku
 OPENAI_KEY = os.environ.get("OPENAI_API_KEY")
