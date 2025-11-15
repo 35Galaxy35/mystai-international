@@ -992,11 +992,12 @@
           return;
         }
 
-        const res = await fetch(`${BACKEND_URL}/predict`, {
-          method:"POST",
-          headers:{ "Content-Type":"application/json" },
-          body:JSON.stringify({ user_input:q })
-        });
+       const res = await fetch("https://mystai-international-1.onrender.com/predict", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ user_input: q })
+});
+
 
         if(!res.ok){
           throw new Error("HTTP " + res.status);
