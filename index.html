@@ -5,15 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MystAI.ai — AI-Powered Fortune Readings & Digital Divination</title>
 
-  <!-- Canonical & Fav -->
   <link rel="canonical" href="https://mystai.ai/" />
   <link rel="icon" type="image/png" href="mystai-logo.png" />
-
-  <!-- Hreflang -->
   <link rel="alternate" hreflang="en" href="https://mystai.ai/" />
   <link rel="alternate" hreflang="tr" href="https://mystai.ai/" />
 
-  <!-- Social -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="MystAI.ai — AI-Powered Fortune Readings" id="og-title"/>
   <meta property="og:description" content="Experience AI-powered fortune readings — mystical insights interpreted by advanced artificial intelligence." id="og-desc"/>
@@ -22,11 +18,8 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="MystAI.ai — AI-Powered Fortune Readings" id="tw-title"/>
   <meta name="twitter:description" content="Experience AI-powered fortune readings — mystical insights interpreted by advanced artificial intelligence." id="tw-desc"/>
-
-  <!-- SEO -->
   <meta name="description" content="Experience AI-powered fortune readings — mystical insights interpreted by advanced artificial intelligence." id="meta-desc"/>
 
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
 
   <style>
@@ -64,10 +57,9 @@
       animation:pulseGlow 4s ease-in-out infinite alternate;transition:transform 1s ease,filter 1s ease
     }
     .hero-logo:hover{transform:scale(1.05);filter:drop-shadow(0 0 58px rgba(255,235,100,1)) brightness(1.25) contrast(1.2)}
-    @keyframes pulseGlow{from{filter:drop-shadow(0 0 20px rgba(255,215,0,.6))}to{filter:drop-shadow(0 0 45px rgba(255,235,100,1))}}
 
     /* Content */
-    .wrap{max-width:1100px;margin:0 auto;padding:0 20px 40px}
+    .wrap{max-width:1400px;margin:0 auto;padding:0 20px 40px}
     h1{font-size:44px;color:#f5d76e;margin:20px 0 10px;text-shadow:0 0 10px rgba(255,215,0,.3)}
     p.lead{font-size:18px;color:var(--text);line-height:1.6;max-width:900px;margin:0 auto}
 
@@ -79,145 +71,115 @@
       letter-spacing:2px;text-transform:uppercase;border:none;cursor:pointer;box-shadow:0 0 25px rgba(255,215,0,.6);
       animation:crystalGlow 5s ease infinite,pulseGlow 4s ease-in-out infinite;transition:transform .3s ease,box-shadow .4s ease
     }
-    .fortune-btn:hover{transform:scale(1.1);box-shadow:0 0 45px rgba(255,240,150,.9);filter:brightness(1.2)}
 
-    /* Grid */
+    /* GRID — BU EN ÖNEMLİ KISIM! */
     .grid{
       display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      grid-template-columns:repeat(5,1fr);
       gap:24px;
       margin-top:60px;
     }
+
     .tile{
       background:rgba(255,255,255,.04);
       border:1px solid rgba(255,255,255,.06);
       border-radius:14px;
       padding:14px;
-      transition:transform .3s ease,box-shadow .3s ease;
+      transition:.3s ease;
       opacity:0;
-      transform:translateY(20px);
+      transform:translateY(20px)
     }
     .tile.visible{opacity:1;transform:translateY(0);transition:all 1s ease}
     .tile:hover{transform:scale(1.02);box-shadow:0 0 30px rgba(255,215,0,.2)}
     .tile h3{color:#f5d76e;font-family:'Cinzel',serif;margin-top:10px}
     .tile p{color:var(--muted);font-size:15px}
 
-    /* Images */
     .reading-img{
       width:100%;height:320px;object-fit:cover;border-radius:14px;margin-bottom:12px;
-      box-shadow:0 0 22px rgba(255,215,0,.25);transition:transform .35s ease,box-shadow .35s ease,filter .35s ease
+      box-shadow:0 0 22px rgba(255,215,0,.25);transition:.35s ease
     }
     .tile:hover .reading-img{transform:scale(1.03);box-shadow:0 0 36px rgba(255,225,150,.45);filter:brightness(1.05)}
 
-    /* Footer */
-    footer{margin-top:60px;padding:36px 0 24px;border-top:1px solid rgba(255,255,255,.08);text-align:center;color:#aeb6cf;text-shadow:0 0 10px rgba(255,215,0,.2)}
-    footer a{color:#cfe4ff;text-decoration:none}
-    footer a:hover{color:#ffe680}
+    footer{margin-top:60px;padding:36px 0 24px;border-top:1px solid rgba(255,255,255,.08);text-align:center;color:#aeb6cf}
   </style>
 </head>
+
 <body>
 
-  <!-- Language Switcher -->
   <div class="topbar">
-    <button class="lang-btn" id="btn-en" aria-pressed="true">EN</button>
-    <button class="lang-btn secondary" id="btn-tr" aria-pressed="false">TR</button>
+    <button class="lang-btn" id="btn-en">EN</button>
+    <button class="lang-btn secondary" id="btn-tr">TR</button>
   </div>
 
-  <!-- Starfield -->
   <div id="starfield"></div>
 
-  <!-- Hero -->
   <section class="hero">
-    <img src="mystai-logo.png" alt="MystAI.ai Logo" class="hero-logo">
+    <img src="mystai-logo.png" class="hero-logo">
   </section>
 
   <div class="wrap">
-    <h1 data-i18n="headline">Experience AI-powered fortune reading</h1>
-    <p class="lead" data-i18n="lead">
+    <h1>Experience AI-powered fortune reading</h1>
+    <p class="lead">
       Mystical insights interpreted by advanced artificial intelligence.<br>
       Your privacy, security, and clarity are our top priorities.
     </p>
 
     <div class="cta">
-      <a class="fortune-btn" href="app.html" data-i18n="cta">GET YOUR FORTUNE</a>
+      <a class="fortune-btn" href="app.html">GET YOUR FORTUNE</a>
     </div>
 
-    <!-- Reading Cards -->
+    <!-- KARTLAR -->
     <section class="grid">
 
       <article class="tile fade-in">
         <img src="images/Coffee.png" class="reading-img">
-        <h3 data-i18n="coffeeTitle">AI Coffee Reading</h3>
-        <p data-i18n="coffeeDesc">Upload your cup image and receive symbolic, cultural, and emotional layers decoded by AI.</p>
+        <h3>AI Coffee Reading</h3>
+        <p>Upload your cup image and receive symbolic insights.</p>
       </article>
 
       <article class="tile fade-in">
         <img src="images/Tarot.png" class="reading-img">
-        <h3 data-i18n="tarotTitle">AI Tarot Reading</h3>
-        <p data-i18n="tarotDesc">Draw cards digitally and get spreads interpreted with archetypes, timeline & guidance.</p>
+        <h3>AI Tarot Reading</h3>
+        <p>Draw cards digitally and get AI interpretations.</p>
       </article>
 
       <article class="tile fade-in">
         <img src="images/Palm.png" class="reading-img">
-        <h3 data-i18n="palmTitle">AI Palm Reading</h3>
-        <p data-i18n="palmDesc">Scan your palm and discover line patterns, shapes এবং traits — processed with computer vision.</p>
+        <h3>AI Palm Reading</h3>
+        <p>Scan your palm and discover patterns.</p>
       </article>
 
       <article class="tile fade-in">
         <img src="images/Energy.png" class="reading-img">
-        <h3 data-i18n="energyTitle">Energy & Dreams</h3>
-        <p data-i18n="energyDesc">Upload dreams for symbolism mapping, and explore energy reading with mindful prompts.</p>
+        <h3>Energy & Dreams</h3>
+        <p>Upload dreams for symbolism mapping.</p>
       </article>
 
-      <!-- NEW ASTROLOGY CARD -->
+      <!-- YENİ ASTROLOJİ KARTI -->
       <article class="tile fade-in">
         <img src="images/Astrology.png" class="reading-img">
-        <h3 data-i18n="astroTitle">Astrology & Birth Chart</h3>
-        <p data-i18n="astroDesc">
-          Discover your personalized star map with your birth details. Natal Chart, Yıldızname insights and Solar Return interpretations are generated by AI.
-        </p>
+        <h3>Astrology & Birth Chart</h3>
+        <p>Explore your personalized star map and natal chart.</p>
       </article>
 
     </section>
 
     <footer>
-      <div class="links">
-        <a href="terms.html" data-i18n="terms">Terms</a> • 
-        <a href="privacy.html" data-i18n="privacy">Privacy</a> • 
-        <a href="cookies.html" data-i18n="cookies">Cookies</a> • 
-        <a href="disclaimer.html" data-i18n="disclaimer">Disclaimer</a>
-      </div>
-      <p>© 2025 MystAI.ai — <span data-i18n="rights">All Rights Reserved.</span> <span data-i18n="devby">Developed by GALAXY 🌌</span></p>
+      © 2025 MystAI.ai — All Rights Reserved. Developed by GALAXY 🌌
     </footer>
+
   </div>
 
   <script>
-    // Starfield
-    (function(){
-      const starfield=document.getElementById("starfield");
-      const STARS=150;
-      for(let i=0;i<STARS;i++){
-        const s=document.createElement("div");
-        s.className="star";
-        s.style.left=Math.random()*100+"vw";
-        s.style.top=Math.random()*100+"vh";
-        s.style.animationDelay=Math.random()*3+"s";
-        starfield.appendChild(s);
-      }
-    })();
-
-    // Fade-in Cards
+    // Fade-in animation
     document.addEventListener("DOMContentLoaded",()=>{
-      document.querySelectorAll('.tile').forEach(t=>{
-        const obs=new IntersectionObserver(entries=>{
-          entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
-        },{threshold:.2});
-        obs.observe(t);
-      });
+      const tiles=document.querySelectorAll('.tile');
+      const obs=new IntersectionObserver(entries=>{
+        entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+      },{threshold:.2});
+      tiles.forEach(t=>obs.observe(t));
     });
+  </script>
 
-    // i18n
-    const i18n={
-      en:{headline:"Experience AI-powered fortune reading",lead:"Mystical insights interpreted by advanced artificial intelligence.<br>Your privacy, security, and clarity are our top priorities.",cta:"GET YOUR FORTUNE",coffeeTitle:"AI Coffee Reading",coffeeDesc:"Upload your cup image and receive symbolic, cultural, and emotional layers decoded by AI.",tarotTitle:"AI Tarot Reading",tarotDesc:"Draw cards digitally and get spreads interpreted with archetypes, timeline & guidance.",palmTitle:"AI Palm Reading",palmDesc:"Scan your palm and discover line patterns, shapes and traits — processed with computer vision.",energyTitle:"Energy & Dreams",energyDesc:"Upload dreams for symbolism mapping, and explore energy reading with mindful prompts.",astroTitle:"Astrology & Birth Chart",astroDesc:"Discover your personalized star map with your birth details. Natal Chart, Yıldızname insights and Solar Return interpretations are generated by AI.",terms:"Terms",privacy:"Privacy",cookies:"Cookies",disclaimer:"Disclaimer",rights:"All Rights Reserved.",devby:"Developed by GALAXY 🌌"},
-      tr:{headline:"Yapay zekâ destekli fal deneyimi yaşa",lead:"Gelişmiş yapay zekâ tarafından yorumlanan mistik içgörüler.<br>Gizlilik, güvenlik ve netlik önceliğimizdir.",cta:"FALINI AL",coffeeTitle:"Yapay Zekâ Kahve Falı",coffeeDesc:"Fincan fotoğrafını yükle; sembolik, kültürel ve duygusal katmanları yapay zekâ çözümler.",tarotTitle:"Yapay Zekâ Tarot Açılımı",tarotDesc:"Kartlarını dijital olarak seç; arketipler, zaman çizgisi ve rehberlikle AI tarafından yorumlansın.",palmTitle:"Yapay Zekâ El Falı",palmDesc:"Avucunu tara; çizgi desenlerini, şekilleri ve özellikleri — bilgisayarlı görü ile keşfet.",energyTitle:"Enerji & Rüyalar",energyDesc:"Rüyalarını yükle; sembol haritalama ile yorumlansın, enerji okumasını farkındalıkla keşfet.",astroTitle:"Astroloji & Doğum Haritası",astroDesc:"Doğum bil
-
+</body>
+</html>
