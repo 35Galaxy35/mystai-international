@@ -573,7 +573,7 @@
       </p>
 
       <div class="mode-bar">
-        <span data-i18n="modeLabel">Selected configuration:</span>
+        <span data-i18n="modeLabel">Report mode:</span>
         <div class="mode-pill">
           <span class="active" data-i18n="modeNatalSolarTransits">Natal + Solar Return + Transits</span>
         </div>
@@ -652,7 +652,7 @@
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyDyiD7GAfojMbtm-5pO6XCSRJclffPL0",
+      apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
       authDomain: "mystai-6cca2.firebaseapp.com",
       projectId: "mystai-6cca2",
       storageBucket: "mystai-6cca2.appspot.com",
@@ -918,7 +918,6 @@
           const audioURL = audioPath.startsWith("http") ? audioPath : `${BACKEND_URL}${audioPath}`;
           astroAudio.src = audioURL;
           astroAudio.load();
-          // otomatik oynatmayı dene, ama hata verirse sessizce geç
           astroAudio.play().catch(()=>{});
         }
       }catch(err){
