@@ -5,339 +5,491 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MystAI.ai — Astrology & Birth Chart</title>
   <link rel="icon" type="image/png" href="mystai-logo.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
 
   <style>
     :root{
       --bg-start:#0d1440;
-      --bg-end:#0b0f1f;
-      --text:#d8e0ff;
-      --muted:#a9b4d0;
+      --bg-end:#060814;
+      --card:#121933;
+      --card-soft:#141c3b;
+      --border-soft:rgba(255,255,255,.08);
+      --text:#e5ecff;
+      --muted:#a3aed9;
       --accent:#f2c84b;
-      --card:#151b3d;
+      --accent-soft:rgba(242,200,75,.22);
+      --error:#ff7a7a;
+      --ok:#41e2a0;
     }
+
+    *{box-sizing:border-box;}
+
     html,body{
-      margin:0;padding:0;
+      margin:0;
+      padding:0;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
       color:var(--text);
-      background:radial-gradient(1400px 800px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
+      background:radial-gradient(1400px 800px at 50% -10%, #101a4d 0%, #050712 80%);
+      min-height:100vh;
       overflow-x:hidden;
     }
 
+    /* Header */
     header{
       position:relative;
-      padding:16px 40px;
+      padding:14px 36px;
       display:flex;
       justify-content:space-between;
       align-items:center;
-      background:rgba(10,15,30,0.35);
-      backdrop-filter:blur(12px);
-      border-bottom:1px solid rgba(255,255,255,0.06);
-      z-index:1000;
+      background:rgba(6,10,30,.65);
+      border-bottom:1px solid rgba(255,255,255,.09);
+      backdrop-filter:blur(16px);
+      z-index:20;
     }
-    .lang-box,.nav-btns{display:flex;gap:10px;align-items:center;}
+    .lang-box,.nav-btns{display:flex;align-items:center;gap:10px;}
+
     .lang-btn{
-      font-weight:700;border:0;border-radius:50px;
-      padding:7px 13px;cursor:pointer;font-size:13px;
+      font-weight:700;
+      border-radius:999px;
+      padding:6px 13px;
+      border:none;
+      font-size:13px;
+      cursor:pointer;
       background:linear-gradient(135deg,#ffd54f,#ffe680);
-      color:#111;transition:all .3s ease;
+      color:#111;
+      box-shadow:0 0 18px rgba(255,215,0,.45);
+      transition:all .25s ease;
     }
     .lang-btn.secondary{
       background:rgba(255,255,255,.08);
       color:#e6ecff;
-      border:1px solid rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:none;
     }
+    .lang-btn:hover{transform:translateY(-2px);filter:brightness(1.05);}
+
     .btn{
-      font-weight:700;border:0;border-radius:10px;
-      padding:8px 18px;cursor:pointer;
-      color:#0b0f1f;background:#ffd54f;
-      font-size:14px;transition:all .3s ease;
+      font-weight:700;
+      border-radius:10px;
+      padding:7px 16px;
+      border:none;
+      font-size:13px;
+      cursor:pointer;
+      background:#ffd54f;
+      color:#111;
+      transition:all .25s ease;
     }
-    .btn:hover,.lang-btn:hover{filter:brightness(1.1);transform:translateY(-2px)}
-    .welcome{
-      font-weight:600;color:#ffe680;
-      text-shadow:0 0 10px rgba(255,220,120,.4);
-      margin-right:12px;
-    }
+    .btn:hover{transform:translateY(-2px);filter:brightness(1.05);}
+    .welcome{font-weight:600;color:#ffe680;text-shadow:0 0 10px rgba(255,230,140,.6);}
 
     /* Logo */
     .floating-logo{
-      position:absolute;left:50%;top:86px;transform:translateX(-50%);
-      height:150px;width:auto;pointer-events:none;
-      animation:float 6s ease-in-out infinite alternate, glow 6s ease-in-out infinite alternate;
-      filter:drop-shadow(0 0 35px rgba(255,230,150,.65)) brightness(1.05);
+      position:absolute;
+      left:50%;
+      top:90px;
+      transform:translateX(-50%);
+      height:130px;
+      filter:drop-shadow(0 0 32px rgba(255,230,150,.7));
+      animation:float 6s ease-in-out infinite alternate, glow 7s ease-in-out infinite alternate;
+      pointer-events:none;
       z-index:5;
     }
-    @keyframes float{from{transform:translate(-50%,-10px)}to{transform:translate(-50%,8px)}}
-    @keyframes glow{from{filter:drop-shadow(0 0 25px rgba(255,240,180,.4))}to{filter:drop-shadow(0 0 55px rgba(255,250,200,.8))}}
-
-    /* Layout */
-    main{
-      max-width:1180px;
-      margin:240px auto 60px;
-      padding:0 16px 40px;
-      display:grid;
-      grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
-      gap:26px;
+    @keyframes float{from{transform:translate(-50%,-12px)}to{transform:translate(-50%,6px)}}
+    @keyframes glow{
+      from{filter:drop-shadow(0 0 26px rgba(255,240,180,.4))}
+      to{filter:drop-shadow(0 0 60px rgba(255,250,210,.85))}
     }
-    @media(max-width:960px){
-      main{
-        margin-top:220px;
-        grid-template-columns:1fr;
-      }
+
+    /* Main Layout */
+    main{
+      max-width:1240px;
+      margin:220px auto 60px;
+      padding:0 18px 40px;
+      display:grid;
+      grid-template-columns:minmax(0,420px) minmax(0,1fr);
+      gap:26px;
     }
 
     .panel{
-      background:linear-gradient(145deg,rgba(9,12,30,.92),rgba(16,22,54,.96));
+      background:linear-gradient(145deg,rgba(7,11,28,.95),rgba(10,18,50,.97));
       border-radius:18px;
       border:1px solid rgba(255,255,255,.08);
-      box-shadow:0 18px 45px rgba(0,0,0,.6);
-      padding:22px 22px 24px;
+      box-shadow:
+        0 28px 90px rgba(0,0,0,.75),
+        0 0 40px rgba(80,120,255,.15);
+      padding:22px 22px 26px;
+      position:relative;
+      overflow:hidden;
     }
+    .panel::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background:radial-gradient(circle at 10% -10%,rgba(255,215,0,.12),transparent 55%),
+                 radial-gradient(circle at 120% 120%,rgba(90,180,255,.10),transparent 55%);
+      opacity:.9;
+      pointer-events:none;
+      z-index:-1;
+    }
+
     .panel-title{
       font-family:'Cinzel',serif;
-      font-size:18px;
-      color:#ffd76a;
-      margin-top:0;
-      margin-bottom:8px;
-      letter-spacing:.03em;
+      font-size:22px;
+      letter-spacing:.06em;
+      color:#ffd76e;
+      margin-bottom:12px;
+      text-transform:uppercase;
     }
     .panel-sub{
       font-size:13px;
       color:var(--muted);
-      margin-bottom:18px;
       line-height:1.5;
+      margin-bottom:18px;
     }
 
-    label{
+    /* Form */
+    .form-group{margin-bottom:14px;text-align:left;}
+    .form-label{
       font-size:13px;
-      color:#cfd6ff;
       margin-bottom:4px;
+      color:#cfd7ff;
       display:block;
-      text-align:left;
     }
-    .field{
-      margin-bottom:14px;
-      text-align:left;
-    }
-    input[type="text"],
-    input[type="date"],
-    input[type="time"],
-    textarea{
+    .form-input, .form-textarea{
       width:100%;
-      padding:9px 10px;
       border-radius:10px;
       border:1px solid rgba(255,255,255,.18);
-      background:rgba(4,9,30,.9);
-      color:#f3f5ff;
+      background:rgba(3,6,22,.9);
+      color:var(--text);
+      padding:8px 10px;
       font-size:14px;
-      box-sizing:border-box;
       outline:none;
+      transition:border .2s ease, box-shadow .2s ease, background .2s ease;
     }
-    textarea{
+    .form-input:focus, .form-textarea:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px rgba(242,200,75,.6);
+      background:rgba(3,8,28,.98);
+    }
+    .form-textarea{
       resize:vertical;
-      min-height:70px;
-      max-height:140px;
+      min-height:78px;
+      max-height:160px;
     }
-    input::placeholder,textarea::placeholder{color:#707aa5;}
+    .hint{font-size:11px;color:var(--muted);margin-top:4px;}
 
-    .focus-group{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-    }
-    .chip{
-      border-radius:999px;
-      padding:6px 11px;
+    /* Focus chips */
+    .chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+    .focus-chip{
       font-size:12px;
+      border-radius:999px;
+      padding:5px 10px;
       border:1px solid rgba(255,255,255,.22);
-      background:rgba(9,14,40,.8);
-      color:#dfe5ff;
+      background:rgba(5,10,28,.6);
       cursor:pointer;
+      color:#e0e7ff;
       user-select:none;
+      transition:all .2s ease;
     }
-    .chip.active{
+    .focus-chip.active{
       background:linear-gradient(135deg,#ffd54f,#ffe680);
       color:#111;
-      border-color:transparent;
-    }
-
-    .mode-tabs{
-      display:inline-flex;
-      border-radius:999px;
-      padding:3px;
-      background:rgba(7,11,30,.9);
-      border:1px solid rgba(255,255,255,.1);
-      margin-bottom:14px;
-    }
-    .mode-tab{
-      border-radius:999px;
-      border:none;
-      background:transparent;
-      color:#b4c3ff;
-      font-size:11px;
-      padding:6px 12px;
-      cursor:pointer;
-      white-space:nowrap;
-    }
-    .mode-tab.active{
-      background:linear-gradient(135deg,#ffd54f,#ffe680);
-      color:#111;
-      font-weight:700;
+      border-color:rgba(255,215,0,1);
+      box-shadow:0 0 18px rgba(255,215,0,.6);
     }
 
     .primary-btn{
+      margin-top:12px;
       width:100%;
-      margin-top:10px;
-      background:linear-gradient(135deg,#ffd54f,#ffe680);
-      color:#111;
+      border-radius:999px;
+      padding:11px 16px;
       border:none;
-      border-radius:14px;
-      padding:11px;
-      font-weight:800;
-      letter-spacing:.03em;
       cursor:pointer;
-      box-shadow:0 10px 30px rgba(0,0,0,.7);
-      transition:transform .2s ease,box-shadow .2s ease;
+      font-weight:700;
+      font-size:15px;
+      background:linear-gradient(135deg,#ffd54f,#ffb347);
+      color:#111;
+      box-shadow:0 16px 40px rgba(0,0,0,.75),0 0 26px rgba(255,215,0,.55);
+      transition:transform .25s ease, box-shadow .25s ease, filter .2s ease;
     }
-    .primary-btn:hover{transform:translateY(-1px);box-shadow:0 14px 36px rgba(0,0,0,.8);}
-    .primary-btn:disabled{opacity:.6;cursor:default;transform:none;box-shadow:none;}
-
-    .hint{
-      font-size:11px;
-      color:#8f97bf;
-      margin-top:6px;
-      line-height:1.5;
-      text-align:left;
+    .primary-btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 22px 55px rgba(0,0,0,.85),0 0 30px rgba(255,215,0,.75);
+      filter:brightness(1.03);
+    }
+    .primary-btn:disabled{
+      opacity:.65;
+      cursor:default;
+      transform:none;
+      box-shadow:0 10px 26px rgba(0,0,0,.5);
     }
 
-    /* Right panel */
-    .report-header{
+    /* Right panel - chart & report */
+    .mode-bar{
       display:flex;
       justify-content:space-between;
       align-items:center;
       margin-bottom:10px;
-      gap:10px;
+      font-size:13px;
+      color:var(--muted);
     }
-    .report-title{
-      font-family:'Cinzel',serif;
-      font-size:20px;
-      color:#ffd76a;
-      margin:0;
+    .mode-pill{
+      border-radius:999px;
+      padding:3px;
+      background:rgba(4,10,32,.9);
+      border:1px solid rgba(255,255,255,.18);
+      display:inline-flex;
+      gap:4px;
     }
-    .report-sub{
-      font-size:12px;
-      color:#aab3dd;
-      margin-bottom:15px;
+    .mode-pill span{
+      font-size:11px;
+      padding:4px 10px;
+      border-radius:999px;
+      text-transform:uppercase;
+      letter-spacing:.09em;
+      opacity:.55;
+    }
+    .mode-pill span.active{
+      background:linear-gradient(135deg,#ffd54f,#ffe680);
+      color:#111;
+      opacity:1;
     }
 
-    .chart-wrap{
+    .chart-card{
+      margin-top:6px;
+      border-radius:18px;
+      padding:18px 18px 16px;
+      background:
+        radial-gradient(circle at 20% 0%,rgba(255,244,200,.15),transparent 55%),
+        radial-gradient(circle at 90% 100%,rgba(130,180,255,.15),transparent 55%),
+        linear-gradient(150deg,#050816,#0c1635);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:
+        0 20px 60px rgba(0,0,0,.85),
+        0 0 32px rgba(70,120,255,.3);
       display:flex;
       flex-direction:column;
       align-items:center;
-      margin-bottom:14px;
-      background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.06),rgba(13,19,48,.4));
-      border-radius:16px;
-      padding:14px 10px 16px;
-      border:1px solid rgba(255,255,255,.08);
+      gap:8px;
     }
-    canvas#astroChart{
-      max-width:360px;
-      max-height:360px;
-      width:100%;
-      height:auto;
+
+    .chart-container{
+      position:relative;
+      width:min(420px,80vw);
+      aspect-ratio:1;
+      border-radius:20px;
+      padding:18px;
+      background:radial-gradient(circle at 50% 12%,rgba(255,255,255,.1),transparent 60%),
+                 radial-gradient(circle at 0% 100%,rgba(255,215,0,.16),transparent 55%),
+                 #050818;
+      box-shadow:0 0 40px rgba(0,0,0,.9),0 0 40px rgba(40,80,255,.45);
+      overflow:hidden;
     }
-    .chart-meta{
-      margin-top:8px;
+    .chart-inner-frame{
+      position:absolute;
+      inset:12px;
+      border-radius:50%;
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 0 50px rgba(255,255,255,.12) inset;
+      pointer-events:none;
+    }
+    .chart-img{
+      position:absolute;
+      inset:12px;
+      border-radius:18px;
+      width:calc(100% - 24px);
+      height:calc(100% - 24px);
+      object-fit:cover;
+      z-index:2;
+    }
+    .chart-placeholder{
+      position:absolute;
+      inset:18px;
+      border-radius:50%;
+      border:1px dashed rgba(255,255,255,.25);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:rgba(255,255,255,.7);
       font-size:12px;
-      color:#cfd6ff;
+      text-align:center;
+      padding:0 20px;
+      z-index:1;
+    }
+
+    .chart-meta{
+      margin-top:6px;
+      font-size:12px;
+      color:#cfd8ff;
       text-align:center;
     }
-    .download-link{
-      margin-top:6px;
-      font-size:11px;
-      color:#cfe4ff;
-      cursor:pointer;
-      text-decoration:underline;
-    }
 
-    .report-text{
-      margin-top:8px;
-      padding:12px 12px 14px;
-      background:rgba(4,9,30,.9);
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.08);
-      font-size:14px;
-      color:#d9e2ff;
-      max-height:260px;
-      overflow-y:auto;
-      white-space:pre-wrap;
-      text-align:left;
+    .download-link{
+      margin-top:4px;
+      font-size:12px;
+      color:#ffe680;
+      text-decoration:none;
     }
+    .download-link:hover{text-decoration:underline;}
 
     .audio-row{
+      width:100%;
       margin-top:10px;
       display:flex;
       align-items:center;
       gap:8px;
       font-size:12px;
-      color:#aab3dd;
+      color:var(--muted);
     }
-    .audio-row audio{flex:1;}
+    audio{width:100%;}
 
     .status{
       margin-top:8px;
       font-size:12px;
-      min-height:16px;
-      color:#ffcf7a;
+      color:var(--muted);
+      text-align:left;
+      width:100%;
     }
-    .status.error{color:#ff9b9b;}
-    .status.ok{color:#a9ffbf;}
+    .status.ok{color:var(--ok);}
+    .status.error{color:var(--error);}
+
+    .report-box{
+      margin-top:10px;
+      width:100%;
+      max-height:260px;
+      border-radius:12px;
+      padding:12px 14px;
+      background:rgba(3,9,26,.85);
+      border:1px solid rgba(255,255,255,.12);
+      overflow-y:auto;
+      font-size:13px;
+      line-height:1.65;
+      text-align:left;
+      white-space:pre-wrap;
+    }
 
     /* Footer */
     footer{
-      margin-top:0;
-      padding:36px 0 26px;
-      border-top:1px solid rgba(255,255,255,.08);
-      color:#aeb6cf;
-      font-size:14px;
+      max-width:960px;
+      margin:0 auto 40px;
       text-align:center;
+      font-size:13px;
+      color:#aeb6d8;
+      padding:18px 10px 0;
+      border-top:1px solid rgba(255,255,255,.08);
     }
-    footer a{color:#cfe4ff;text-decoration:none}
-    footer a:hover{color:#ffe680}
-    .links{margin-bottom:8px}
+    footer a{color:#d8e4ff;text-decoration:none;}
+    footer a:hover{color:#ffe680;}
 
     /* Ask MystAI FAB */
     .ask-fab{
-      position:fixed; right:18px; bottom:18px; z-index:1200;
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      z-index:80;
       background:linear-gradient(135deg,#ffd54f,#ffe680);
-      color:#111; border:none; border-radius:999px; padding:12px 18px;
-      font-weight:800; box-shadow:0 8px 30px rgba(0,0,0,.35);
-      cursor:pointer; display:flex; align-items:center; gap:8px;
+      color:#111;
+      border:none;
+      border-radius:999px;
+      padding:11px 18px;
+      font-weight:800;
+      box-shadow:0 9px 36px rgba(0,0,0,.6);
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:14px;
     }
-    .ask-fab:hover{filter:brightness(1.06); transform:translateY(-2px)}
+    .ask-fab:hover{transform:translateY(-2px);filter:brightness(1.04);}
+
     .ask-modal{
-      position:fixed; inset:0; background:rgba(0,0,0,.65);
-      display:none; justify-content:center; align-items:center; z-index:1300;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.68);
+      display:none;
+      justify-content:center;
+      align-items:center;
+      z-index:90;
     }
     .ask-card{
-      width:min(720px,92vw); background:#0d1a2b;
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:16px; padding:20px;
-      box-shadow:0 0 40px rgba(255,215,0,.35);
+      width:min(720px,92vw);
+      background:#0c1426;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.16);
+      padding:18px 18px 16px;
+      box-shadow:0 30px 80px rgba(0,0,0,.9);
     }
-    .ask-title{margin:0 0 10px; color:#ffd54f; font-family:'Cinzel',serif}
-    .ask-row{display:flex; gap:12px; margin-top:10px}
+    .ask-title{
+      margin:0 0 8px;
+      color:#ffd54f;
+      font-family:'Cinzel',serif;
+      font-size:20px;
+    }
+    .ask-row{display:flex;gap:10px;margin-top:8px;}
     .ask-row textarea{
-      flex:1; height:110px; resize:vertical; border-radius:10px; border:1px solid rgba(255,255,255,.15);
-      background:#0b132a; color:#e6ecff; padding:10px; font-family:inherit; font-size:15px;
+      flex:1;
+      min-height:100px;
+      max-height:200px;
+      resize:vertical;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.16);
+      background:#050b1c;
+      color:#e6ecff;
+      padding:10px;
+      font-family:inherit;
+      font-size:14px;
     }
-    .ask-actions{display:flex; gap:10px; justify-content:flex-end; margin-top:10px}
-    .ask-btn{background:#ffd54f;color:#111;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
-    .ask-secondary{background:transparent; color:#e6ecff; border:1px solid rgba(255,255,255,.2)}
-    .ask-output{margin-top:14px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); padding:12px; border-radius:10px; display:none; text-align:left; white-space:pre-wrap}
-    .ask-hint{color:#a9b4d0; font-size:12px; margin-top:6px}
-    .spinner{display:none; margin-left:6px}
+    .ask-actions{
+      margin-top:10px;
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+    }
+    .ask-btn{
+      border-radius:999px;
+      border:none;
+      padding:8px 14px;
+      font-size:13px;
+      cursor:pointer;
+      font-weight:700;
+    }
+    .ask-secondary{
+      background:transparent;
+      color:#e6ecff;
+      border:1px solid rgba(255,255,255,.3);
+    }
+    .ask-primary{
+      background:#ffd54f;
+      color:#111;
+    }
+    .ask-output{
+      margin-top:12px;
+      border-radius:10px;
+      padding:10px 12px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      display:none;
+      font-size:13px;
+      white-space:pre-wrap;
+    }
+    .ask-hint{margin-top:6px;font-size:11px;color:var(--muted);}
+    .spinner{display:none;margin-left:6px;}
+
+    @media(max-width:980px){
+      main{
+        margin-top:220px;
+        grid-template-columns:minmax(0,1fr);
+      }
+      .panel{padding:18px 16px 22px;}
+      .chart-container{width:min(380px,90vw);}
+    }
+
+    @media(max-width:640px){
+      header{padding:10px 14px;}
+      .floating-logo{height:110px;top:86px;}
+      .welcome{display:none;}
+      main{margin-top:200px;padding-inline:10px;}
+    }
   </style>
 </head>
 <body>
@@ -348,94 +500,97 @@
     </div>
     <div class="nav-btns">
       <span id="user-welcome" class="welcome"></span>
-      <button class="btn" id="backBtn" data-i18n="backApp">Back to App</button>
+      <button class="btn" id="backToApp" data-i18n="backApp">Back to App</button>
+      <button class="btn" id="historyBtn" data-i18n="history">My History</button>
       <button class="btn" id="logoutBtn" data-i18n="logout">Logout</button>
     </div>
   </header>
 
-  <img src="mystai-logo.png" alt="MystAI Logo" class="floating-logo">
+  <img src="mystai-logo.png" alt="MystAI Logo" class="floating-logo" />
 
   <main>
-    <!-- SOL PANEL – FORM -->
+    <!-- LEFT: FORM -->
     <section class="panel" id="formPanel">
-      <h2 class="panel-title" data-i18n="birthTitle">Your Birth Details</h2>
-      <p class="panel-sub" data-i18n="birthSub">
-        Your birth data is kept private and used only to generate your personal astrology report.
+      <h2 class="panel-title" data-i18n="formTitle">Your Birth Details</h2>
+      <p class="panel-sub" data-i18n="formSub">
+        Your birth data is kept private and is only used to generate your personal astrology report.
       </p>
 
-      <div class="field">
-        <label for="birthDate" data-i18n="birthDateLabel">Birth Date</label>
-        <input type="date" id="birthDate">
+      <div class="form-group">
+        <label class="form-label" for="birthDate" data-i18n="birthDateLabel">Birth Date</label>
+        <input id="birthDate" type="date" class="form-input" />
       </div>
 
-      <div class="field">
-        <label for="birthTime" data-i18n="birthTimeLabel">Birth Time</label>
-        <input type="time" id="birthTime">
-      </div>
-
-      <div class="field">
-        <label for="birthPlace" data-i18n="birthPlaceLabel">Birth Place (City, Country)</label>
-        <input type="text" id="birthPlace" placeholder="İzmir, Türkiye">
-      </div>
-
-      <div class="field">
-        <label for="name" data-i18n="nameLabel">Name (optional)</label>
-        <input type="text" id="name" placeholder="Mystic Soul">
-      </div>
-
-      <div class="field">
-        <label data-i18n="focusLabel">Which themes should MystAI focus on?</label>
-        <div class="focus-group">
-          <button type="button" class="chip focus-chip" data-key="love" data-i18n="focusLove">Love & Relationships</button>
-          <button type="button" class="chip focus-chip" data-key="career" data-i18n="focusCareer">Career & Life Path</button>
-          <button type="button" class="chip focus-chip" data-key="money" data-i18n="focusMoney">Money & Abundance</button>
-          <button type="button" class="chip focus-chip" data-key="spirit" data-i18n="focusSpirit">Spiritual Growth</button>
+      <div class="form-group">
+        <label class="form-label" for="birthTime" data-i18n="birthTimeLabel">Birth Time</label>
+        <input id="birthTime" type="time" class="form-input" />
+        <div class="hint" data-i18n="birthTimeHint">
+          If you are not sure, enter your best guess (e.g., 13:30).
         </div>
       </div>
 
-      <div class="field">
-        <label for="question" data-i18n="questionLabel">Any specific question or intention?</label>
-        <textarea id="question" data-i18n-placeholder="questionPh"
-          placeholder="Example: How will my love life and career evolve over the next 12 months?"></textarea>
-        <p class="hint" data-i18n="questionHint">
-          Example: “How does my birth chart influence my relationships and career in the coming year?” or
-          “Which life areas are most highlighted in my chart right now?”
-        </p>
+      <div class="form-group">
+        <label class="form-label" for="birthPlace" data-i18n="birthPlaceLabel">Birth Place (City, Country)</label>
+        <input id="birthPlace" type="text" class="form-input" placeholder="e.g., Izmir, Turkey" />
       </div>
 
-      <button class="primary-btn" id="generateBtn" data-i18n="generate">
-        Create Astrology Report
-      </button>
+      <div class="form-group">
+        <label class="form-label" for="name" data-i18n="nameLabel">Name (optional)</label>
+        <input id="name" type="text" class="form-input" />
+      </div>
 
-      <p class="hint" data-i18n="safeNote">
-        MystAI is for guidance and insight only, and does not replace professional medical, legal, or financial advice.
-      </p>
+      <div class="form-group">
+        <label class="form-label" data-i18n="focusLabel">Which areas should MystAI focus on?</label>
+        <div class="chip-row">
+          <div class="focus-chip active" data-key="love" data-i18n="chipLove">Love & Relationships</div>
+          <div class="focus-chip active" data-key="career" data-i18n="chipCareer">Career & Life Path</div>
+          <div class="focus-chip" data-key="money" data-i18n="chipMoney">Money & Abundance</div>
+          <div class="focus-chip" data-key="spirit" data-i18n="chipSpirit">Spiritual Growth</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="question" data-i18n="questionLabel">Any specific question or intention?</label>
+        <textarea id="question" class="form-textarea" placeholder=""></textarea>
+        <div class="hint" data-i18n="questionHint">
+          Example: “How will my love life and career be shaped in the next 12 months?”
+        </div>
+      </div>
+
+      <button id="generateBtn" class="primary-btn" data-i18n="generateBtn">
+        Generate Astrology Report
+      </button>
+      <div class="hint" style="margin-top:8px;" data-i18n="disclaimer">
+        MystAI provides spiritual & entertainment-oriented guidance only and is not a substitute for medical, legal, financial or psychological advice.
+      </div>
     </section>
 
-    <!-- SAĞ PANEL – HARİTA + RAPOR -->
+    <!-- RIGHT: CHART + REPORT -->
     <section class="panel" id="reportPanel">
-      <div class="report-header">
-        <h2 class="report-title" data-i18n="reportTitle">Your AI Astrology Report</h2>
-        <div class="mode-tabs" id="modeTabs">
-          <button class="mode-tab active" data-mode="natal" data-i18n="modeNatal">Natal</button>
-          <button class="mode-tab" data-mode="solar" data-i18n="modeSolar">Natal + Solar Return</button>
-          <button class="mode-tab" data-mode="transit" data-i18n="modeTransit">Natal + Solar + Transits</button>
+      <h2 class="panel-title" data-i18n="reportTitle">Your AI Astrology Report</h2>
+      <p class="panel-sub" data-i18n="reportSub">
+        MystAI blends symbolic astrology with AI-generated insight to create a unique natal + solar return + transit style overview.
+      </p>
+
+      <div class="mode-bar">
+        <span data-i18n="modeLabel">Selected configuration:</span>
+        <div class="mode-pill">
+          <span class="active" data-i18n="modeNatalSolarTransits">Natal + Solar Return + Transits</span>
         </div>
       </div>
 
-      <p class="report-sub" data-i18n="reportSub">
-        MystAI will draw a symbolic birth chart and interpret it with AI —
-        highlighting your key themes, strengths, and current cosmic focus.
-      </p>
-
-      <div class="chart-wrap">
-        <canvas id="astroChart" width="420" height="420">
-          Your browser does not support the astrology chart canvas.
-        </canvas>
-        <div class="chart-meta" id="chartMeta"></div>
-        <div class="download-link" id="downloadChart" data-i18n="downloadChart">
-          Download chart as PNG
+      <div class="chart-card">
+        <div class="chart-container">
+          <div class="chart-inner-frame"></div>
+          <img id="chartImg" class="chart-img" alt="Astrology chart" style="display:none;">
+          <div id="chartPlaceholder" class="chart-placeholder" data-i18n="chartPlaceholder">
+            When you create your report, MystAI will draw a unique mystical chart for you here.
+          </div>
         </div>
+        <div id="chartMeta" class="chart-meta"></div>
+        <a id="downloadChart" href="#" class="download-link" style="display:none;" data-i18n="downloadChart">
+          Download chart as PNG
+        </a>
       </div>
 
       <div class="audio-row">
@@ -443,22 +598,22 @@
         <audio id="astroAudio" controls></audio>
       </div>
 
-      <div class="report-text" id="astroText"></div>
+      <div id="statusLabel" class="status"></div>
 
-      <div class="status" id="statusLabel"></div>
+      <div id="astroText" class="report-box"></div>
     </section>
   </main>
 
   <footer>
-    <div class="links">
-      <a href="terms.html" data-i18n="terms">Terms</a> • 
-      <a href="privacy.html" data-i18n="privacy">Privacy</a> • 
-      <a href="cookies.html" data-i18n="cookies">Cookies</a> • 
-      <a href="disclaimer.html" data-i18n="disclaimer">Disclaimer</a>
+    <div style="margin-bottom:6px;">
+      <a href="terms.html" data-i18n="terms">Terms</a> •
+      <a href="privacy.html" data-i18n="privacy">Privacy</a> •
+      <a href="cookies.html" data-i18n="cookies">Cookies</a> •
+      <a href="disclaimer.html" data-i18n="footerDisclaimer">Disclaimer</a>
     </div>
     <p>
       © 2025 MystAI.ai — <span data-i18n="rights">All Rights Reserved.</span>
-      <span data-i18n="dev">Developed by GALAXY 🌌</span><br>
+      <span data-i18n="dev">Developed by GALAXY 🌌</span><br />
       <a href="mailto:support@mystai.ai">support@mystai.ai</a>
     </p>
   </footer>
@@ -473,14 +628,12 @@
     <div class="ask-card">
       <h2 class="ask-title" id="askTitle" data-i18n="askTitle">Ask MystAI 🔮</h2>
       <div class="ask-row">
-        <textarea id="askInput" placeholder="Type your question..."></textarea>
+        <textarea id="askInput" placeholder=""></textarea>
       </div>
-      <div class="ask-hint" id="askHint">
-        Tip: You can ask about your energy, dreams, love, career, or destiny.
-      </div>
+      <div class="ask-hint" id="askHint"></div>
       <div class="ask-actions">
         <button class="ask-btn ask-secondary" id="askClose" data-i18n="close">Close</button>
-        <button class="ask-btn" id="askSend">
+        <button class="ask-btn ask-primary" id="askSend">
           <span data-i18n="send">Send</span>
           <span class="spinner" id="askSpin">⏳</span>
         </button>
@@ -491,15 +644,15 @@
   </div>
 
   <script type="module">
-    /* ====== CONFIG ====== */
+    /* ========= CONFIG ========= */
     const BACKEND_URL = "https://mystai-international-1.onrender.com";
 
-    /* ====== Firebase (auth) ====== */
+    /* ========= Firebase (auth) ========= */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
+      apiKey: "AIzaSyDyiD7GAfojMbtm-5pO6XCSRJclffPL0",
       authDomain: "mystai-6cca2.firebaseapp.com",
       projectId: "mystai-6cca2",
       storageBucket: "mystai-6cca2.appspot.com",
@@ -510,300 +663,169 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    const logoutBtn   = document.getElementById('logoutBtn');
-    const backBtn     = document.getElementById('backBtn');
-    const userWelcome = document.getElementById('user-welcome');
+    const logoutBtn   = document.getElementById("logoutBtn");
+    const historyBtn  = document.getElementById("historyBtn");
+    const backToApp   = document.getElementById("backToApp");
+    const userWelcome = document.getElementById("user-welcome");
 
-    logoutBtn.addEventListener('click', ()=> {
-      signOut(auth).then(()=>window.location.href = "login.html");
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth).then(() => window.location.href = "login.html");
     });
-    backBtn.addEventListener('click', ()=>window.location.href="app.html");
+    historyBtn.addEventListener("click", () => window.location.href = "history.html");
+    backToApp.addEventListener("click", () => window.location.href = "app.html");
 
-    onAuthStateChanged(auth, (user)=>{
-      if(user){
-        const name = user.displayName || user.email;
-        userWelcome.textContent = (activeLang === 'tr' ? 'Hoş geldin, ' : 'Welcome, ') + name;
-      } else {
-        window.location.href = "login.html";
-      }
-    });
-
-    /* ====== i18n ====== */
+    /* ========= i18n ========= */
     const i18n = {
-      en:{
-        backApp:"Back to App",
-        logout:"Logout",
-        birthTitle:"Your Birth Details",
-        birthSub:"Your birth data is kept private and used only to generate your personal astrology report.",
+      en: {
+        formTitle:"Your Birth Details",
+        formSub:"Your birth data is kept private and is only used to generate your personal astrology report.",
         birthDateLabel:"Birth Date",
         birthTimeLabel:"Birth Time",
+        birthTimeHint:"If you are not sure, enter your best guess (e.g., 13:30).",
         birthPlaceLabel:"Birth Place (City, Country)",
         nameLabel:"Name (optional)",
-        focusLabel:"Which themes should MystAI focus on?",
-        focusLove:"Love & Relationships",
-        focusCareer:"Career & Life Path",
-        focusMoney:"Money & Abundance",
-        focusSpirit:"Spiritual Growth",
+        focusLabel:"Which areas should MystAI focus on?",
+        chipLove:"Love & Relationships",
+        chipCareer:"Career & Life Path",
+        chipMoney:"Money, abundance and material matters",
+        chipSpirit:"Spiritual growth and inner journey",
         questionLabel:"Any specific question or intention?",
-        questionPh:"Example: How will my love life and career evolve over the next 12 months?",
-        questionHint:"Example: “How does my birth chart influence my relationships and career in the coming year?” or “Which life areas are most highlighted in my chart right now?”",
-        generate:"Create Astrology Report",
-        safeNote:"MystAI is for guidance and insight only, and does not replace professional medical, legal, or financial advice.",
+        questionHint:"Example: “How will my love life and career be shaped in the next 12 months?”",
+        generateBtn:"Generate Astrology Report",
+        disclaimer:"MystAI provides spiritual & entertainment-oriented guidance only and does not replace medical, legal, financial or psychological advice.",
         reportTitle:"Your AI Astrology Report",
-        reportSub:"MystAI will draw a symbolic birth chart and interpret it with AI — highlighting your key themes, strengths, and current cosmic focus.",
-        modeNatal:"Natal",
-        modeSolar:"Natal + Solar Return",
-        modeTransit:"Natal + Solar + Transits",
+        reportSub:"MystAI blends symbolic astrology with AI-generated insight into a unique natal + solar return + transit style overview.",
+        modeLabel:"Report mode:",
+        modeNatalSolarTransits:"Natal + Solar Return + Transits",
+        chartPlaceholder:"When you create your report, MystAI will draw a unique mystical chart for you here.",
         downloadChart:"Download chart as PNG",
         listenLabel:"Listen to your report:",
-        terms:"Terms",privacy:"Privacy",cookies:"Cookies",disclaimer:"Disclaimer",
+        statusWorking:"Preparing your personal chart and AI interpretation...",
+        statusOk:"Your AI astrology report has been generated.",
+        statusError:"An error occurred while generating your report. Please try again.",
+        missingFields:"Please fill in birth date, time and place.",
+        terms:"Terms",
+        privacy:"Privacy",
+        cookies:"Cookies",
+        footerDisclaimer:"Disclaimer",
         rights:"All Rights Reserved.",
         dev:"Developed by GALAXY 🌌",
+        backApp:"Back to App",
+        history:"My History",
+        logout:"Logout",
         ask:"Ask MystAI",
         askTitle:"Ask MystAI 🔮",
         send:"Send",
         close:"Close",
-        hint:"Tip: You can ask about your energy, dreams, love, career, or destiny.",
+        askHint:"Tip: You can ask about your energy, dreams, love, career, destiny or current feelings.",
         askPlaceholder:"Type your question...",
-        statusIdle:"Fill in your birth details and click “Create Astrology Report”.",
-        statusWorking:"Preparing your personalized astrology report...",
-        statusError:"An error occurred while creating your report. Please try again.",
-        statusOk:"Your report has been created.",
-        missingFields:"Please enter your birth date, time and place.",
-        dlSuccess:"Your chart image is ready.",
-        dlError:"Chart could not be downloaded."
       },
-      tr:{
-        backApp:"Uygulamaya Dön",
-        logout:"Çıkış Yap",
-        birthTitle:"Doğum Bilgilerin",
-        birthSub:"Doğum verilerin gizli tutulur ve sadece kişisel astroloji raporunu oluşturmak için kullanılır.",
+      tr: {
+        formTitle:"Doğum Bilgilerin",
+        formSub:"Doğum verilerin gizli tutulur ve sadece kişisel astroloji raporunu oluşturmak için kullanılır.",
         birthDateLabel:"Doğum Tarihi",
         birthTimeLabel:"Doğum Saati",
+        birthTimeHint:"Tam emin değilsen, yaklaşık bir saat yazabilirsin (örn. 13:30).",
         birthPlaceLabel:"Doğum Yeri (Şehir, Ülke)",
         nameLabel:"İsmin (opsiyonel)",
         focusLabel:"MystAI hangi alanlara odaklansın?",
-        focusLove:"Aşk & İlişkiler",
-        focusCareer:"Kariyer & Yaşam Yolu",
-        focusMoney:"Para & Bolluk",
-        focusSpirit:"Ruhsal Gelişim",
+        chipLove:"Aşk & İlişkiler",
+        chipCareer:"Kariyer & Yaşam Yolu",
+        chipMoney:"Para, bolluk ve maddi alanlar",
+        chipSpirit:"Ruhsal gelişim ve içsel yolculuk",
         questionLabel:"Özel bir sorun ya da niyetin var mı?",
-        questionPh:"Örnek: Önümüzdeki 12 ay aşk ve kariyerim nasıl şekilleniyor?",
-        questionHint:"Örnek: “Doğum haritam aşk hayatımı ve kariyerimi önümüzdeki yıl nasıl etkiliyor?” veya “Haritamda şu anda en çok hangi alanlar vurgulanıyor?”",
-        generate:"Astroloji Raporu Oluştur",
-        safeNote:"MystAI yalnızca rehberlik ve farkındalık içindir; tıbbi, hukuki veya finansal profesyonel danışmanın yerini almaz.",
+        questionHint:"Örnek: “Önümüzdeki 12 ay aşk ve kariyerim nasıl şekilleniyor?”",
+        generateBtn:"Astroloji Raporu Oluştur",
+        disclaimer:"MystAI yalnızca ruhsal ve eğlence amaçlı içgörüler sunar; tıbbi, hukuki, finansal veya psikolojik danışmanlığın yerine geçmez.",
         reportTitle:"Yapay Zekâ Astroloji Raporun",
-        reportSub:"MystAI sembolik bir doğum haritası çizer ve yapay zekâ ile yorumlayarak hayatındaki ana temaları, güçlü yönlerini ve göksel odak noktalarını vurgular.",
-        modeNatal:"Natal",
-        modeSolar:"Natal + Solar Return",
-        modeTransit:"Natal + Solar + Transitler",
+        reportSub:"MystAI sembolik astrolojiyi yapay zekâ ile birleştirerek natal + solar return + transit tarzında benzersiz bir yorum üretir.",
+        modeLabel:"Rapor modu:",
+        modeNatalSolarTransits:"Natal + Solar Return + Transitler",
+        chartPlaceholder:"Raporunu oluşturduğunda MystAI sana özel, mistik bir doğum haritası çizecek.",
         downloadChart:"Haritayı PNG olarak indir",
         listenLabel:"Raporunu dinle:",
-        terms:"Şartlar",privacy:"Gizlilik",cookies:"Çerezler",disclaimer:"Sorumluluk Reddi",
+        statusWorking:"Kişisel haritan ve yapay zekâ yorumun hazırlanıyor...",
+        statusOk:"Yapay zekâ astroloji raporun hazır.",
+        statusError:"Rapor oluşturulurken bir hata oluştu. Lütfen tekrar dene.",
+        missingFields:"Lütfen doğum tarihi, saati ve yeri alanlarını doldur.",
+        terms:"Şartlar",
+        privacy:"Gizlilik",
+        cookies:"Çerezler",
+        footerDisclaimer:"Sorumluluk Reddi",
         rights:"Tüm Hakları Saklıdır.",
         dev:"GALAXY tarafından geliştirilmiştir 🌌",
+        backApp:"Uygulamaya Dön",
+        history:"Geçmişim",
+        logout:"Çıkış Yap",
         ask:"MystAI'ye Sor",
         askTitle:"MystAI'ye Sor 🔮",
         send:"Gönder",
         close:"Kapat",
-        hint:"İpucu: Enerji, rüyalar, aşk, kariyer ya da kaderin hakkında sorular sorabilirsin.",
+        askHint:"İpucu: Enerji, rüyalar, aşk, kariyer, kader veya şu anki ruh halin hakkında sorular sorabilirsin.",
         askPlaceholder:"Sorunu yaz...",
-        statusIdle:"Doğum bilgilerini doldur ve “Astroloji Raporu Oluştur”a tıkla.",
-        statusWorking:"Kişisel astroloji raporun hazırlanıyor...",
-        statusError:"Rapor oluşturulurken bir hata oluştu. Lütfen tekrar dene.",
-        statusOk:"Raporun hazır.",
-        missingFields:"Lütfen doğum tarihi, saati ve yerini gir.",
-        dlSuccess:"Harita görselin hazır.",
-        dlError:"Harita indirilemedi."
       }
     };
 
-    let activeLang = localStorage.getItem("myst_lang") || "en";
+    let activeLang = localStorage.getItem("myst_lang") || "tr";
 
-    function applyI18n(){
-      const dict = i18n[activeLang];
+    function setLang(lang){
+      activeLang = lang;
+      localStorage.setItem("myst_lang", lang);
+      const dict = i18n[lang];
+
       document.querySelectorAll("[data-i18n]").forEach(el=>{
         const key = el.getAttribute("data-i18n");
-        if(dict[key]) el.textContent = dict[key];
+        if(!dict[key]) return;
+        if(key === "formSub" || key==="reportSub"){
+          el.innerHTML = dict[key];
+        }else{
+          el.textContent = dict[key];
+        }
       });
-      const q = document.getElementById("question");
-      q.placeholder = dict.questionPh;
+
       document.getElementById("askInput").placeholder = dict.askPlaceholder;
-      document.getElementById("askHint").textContent = dict.hint;
-      document.getElementById("btn-en").classList.toggle("secondary", activeLang!=="en");
-      document.getElementById("btn-tr").classList.toggle("secondary", activeLang!=="tr");
-      document.getElementById("statusLabel").textContent = dict.statusIdle;
+      document.getElementById("askHint").textContent = dict.askHint;
+
+      document.getElementById("btn-en").classList.toggle("secondary", lang!=="en");
+      document.getElementById("btn-tr").classList.toggle("secondary", lang!=="tr");
 
       if(auth.currentUser){
         const name = auth.currentUser.displayName || auth.currentUser.email;
-        userWelcome.textContent = (activeLang === 'tr' ? 'Hoş geldin, ' : 'Welcome, ') + name;
+        userWelcome.textContent = (lang === "tr" ? "Hoş geldin, " : "Welcome, ") + name;
       }
     }
 
-    document.getElementById("btn-en").addEventListener("click",()=>{activeLang="en";localStorage.setItem("myst_lang","en");applyI18n();});
-    document.getElementById("btn-tr").addEventListener("click",()=>{activeLang="tr";localStorage.setItem("myst_lang","tr");applyI18n();});
-    applyI18n();
+    document.getElementById("btn-en").addEventListener("click",()=>setLang("en"));
+    document.getElementById("btn-tr").addEventListener("click",()=>setLang("tr"));
+    setLang(activeLang);
 
-    /* ====== Focus chips ====== */
-    document.querySelectorAll(".focus-chip").forEach(chip=>{
-      chip.addEventListener("click",()=>chip.classList.toggle("active"));
-    });
-
-    /* ====== Mode tabs ====== */
-    let currentMode = "natal";
-    document.querySelectorAll(".mode-tab").forEach(tab=>{
-      tab.addEventListener("click",()=>{
-        document.querySelectorAll(".mode-tab").forEach(t=>t.classList.remove("active"));
-        tab.classList.add("active");
-        currentMode = tab.dataset.mode;
-      });
-    });
-
-    /* ====== Astrology chart drawing (symbolic) ====== */
-    const canvas = document.getElementById("astroChart");
-    const ctx = canvas.getContext ? canvas.getContext("2d") : null;
-
-    function hashString(str){
-      let h = 0;
-      for(let i=0;i<str.length;i++){
-        h = (h*31 + str.charCodeAt(i)) >>> 0;
-      }
-      return h;
-    }
-
-    function drawAstroChart(birthDate,birthTime,birthPlace){
-      if(!ctx) return;
-      const w = canvas.width;
-      const h = canvas.height;
-      ctx.clearRect(0,0,w,h);
-
-      const cx = w/2;
-      const cy = h/2;
-      const outer = Math.min(w,h)/2 - 12;
-      const middle = outer*0.78;
-      const inner = outer*0.45;
-
-      // background glow
-      const grad = ctx.createRadialGradient(cx,cy,inner*0.3,cx,cy,outer);
-      grad.addColorStop(0,"rgba(35,46,120,0.9)");
-      grad.addColorStop(1,"rgba(5,9,40,1)");
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(cx,cy,outer+6,0,Math.PI*2);
-      ctx.fill();
-
-      // circles
-      ctx.strokeStyle = "rgba(255,255,255,0.2)";
-      ctx.lineWidth = 1.2;
-      [outer,middle,inner].forEach(r=>{
-        ctx.beginPath();
-        ctx.arc(cx,cy,r,0,Math.PI*2);
-        ctx.stroke();
-      });
-
-      // 12 houses
-      ctx.save();
-      ctx.translate(cx,cy);
-      for(let i=0;i<12;i++){
-        const angle = (Math.PI*2/12)*i - Math.PI/2;
-        ctx.beginPath();
-        ctx.moveTo(inner,0);
-        ctx.lineTo(outer,0);
-        ctx.stroke();
-        ctx.rotate(Math.PI*2/12);
-      }
-      ctx.restore();
-
-      // zodiac labels
-      const zodiacs = ["♈︎","♉︎","♊︎","♋︎","♌︎","♍︎","♎︎","♏︎","♐︎","♑︎","♒︎","♓︎"];
-      ctx.font = "16px Cinzel, serif";
-      ctx.fillStyle = "rgba(255,229,180,0.96)";
-      for(let i=0;i<12;i++){
-        const a = (Math.PI*2/12)*i - Math.PI/2 + Math.PI/12;
-        const r = (outer+middle)/2 + 4;
-        const x = cx + Math.cos(a)*r;
-        const y = cy + Math.sin(a)*r + 5;
-        ctx.fillText(zodiacs[i],x-9,y);
-      }
-
-      // planets (symbolic)
-      const seed = `${birthDate}|${birthTime}|${birthPlace}`;
-      let hval = hashString(seed);
-      const planets = [
-        {key:"Sun",   symbol:"☉"},
-        {key:"Moon",  symbol:"☾"},
-        {key:"Merc",  symbol:"☿"},
-        {key:"Venus", symbol:"♀"},
-        {key:"Mars",  symbol:"♂"},
-        {key:"Jup",   symbol:"♃"},
-        {key:"Sat",   symbol:"♄"},
-        {key:"Ura",   symbol:"♅"},
-        {key:"Nep",   symbol:"♆"},
-        {key:"Plu",   symbol:"♇"},
-        {key:"ASC",   symbol:"ASC"},
-        {key:"MC",    symbol:"MC"}
-      ];
-
-      ctx.font = "11px system-ui, sans-serif";
-      planets.forEach((p,idx)=>{
-        hval = (hval*1664525 + 1013904223) >>> 0;
-        const deg = hval % 360;
-        const rad = (deg*Math.PI)/180;
-        const r = inner + (idx%3)*((middle-inner)/3) + 10;
-        const px = cx + Math.cos(rad)*r;
-        const py = cy + Math.sin(rad)*r;
-
-        ctx.fillStyle = "rgba(255,255,255,0.95)";
-        ctx.beginPath();
-        ctx.arc(px,py,4,0,Math.PI*2);
-        ctx.fill();
-
-        ctx.fillStyle = "rgba(255,229,180,0.95)";
-        ctx.fillText(p.symbol,px+6,py+3);
-      });
-    }
-
-    function updateChartMeta(date,time,place){
-      const meta = document.getElementById("chartMeta");
-      if(!date || !time || !place){
-        meta.textContent = "";
-        return;
-      }
-      if(activeLang === "tr"){
-        meta.textContent = `Doğum tarihi: ${date} • Doğum saati: ${time} • Doğum yeri: ${place}`;
+    onAuthStateChanged(auth, user=>{
+      if(user){
+        const name = user.displayName || user.email;
+        userWelcome.textContent = (activeLang==="tr" ? "Hoş geldin, " : "Welcome, ")+name;
       }else{
-        meta.textContent = `Birth date: ${date} • Time: ${time} • Place: ${place}`;
-      }
-    }
-
-    // initial empty chart
-    drawAstroChart("","","");
-    updateChartMeta("","","");
-
-    /* ====== Download chart as PNG ====== */
-    document.getElementById("downloadChart").addEventListener("click",()=>{
-      try{
-        const link = document.createElement("a");
-        link.download = "mystai_birth_chart.png";
-        link.href = canvas.toDataURL("image/png");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        const dict = i18n[activeLang];
-        document.getElementById("statusLabel").textContent = dict.dlSuccess;
-        document.getElementById("statusLabel").className = "status ok";
-      }catch(e){
-        const dict = i18n[activeLang];
-        document.getElementById("statusLabel").textContent = dict.dlError;
-        document.getElementById("statusLabel").className = "status error";
+        window.location.href = "login.html";
       }
     });
 
-    /* ====== Astrology report generation ====== */
-    const generateBtn = document.getElementById("generateBtn");
-    const astroText   = document.getElementById("astroText");
-    const astroAudio  = document.getElementById("astroAudio");
-    const statusLabel = document.getElementById("statusLabel");
+    /* ========= Focus chips ========= */
+    document.querySelectorAll(".focus-chip").forEach(chip=>{
+      chip.addEventListener("click", ()=>{
+        chip.classList.toggle("active");
+      });
+    });
+
+    /* ========= Astrology report generation ========= */
+    const generateBtn  = document.getElementById("generateBtn");
+    const astroText    = document.getElementById("astroText");
+    const astroAudio   = document.getElementById("astroAudio");
+    const statusLabel  = document.getElementById("statusLabel");
+    const chartImg     = document.getElementById("chartImg");
+    const chartPlaceholder = document.getElementById("chartPlaceholder");
+    const chartMeta    = document.getElementById("chartMeta");
+    const downloadLink = document.getElementById("downloadChart");
+
+    let lastChartURL = "";
 
     generateBtn.addEventListener("click", async ()=>{
       const birthDate  = document.getElementById("birthDate").value;
@@ -825,103 +847,33 @@
         focusKeys.push(ch.dataset.key);
       });
 
-      drawAstroChart(birthDate,birthTime,birthPlace);
-      updateChartMeta(birthDate,birthTime,birthPlace);
-
-      let focusText;
-      if(activeLang === "tr"){
-        const map = {
-          love:"aşk ve ilişkiler",
-          career:"kariyer ve yaşam yolu",
-          money:"para, bolluk ve maddi alanlar",
-          spirit:"ruhsel gelişim ve içsel yolculuk"
-        };
-        focusText = focusKeys.map(k=>map[k]).filter(Boolean).join(", ") || "tüm yaşam alanları";
-      }else{
-        const map = {
-          love:"love and relationships",
-          career:"career and life path",
-          money:"money, abundance and material matters",
-          spirit:"spiritual growth and inner journey"
-        };
-        focusText = focusKeys.map(k=>map[k]).filter(Boolean).join(", ") || "all life areas";
-      }
-
-      let modeText;
-      if(activeLang==="tr"){
-        modeText =
-          currentMode==="natal"   ? "Sadece Natal harita" :
-          currentMode==="solar"   ? "Natal + Solar Return (güneş dönüşü)" :
-                                     "Natal + Solar Return + Transit etkileri";
-      }else{
-        modeText =
-          currentMode==="natal"   ? "Natal chart only" :
-          currentMode==="solar"   ? "Natal + Solar Return" :
-                                     "Natal + Solar Return + transits";
-      }
-
-      const displayName = name || (auth.currentUser ? (auth.currentUser.displayName || auth.currentUser.email) : "");
-
-      let prompt;
-      if(activeLang === "tr"){
-        prompt =
-          "Sen MystAI adlı dijital fal kapısında çalışan, deneyimli bir batı astroloğusun. " +
-          "Astrolojiyi psikoloji ve ruhsal gelişimle birleştirerek, kullanıcıya hem gerçekçi hem umut veren, sakin ve profesyonel bir dille rehberlik edersin. " +
-          "Doğum haritasını, sembolik olarak çizilmiş bir çark üzerinden okuyorsun. " +
-          "Aşağıdaki doğum bilgilerine göre ayrıntılı bir ASTROLOJİ RAPORU yaz:\n\n" +
-          `- İsim (varsa): ${displayName || "Belirtilmedi"}\n` +
-          `- Doğum tarihi: ${birthDate}\n` +
-          `- Doğum saati: ${birthTime}\n` +
-          `- Doğum yeri: ${birthPlace}\n` +
-          `- Seçilen odak alanları: ${focusText}\n` +
-          `- Harita modu: ${modeText}\n` +
-          (question ? `- Kullanıcının sorusu / niyeti: ${question}\n` : "") +
-          "\nLütfen raporu aşağıdaki başlıklarla, samimi ama profesyonel bir tonda yaz:\n" +
-          "1) Kısa özet\n" +
-          "2) Kişilik & karakter özü (Güneş, Ay, yükselen temaları)\n" +
-          "3) Yaşam amacı ve kader temaları\n" +
-          "4) Aşk, ilişkiler ve evlilik potansiyeli\n" +
-          "5) Para, bolluk ve kariyer alanı\n" +
-          "6) Ruhsal gelişim, karmik dersler ve içsel yolculuk\n" +
-          "7) 12 ev üzerinden genel bir tur (her evi kısaca değin)\n" +
-          "8) Önümüzdeki 12 aya dair göksel iklim / yıldızname yorumu\n\n" +
-          "Korkutucu veya umutsuz cümlelerden kaçın; gerçekçi ama yapıcı, cesaretlendirici ve net ol.";
-      }else{
-        prompt =
-          "You are an experienced Western astrologer working as MystAI, a digital oracle. " +
-          "You combine astrology with psychology and spiritual insight, speaking in a warm, calm and professional tone. " +
-          "You are reading a symbolically drawn birth chart wheel. " +
-          "Based on the following birth details, write a detailed ASTROLOGY REPORT:\n\n" +
-          `- Name (if any): ${displayName || "Not provided"}\n` +
-          `- Birth date: ${birthDate}\n` +
-          `- Birth time: ${birthTime}\n` +
-          `- Birth place: ${birthPlace}\n` +
-          `- Focus themes: ${focusText}\n` +
-          `- Chart mode: ${modeText}\n` +
-          (question ? `- User's question / intention: ${question}\n` : "") +
-          "\nPlease structure the report with these sections, in clear paragraphs:\n" +
-          "1) Short overview\n" +
-          "2) Core personality & character (Sun, Moon, Rising themes)\n" +
-          "3) Life purpose and destiny themes\n" +
-          "4) Love, relationships and marriage potential\n" +
-          "5) Money, abundance and career\n" +
-          "6) Spiritual growth, karmic lessons and inner journey\n" +
-          "7) Quick tour through the 12 houses (touch each briefly)\n" +
-          "8) General forecast for the next 12 months\n\n" +
-          "Avoid scary or hopeless statements; be realistic yet encouraging, constructive and specific.";
-      }
+      const payload = {
+        birth_date: birthDate,
+        birth_time: birthTime,
+        birth_place: birthPlace,
+        name: name,
+        focus_areas: focusKeys,
+        question: question,
+        language: activeLang
+      };
 
       try{
         generateBtn.disabled = true;
         astroText.textContent = "";
         astroAudio.src = "";
+        astroAudio.load();
         statusLabel.textContent = dict.statusWorking;
         statusLabel.className = "status";
+        chartMeta.textContent = "";
+        lastChartURL = "";
+        chartImg.style.display = "none";
+        chartPlaceholder.style.display = "flex";
+        downloadLink.style.display = "none";
 
-        const res = await fetch(`${BACKEND_URL}/predict`, {
+        const res = await fetch(`${BACKEND_URL}/astrology`, {
           method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({ user_input: prompt, reading_type:"general" })
+          headers:{ "Content-Type":"application/json" },
+          body:JSON.stringify(payload)
         });
 
         if(!res.ok){
@@ -929,105 +881,144 @@
         }
 
         const data = await res.json();
-
         if(data.error){
           throw new Error(data.error);
         }
 
         const text = data.text || "";
         const audioPath = data.audio;
+        const chartPath = data.chart;
 
-        astroText.textContent = text || (activeLang==="tr" ? "Rapor alınamadı." : "No report text received.");
+        astroText.textContent = text || (activeLang==="tr"
+          ? "Metin raporu alınamadı."
+          : "No report text received.");
+
         statusLabel.textContent = dict.statusOk;
         statusLabel.className = "status ok";
+
+        // chart bilgisi
+        const niceDate = birthDate;
+        const metaLine = (activeLang==="tr"
+          ? `Doğum tarihi: ${niceDate} • Doğum saati: ${birthTime} • Doğum yeri: ${birthPlace}`
+          : `Birth date: ${niceDate} • Birth time: ${birthTime} • Birth place: ${birthPlace}`);
+        chartMeta.textContent = metaLine;
+
+        if(chartPath){
+          const url = chartPath.startsWith("http") ? chartPath : `${BACKEND_URL}${chartPath}`;
+          lastChartURL = url;
+          chartImg.src = url;
+          chartImg.style.display = "block";
+          chartPlaceholder.style.display = "none";
+          downloadLink.href = url;
+          downloadLink.setAttribute("download","mystai_birth_chart.png");
+          downloadLink.style.display = "inline-block";
+        }
 
         if(audioPath){
           const audioURL = audioPath.startsWith("http") ? audioPath : `${BACKEND_URL}${audioPath}`;
           astroAudio.src = audioURL;
+          astroAudio.load();
+          // otomatik oynatmayı dene, ama hata verirse sessizce geç
+          astroAudio.play().catch(()=>{});
         }
       }catch(err){
         console.error(err);
-        statusLabel.textContent = dict.statusError;
+        statusLabel.textContent = dict.statusError + " (" + (err?.message || err) + ")";
         statusLabel.className = "status error";
       }finally{
         generateBtn.disabled = false;
       }
     });
 
-    /* ====== Ask MystAI (alt sağ buton) ====== */
-    const askFab    = document.getElementById('askFab');
-    const askModal  = document.getElementById('askModal');
-    const askClose  = document.getElementById('askClose');
-    const askSend   = document.getElementById('askSend');
-    const askInput  = document.getElementById('askInput');
-    const askOutput = document.getElementById('askOutput');
-    const askSpin   = document.getElementById('askSpin');
-    const askAudio  = document.getElementById('askAudio');
+    downloadLink.addEventListener("click", (e)=>{
+      if(!lastChartURL){
+        e.preventDefault();
+      }
+    });
 
-    askFab.addEventListener('click', ()=> {
-      askModal.style.display='flex';
+    /* ========= Ask MystAI modal ========= */
+    const askFab    = document.getElementById("askFab");
+    const askModal  = document.getElementById("askModal");
+    const askClose  = document.getElementById("askClose");
+    const askSend   = document.getElementById("askSend");
+    const askInput  = document.getElementById("askInput");
+    const askOutput = document.getElementById("askOutput");
+    const askSpin   = document.getElementById("askSpin");
+    const askAudio  = document.getElementById("askAudio");
+
+    askFab.addEventListener("click", ()=>{
+      askModal.style.display = "flex";
       askInput.focus();
     });
-    askClose.addEventListener('click', ()=> {
-      askModal.style.display='none';
-      askOutput.style.display='none';
-      askInput.value='';
-      askAudio.pause(); askAudio.currentTime=0; askAudio.src='';
-    });
-    askModal.addEventListener('click', (e)=>{
-      if(e.target === askModal){ askClose.click(); }
+
+    askClose.addEventListener("click", ()=>{
+      askModal.style.display = "none";
+      askOutput.style.display = "none";
+      askInput.value = "";
+      askAudio.pause();
+      askAudio.currentTime = 0;
+      askAudio.src = "";
     });
 
-    askSend.addEventListener('click', async ()=>{
+    askModal.addEventListener("click", (e)=>{
+      if(e.target === askModal){
+        askClose.click();
+      }
+    });
+
+    askSend.addEventListener("click", async ()=>{
       const q = askInput.value.trim();
       const dict = i18n[activeLang];
 
       if(!q){
-        alert(activeLang==='tr' ? 'Lütfen bir soru yazın.' : 'Please type a question.');
+        alert(activeLang==="tr" ? "Lütfen bir soru yaz." : "Please type a question.");
         return;
       }
 
-      askSpin.style.display='inline-block';
+      askSpin.style.display = "inline-block";
       askSend.disabled = true;
-      askOutput.style.display='none';
-      askOutput.textContent = '';
+      askOutput.style.display = "none";
+      askOutput.textContent = "";
+      askAudio.pause();
+      askAudio.currentTime = 0;
+      askAudio.src = "";
 
       try{
-        if(!BACKEND_URL){
-          askOutput.style.display='block';
-          askOutput.textContent = activeLang==='tr'
-            ? 'Backend adresi yapılandırılmadı.'
-            : 'Backend URL is not configured.';
+        if(!BACKEND_URL || BACKEND_URL.includes("YOUR-BACKEND-URL")){
+          askOutput.style.display = "block";
+          askOutput.textContent = activeLang==="tr"
+            ? "Backend adresi yapılandırılmadı."
+            : "Backend URL is not configured.";
           return;
         }
 
         const res = await fetch(`${BACKEND_URL}/predict`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ user_input: q, reading_type:"general" })
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body:JSON.stringify({ user_input:q })
         });
 
         if(!res.ok){
-          throw new Error('Request failed: ' + res.status);
+          throw new Error("HTTP " + res.status);
         }
 
         const data = await res.json();
-        const text = data?.text || (activeLang==='tr'?'Yanıt alınamadı.':'No response.');
+        const text = data?.text || (activeLang==="tr" ? "Yanıt alınamadı." : "No response.");
         const audioPath = data?.audio;
 
-        askOutput.style.display='block';
+        askOutput.style.display = "block";
         askOutput.textContent = text;
 
         if(audioPath){
-          const audioURL = audioPath.startsWith('http') ? audioPath : `${BACKEND_URL}${audioPath}`;
-          askAudio.src = audioURL;
+          const url = audioPath.startsWith("http") ? audioPath : `${BACKEND_URL}${audioPath}`;
+          askAudio.src = url;
           askAudio.play().catch(()=>{});
         }
       }catch(err){
-        askOutput.style.display='block';
-        askOutput.textContent = (activeLang==='tr'?'Hata: ':'Error: ') + (err?.message||err);
+        askOutput.style.display = "block";
+        askOutput.textContent = (activeLang==="tr" ? "Hata: " : "Error: ") + (err?.message || err);
       }finally{
-        askSpin.style.display='none';
+        askSpin.style.display = "none";
         askSend.disabled = false;
       }
     });
