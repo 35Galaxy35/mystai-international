@@ -178,6 +178,10 @@ def serve_audio(file_id):
         return jsonify({"error": "Audio not found"}), 404
     return send_file(filepath, mimetype="audio/mpeg")
 
+@app.route("/ping")
+def ping():
+    return jsonify({"status": "ok"})
+
 
 @app.route("/test_openai")
 def test_openai():
