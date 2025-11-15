@@ -9,16 +9,24 @@ import uuid
 import base64
 
 app = Flask(__name__)
-CORS(app)
 
-# ENV'den API KEY oku
-OPENAI_KEY = os.environ.get("OPENAI_API_KEY")
+# CORS'u tüm origin'ler için aç
+CORS(app, resources={r"/*": {"origins": "*"}})
+
+# ===== OpenAI API key'i ENV'den oku (birkaç farklı isimle dene) =====
+OPENAI_KEY = (
+    os.environ.get("OPENAI_API_KEY")
+    or os.environ.get("OPENAI_API_KEY")  # yanlış yazılmış olabilir
+    or os.environ.get("OPENAI_KEY")
+)
 
 if not OPENAI_KEY:
-    raise Exception("OPENAI_API_KEY bulunamadı!")
+    print("⚠️  UYARI: OPENAI_API_KEY / OPENAI_API_KEY / OPENAI_KEY ortam değişkeni bulunamadı!")
+else:
+    print("✅ OpenAI API key bulundu.")
 
-# OpenAI client
-client = OpenAI(api_key=OPENAI_KEY)
+# OpenAI client (key yoksa None bırakıyoruz, endpoint içinde kontrol edeceğiz)
+client = OpenAI(api_key=OPENAI_KEY) if OPENAI_KEY else None
 
 
 @app.route("/")
@@ -118,12 +126,16 @@ def build_system_prompt(reading_type: str, lang: str) -> str:
     return types.get(reading_type, types["general"])
 
 
+# ========= GENEL FAL ENDPOINT /predict =========
 @app.route("/predict", methods=["POST"])
 def predict():
     """
     Kahve / tarot / el falı / enerji & rüyalar için genel uç nokta.
     Frontend 'reading_type' gönderiyorsa ona göre sistem prompt seçilir.
     """
+    if not client:
+        return jsonify({"error": "OpenAI API key yapılandırılmamış."}), 500
+
     try:
         data = request.get_json() or {}
         user_input = data.get("user_input", "") or ""
@@ -184,6 +196,7 @@ def predict():
         return jsonify({"error": str(e)}), 500
 
 
+# ========= ASTROLOJİ ENDPOINT /astrology =========
 @app.route("/astrology", methods=["POST"])
 def astrology():
     """
@@ -199,6 +212,9 @@ def astrology():
       "language": "tr"  # opsiyonel: "tr" veya "en"
     }
     """
+    if not client:
+        return jsonify({"error": "OpenAI API key yapılandırılmamış."}), 500
+
     try:
         data = request.get_json() or {}
 
@@ -322,6 +338,7 @@ def astrology():
         return jsonify({"error": str(e)}), 500
 
 
+# ========= STATİK DOSYALAR: SES & CHART =========
 @app.route("/audio/<file_id>")
 def serve_audio(file_id):
     """
@@ -346,13 +363,17 @@ def serve_chart(chart_id):
     return send_file(filepath, mimetype="image/png")
 
 
+# ========= SAĞLIK KONTROL /ping =========
 @app.route("/ping")
 def ping():
     return jsonify({"status": "ok"})
 
 
+# ========= OpenAI test =========
 @app.route("/test_openai")
 def test_openai():
+    if not client:
+        return "OpenAI ERROR -> API key yok veya okunamadı."
     try:
         r = client.chat.completions.create(
             model="gpt-4o-mini",
