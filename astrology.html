@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MystAI.ai — Astrology & Birth Chart</title>
   <link rel="icon" type="image/png" href="mystai-logo.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
 
   <style>
     :root{
@@ -14,250 +14,333 @@
       --text:#d8e0ff;
       --muted:#a9b4d0;
       --accent:#f2c84b;
-      --card:#111827;
+      --danger:#ff7676;
     }
     html,body{
-      margin:0;padding:0;
+      margin:0;
+      padding:0;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
       color:var(--text);
       background:radial-gradient(1400px 800px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
       overflow-x:hidden;
     }
 
-    /* Header */
     header{
       position:relative;
-      padding:16px 40px;
+      padding:14px 40px;
       display:flex;
       justify-content:space-between;
       align-items:center;
-      background:rgba(10,15,30,0.35);
-      backdrop-filter:blur(12px);
-      border-bottom:1px solid rgba(255,255,255,0.06);
+      background:rgba(10,15,30,0.45);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(255,255,255,0.07);
       z-index:1000;
     }
     .lang-box,.nav-btns{display:flex;gap:10px;align-items:center;}
     .lang-btn{
-      font-weight:700;border:0;border-radius:50px;
-      padding:7px 13px;cursor:pointer;font-size:13px;
-      background:linear-gradient(135deg,#ffd54f,#ffe680);color:#111;
+      font-weight:700;
+      border:0;
+      border-radius:50px;
+      padding:7px 13px;
+      cursor:pointer;
+      font-size:13px;
+      background:linear-gradient(135deg,#ffd54f,#ffe680);
+      color:#111;
       transition:all .3s ease;
     }
     .lang-btn.secondary{
-      background:rgba(255,255,255,.1);color:#e6ecff;
-      border:1px solid rgba(255,255,255,.12)
+      background:rgba(255,255,255,0.08);
+      color:#e6ecff;
+      border:1px solid rgba(255,255,255,0.18);
     }
     .btn{
-      font-weight:700;border:0;border-radius:10px;
-      padding:8px 18px;cursor:pointer;
-      color:#0b0f1f;background:#ffd54f;font-size:14px;
+      font-weight:700;
+      border:0;
+      border-radius:10px;
+      padding:8px 18px;
+      cursor:pointer;
+      color:#0b0f1f;
+      background:#ffd54f;
+      font-size:14px;
       transition:all .3s ease;
     }
-    .btn:hover,.lang-btn:hover{filter:brightness(1.1);transform:translateY(-2px)}
-    .welcome{font-weight:600;color:#ffe680;text-shadow:0 0 10px rgba(255,220,120,.4);margin-right:12px}
+    .btn:hover,.lang-btn:hover{filter:brightness(1.08);transform:translateY(-2px)}
 
-    /* Logo */
+    .welcome{
+      font-weight:600;
+      color:#ffe680;
+      text-shadow:0 0 10px rgba(255,220,120,.4);
+      margin-right:12px;
+      font-size:13px;
+    }
+
     .floating-logo{
-      position:absolute;left:50%;top:90px;transform:translateX(-50%);
-      height:140px;width:auto;pointer-events:none;
-      animation:float 6s ease-in-out infinite alternate,glow 6s ease-in-out infinite alternate;
+      position:absolute;
+      left:50%;
+      top:96px;
+      transform:translateX(-50%);
+      height:150px;
+      width:auto;
+      pointer-events:none;
+      animation:float 6s ease-in-out infinite alternate, glow 6s ease-in-out infinite alternate;
       filter:drop-shadow(0 0 35px rgba(255,230,150,.65)) brightness(1.05);
       z-index:5;
     }
-    @keyframes float{from{transform:translate(-50%,-10px)}to{transform:translate(-50%,8px)}}
+    @keyframes float{from{transform:translate(-50%,-8px)}to{transform:translate(-50%,10px)}}
     @keyframes glow{from{filter:drop-shadow(0 0 25px rgba(255,240,180,.4))}to{filter:drop-shadow(0 0 55px rgba(255,250,200,.8))}}
 
-    /* Main layout */
     main{
       max-width:1200px;
       margin:0 auto;
-      padding:220px 20px 60px;
+      padding:260px 20px 80px;
       display:grid;
-      grid-template-columns: minmax(0,1.1fr) minmax(0,1.3fr);
-      gap:24px;
-    }
-    @media(max-width:960px){
-      .floating-logo{height:110px;top:100px}
-      main{grid-template-columns:1fr;padding-top:210px}
+      grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+      gap:28px;
     }
 
     .panel{
-      background:rgba(15,23,42,.9);
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow:0 0 32px rgba(0,0,0,.45);
-      padding:22px 24px;
+      background:rgba(7,12,30,0.92);
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,0.08);
+      box-shadow:0 28px 80px rgba(0,0,0,0.5);
+      padding:22px 24px 26px;
+      position:relative;
+      overflow:hidden;
     }
-    .panel h2{
-      margin-top:0;
+    .panel::before{
+      content:"";
+      position:absolute;
+      inset:-80px;
+      background:radial-gradient(circle at top left,rgba(255,215,0,0.06),transparent 55%);
+      opacity:.9;
+      pointer-events:none;
+    }
+    .panel-inner{position:relative;z-index:2;}
+
+    .panel-title{
       font-family:'Cinzel',serif;
-      font-size:20px;
-      color:#ffd76e;
+      font-size:22px;
+      letter-spacing:.05em;
+      color:#f5d76e;
+      margin:0 0 10px;
       text-transform:uppercase;
-      letter-spacing:1px;
+      text-align:left;
     }
-    .panel p.desc{
-      margin-top:6px;
-      font-size:14px;
+    .panel-sub{
+      font-size:13px;
       color:var(--muted);
-      line-height:1.5;
+      margin-bottom:18px;
+      text-align:left;
     }
 
-    /* Form */
-    .field{
-      text-align:left;
-      margin-top:14px;
-    }
-    .field label{
+    label{
+      display:block;
       font-size:13px;
       font-weight:600;
-      color:#e5e7ff;
-      display:block;
-      margin-bottom:4px;
+      margin-bottom:6px;
+      text-align:left;
     }
-    .field input,
-    .field textarea,
-    .field select{
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    textarea{
       width:100%;
       border-radius:10px;
-      border:1px solid rgba(148,163,184,.6);
-      background:#020617;
-      color:#e5e7ff;
+      border:1px solid rgba(255,255,255,0.18);
+      background:#050b1c;
+      color:#e6ecff;
       padding:9px 11px;
       font-size:14px;
       box-sizing:border-box;
+      outline:none;
     }
-    .field small{color:#94a3b8;font-size:11px}
-    .field-row{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
+    textarea{min-height:80px;resize:vertical;}
+    input:focus,textarea:focus{border-color:#ffd54f;box-shadow:0 0 0 1px rgba(255,213,79,.3);}
+
+    .tags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:8px;
     }
-    .chips{
-      display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;
-    }
-    .chip{
-      font-size:12px;
-      border-radius:999px;
+    .tag{
       padding:6px 10px;
-      border:1px solid rgba(148,163,184,.6);
+      border-radius:999px;
+      font-size:12px;
+      border:1px solid rgba(255,255,255,.25);
+      background:rgba(255,255,255,.04);
       cursor:pointer;
-      color:#e5e7ff;
-      background:transparent;
+      user-select:none;
     }
-    .chip.active{
+    .tag.active{
       background:linear-gradient(135deg,#ffd54f,#ffe680);
-      color:#111827;
+      color:#111;
       border-color:transparent;
+      font-weight:700;
     }
 
-    .primary-btn{
+    .submit-row{
       margin-top:18px;
-      width:100%;
-      border:none;
-      border-radius:14px;
-      padding:12px 16px;
-      font-weight:800;
-      font-size:15px;
-      letter-spacing:1px;
-      text-transform:uppercase;
-      cursor:pointer;
+      display:flex;
+      justify-content:flex-start;
+      gap:10px;
+      align-items:center;
+    }
+    .primary-btn{
       background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);
       color:#111;
-      box-shadow:0 0 24px rgba(250,204,21,.55);
-      transition:transform .25s ease,box-shadow .25s ease;
+      font-weight:700;
+      border:none;
+      padding:10px 22px;
+      border-radius:12px;
+      cursor:pointer;
+      box-shadow:0 6px 18px rgba(255,215,0,.45);
+      transition:transform .2s ease,box-shadow .2s ease;
     }
-    .primary-btn:hover{transform:scale(1.03);box-shadow:0 0 34px rgba(250,250,150,.75)}
-    .primary-btn:disabled{opacity:.6;cursor:wait;box-shadow:none;transform:none}
-
-    /* Right side */
-    .report-header{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      margin-bottom:14px;
-      flex-wrap:wrap;
-    }
-    .badge{
-      padding:5px 10px;
-      border-radius:999px;
-      font-size:11px;
-      text-transform:uppercase;
-      letter-spacing:.6px;
-      background:rgba(15,23,42,.9);
-      border:1px solid rgba(248,250,252,.16);
-      color:#e5e7ff;
-    }
-    .chart-wrapper{
-      display:flex;
-      gap:14px;
-      align-items:center;
-      margin-bottom:12px;
-      flex-wrap:wrap;
-    }
-    .chart-card{
-      width:200px;
-      border-radius:16px;
-      overflow:hidden;
-      box-shadow:0 0 26px rgba(56,189,248,.35);
-      border:1px solid rgba(148,163,184,.6);
-      background:#020617;
-      flex-shrink:0;
-    }
-    .chart-card img{
-      display:block;
-      width:100%;
-      height:auto;
-    }
-    .chart-meta{
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.5;
-    }
+    .primary-btn:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(0,0,0,.55);}
+    .hint{font-size:11px;color:var(--muted);}
 
     .status{
-      font-size:13px;
-      color:#fbbf24;
-      margin-bottom:6px;
-    }
-    .report-body{
       margin-top:10px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .status.error{color:var(--danger);}
+
+    /* Sağ panel */
+    .mode-tabs{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:10px;
+    }
+    .mode-pill{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.2);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      cursor:pointer;
+      background:rgba(255,255,255,.03);
+    }
+    .mode-pill.active{
+      background:linear-gradient(135deg,#ffd54f,#ffe680);
+      color:#111;
+      border-color:transparent;
+      font-weight:700;
+    }
+
+    .chart-box{
+      margin:12px 0 12px;
+      border-radius:18px;
+      background:radial-gradient(circle at top,rgba(255,215,0,.09),rgba(5,10,25,1));
+      border:1px solid rgba(255,255,255,.12);
+      padding:14px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:260px;
+    }
+    .chart-box img{
+      max-width:100%;
+      border-radius:16px;
+      box-shadow:0 20px 50px rgba(0,0,0,.7);
+    }
+
+    .summary-line{
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:10px;
+    }
+
+    .report-box{
+      margin-top:12px;
+      background:rgba(3,8,20,.88);
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.08);
       padding:12px 14px;
-      border-radius:12px;
-      background:rgba(15,23,42,.9);
-      border:1px solid rgba(51,65,85,.9);
-      max-height:420px;
+      max-height:280px;
       overflow:auto;
+      font-size:14px;
+      line-height:1.55;
       text-align:left;
       white-space:pre-wrap;
-      font-size:14px;
-      line-height:1.6;
     }
+
     .audio-row{
       margin-top:10px;
       display:flex;
       align-items:center;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-    .audio-row span{
+      gap:10px;
       font-size:12px;
       color:var(--muted);
     }
 
-    /* Footer */
+    audio{width:100%;max-width:320px;}
+
     footer{
-      margin-top:30px;
-      padding:22px 0 26px;
+      margin-top:10px;
+      padding:30px 0 40px;
       border-top:1px solid rgba(255,255,255,.08);
-      text-align:center;
       color:#aeb6cf;
-      font-size:13px;
+      font-size:14px;
+      text-align:center;
     }
     footer a{color:#cfe4ff;text-decoration:none}
     footer a:hover{color:#ffe680}
-    .links{margin-bottom:6px}
+    .links{margin-bottom:8px}
+
+    /* Ask MystAI FAB – diğer sayfalarla aynı kalsın */
+    .ask-fab{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      z-index:1200;
+      background:linear-gradient(135deg,#ffd54f,#ffe680);
+      color:#111;
+      border:none;
+      border-radius:999px;
+      padding:12px 18px;
+      font-weight:800;
+      box-shadow:0 8px 30px rgba(0,0,0,.35);
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .ask-fab:hover{filter:brightness(1.06);transform:translateY(-2px)}
+
+    .ask-modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;justify-content:center;align-items:center;z-index:1300}
+    .ask-card{
+      width:min(720px,92vw);
+      background:#0d1a2b;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:16px;
+      padding:20px;
+      box-shadow:0 0 40px rgba(255,215,0,.35)
+    }
+    .ask-title{margin:0 0 10px;color:#ffd54f;font-family:'Cinzel',serif}
+    .ask-row{display:flex;gap:12px;margin-top:10px}
+    .ask-row textarea{
+      flex:1;height:110px;resize:vertical;border-radius:10px;border:1px solid rgba(255,255,255,.15);
+      background:#0b132a;color:#e6ecff;padding:10px;font-family:inherit;font-size:15px;
+    }
+    .ask-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:10px}
+    .ask-btn{background:#ffd54f;color:#111;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+    .ask-secondary{background:transparent;color:#e6ecff;border:1px solid rgba(255,255,255,.2)}
+    .ask-output{margin-top:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);padding:12px;border-radius:10px;display:none;text-align:left;white-space:pre-wrap}
+    .ask-hint{color:#a9b4d0;font-size:12px;margin-top:6px}
+    .spinner{display:none;margin-left:6px}
+
+    @media(max-width:980px){
+      main{
+        grid-template-columns:1fr;
+        padding-top:230px;
+      }
+      .panel{padding:18px}
+      header{padding:12px 18px}
+    }
   </style>
 </head>
 <body>
@@ -267,10 +350,9 @@
     <button class="lang-btn" id="btn-en">EN</button>
     <button class="lang-btn secondary" id="btn-tr">TR</button>
   </div>
-
   <div class="nav-btns">
     <span id="user-welcome" class="welcome"></span>
-    <button class="btn" id="historyBtn" data-i18n="history">My History</button>
+    <button class="btn" id="backApp" data-i18n="backApp">Back to App</button>
     <button class="btn" id="logoutBtn" data-i18n="logout">Logout</button>
   </div>
 </header>
@@ -278,86 +360,74 @@
 <img src="mystai-logo.png" alt="MystAI Logo" class="floating-logo">
 
 <main>
-  <!-- LEFT: FORM -->
-  <section class="panel" id="formPanel">
-    <h2 data-i18n="formTitle">Your Birth Details</h2>
-    <p class="desc" data-i18n="formDesc">
-      Your birth data is used only to create your personal astrology report. It is never stored or shared.
-    </p>
+  <!-- SOL PANEL -->
+  <section class="panel">
+    <div class="panel-inner">
+      <h2 class="panel-title" data-i18n="leftTitle">Your Birth Details</h2>
+      <p class="panel-sub" data-i18n="leftSub">
+        Your birth data is only used to generate a personal astrology reading and is never shared.
+      </p>
 
-    <div class="field-row">
-      <div class="field">
-        <label for="dob" data-i18n="dobLabel">Date of Birth</label>
-        <input type="date" id="dob" />
+      <label for="birthDate" data-i18n="birthDate">Birth Date</label>
+      <input type="date" id="birthDate">
+
+      <label for="birthTime" data-i18n="birthTime">Birth Time</label>
+      <input type="time" id="birthTime">
+
+      <label for="birthPlace" data-i18n="birthPlace">Birth Place (City, Country)</label>
+      <input type="text" id="birthPlace" placeholder="Izmir, Turkey">
+
+      <label for="nameInput" data-i18n="nameLabel">Name (optional)</label>
+      <input type="text" id="nameInput" placeholder="Mystic Soul">
+
+      <label data-i18n="focusLabel">What should MystAI focus on?</label>
+      <div class="tags" id="focusTags">
+        <span class="tag" data-key="love" data-i18n="focusLove">Love & Relationships</span>
+        <span class="tag" data-key="career" data-i18n="focusCareer">Career & Life Path</span>
+        <span class="tag" data-key="money" data-i18n="focusMoney">Money & Abundance</span>
+        <span class="tag" data-key="spiritual" data-i18n="focusSpiritual">Spiritual Growth</span>
       </div>
-      <div class="field">
-        <label for="tob" data-i18n="tobLabel">Time of Birth</label>
-        <input type="time" id="tob" />
+
+      <label for="questionInput" data-i18n="questionLabel">Any specific question or intention?</label>
+      <textarea id="questionInput" data-i18n-placeholder="questionPh"></textarea>
+
+      <div class="submit-row">
+        <button class="primary-btn" id="generateBtn" data-i18n="generateBtn">Generate Astrology Report</button>
+        <span class="hint" id="hintText" data-i18n="hint">
+          Example: “How does my chart affect love and career in the next year?”
+        </span>
       </div>
-    </div>
 
-    <div class="field">
-      <label for="place" data-i18n="placeLabel">Birth Place (City, Country)</label>
-      <input type="text" id="place" placeholder="e.g. Izmir, Türkiye" />
+      <div class="status" id="statusText"></div>
     </div>
-
-    <div class="field">
-      <label for="nickname" data-i18n="nameLabel">Name / Nickname (optional)</label>
-      <input type="text" id="nickname" placeholder="Mystic Soul" />
-    </div>
-
-    <div class="field">
-      <label data-i18n="focusLabel">Which life areas should we focus on?</label>
-      <div class="chips" id="focusChips">
-        <button type="button" class="chip" data-value="love"   data-i18n="fLove">Love & Relationships</button>
-        <button type="button" class="chip" data-value="career" data-i18n="fCareer">Career & Life Path</button>
-        <button type="button" class="chip" data-value="money"  data-i18n="fMoney">Money & Abundance</button>
-        <button type="button" class="chip" data-value="growth" data-i18n="fGrowth">Spiritual Growth</button>
-      </div>
-      <small data-i18n="focusHint">You can select more than one.</small>
-    </div>
-
-    <div class="field">
-      <label for="question" data-i18n="qLabel">Anything special you want MystAI to consider?</label>
-      <textarea id="question" rows="3" placeholder=""></textarea>
-      <small data-i18n="qHint">
-        For example: "How does my birth chart affect my love life in 2025?" or
-        "Which themes stand out in my next solar return?"
-      </small>
-    </div>
-
-    <button class="primary-btn" id="astroSubmit" data-i18n="submit">
-      Create Astrology Report
-    </button>
   </section>
 
-  <!-- RIGHT: CHART + REPORT -->
-  <section class="panel" id="reportPanel">
-    <div class="report-header">
-      <div>
-        <h2 data-i18n="reportTitle">Your AI Astrology Report</h2>
-        <div class="status" id="astroStatus"></div>
-      </div>
-      <div class="badge" data-i18n="badge">Natal + Solar Return + Transits</div>
-    </div>
+  <!-- SAĞ PANEL -->
+  <section class="panel">
+    <div class="panel-inner">
+      <h2 class="panel-title" data-i18n="rightTitle">Your AI Astrology Report</h2>
+      <p class="panel-sub status" id="topStatus" data-i18n="topStatus">
+        Fill your birth details and tap “Generate Astrology Report”.
+      </p>
 
-    <div class="chart-wrapper">
-      <div class="chart-card">
-        <img src="images/Astrology.png" alt="Birth Chart" />
+      <div class="mode-tabs">
+        <button class="mode-pill active" data-mode="all" data-i18n="modeAll">Natal + Solar Return + Transits</button>
       </div>
-      <div class="chart-meta" id="chartMeta" data-i18n="chartMeta">
-        Enter your birth details on the left. When your report is ready, your birth date, time and place
-        will be summarized here along with a symbolic star map.
+
+      <div class="chart-box" id="chartBox">
+        <span data-i18n="chartPlaceholder">
+          Your automatic birth chart will appear here.
+        </span>
       </div>
-    </div>
 
-    <div class="report-body" id="astroReport" data-i18n="reportBody">
-      <!-- AI report will appear here -->
-    </div>
+      <p class="summary-line" id="summaryLine"></p>
 
-    <div class="audio-row">
-      <span data-i18n="audioLabel">Listen to your report:</span>
-      <audio id="astroAudio" controls style="display:none;"></audio>
+      <div class="audio-row">
+        <span data-i18n="listenLabel">Listen to your report:</span>
+        <audio id="audioPlayer" controls></audio>
+      </div>
+
+      <div class="report-box" id="reportBox"></div>
     </div>
   </section>
 </main>
@@ -370,11 +440,36 @@
     <a href="disclaimer.html" data-i18n="disclaimer">Disclaimer</a>
   </div>
   <p>
-    © 2025 MystAI.ai — <span data-i18n="rights">All Rights Reserved.</span>
+    © 2025 MystAI.ai —
+    <span data-i18n="rights">All Rights Reserved.</span>
     <span data-i18n="dev">Developed by GALAXY 🌌</span><br>
     <a href="mailto:support@mystai.ai">support@mystai.ai</a>
   </p>
 </footer>
+
+<!-- Ask MystAI FAB (bozulmasın diye aynı) -->
+<button class="ask-fab" id="askFab">
+  🔮 <span data-i18n="ask">Ask MystAI</span>
+</button>
+
+<div class="ask-modal" id="askModal" role="dialog" aria-modal="true" aria-labelledby="askTitle">
+  <div class="ask-card">
+    <h2 class="ask-title" id="askTitle" data-i18n="askTitle">Ask MystAI 🔮</h2>
+    <div class="ask-row">
+      <textarea id="askInput" placeholder="Type your question..."></textarea>
+    </div>
+    <div class="ask-hint" id="askHint">Tip: You can ask about your energy, dreams, love, career, or destiny.</div>
+    <div class="ask-actions">
+      <button class="ask-btn ask-secondary" id="askClose" data-i18n="close">Close</button>
+      <button class="ask-btn" id="askSend">
+        <span data-i18n="send">Send</span>
+        <span class="spinner" id="askSpin">⏳</span>
+      </button>
+    </div>
+    <div class="ask-output" id="askOutput"></div>
+    <audio id="askAudio" style="display:none;"></audio>
+  </div>
+</div>
 
 <script type="module">
   /* ====== CONFIG ====== */
@@ -397,240 +492,172 @@
   const auth = getAuth(app);
 
   const logoutBtn   = document.getElementById('logoutBtn');
-  const historyBtn  = document.getElementById('historyBtn');
+  const backAppBtn  = document.getElementById('backApp');
   const userWelcome = document.getElementById('user-welcome');
 
-  /* ====== i18n ====== */
-  const i18n = {
-    en:{
-      history:"My History",
-      logout:"Logout",
-      formTitle:"Your Birth Details",
-      formDesc:"Your birth data is used only to create your personal astrology report. It is never stored or shared.",
-      dobLabel:"Date of Birth",
-      tobLabel:"Time of Birth",
-      placeLabel:"Birth Place (City, Country)",
-      nameLabel:"Name / Nickname (optional)",
-      focusLabel:"Which life areas should we focus on?",
-      fLove:"Love & Relationships",
-      fCareer:"Career & Life Path",
-      fMoney:"Money & Abundance",
-      fGrowth:"Spiritual Growth",
-      focusHint:"You can select more than one.",
-      qLabel:"Anything special you want MystAI to consider?",
-      qHint:'For example: "How does my birth chart affect my love life in 2025?" or "Which themes stand out in my next solar return?"',
-      submit:"Create Astrology Report",
-      reportTitle:"Your AI Astrology Report",
-      badge:"Natal + Solar Return + Transits",
-      chartMeta:"Enter your birth details on the left. When your report is ready, your birth date, time and place will be summarized here along with a symbolic star map.",
-      reportBody:"",
-      audioLabel:"Listen to your report:",
-      terms:"Terms",
-      privacy:"Privacy",
-      cookies:"Cookies",
-      disclaimer:"Disclaimer",
-      rights:"All Rights Reserved.",
-      dev:"Developed by GALAXY 🌌",
-      statusIdle:"Fill in your details and click the button to generate your astrology report.",
-      statusLoading:"Creating your personal astrology report… This may take a few seconds.",
-      statusError:"An error occurred while creating the report. Please try again.",
-      statusMissing:"Please enter your date of birth, time and place.",
-      welcomePrefix:"Welcome, "
-    },
-    tr:{
-      history:"Geçmişim",
-      logout:"Çıkış Yap",
-      formTitle:"Doğum Bilgilerin",
-      formDesc:"Doğum verilerin yalnızca kişisel astroloji raporunu oluşturmak için kullanılır; asla saklanmaz veya paylaşılmaz.",
-      dobLabel:"Doğum Tarihi",
-      tobLabel:"Doğum Saati",
-      placeLabel:"Doğum Yeri (Şehir, Ülke)",
-      nameLabel:"İsmin / Takma Adın (opsiyonel)",
-      focusLabel:"Hangi hayat alanlarına odaklanalım?",
-      fLove:"Aşk & İlişkiler",
-      fCareer:"Kariyer & Yaşam Yolu",
-      fMoney:"Para & Bolluk",
-      fGrowth:"Ruhsal Gelişim",
-      focusHint:"Birden fazla alan seçebilirsin.",
-      qLabel:"MystAI'nin özellikle dikkate almasını istediğin bir şey var mı?",
-      qHint:'Örneğin: "Doğum haritam aşk hayatımı 2025\'te nasıl etkiliyor?" veya "Solar Return haritamda hangi ana temalar öne çıkıyor?"',
-      submit:"Astroloji Raporu Oluştur",
-      reportTitle:"Yapay Zekâ Astroloji Raporun",
-      badge:"Natal + Solar Return + Transitler",
-      chartMeta:"Soldaki formu doldur. Raporun hazır olduğunda doğum tarihin, saatin ve yerin burada özetlenecek ve sembolik bir yıldız haritası gösterilecek.",
-      reportBody:"",
-      audioLabel:"Raporunu dinle:",
-      terms:"Şartlar",
-      privacy:"Gizlilik",
-      cookies:"Çerezler",
-      disclaimer:"Sorumluluk Reddi",
-      rights:"Tüm Hakları Saklıdır.",
-      dev:"GALAXY tarafından geliştirilmiştir 🌌",
-      statusIdle:"Bilgilerini doldur ve butona tıklayarak kişisel astroloji raporunu oluştur.",
-      statusLoading:"Kişisel astroloji raporun hazırlanıyor… Birkaç saniye sürebilir.",
-      statusError:"Rapor oluşturulurken bir hata oluştu. Lütfen tekrar dene.",
-      statusMissing:"Lütfen doğum tarihi, saati ve yerini gir.",
-      welcomePrefix:"Hoş geldin, "
-    }
-  };
+  logoutBtn.addEventListener('click', ()=> {
+    signOut(auth).then(()=>window.location.href = "login.html");
+  });
+  backAppBtn.addEventListener('click', ()=> {
+    window.location.href = "app.html";
+  });
 
   let activeLang = localStorage.getItem("myst_lang") || "en";
+
+  const i18n = {
+    en: {
+      backApp:"Back to App",
+      logout:"Logout",
+      leftTitle:"Your Birth Details",
+      leftSub:"Your birth data is stored securely and only used to create your personal astrology report.",
+      birthDate:"Birth Date",
+      birthTime:"Birth Time",
+      birthPlace:"Birth Place (City, Country)",
+      nameLabel:"Name (optional)",
+      focusLabel:"What should MystAI focus on?",
+      focusLove:"Love & Relationships",
+      focusCareer:"Career & Life Path",
+      focusMoney:"Money & Abundance",
+      focusSpiritual:"Spiritual Growth",
+      questionLabel:"Any specific question or intention?",
+      questionPh:"Example: How will the next 12 months affect my love life and career?",
+      generateBtn:"Generate Astrology Report",
+      hint:"Example: \"How does my chart influence love and career over the next year?\"",
+      rightTitle:"Your AI Astrology Report",
+      topStatus:"Fill your birth details and tap “Generate Astrology Report”.",
+      chartPlaceholder:"Your automatic birth chart will appear here.",
+      listenLabel:"Listen to your report:",
+      terms:"Terms", privacy:"Privacy", cookies:"Cookies", disclaimer:"Disclaimer",
+      rights:"All Rights Reserved.", dev:"Developed by GALAXY 🌌",
+      ask:"Ask MystAI", askTitle:"Ask MystAI 🔮", send:"Send", close:"Close",
+      modeAll:"Natal + Solar Return + Transits",
+      askHint:"Tip: You can ask about your energy, dreams, love, career, or destiny."
+    },
+    tr: {
+      backApp:"Uygulamaya Dön",
+      logout:"Çıkış Yap",
+      leftTitle:"Doğum Bilgilerin",
+      leftSub:"Doğum verilerin gizli tutulur ve sadece kişisel astroloji raporunu oluşturmak için kullanılır.",
+      birthDate:"Doğum Tarihi",
+      birthTime:"Doğum Saati",
+      birthPlace:"Doğum Yeri (Şehir, Ülke)",
+      nameLabel:"İsmin (opsiyonel)",
+      focusLabel:"MystAI hangi alanlara odaklansın?",
+      focusLove:"Aşk & İlişkiler",
+      focusCareer:"Kariyer & Yaşam Yolu",
+      focusMoney:"Para & Bolluk",
+      focusSpiritual:"Ruhsal Gelişim",
+      questionLabel:"Özel bir sorun ya da niyetin var mı?",
+      questionPh:"Örnek: Önümüzdeki 12 ay aşk ve kariyerimi nasıl etkiliyor?",
+      generateBtn:"Astroloji Raporu Oluştur",
+      hint:"Örnek: \"Doğum haritam aşk ve kariyerimi önümüzdeki yıl nasıl etkiliyor?\"",
+      rightTitle:"Yapay Zekâ Astroloji Raporun",
+      topStatus:"Doğum bilgilerini doldur ve \"Astroloji Raporu Oluştur\" butonuna tıkla.",
+      chartPlaceholder:"Otomatik doğum haritan burada görünecek.",
+      listenLabel:"Raporunu dinle:",
+      terms:"Şartlar", privacy:"Gizlilik", cookies:"Çerezler", disclaimer:"Sorumluluk Reddi",
+      rights:"Tüm Hakları Saklıdır.", dev:"GALAXY tarafından geliştirilmiştir 🌌",
+      ask:"MystAI'ye Sor", askTitle:"MystAI'ye Sor 🔮", send:"Gönder", close:"Kapat",
+      modeAll:"Natal + Solar Return + Transitler",
+      askHint:"İpucu: Enerji, rüyalar, aşk, kariyer ya da kaderin hakkında sorular sorabilirsin."
+    }
+  };
 
   function applyLang(lang){
     activeLang = lang;
     localStorage.setItem("myst_lang", lang);
-    const dict = i18n[lang] || i18n.en;
+    const dict = i18n[lang];
 
     document.querySelectorAll("[data-i18n]").forEach(el=>{
       const key = el.getAttribute("data-i18n");
-      if(!key) return;
-      if(key === "qHint" || key === "formDesc" || key === "chartMeta"){
-        el.innerHTML = dict[key];
-      }else{
-        el.textContent = dict[key] ?? "";
-      }
+      if(dict[key]) el.textContent = dict[key];
     });
+
+    const qArea = document.getElementById("questionInput");
+    qArea.placeholder = dict.questionPh;
+
+    document.getElementById("askHint").textContent = dict.askHint;
 
     document.getElementById("btn-en").classList.toggle("secondary", lang!=="en");
     document.getElementById("btn-tr").classList.toggle("secondary", lang!=="tr");
 
-    // Placeholder'lar
-    const place = document.getElementById("place");
-    const nick  = document.getElementById("nickname");
-    const q     = document.getElementById("question");
-
-    if(lang==="tr"){
-      place.placeholder = "Örn: İzmir, Türkiye";
-      nick.placeholder  = "Örn: Mystic Soul";
-      q.placeholder     = "Sorunu yaz...";
-    }else{
-      place.placeholder = "e.g. Izmir, Türkiye";
-      nick.placeholder  = "e.g. Mystic Soul";
-      q.placeholder     = "Type your question...";
+    if(auth.currentUser){
+      const name = auth.currentUser.displayName || auth.currentUser.email;
+      userWelcome.textContent = (lang === 'tr' ? 'Hoş geldin, ' : 'Welcome, ') + name;
     }
-
-    const user = auth.currentUser;
-    if(user){
-      const name = user.displayName || user.email;
-      userWelcome.textContent = (dict.welcomePrefix || "") + name;
-    }
-
-    // Başlangıç mesajı
-    document.getElementById("astroStatus").textContent = dict.statusIdle;
   }
 
   document.getElementById("btn-en").addEventListener("click",()=>applyLang("en"));
   document.getElementById("btn-tr").addEventListener("click",()=>applyLang("tr"));
   applyLang(activeLang);
 
-  /* ====== Auth / Nav ====== */
-  logoutBtn.addEventListener('click', ()=>{
-    signOut(auth).then(()=>window.location.href="login.html");
-  });
-  historyBtn.addEventListener('click', ()=>window.location.href="history.html");
-
-  onAuthStateChanged(auth,(user)=>{
-    const dict = i18n[activeLang] || i18n.en;
+  onAuthStateChanged(auth, (user)=>{
     if(user){
       const name = user.displayName || user.email;
-      userWelcome.textContent = (dict.welcomePrefix || "") + name;
-    }else{
+      userWelcome.textContent = (activeLang === 'tr' ? 'Hoş geldin, ' : 'Welcome, ') + name;
+    } else {
       window.location.href = "login.html";
     }
   });
 
-  /* ====== Focus chips ====== */
-  const chips = Array.from(document.querySelectorAll(".chip"));
-  chips.forEach(chip=>{
-    chip.addEventListener("click",()=>{
-      chip.classList.toggle("active");
-    });
+  /* ====== Fokus tagleri ====== */
+  const focusTags = document.getElementById("focusTags");
+  focusTags.addEventListener("click", (e)=>{
+    if(e.target.classList.contains("tag")){
+      e.target.classList.toggle("active");
+    }
   });
 
-  function buildPrompt(lang, data){
-    const {dob,tob,place,nickname,focusList,question} = data;
-    const focusText = focusList.length ? focusList.join(", ") : (lang==="tr" ? "Genel tema" : "General themes");
-    const safeName = nickname || (lang==="tr" ? "danışan" : "querent");
+  /* ====== Astroloji istek ====== */
+  const generateBtn = document.getElementById("generateBtn");
+  const statusText  = document.getElementById("statusText");
+  const topStatus   = document.getElementById("topStatus");
+  const reportBox   = document.getElementById("reportBox");
+  const summaryLine = document.getElementById("summaryLine");
+  const chartBox    = document.getElementById("chartBox");
+  const audioPlayer = document.getElementById("audioPlayer");
 
-    if(lang==="tr"){
-      return (
-        "Aşağıdaki bilgilere sahip bir kullanıcı için detaylı, profesyonel bir astroloji raporu hazırla.\n\n" +
-        `İsim / takma ad: ${safeName}\n` +
-        `Doğum tarihi: ${dob}\n` +
-        `Doğum saati: ${tob}\n` +
-        `Doğum yeri: ${place}\n` +
-        `Odaklanılacak hayat alanları: ${focusText}\n` +
-        (question ? `Kullanıcının özellikle merak ettiği soru / konu: ${question}\n\n` : "\n") +
-        "RAPOR YAPISI:\n" +
-        "1) Natal Harita Özeti: Güneş, Ay, olası Yükselen ve önemli gezegen temalarını; karakteri, iç dünyayı ve hayat amacını açıkla.\n" +
-        "2) Önümüzdeki 12 Ayın Transit Temaları: Aşk, ilişkiler, kariyer, para, aile ve ruhsal gelişim açısından önemli dönemleri ve fırsatları anlat. Tarih verirken yaklaşık dönemler (ilkbahar, yaz, yılın ikinci yarısı gibi) kullan.\n" +
-        "3) Solar Return / Yıllık Harita Özeti: Bu yılın ana dersini, dikkat edilmesi gereken konuları ve kullanıcıya destek olacak olumlu tavsiyeleri yaz.\n\n" +
-        "Üslubun hem mistik hem de topraklayıcı olsun; korkutucu cümlelerden kaçın. Son bölümde birkaç madde halinde uygulanabilir öneri ver."
-      );
-    }else{
-      return (
-        "Create a detailed, professional astrology report for the user with the data below.\n\n" +
-        `Name / nickname: ${safeName}\n` +
-        `Date of birth: ${dob}\n` +
-        `Time of birth: ${tob}\n` +
-        `Birth place: ${place}\n` +
-        `Main focus areas: ${focusText}\n` +
-        (question ? `User's specific question / topic: ${question}\n\n` : "\n") +
-        "REPORT STRUCTURE:\n" +
-        "1) Natal Chart Overview: probable Sun, Moon, possible Ascendant themes and key planetary patterns; personality, emotional needs and life purpose.\n" +
-        "2) Transit Themes for the Next 12 Months: important cycles in love, relationships, career, finances, family and spiritual growth. Use approximate time frames (early year, mid-year, second half of the year) instead of exact dates.\n" +
-        "3) Solar Return / Annual Chart: main lesson of this year, key focus areas and supportive advice.\n\n" +
-        "Keep the tone mystical yet grounded, avoid scary sentences and close with a short list of practical suggestions."
-      );
-    }
-  }
+  generateBtn.addEventListener("click", async ()=>{
+    const birthDate   = document.getElementById("birthDate").value;
+    const birthTime   = document.getElementById("birthTime").value;
+    const birthPlace  = document.getElementById("birthPlace").value.trim();
+    const name        = document.getElementById("nameInput").value.trim();
+    const question    = document.getElementById("questionInput").value.trim();
 
-  /* ====== Submit ====== */
-  const submitBtn   = document.getElementById("astroSubmit");
-  const statusEl    = document.getElementById("astroStatus");
-  const reportEl    = document.getElementById("astroReport");
-  const audioEl     = document.getElementById("astroAudio");
-  const chartMetaEl = document.getElementById("chartMeta");
+    const focus = Array.from(document.querySelectorAll(".tag.active"))
+      .map(el=>el.dataset.key);
 
-  submitBtn.addEventListener("click", async ()=>{
-    const dict = i18n[activeLang] || i18n.en;
-
-    const dob   = document.getElementById("dob").value;
-    const tob   = document.getElementById("tob").value;
-    const place = document.getElementById("place").value.trim();
-    const nickname = document.getElementById("nickname").value.trim();
-    const question = document.getElementById("question").value.trim();
-
-    if(!dob || !tob || !place){
-      alert(dict.statusMissing);
+    if(!birthDate || !birthTime || !birthPlace){
+      statusText.classList.add("error");
+      statusText.textContent = activeLang === "tr"
+        ? "Lütfen doğum tarihi, saati ve yerini doldurun."
+        : "Please fill in birth date, time and place.";
       return;
     }
 
-    const focusList = chips.filter(c=>c.classList.contains("active")).map(c=>c.textContent.trim());
+    statusText.classList.remove("error");
+    statusText.textContent = activeLang === "tr"
+      ? "Rapor oluşturuluyor, lütfen bekleyin..."
+      : "Generating your astrology report, please wait...";
 
-    const userPrompt = buildPrompt(activeLang,{
-      dob,tob,place,nickname,focusList,question
-    });
-
-    // Chart meta güncelle
-    chartMetaEl.textContent =
-      (activeLang==="tr"
-        ? `Doğum tarihi: ${dob} • Doğum saati: ${tob} • Doğum yeri: ${place}`
-        : `Date of birth: ${dob} • Time: ${tob} • Place: ${place}`);
-
-    submitBtn.disabled = true;
-    statusEl.textContent = dict.statusLoading;
-    reportEl.textContent = "";
-    audioEl.style.display = "none";
-    audioEl.src = "";
+    topStatus.textContent = "";
+    reportBox.textContent = "";
+    summaryLine.textContent = "";
+    chartBox.innerHTML = `<span>${activeLang==="tr" ? "Doğum haritan hazırlanıyor..." : "Preparing your birth chart..."}</span>`;
+    audioPlayer.src = "";
 
     try{
-      const res = await fetch(`${BACKEND_URL}/predict`,{
+      const res = await fetch(`${BACKEND_URL}/astrology`, {
         method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-          user_input:userPrompt,
-          reading_type:"astrology"
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({
+          birth_date: birthDate,
+          birth_time: birthTime,
+          birth_place: birthPlace,
+          name,
+          focus_areas: focus,
+          question,
+          language: activeLang
         })
       });
 
@@ -643,22 +670,106 @@
         throw new Error(data.error);
       }
 
-      reportEl.textContent = data.text || "";
-      statusEl.textContent = "";
+      const text  = data.text || "";
+      const audio = data.audio || "";
+      const chart = data.chart || "";
 
-      if(data.audio){
-        const audioURL = data.audio.startsWith("http")
-          ? data.audio
-          : `${BACKEND_URL}${data.audio}`;
-        audioEl.src = audioURL;
-        audioEl.style.display = "block";
-        audioEl.play().catch(()=>{});
+      reportBox.textContent = text;
+
+      const line = activeLang === "tr"
+        ? `Doğum tarihi: ${birthDate} • Doğum saati: ${birthTime} • Doğum yeri: ${birthPlace}`
+        : `Birth date: ${birthDate} • Birth time: ${birthTime} • Birth place: ${birthPlace}`;
+      summaryLine.textContent = line;
+
+      if(chart){
+        const src = chart.startsWith("http") ? chart : `${BACKEND_URL}${chart}`;
+        chartBox.innerHTML = `<img src="${src}" alt="Astrology chart">`;
+      }else{
+        chartBox.innerHTML = `<span>${activeLang==="tr" ? "Harita görüntüsü oluşturulamadı." : "Chart image could not be generated."}</span>`;
       }
+
+      if(audio){
+        const aSrc = audio.startsWith("http") ? audio : `${BACKEND_URL}${audio}`;
+        audioPlayer.src = aSrc;
+      }
+
+      statusText.textContent = activeLang === "tr"
+        ? "Rapor hazır. Aşağıdan okuyabilir ve dinleyebilirsin."
+        : "Your report is ready. You can read and listen below.";
+
     }catch(err){
       console.error(err);
-      statusEl.textContent = dict.statusError;
+      statusText.classList.add("error");
+      statusText.textContent = (activeLang==="tr" ? "Hata: " : "Error: ") + (err?.message || err);
+      chartBox.innerHTML = `<span>${activeLang==="tr" ? "Bir hata oluştu, lütfen tekrar dene." : "Something went wrong, please try again."}</span>`;
+    }
+  });
+
+  /* ====== Ask MystAI modal (mevcut backend /predict kullanır) ====== */
+  const askFab    = document.getElementById('askFab');
+  const askModal  = document.getElementById('askModal');
+  const askClose  = document.getElementById('askClose');
+  const askSend   = document.getElementById('askSend');
+  const askInput  = document.getElementById('askInput');
+  const askOutput = document.getElementById('askOutput');
+  const askSpin   = document.getElementById('askSpin');
+  const askAudio  = document.getElementById('askAudio');
+
+  askFab.addEventListener('click', ()=> {
+    askModal.style.display='flex';
+    askInput.focus();
+  });
+  askClose.addEventListener('click', ()=> {
+    askModal.style.display='none';
+    askOutput.style.display='none';
+    askInput.value='';
+    askAudio.pause(); askAudio.currentTime=0; askAudio.src='';
+  });
+  askModal.addEventListener('click', (e)=>{
+    if(e.target === askModal){ askClose.click(); }
+  });
+
+  askSend.addEventListener('click', async ()=>{
+    const q = askInput.value.trim();
+    if(!q){
+      alert(activeLang==='tr' ? 'Lütfen bir soru yazın.' : 'Please type a question.');
+      return;
+    }
+
+    askSpin.style.display='inline-block';
+    askSend.disabled = true;
+    askOutput.style.display='none';
+    askOutput.textContent = '';
+
+    try{
+      const res = await fetch(`${BACKEND_URL}/predict`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ user_input: q, reading_type: "general" })
+      });
+
+      if(!res.ok){
+        throw new Error((activeLang==='tr'?'İstek başarısız: ':'Request failed: ')+res.status);
+      }
+
+      const data = await res.json();
+      const text = data?.text || (activeLang==='tr'?'Yanıt alınamadı.':'No response.');
+      const audioPath = data?.audio;
+
+      askOutput.style.display='block';
+      askOutput.textContent = text;
+
+      if(audioPath){
+        const audioURL = audioPath.startsWith('http') ? audioPath : `${BACKEND_URL}${audioPath}`;
+        askAudio.src = audioURL;
+        askAudio.play().catch(()=>{});
+      }
+    }catch(err){
+      askOutput.style.display='block';
+      askOutput.textContent = (activeLang==='tr'?'Hata: ':'Error: ') + (err?.message||err);
     }finally{
-      submitBtn.disabled = false;
+      askSpin.style.display='none';
+      askSend.disabled = false;
     }
   });
 </script>
