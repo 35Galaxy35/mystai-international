@@ -13,13 +13,7 @@ app = Flask(__name__)
 # ======== CORS AYARLARI =========
 CORS(app, resources={
     r"/*": {
-        "origins": [
-            "https://mystai.ai",
-            "https://www.mystai.ai",
-            "https://mystai-international-1.onrender.com",
-            "http://localhost:3000",
-            "http://127.0.0.1:3000"
-        ],
+        "origins": "*",
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"]
     }
