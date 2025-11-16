@@ -74,7 +74,7 @@ def generate_astrology_chart():
         )
 
         image_resp = client.images.generate(
-            model="gpt-image-1",
+            model="gpt-image-1-mini",
             prompt=prompt,
             size="1024x1024"
         )
