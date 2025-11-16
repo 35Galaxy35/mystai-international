@@ -252,7 +252,7 @@ def astrology_premium():
 
         # Harita (premium zaten vardı)
         img = client.images.generate(
-            model="gpt-image-1-mini",
+            model="gpt-image-l",
             prompt="High-quality natal astrology chart wheel, cosmic background.",
             size="1024x1024"
         )
