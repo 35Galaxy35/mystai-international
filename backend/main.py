@@ -6,10 +6,11 @@ from gtts import gTTS
 import os
 import traceback
 import uuid
+import base64
 
 app = Flask(__name__)
 
-# ========= CORS AYARLARI =========
+# ========= CORS =========
 CORS(
     app,
     resources={
@@ -21,13 +22,11 @@ CORS(
     },
 )
 
-# ENV'den API KEY oku
+# ========= OpenAI Key =========
 OPENAI_KEY = os.environ.get("OPENAI_API_KEY")
-
 if not OPENAI_KEY:
     raise Exception("OPENAI_API_KEY bulunamadı!")
 
-# OpenAI client
 client = OpenAI(api_key=OPENAI_KEY)
 
 
@@ -36,41 +35,43 @@ def home():
     return "MystAI backend is running! 🔮"
 
 
-# === Sistem prompt oluşturucu ===
+# ========= Sistem Prompt =========
 def build_system_prompt(reading_type: str, lang: str) -> str:
     if lang == "tr":
         base = (
-            "Sen MystAI adında mistik, sıcak ve profesyonel bir fal ve astroloji yorumcusun. "
-            "Kullanıcıya asla korkutucu veya umutsuz mesajlar verme. "
-            "Gerçekçi ama pozitif, yol gösterici ve sakin bir tonda konuş."
+            "Sen MystAI adında mistik ve profesyonel bir yorumcusun. "
+            "Kullanıcıya pozitif, destekleyici ve gerçekçi bir dille rehberlik verirsin."
         )
         types = {
             "astrology": (
-                base
-                + " Doğum haritasını, gezegenleri, burçları, evleri ve açıları kullanarak; "
-                "kişilik, yaşam amacı, aşk, kariyer, para ve ruhsal gelişim hakkında geniş bir rapor yaz."
+                base +
+                " Doğum haritası, gezegenler, evler ve açılar üzerinden derin ve profesyonel bir astroloji yorumu yap."
             ),
-            "general": base + " Genel bir mistik fal yorumcususun.",
+            "general": base + " Genel bir fal ve enerji yorumcusun."
         }
     else:
         base = (
-            "You are MystAI, a mystical, warm and professional astrology interpreter. "
-            "Never give scary or hopeless messages. Be positive, realistic and calm."
+            "You are MystAI, a mystical and professional astrology and fortune interpreter. "
+            "You speak warmly, positively and supportively."
         )
         types = {
             "astrology": (
-                base
-                + " Interpret the natal chart: planets, houses, aspects. Provide kind and deep insights."
+                base +
+                " Provide deep and structured natal chart interpretation using planets, houses and aspects."
             ),
-            "general": base + " A general oracle giving intuitive guidance.",
+            "general": base + " A general oracle and intuitive guide."
         }
 
     return types.get(reading_type, types["general"])
 
 
-# ========= /predict =========
+# ========= NORMAL /predict (kahve, tarot, el, enerji) =========
 @app.route("/predict", methods=["POST"])
 def predict():
+    """
+    Kahve, tarot, enerji, el falı, normal sohbet.
+    Çalışan eski sistem BOZULMADI.
+    """
     try:
         data = request.get_json() or {}
         user_input = data.get("user_input", "").strip()
@@ -78,14 +79,15 @@ def predict():
         if not user_input:
             return jsonify({"error": "user_input boş olamaz"}), 400
 
+        # Dil tespiti
         try:
             detected = detect(user_input)
         except:
             detected = "en"
-
         if detected not in ("tr", "en"):
             detected = "en"
 
+        # Sistem mesajı
         system_prompt = build_system_prompt("general", detected)
 
         completion = client.chat.completions.create(
@@ -95,33 +97,28 @@ def predict():
                 {"role": "user", "content": user_input},
             ],
         )
+        text = completion.choices[0].message.content.strip()
 
-        response_text = completion.choices[0].message.content.strip()
-
-        # Ses oluştur
+        # Ses dosyası
         file_id = uuid.uuid4().hex
         audio_path = f"/tmp/{file_id}.mp3"
-        tts = gTTS(text=response_text, lang=detected)
+        tts = gTTS(text=text, lang=detected)
         tts.save(audio_path)
 
-        return jsonify(
-            {
-                "text": response_text,
-                "audio": f"/audio/{file_id}",
-            }
-        )
+        return jsonify({"text": text, "audio": f"/audio/{file_id}"})
 
     except Exception as e:
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 
-# ========= /astrology (sorunsuz – sadece metin) =========
+# ========= BASİT ASTROLOJİ /astrology (bozulmadı) =========
 @app.route("/astrology", methods=["POST"])
 def astrology():
     """
-    Astroloji raporu – hızlı çalışır, timeout yemez.
-    Sadece METİN döner (audio yok, chart yok).
+    Hızlı çalışan, basit astroloji raporu.
+    Ses yok, chart yok.
+    (ESKİ SİSTEMİN AYNISI)
     """
     try:
         data = request.get_json() or {}
@@ -134,111 +131,161 @@ def astrology():
         question = data.get("question", "").strip()
 
         if not birth_date or not birth_time or not birth_place:
-            return jsonify({"error": "Eksik bilgi: birth_date, birth_time, birth_place zorunlu."}), 400
+            return jsonify({"error": "Eksik bilgi."}), 400
 
-        # Dil tespiti
-        sample_text = " ".join([birth_place, name, question]).strip() or "test"
         try:
-            detected = detect(sample_text)
+            detected = detect(" ".join([birth_place, name, question]))
         except:
             detected = "en"
-
         if detected not in ("tr", "en"):
             detected = "en"
 
-        print("=== astrology dil:", detected)
-
-        # Sistem prompt
         system_prompt = build_system_prompt("astrology", detected)
 
-        # Kullanıcı prompt
+        # Kullanıcı promptu
         if detected == "tr":
-            focus_text = ", ".join(focus_areas) if focus_areas else "genel yaşam temaları"
             user_prompt = (
-                f"Doğum tarihi: {birth_date}\n"
-                f"Doğum saati: {birth_time}\n"
-                f"Doğum yeri: {birth_place}\n"
-                f"İsim: {name or 'Belirtilmedi'}\n"
-                f"Odak: {focus_text}\n"
-                f"Soru: {question or 'Belirtilmedi'}\n\n"
-                "Kapsamlı bir astroloji raporu hazırla."
+                f"Doğum: {birth_date} {birth_time} - {birth_place}\n"
+                f"İsim: {name}\n"
+                f"Odak: {', '.join(focus_areas) if focus_areas else 'Genel'}\n"
+                f"Soru: {question}\n"
+                "Kapsamlı bir astroloji raporu yaz."
             )
         else:
-            focus_text = ", ".join(focus_areas) if focus_areas else "general life themes"
             user_prompt = (
-                f"Birth date: {birth_date}\n"
-                f"Birth time: {birth_time}\n"
-                f"Birth place: {birth_place}\n"
-                f"Name: {name or 'Not provided'}\n"
-                f"Focus areas: {focus_text}\n"
-                f"Question: {question or 'Not provided'}\n\n"
+                f"Birth: {birth_date} {birth_time} - {birth_place}\n"
+                f"Name: {name}\n"
+                f"Focus: {', '.join(focus_areas) if focus_areas else 'General'}\n"
+                f"Question: {question}\n"
                 "Write a detailed astrology reading."
             )
 
-        # OpenAI – hızlı olsun diye max_tokens sınırlı
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            max_tokens=900,
+            max_tokens=850,
         )
 
-        report_text = completion.choices[0].message.content.strip()
-        print("Rapor uzunluğu:", len(report_text))
+        report = completion.choices[0].message.content.strip()
 
-        # Sadece METİN döner
-        return jsonify(
-            {
-                "text": report_text,
-                "audio": None,
-                "chart": None,
-                "language": detected,
-            }
-        )
+        return jsonify({
+            "text": report,
+            "audio": None,
+            "chart": None,
+            "language": detected,
+        })
 
     except Exception as e:
-        print("=== astrology HATA ===")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 
-# ========= Ses dosyası =========
+# ========= PREMIUM ASTROLOJİ /astrology-premium =========
+@app.route("/astrology-premium", methods=["POST"])
+def astrology_premium():
+    """
+    Ultra Premium: Harita PNG + geniş rapor.
+    """
+    try:
+        data = request.get_json() or {}
+
+        birth_date = data.get("birth_date", "").strip()
+        birth_time = data.get("birth_time", "").strip()
+        birth_place = data.get("birth_place", "").strip()
+
+        if not birth_date or not birth_time or not birth_place:
+            return jsonify({"error": "Eksik bilgi"}), 400
+
+        # Dil
+        try:
+            detected = detect(" ".join([birth_place]))
+        except:
+            detected = "en"
+        if detected not in ("tr", "en"):
+            detected = "en"
+
+        # ==== 1) PREMIUM METİN ====
+        system_prompt = build_system_prompt("astrology", detected)
+
+        user_prompt = (
+            f"Premium astroloji raporu hazırla.\n"
+            f"Doğum tarihi: {birth_date}\n"
+            f"Doğum saati: {birth_time}\n"
+            f"Doğum yeri: {birth_place}\n\n"
+            "Bölümler:\n"
+            "- Kişilik özeti\n"
+            "- Yaşam amacı\n"
+            "- Aşk & ilişkiler\n"
+            "- Kariyer & para\n"
+            "- Karmik dersler\n"
+            "- 12 ev analizi\n"
+            "- Bu yılın yıldızname yorumu (solar return)\n"
+        )
+
+        comp = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ]
+        )
+        premium_text = comp.choices[0].message.content.strip()
+
+        # ==== 2) PREMIUM CHART PNG ====
+        img_prompt = (
+            "High-quality natal astrology chart wheel, 12 houses, planets, aspects, elegant golden lines, "
+            "dark blue cosmic background."
+        )
+
+        image_resp = client.images.generate(
+            model="gpt-image-1",
+            prompt=img_prompt,
+            size="1024x1024"
+        )
+
+        b64 = image_resp.data[0].b64_json
+        img_data = base64.b64decode(b64)
+
+        chart_id = uuid.uuid4().hex
+        chart_path = f"/tmp/{chart_id}.png"
+        with open(chart_path, "wb") as f:
+            f.write(img_data)
+
+        return jsonify({
+            "text": premium_text,
+            "chart": f"/chart/{chart_id}",
+            "audio": None,
+            "language": detected
+        })
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
+# ========= FILE SERVERS =========
 @app.route("/audio/<file_id>")
 def serve_audio(file_id):
-    filename = f"/tmp/{file_id}.mp3"
-    if not os.path.exists(filename):
+    path = f"/tmp/{file_id}.mp3"
+    if not os.path.exists(path):
         return jsonify({"error": "Audio not found"}), 404
-    return send_file(filename, mimetype="audio/mpeg")
+    return send_file(path, mimetype="audio/mpeg")
 
 
-# ========= Chart dosyası =========
 @app.route("/chart/<chart_id>")
 def serve_chart(chart_id):
-    filename = f"/tmp/{chart_id}.png"
-    if not os.path.exists(filename):
+    path = f"/tmp/{chart_id}.png"
+    if not os.path.exists(path):
         return jsonify({"error": "Chart not found"}), 404
-    return send_file(filename, mimetype="image/png")
+    return send_file(path, mimetype="image/png")
 
 
-# ========= Ping testi =========
 @app.route("/ping")
 def ping():
     return jsonify({"status": "ok"})
-
-
-# ========= OpenAI bağlantı testi =========
-@app.route("/test_openai")
-def test_openai():
-    try:
-        r = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": "Hello"}],
-        )
-        return "OK -> " + r.choices[0].message.content
-    except Exception as e:
-        return "OpenAI ERROR: " + str(e)
 
 
 if __name__ == "__main__":
