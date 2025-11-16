@@ -894,15 +894,12 @@
         focusKeys.push(ch.dataset.key);
       });
 
-      const payload = {
-        birth_date: birthDate,
-        birth_time: birthTime,
-        birth_place: birthPlace,
-        name: name,
-        focus_areas: focusKeys,
-        question: question,
-        language: activeLang
-      };
+     const payload = {
+  birth_date: birthDate,
+  birth_time: birthTime,
+  birth_place: birthPlace
+};
+
 
       try{
         generateBtn.disabled = true;
