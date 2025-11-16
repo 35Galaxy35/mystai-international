@@ -9,3 +9,6 @@ pytz
 astral
 matplotlib
 pillow
+tinycss2
+cssselect2
+fpdf
