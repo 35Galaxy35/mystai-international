@@ -224,6 +224,29 @@
       box-shadow:0 10px 26px rgba(0,0,0,.5);
     }
 
+    .secondary-btn{
+      margin-top:12px;
+      width:100%;
+      border-radius:999px;
+      padding:10px 14px;
+      border:1px solid rgba(255,255,255,.35);
+      background:rgba(5,10,25,.9);
+      color:#e8eeff;
+      font-weight:600;
+      font-size:14px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      transition:all .2s ease;
+    }
+    .secondary-btn:hover{
+      border-color:#ffd54f;
+      color:#fff8e0;
+      box-shadow:0 12px 30px rgba(0,0,0,.7);
+    }
+
     /* Right panel - chart & report */
     .mode-bar{
       display:flex;
@@ -332,19 +355,8 @@
     }
     .download-link:hover{text-decoration:underline;}
 
-    .audio-row{
-      width:100%;
-      margin-top:10px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      font-size:12px;
-      color:var(--muted);
-    }
-    audio{width:100%;}
-
     .status{
-      margin-top:8px;
+      margin-top:12px;
       font-size:12px;
       color:var(--muted);
       text-align:left;
@@ -475,6 +487,33 @@
     .ask-hint{margin-top:6px;font-size:11px;color:var(--muted);}
     .spinner{display:none;margin-left:6px;}
 
+    /* Print tweaks for better PDF */
+    @media print{
+      body{
+        background:#fff;
+        color:#000;
+      }
+      header,.ask-fab,footer{
+        display:none !important;
+      }
+      main{
+        margin:0;
+        padding:0;
+        grid-template-columns:1fr;
+      }
+      .panel{
+        box-shadow:none;
+        border:none;
+        background:#fff;
+        color:#000;
+      }
+      .report-box{
+        max-height:none;
+        border:none;
+        background:#fff;
+      }
+    }
+
     @media(max-width:980px){
       main{
         margin-top:220px;
@@ -567,40 +606,43 @@
 
     <!-- RIGHT: CHART + REPORT -->
     <section class="panel" id="reportPanel">
-      <h2 class="panel-title" data-i18n="reportTitle">Your AI Astrology Report</h2>
-      <p class="panel-sub" data-i18n="reportSub">
-        MystAI blends symbolic astrology with AI-generated insight to create a unique natal + solar return + transit style overview.
-      </p>
+      <!-- PDF içine girecek kısım -->
+      <div id="pdfWrapper">
+        <h2 class="panel-title" data-i18n="reportTitle">Your AI Astrology Report</h2>
+        <p class="panel-sub" data-i18n="reportSub">
+          MystAI blends symbolic astrology with AI-generated insight to create a unique natal + solar return + transit style overview.
+        </p>
 
-      <div class="mode-bar">
-        <span data-i18n="modeLabel">Report mode:</span>
-        <div class="mode-pill">
-          <span class="active" data-i18n="modeNatalSolarTransits">Natal + Solar Return + Transits</span>
-        </div>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-container">
-          <div class="chart-inner-frame"></div>
-          <img id="chartImg" class="chart-img" alt="Astrology chart" style="display:none;">
-          <div id="chartPlaceholder" class="chart-placeholder" data-i18n="chartPlaceholder">
-            When you create your report, MystAI will draw a unique mystical chart for you here.
+        <div class="mode-bar">
+          <span data-i18n="modeLabel">Report mode:</span>
+          <div class="mode-pill">
+            <span class="active" data-i18n="modeNatalSolarTransits">Natal + Solar Return + Transits</span>
           </div>
         </div>
-        <div id="chartMeta" class="chart-meta"></div>
-        <a id="downloadChart" href="#" class="download-link" style="display:none;" data-i18n="downloadChart">
-          Download chart as PNG
-        </a>
+
+        <div class="chart-card">
+          <div class="chart-container">
+            <div class="chart-inner-frame"></div>
+            <img id="chartImg" class="chart-img" alt="Astrology chart" style="display:none;">
+            <div id="chartPlaceholder" class="chart-placeholder" data-i18n="chartPlaceholder">
+              When you create your report, MystAI will draw a unique mystical chart for you here.
+            </div>
+          </div>
+          <div id="chartMeta" class="chart-meta"></div>
+          <a id="downloadChart" href="#" class="download-link" style="display:none;" data-i18n="downloadChart">
+            Download chart as PNG
+          </a>
+        </div>
+
+        <div id="statusLabel" class="status"></div>
+
+        <div id="astroText" class="report-box"></div>
       </div>
 
-      <div class="audio-row">
-        <span data-i18n="listenLabel">Listen to your report:</span>
-        <audio id="astroAudio" controls></audio>
-      </div>
-
-      <div id="statusLabel" class="status"></div>
-
-      <div id="astroText" class="report-box"></div>
+      <!-- PDF BUTONU -->
+      <button id="downloadPdfBtn" class="secondary-btn">
+        📄 <span data-i18n="downloadPdfLabel">Download your report as PDF</span>
+      </button>
     </section>
   </main>
 
@@ -642,6 +684,9 @@
       <audio id="askAudio" style="display:none;"></audio>
     </div>
   </div>
+
+  <!-- PDF KÜTÜPHANESİ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <script type="module">
     /* ========= CONFIG ========= */
@@ -699,10 +744,10 @@
         modeNatalSolarTransits:"Natal + Solar Return + Transits",
         chartPlaceholder:"When you create your report, MystAI will draw a unique mystical chart for you here.",
         downloadChart:"Download chart as PNG",
-        listenLabel:"Listen to your report:",
         statusWorking:"Preparing your personal chart and AI interpretation...",
         statusOk:"Your AI astrology report has been generated.",
         statusError:"An error occurred while generating your report. Please try again.",
+        downloadPdfLabel:"Download your report as PDF",
         missingFields:"Please fill in birth date, time and place.",
         terms:"Terms",
         privacy:"Privacy",
@@ -743,10 +788,10 @@
         modeNatalSolarTransits:"Natal + Solar Return + Transitler",
         chartPlaceholder:"Raporunu oluşturduğunda MystAI sana özel, mistik bir doğum haritası çizecek.",
         downloadChart:"Haritayı PNG olarak indir",
-        listenLabel:"Raporunu dinle:",
         statusWorking:"Kişisel haritan ve yapay zekâ yorumun hazırlanıyor...",
         statusOk:"Yapay zekâ astroloji raporun hazır.",
         statusError:"Rapor oluşturulurken bir hata oluştu. Lütfen tekrar dene.",
+        downloadPdfLabel:"Raporunu PDF olarak indir",
         missingFields:"Lütfen doğum tarihi, saati ve yeri alanlarını doldur.",
         terms:"Şartlar",
         privacy:"Gizlilik",
@@ -818,12 +863,12 @@
     /* ========= Astrology report generation ========= */
     const generateBtn  = document.getElementById("generateBtn");
     const astroText    = document.getElementById("astroText");
-    const astroAudio   = document.getElementById("astroAudio");
     const statusLabel  = document.getElementById("statusLabel");
     const chartImg     = document.getElementById("chartImg");
     const chartPlaceholder = document.getElementById("chartPlaceholder");
     const chartMeta    = document.getElementById("chartMeta");
     const downloadLink = document.getElementById("downloadChart");
+    const pdfBtn       = document.getElementById("downloadPdfBtn");
 
     let lastChartURL = "";
 
@@ -860,8 +905,6 @@
       try{
         generateBtn.disabled = true;
         astroText.textContent = "";
-        astroAudio.src = "";
-        astroAudio.load();
         statusLabel.textContent = dict.statusWorking;
         statusLabel.className = "status";
         chartMeta.textContent = "";
@@ -870,12 +913,11 @@
         chartPlaceholder.style.display = "flex";
         downloadLink.style.display = "none";
 
-       const res = await fetch("https://mystai-international-1.onrender.com/astrology", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-});
-
+        const res = await fetch(`${BACKEND_URL}/astrology`, {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body:JSON.stringify(payload)
+        });
 
         if(!res.ok){
           throw new Error("HTTP " + res.status);
@@ -887,7 +929,6 @@
         }
 
         const text = data.text || "";
-        const audioPath = data.audio;
         const chartPath = data.chart;
 
         astroText.textContent = text || (activeLang==="tr"
@@ -897,7 +938,7 @@
         statusLabel.textContent = dict.statusOk;
         statusLabel.className = "status ok";
 
-        // chart bilgisi
+        // chart bilgisi (backend şu an chart üretmiyor ama hazır dursun)
         const niceDate = birthDate;
         const metaLine = (activeLang==="tr"
           ? `Doğum tarihi: ${niceDate} • Doğum saati: ${birthTime} • Doğum yeri: ${birthPlace}`
@@ -913,13 +954,10 @@
           downloadLink.href = url;
           downloadLink.setAttribute("download","mystai_birth_chart.png");
           downloadLink.style.display = "inline-block";
-        }
-
-        if(audioPath){
-          const audioURL = audioPath.startsWith("http") ? audioPath : `${BACKEND_URL}${audioPath}`;
-          astroAudio.src = audioURL;
-          astroAudio.load();
-          astroAudio.play().catch(()=>{});
+        }else{
+          chartImg.style.display = "none";
+          chartPlaceholder.style.display = "flex";
+          downloadLink.style.display = "none";
         }
       }catch(err){
         console.error(err);
@@ -934,6 +972,32 @@
       if(!lastChartURL){
         e.preventDefault();
       }
+    });
+
+    /* ========= PDF İNDİR ========= */
+    pdfBtn.addEventListener("click", ()=>{
+      const dict = i18n[activeLang];
+      if(!astroText.textContent.trim()){
+        alert(activeLang==="tr"
+          ? "Önce rapor oluşturmalısın."
+          : "Please generate your report first.");
+        return;
+      }
+
+      const element = document.getElementById("pdfWrapper");
+      const filename = activeLang==="tr"
+        ? "MystAI_astroloji_raporu.pdf"
+        : "MystAI_astrology_report.pdf";
+
+      const opt = {
+        margin:       10,
+        filename:     filename,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS:true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save();
     });
 
     /* ========= Ask MystAI modal ========= */
@@ -992,12 +1056,11 @@
           return;
         }
 
-       const res = await fetch("https://mystai-international-1.onrender.com/predict", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user_input: q })
-});
-
+        const res = await fetch(`${BACKEND_URL}/predict`, {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body:JSON.stringify({ user_input:q })
+        });
 
         if(!res.ok){
           throw new Error("HTTP " + res.status);
