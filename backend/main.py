@@ -1,28 +1,30 @@
+# ============================================
+# MystAI - Full Stable Backend (FINAL VERSION)
+# Tüm özellikler çalışan, Render uyumlu
+# ============================================
+
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from openai import OpenAI
-from langdetect import detect, LangDetectException
+from langdetect import detect
 from gtts import gTTS
 import os
-import traceback
 import uuid
+import traceback
 import base64
+from fpdf import FPDF   # PDF için en stabil yöntem (Render uyumlu)
 
+
+# -----------------------------
+# Flask & CORS
+# -----------------------------
 app = Flask(__name__)
+CORS(app)
 
-# ========= CORS =========
-CORS(
-    app,
-    resources={
-        r"/*": {
-            "origins": "*",
-            "methods": ["GET", "POST", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"],
-        }
-    },
-)
 
-# ========= OpenAI Key =========
+# -----------------------------
+# OpenAI Client
+# -----------------------------
 OPENAI_KEY = os.environ.get("OPENAI_API_KEY")
 if not OPENAI_KEY:
     raise Exception("OPENAI_API_KEY bulunamadı!")
@@ -31,151 +33,75 @@ client = OpenAI(api_key=OPENAI_KEY)
 
 
 @app.route("/")
-def home():
-    return "MystAI backend is running! 🔮"
+def index():
+    return "MystAI Backend Running 🔮"
 
 
-# ========= Sistem Prompt =========
-def build_system_prompt(reading_type: str, lang: str) -> str:
+# -----------------------------
+# SYSTEM PROMPT
+# -----------------------------
+def build_system_prompt(type_name, lang):
     if lang == "tr":
         base = (
-            "Sen MystAI adında mistik ve profesyonel bir yorumcusun. "
-            "Kullanıcıya pozitif, destekleyici ve gerçekçi bir dille rehberlik verirsin."
+            "Sen MystAI adında mistik, profesyonel ve destekleyici bir yorumcusun. "
+            "Kullanıcıya derin, pozitif ve gerçekçi bir dille açıklama yaparsın."
         )
         types = {
-            "astrology": (
-                base +
-                " Doğum haritası, gezegenler, evler ve açılar üzerinden derin ve profesyonel bir astroloji yorumu yap."
-            ),
-            "general": base + " Genel bir fal ve enerji yorumcusun."
+            "general": base + " Genel enerji, sezgi ve rehberlik sun.",
+            "astrology": base + " Doğum haritasını gezegenler, evler ve açılar üzerinden profesyonel şekilde yorumla."
         }
     else:
         base = (
-            "You are MystAI, a mystical and professional astrology and fortune interpreter. "
-            "You speak warmly, positively and supportively."
+            "You are MystAI, a mystical and professional interpreter. "
+            "You speak warmly, deeply and offer supportive insights."
         )
         types = {
-            "astrology": (
-                base +
-                " Provide deep and structured natal chart interpretation using planets, houses and aspects."
-            ),
-            "general": base + " A general oracle and intuitive guide."
+            "general": base + " Provide intuitive guidance.",
+            "astrology": base + " Provide structured natal chart analysis using planets, houses and aspects."
         }
 
-    return types.get(reading_type, types["general"])
+    return types.get(type_name, types["general"])
 
 
-# ========= NORMAL /predict (kahve, tarot, el, enerji) =========
+# -----------------------------
+# NORMAL /predict
+# -----------------------------
 @app.route("/predict", methods=["POST"])
 def predict():
-    """
-    Kahve, tarot, enerji, el falı, normal sohbet.
-    Çalışan eski sistem BOZULMADI.
-    """
     try:
-        data = request.get_json() or {}
+        data = request.json or {}
         user_input = data.get("user_input", "").strip()
 
         if not user_input:
             return jsonify({"error": "user_input boş olamaz"}), 400
 
-        # Dil tespiti
         try:
-            detected = detect(user_input)
+            lang = detect(user_input)
         except:
-            detected = "en"
-        if detected not in ("tr", "en"):
-            detected = "en"
+            lang = "en"
+        if lang not in ("tr", "en"):
+            lang = "en"
 
-        # Sistem mesajı
-        system_prompt = build_system_prompt("general", detected)
+        system_prompt = build_system_prompt("general", lang)
 
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_input},
-            ],
+            ]
         )
+
         text = completion.choices[0].message.content.strip()
 
-        # Ses dosyası
-        file_id = uuid.uuid4().hex
-        audio_path = f"/tmp/{file_id}.mp3"
-        tts = gTTS(text=text, lang=detected)
-        tts.save(audio_path)
-
-        return jsonify({"text": text, "audio": f"/audio/{file_id}"})
-
-    except Exception as e:
-        traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
-
-
-# ========= BASİT ASTROLOJİ /astrology (bozulmadı) =========
-@app.route("/astrology", methods=["POST"])
-def astrology():
-    """
-    Hızlı çalışan, basit astroloji raporu.
-    Ses yok, chart yok.
-    (ESKİ SİSTEMİN AYNISI)
-    """
-    try:
-        data = request.get_json() or {}
-
-        birth_date = data.get("birth_date", "").strip()
-        birth_time = data.get("birth_time", "").strip()
-        birth_place = data.get("birth_place", "").strip()
-        name = data.get("name", "").strip()
-        focus_areas = data.get("focus_areas", [])
-        question = data.get("question", "").strip()
-
-        if not birth_date or not birth_time or not birth_place:
-            return jsonify({"error": "Eksik bilgi."}), 400
-
-        try:
-            detected = detect(" ".join([birth_place, name, question]))
-        except:
-            detected = "en"
-        if detected not in ("tr", "en"):
-            detected = "en"
-
-        system_prompt = build_system_prompt("astrology", detected)
-
-        # Kullanıcı promptu
-        if detected == "tr":
-            user_prompt = (
-                f"Doğum: {birth_date} {birth_time} - {birth_place}\n"
-                f"İsim: {name}\n"
-                f"Odak: {', '.join(focus_areas) if focus_areas else 'Genel'}\n"
-                f"Soru: {question}\n"
-                "Kapsamlı bir astroloji raporu yaz."
-            )
-        else:
-            user_prompt = (
-                f"Birth: {birth_date} {birth_time} - {birth_place}\n"
-                f"Name: {name}\n"
-                f"Focus: {', '.join(focus_areas) if focus_areas else 'General'}\n"
-                f"Question: {question}\n"
-                "Write a detailed astrology reading."
-            )
-
-        completion = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            max_tokens=850,
-        )
-
-        report = completion.choices[0].message.content.strip()
+        # Ses oluştur
+        audio_id = uuid.uuid4().hex
+        audio_path = f"/tmp/{audio_id}.mp3"
+        gTTS(text=text, lang=lang).save(audio_path)
 
         return jsonify({
-            "text": report,
-            "audio": None,
-            "chart": None,
-            "language": detected,
+            "text": text,
+            "audio": f"/audio/{audio_id}"
         })
 
     except Exception as e:
@@ -183,70 +109,119 @@ def astrology():
         return jsonify({"error": str(e)}), 500
 
 
-# ========= PREMIUM ASTROLOJİ /astrology-premium =========
-@app.route("/astrology-premium", methods=["POST"])
-def astrology_premium():
-    """
-    Ultra Premium: Harita PNG + geniş rapor.
-    """
+# -----------------------------
+# BASIC ASTROLOGY
+# -----------------------------
+@app.route("/astrology", methods=["POST"])
+def astrology():
     try:
-        data = request.get_json() or {}
+        data = request.json or {}
 
-        birth_date = data.get("birth_date", "").strip()
-        birth_time = data.get("birth_time", "").strip()
-        birth_place = data.get("birth_place", "").strip()
+        birth_date = data.get("birth_date")
+        birth_time = data.get("birth_time")
+        birth_place = data.get("birth_place")
+        name = data.get("name", "")
+        focus = data.get("focus_areas", [])
+        question = data.get("question", "")
 
         if not birth_date or not birth_time or not birth_place:
             return jsonify({"error": "Eksik bilgi"}), 400
 
-        # Dil
         try:
-            detected = detect(" ".join([birth_place]))
+            lang = detect(birth_place)
         except:
-            detected = "en"
-        if detected not in ("tr", "en"):
-            detected = "en"
+            lang = "en"
+        if lang not in ("tr", "en"):
+            lang = "en"
 
-        # ==== 1) PREMIUM METİN ====
-        system_prompt = build_system_prompt("astrology", detected)
+        system_prompt = build_system_prompt("astrology", lang)
 
-        user_prompt = (
-            f"Premium astroloji raporu hazırla.\n"
-            f"Doğum tarihi: {birth_date}\n"
-            f"Doğum saati: {birth_time}\n"
-            f"Doğum yeri: {birth_place}\n\n"
-            "Bölümler:\n"
-            "- Kişilik özeti\n"
-            "- Yaşam amacı\n"
-            "- Aşk & ilişkiler\n"
-            "- Kariyer & para\n"
-            "- Karmik dersler\n"
-            "- 12 ev analizi\n"
-            "- Bu yılın yıldızname yorumu (solar return)\n"
+        if lang == "tr":
+            user_prompt = (
+                f"Doğum: {birth_date} {birth_time} - {birth_place}\n"
+                f"İsim: {name}\nOdak: {', '.join(focus) or 'Genel'}\n"
+                f"Soru: {question}\n"
+                "Kapsamlı bir astroloji raporu yaz."
+            )
+        else:
+            user_prompt = (
+                f"Birth: {birth_date} {birth_time} - {birth_place}\n"
+                f"Name: {name}\nFocus: {', '.join(focus) or 'General'}\n"
+                f"Question: {question}\n"
+                "Write a detailed natal chart interpretation."
+            )
+
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            max_tokens=900
         )
 
-        comp = client.chat.completions.create(
+        text = completion.choices[0].message.content.strip()
+
+        return jsonify({"text": text, "chart": None, "audio": None, "language": lang})
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
+# -----------------------------
+# PREMIUM ASTROLOGY
+# -----------------------------
+@app.route("/astrology-premium", methods=["POST"])
+def astrology_premium():
+    try:
+        data = request.json or {}
+
+        birth_date = data.get("birth_date")
+        birth_time = data.get("birth_time")
+        birth_place = data.get("birth_place")
+
+        if not birth_date or not birth_time or not birth_place:
+            return jsonify({"error": "Eksik bilgi"}), 400
+
+        try:
+            lang = detect(birth_place)
+        except:
+            lang = "en"
+        if lang not in ("tr", "en"):
+            lang = "en"
+
+        system_prompt = build_system_prompt("astrology", lang)
+
+        user_prompt = (
+            f"Premium astroloji raporu oluştur.\n"
+            f"Doğum: {birth_date} {birth_time} - {birth_place}\n\n"
+            "- Kişilik\n- Yaşam amacı\n- Aşk & İlişkiler\n- Kariyer\n"
+            "- Karmik dersler\n- 12 Ev analizi\n- Solar Return yorumu\n"
+        )
+
+        completion = client.chat.completions.create(
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ]
         )
-        premium_text = comp.choices[0].message.content.strip()
 
-        # ==== 2) PREMIUM CHART PNG ====
+        text = completion.choices[0].message.content.strip()
+
+        # --------- CHART IMAGE -------------
         img_prompt = (
-            "High-quality natal astrology chart wheel, 12 houses, planets, aspects, elegant golden lines, "
-            "dark blue cosmic background."
+            "High-quality natal astrology chart wheel, elegant lines, cosmic background."
         )
 
-        image_resp = client.images.generate(
+        img = client.images.generate(
             model="gpt-image-1",
             prompt=img_prompt,
             size="1024x1024"
         )
 
-        b64 = image_resp.data[0].b64_json
+        b64 = img.data[0].b64_json
         img_data = base64.b64decode(b64)
 
         chart_id = uuid.uuid4().hex
@@ -255,10 +230,10 @@ def astrology_premium():
             f.write(img_data)
 
         return jsonify({
-            "text": premium_text,
+            "text": text,
             "chart": f"/chart/{chart_id}",
             "audio": None,
-            "language": detected
+            "language": lang
         })
 
     except Exception as e:
@@ -266,27 +241,69 @@ def astrology_premium():
         return jsonify({"error": str(e)}), 500
 
 
-# ========= FILE SERVERS =========
-@app.route("/audio/<file_id>")
-def serve_audio(file_id):
-    path = f"/tmp/{file_id}.mp3"
+# -----------------------------
+# PDF GENERATOR (FINAL – STABLE)
+# -----------------------------
+@app.route("/generate_pdf", methods=["POST"])
+def generate_pdf():
+    try:
+        data = request.json or {}
+        text = data.get("text", "").strip()
+
+        if not text:
+            return jsonify({"error": "Metin yok"}), 400
+
+        pdf_id = uuid.uuid4().hex
+        pdf_path = f"/tmp/{pdf_id}.pdf"
+
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_auto_page_break(auto=True, margin=15)
+        pdf.set_font("Arial", size=12)
+
+        for line in text.split("\n"):
+            pdf.multi_cell(0, 8, line)
+
+        pdf.output(pdf_path)
+
+        return send_file(pdf_path, as_attachment=True, download_name="mystai-report.pdf")
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
+# -----------------------------
+# STATIC FILE SERVERS
+# -----------------------------
+@app.route("/audio/<id>")
+def serve_audio(id):
+    path = f"/tmp/{id}.mp3"
     if not os.path.exists(path):
         return jsonify({"error": "Audio not found"}), 404
     return send_file(path, mimetype="audio/mpeg")
 
 
-@app.route("/chart/<chart_id>")
-def serve_chart(chart_id):
-    path = f"/tmp/{chart_id}.png"
+@app.route("/chart/<id>")
+def serve_chart(id):
+    path = f"/tmp/{id}.png"
     if not os.path.exists(path):
         return jsonify({"error": "Chart not found"}), 404
     return send_file(path, mimetype="image/png")
 
 
+# -----------------------------
+# HEALTH CHECK
+# -----------------------------
 @app.route("/ping")
 def ping():
     return jsonify({"status": "ok"})
 
 
+# -----------------------------
+# RUN (Render uyumlu)
+# -----------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+
