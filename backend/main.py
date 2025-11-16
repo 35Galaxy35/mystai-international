@@ -216,7 +216,7 @@ def astrology_premium():
         )
 
         img = client.images.generate(
-            model="gpt-image-1",
+            model="gpt-image-1-mini",
             prompt=img_prompt,
             size="1024x1024"
         )
