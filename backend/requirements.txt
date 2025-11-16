@@ -4,3 +4,8 @@ openai>=1.33.0
 gtts
 gunicorn
 langdetect
+flatlib
+pytz
+astral
+matplotlib
+pillow
