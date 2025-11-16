@@ -997,7 +997,8 @@
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      html2pdf().set(opt).from(element).save();
+       window.html2pdf().set(opt).from(element).save();
+
     });
 
     /* ========= Ask MystAI modal ========= */
