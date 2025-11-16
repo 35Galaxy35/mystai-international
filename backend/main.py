@@ -1,6 +1,5 @@
 # ============================================
-# MystAI - Full Stable Backend (FINAL VERSION)
-# Tüm özellikler çalışan, Render uyumlu
+# MystAI - Full Stable Backend (FINAL VERSION + ASTRO CHART)
 # ============================================
 
 from flask import Flask, request, jsonify, send_file
@@ -63,6 +62,38 @@ def build_system_prompt(type_name, lang):
     return types.get(type_name, types["general"])
 
 
+# -----------------------------------------------------
+# ⭐ ASTROLOJİ HARİTASI ÜRETİCİ (Yeni eklendi – hiçbir şeyi bozmaz)
+# -----------------------------------------------------
+def generate_astrology_chart():
+    """AI ile astroloji doğum haritası PNG üretir."""
+    try:
+        prompt = (
+            "High-quality natal astrology chart wheel with planets, zodiac signs, "
+            "houses and aspects, elegant golden lines, dark cosmic background."
+        )
+
+        image_resp = client.images.generate(
+            model="gpt-image-1",
+            prompt=prompt,
+            size="1024x1024"
+        )
+
+        b64 = image_resp.data[0].b64_json
+        img_data = base64.b64decode(b64)
+
+        chart_id = uuid.uuid4().hex
+        chart_path = f"/tmp/{chart_id}.png"
+
+        with open(chart_path, "wb") as f:
+            f.write(img_data)
+
+        return chart_id
+
+    except Exception:
+        return None
+
+
 # -----------------------------
 # NORMAL /predict
 # -----------------------------
@@ -110,7 +141,7 @@ def predict():
 
 
 # -----------------------------
-# BASIC ASTROLOGY
+# BASIC ASTROLOGY + ⭐ HARİTA EKLENDİ
 # -----------------------------
 @app.route("/astrology", methods=["POST"])
 def astrology():
@@ -162,7 +193,16 @@ def astrology():
 
         text = completion.choices[0].message.content.strip()
 
-        return jsonify({"text": text, "chart": None, "audio": None, "language": lang})
+        # ⭐ Harita üret (3 satır eklendi)
+        chart_id = generate_astrology_chart()
+        chart_url = f"/chart/{chart_id}" if chart_id else None
+
+        return jsonify({
+            "text": text,
+            "chart": chart_url,
+            "audio": None,
+            "language": lang
+        })
 
     except Exception as e:
         traceback.print_exc()
@@ -170,7 +210,7 @@ def astrology():
 
 
 # -----------------------------
-# PREMIUM ASTROLOGY
+# PREMIUM ASTROLOGY (Zaten harita vardı)
 # -----------------------------
 @app.route("/astrology-premium", methods=["POST"])
 def astrology_premium():
@@ -210,14 +250,10 @@ def astrology_premium():
 
         text = completion.choices[0].message.content.strip()
 
-        # --------- CHART IMAGE -------------
-        img_prompt = (
-            "High-quality natal astrology chart wheel, elegant lines, cosmic background."
-        )
-
+        # Harita (premium zaten vardı)
         img = client.images.generate(
             model="gpt-image-1",
-            prompt=img_prompt,
+            prompt="High-quality natal astrology chart wheel, cosmic background.",
             size="1024x1024"
         )
 
@@ -242,7 +278,7 @@ def astrology_premium():
 
 
 # -----------------------------
-# PDF GENERATOR (FINAL – STABLE)
+# PDF GENERATOR (STABLE)
 # -----------------------------
 @app.route("/generate_pdf", methods=["POST"])
 def generate_pdf():
@@ -306,4 +342,3 @@ def ping():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
-
