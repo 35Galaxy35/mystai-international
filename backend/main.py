@@ -215,6 +215,44 @@ def serve_audio(file_id):
     if not os.path.exists(path):
         return jsonify({"error": "Audio not found"}), 404
     return send_file(path, mimetype="audio/mpeg")
+# ---------- PDF OLUŞTURMA ENDPOINTİ ----------
+from flask import send_file
+from weasyprint import HTML
+import uuid
+
+@app.route('/generate_pdf', methods=['POST'])
+def generate_pdf():
+    data = request.json
+    text = data.get("text", "")
+
+    # HTML formatına dönüştür
+    html_content = f"""
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                padding: 25px;
+                line-height: 1.5;
+                font-size: 14px;
+                white-space: pre-wrap;
+            }}
+        </style>
+    </head>
+    <body>
+        {text}
+    </body>
+    </html>
+    """
+
+    # PDF oluştur
+    file_id = str(uuid.uuid4())
+    pdf_path = f"/tmp/{file_id}.pdf"
+
+    HTML(string=html_content).write_pdf(pdf_path)
+
+    return send_file(pdf_path, as_attachment=True, download_name="mystai-report.pdf")
 
 
 # ========= /ping =========
