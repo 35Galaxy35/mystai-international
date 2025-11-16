@@ -156,7 +156,7 @@ def astrology():
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            max_tokens=1200,        # ← timeout engelleyen ideal değer
+            max_tokens=6000,        # ← timeout engelleyen ideal değer
             temperature=0.9,
         )
 
