@@ -8,7 +8,7 @@ import traceback
 
 app = Flask(__name__)
 
-# CORS
+# ========= CORS =========
 CORS(
     app,
     resources={
@@ -20,43 +20,62 @@ CORS(
     },
 )
 
-# OpenAI Key
-OPENAI_KEY = os.environ.get("OPENAI_API_KEY")
-if not OPENAI_KEY:
-    raise Exception("OPENAI_API_KEY bulunamadı!")
+# ========= OpenAI & Model Ayarları =========
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+if not OPENAI_API_KEY:
+    raise RuntimeError("OPENAI_API_KEY environment variable is not set")
 
-client = OpenAI(api_key=OPENAI_KEY)
+client = OpenAI(api_key=OPENAI_API_KEY)
+
+# Modelleri ve token limitlerini env'den okuyalım ki sonra kod değiştirmeden
+# Render panelinden değiştirebilesin.
+CHAT_MODEL = os.environ.get("MYST_CHAT_MODEL", "gpt-4o-mini")
+ASTROLOGY_MODEL = os.environ.get("MYST_ASTROLOGY_MODEL", "gpt-4o")
+
+MAX_CHAT_TOKENS = int(os.environ.get("MYST_CHAT_MAX_TOKENS", "400"))
+MAX_ASTROLOGY_TOKENS = int(os.environ.get("MYST_ASTROLOGY_MAX_TOKENS", "2200"))
 
 
-# ========== ROOT ==========
+def safe_detect_lang(text: str, fallback: str = "en") -> str:
+    """
+    langdetect kütüphanesi bazen hata atabiliyor.
+    Bu yardımcı fonksiyon, her durumda 'tr' veya 'en' döner.
+    """
+    try:
+        if text and text.strip():
+            lang = detect(text)
+        else:
+            return fallback
+        return lang if lang in ("tr", "en") else fallback
+    except LangDetectException:
+        return fallback
+    except Exception:
+        return fallback
+
+
+# ========= ROOT =========
 @app.route("/")
 def home():
     return "MystAI backend is running! 🔮"
 
 
-# ========== /predict ==========
+# ========= /predict =========
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
-        data = request.get_json() or {}
-        user_input = data.get("user_input", "").strip()
+        data = request.get_json(silent=True) or {}
+        user_input = (data.get("user_input") or "").strip()
 
         if not user_input:
             return jsonify({"error": "user_input boş olamaz"}), 400
 
-        try:
-            detected = detect(user_input)
-        except:
-            detected = "en"
-
-        if detected not in ("tr", "en"):
-            detected = "en"
+        detected = safe_detect_lang(user_input, fallback="en")
 
         if detected == "tr":
             system_prompt = (
                 "Sen MystAI adında sezgisel ve mistik bir fal yorumcusun. "
                 "Pozitif, umut veren, sakin bir tonda konuş. "
-                "Korkutucu şeyler söyleme."
+                "Korkutucu veya karanlık şeyler söyleme."
             )
         else:
             system_prompt = (
@@ -65,22 +84,24 @@ def predict():
             )
 
         completion = client.chat.completions.create(
-            model="gpt-4o",        # ← hız artırıldı
+            model=CHAT_MODEL,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_input},
             ],
-            max_tokens=300,        # ← stabil fal boyutu
+            max_tokens=MAX_CHAT_TOKENS,
+            temperature=0.9,
         )
 
         text = completion.choices[0].message.content.strip()
 
-        # Ses üret
+        # Ses üret (gTTS burada import, böylece predict hiç çağrılmazsa yüklenmiyor)
         from gtts import gTTS
+
         file_id = uuid.uuid4().hex
         audio_path = f"/tmp/{file_id}.mp3"
 
-        tts = gTTS(text=text, lang=detected)
+        tts = gTTS(text=text, lang="tr" if detected == "tr" else "en")
         tts.save(audio_path)
 
         return jsonify({"text": text, "audio": f"/audio/{file_id}"})
@@ -90,11 +111,11 @@ def predict():
         return jsonify({"error": str(e)}), 500
 
 
-# ========== /astrology ==========
+# ========= /astrology =========
 @app.route("/astrology", methods=["POST"])
 def astrology():
     try:
-        data = request.get_json() or {}
+        data = request.get_json(silent=True) or {}
 
         birth_date = (data.get("birth_date") or "").strip()
         birth_time = (data.get("birth_time") or "").strip()
@@ -105,26 +126,35 @@ def astrology():
         language = (data.get("language") or "tr").strip()
 
         if not birth_date or not birth_time or not birth_place:
-            return jsonify({"error": "Eksik bilgi: birth_date, birth_time, birth_place zorunlu."}), 400
+            return (
+                jsonify(
+                    {
+                        "error": "Eksik bilgi: birth_date, birth_time, birth_place zorunlu."
+                    }
+                ),
+                400,
+            )
 
+        # Dil tespiti için küçük bir örnek metin
         sample_text = " ".join([birth_place, name, question]).strip() or "test"
-        try:
-            detected = detect(sample_text)
-        except LangDetectException:
-            detected = language
-
-        if detected not in ("tr", "en"):
-            detected = "en"
+        detected = safe_detect_lang(sample_text, fallback=language or "tr")
 
         if detected == "tr":
             system_prompt = (
                 "Sen MystAI isimli profesyonel bir astrologsun. "
-                "Üslubun bilge, sakin, derin ve spiritüel."
+                "Üslubun bilge, sakin, derin ve spiritüel. "
+                "Kişiyi güçlendiren, umut veren bir dille yaz; "
+                "korkutucu, deterministik ve karanlık söylemlerden kaçın. "
+                "Doğum haritası, solar return ve transitleri harmanlayan "
+                "uzun, derinlikli bir premium astroloji raporu üret."
             )
         else:
             system_prompt = (
                 "You are MystAI, a professional astrologer. "
-                "Your tone is wise, calm, deep and spiritual."
+                "Your tone is wise, calm, empowering and spiritual. "
+                "Avoid fear-based or fatalistic language. "
+                "Blend natal chart, solar return and transits into one long, "
+                "premium-style astrology report."
             )
 
         focus_text = ", ".join(focus_areas) if focus_areas else "general themes"
@@ -137,7 +167,8 @@ def astrology():
                 f"İsim: {name or 'Belirtilmedi'}\n"
                 f"Odak alanları: {focus_text}\n"
                 f"Soru: {question or 'Belirtilmedi'}\n\n"
-                "Lütfen detaylı ve profesyonel bir astroloji raporu yaz."
+                "Lütfen yaklaşık 1500 kelimelik, çok uzun, detaylı ve profesyonel "
+                "bir astroloji raporu yaz. Başlıklar ve paragraflar kullan."
             )
         else:
             user_prompt = (
@@ -147,49 +178,52 @@ def astrology():
                 f"Name: {name or 'Not provided'}\n"
                 f"Focus areas: {focus_text}\n"
                 f"Question: {question or 'Not provided'}\n\n"
-                "Please write a detailed, professional astrology report."
+                "Please write a ~1500-word, long and professional astrology report "
+                "with clear sections and paragraphs."
             )
 
         completion = client.chat.completions.create(
-            model="gpt-4o",         # ← büyük model (timeout çözümü)
+            model=ASTROLOGY_MODEL,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            max_tokens=6000,        # ← timeout engelleyen ideal değer
+            max_tokens=MAX_ASTROLOGY_TOKENS,
             temperature=0.9,
         )
 
         text = completion.choices[0].message.content.strip()
 
-        return jsonify({
-            "text": text,
-            "audio": None,
-            "chart": None,
-            "language": detected
-        })
+        return jsonify(
+            {
+                "text": text,
+                "audio": None,   # İleride seslendirme eklemek istersen burayı kullanırız
+                "chart": None,   # Şimdilik grafik yok, frontend bu alanı idare ediyor
+                "language": detected,
+            }
+        )
 
     except Exception as e:
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 
-# ========== Audio ==========
+# ========= /audio/<id> =========
 @app.route("/audio/<file_id>")
 def serve_audio(file_id):
-    f = f"/tmp/{file_id}.mp3"
-    if not os.path.exists(f):
+    path = f"/tmp/{file_id}.mp3"
+    if not os.path.exists(path):
         return jsonify({"error": "Audio not found"}), 404
-    return send_file(f, mimetype="audio/mpeg")
+    return send_file(path, mimetype="audio/mpeg")
 
 
-# ========== Ping ==========
+# ========= /ping =========
 @app.route("/ping")
 def ping():
     return jsonify({"status": "ok"})
 
 
-# ========== Run (RENDER-COMPATIBLE) ==========
+# ========= Render uyumlu run =========
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
+    port = int(os.environ.get("PORT", "10000"))
     app.run(host="0.0.0.0", port=port)
