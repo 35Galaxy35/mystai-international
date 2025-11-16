@@ -65,11 +65,12 @@ def predict():
             )
 
         completion = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4o",        # ← hız artırıldı
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_input},
             ],
+            max_tokens=300,        # ← stabil fal boyutu
         )
 
         text = completion.choices[0].message.content.strip()
@@ -117,13 +118,13 @@ def astrology():
 
         if detected == "tr":
             system_prompt = (
-                "Sen MystAI isimli profesyonel bir astrologsun. Üslubun bilge, sakin, derin ve spiritüel. "
-                "1500–1800 kelimelik premium doğum haritası raporu yaz."
+                "Sen MystAI isimli profesyonel bir astrologsun. "
+                "Üslubun bilge, sakin, derin ve spiritüel."
             )
         else:
             system_prompt = (
                 "You are MystAI, a professional astrologer. "
-                "Write a 1500–1800 word premium birth chart report."
+                "Your tone is wise, calm, deep and spiritual."
             )
 
         focus_text = ", ".join(focus_areas) if focus_areas else "general themes"
@@ -136,7 +137,7 @@ def astrology():
                 f"İsim: {name or 'Belirtilmedi'}\n"
                 f"Odak alanları: {focus_text}\n"
                 f"Soru: {question or 'Belirtilmedi'}\n\n"
-                "Lütfen çok uzun, detaylı ve profesyonel bir astroloji raporu yaz."
+                "Lütfen detaylı ve profesyonel bir astroloji raporu yaz."
             )
         else:
             user_prompt = (
@@ -146,16 +147,16 @@ def astrology():
                 f"Name: {name or 'Not provided'}\n"
                 f"Focus areas: {focus_text}\n"
                 f"Question: {question or 'Not provided'}\n\n"
-                "Please write a very long, professional astrology report."
+                "Please write a detailed, professional astrology report."
             )
 
         completion = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4o",         # ← büyük model (timeout çözümü)
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            max_tokens=3500,
+            max_tokens=1200,        # ← timeout engelleyen ideal değer
             temperature=0.9,
         )
 
