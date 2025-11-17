@@ -12,3 +12,4 @@ pillow
 tinycss2
 cssselect2
 fpdf
+numpy
