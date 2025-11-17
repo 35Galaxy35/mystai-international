@@ -53,12 +53,12 @@
 
     /* Grid — 5 kart yan yana (desktop) */
     .grid{
-    display:grid;
-    gap:32px; /* boşluk artırıldı */
-    padding:60px 40px; /* sağ-sol genişledi */
-    max-width:1380px; /* geniş alan */
-    margin:auto;
-    grid-template-columns:repeat(5, 1fr); /* 5 kart korundu */
+      display:grid;
+      gap:32px;
+      padding:60px 40px;
+      max-width:1380px;
+      margin:auto;
+      grid-template-columns:repeat(5, 1fr);
     }
     @media (max-width:1100px){
       .grid{
@@ -149,6 +149,8 @@
 
     <div class="nav-btns">
       <span id="user-welcome" class="welcome"></span>
+      <!-- YENİ PROFILE BUTONU -->
+      <button class="btn" id="profileBtn" data-i18n="profile">My Profile</button>
       <button class="btn" id="historyBtn" data-i18n="history">My History</button>
       <button class="btn" id="logoutBtn" data-i18n="logout">Logout</button>
     </div>
@@ -202,7 +204,7 @@
       <button class="start-btn" data-i18n="start">Start Reading</button>
     </article>
 
-    <!-- YENİ 5. KART: ASTROLOJİ -->
+    <!-- 5. Kart: Astroloji -->
     <article class="tile" data-type="astrology">
       <img src="images/Astrology.png" class="reading-img" alt="Astrology & Birth Chart">
       <h3 data-i18n="astroTitle">Astrology & Birth Chart</h3>
@@ -227,7 +229,7 @@
     </p>
   </footer>
 
-  <!-- Ask MystAI FAB (AYNEN ESKİ GİBİ) -->
+  <!-- Ask MystAI FAB -->
   <button class="ask-fab" id="askFab">
     🔮 <span data-i18n="ask">Ask MystAI</span>
   </button>
@@ -277,6 +279,7 @@
     /* ====== UI Elemanları ====== */
     const logoutBtn   = document.getElementById('logoutBtn');
     const historyBtn  = document.getElementById('historyBtn');
+    const profileBtn  = document.getElementById('profileBtn'); // YENİ
     const userWelcome = document.getElementById('user-welcome');
 
     /* ====== i18n ====== */
@@ -297,6 +300,7 @@
         start:"Start Reading",
         logout:"Logout",
         history:"My History",
+        profile:"My Profile",          <!-- YENİ i18n KEY -->
         terms:"Terms", privacy:"Privacy", cookies:"Cookies", disclaimer:"Disclaimer",
         rights:"All Rights Reserved.", dev:"Developed by GALAXY 🌌",
         ask:"Ask MystAI",
@@ -322,6 +326,7 @@
         start:"Falını Başlat",
         logout:"Çıkış Yap",
         history:"Geçmişim",
+        profile:"Profilim",            <!-- YENİ i18n KEY -->
         terms:"Şartlar", privacy:"Gizlilik", cookies:"Çerezler", disclaimer:"Sorumluluk Reddi",
         rights:"Tüm Hakları Saklıdır.", dev:"GALAXY tarafından geliştirilmiştir 🌌",
         ask:"MystAI'ye Sor",
@@ -368,6 +373,9 @@
     });
 
     historyBtn.addEventListener('click', ()=>window.location.href="history.html");
+
+    // YENİ: Profile sayfasına geçiş
+    profileBtn.addEventListener('click', ()=>window.location.href="profile.html");
 
     onAuthStateChanged(auth, (user)=>{
       if(user){
