@@ -79,7 +79,6 @@
       transform:translateY(-2px)
     }
 
-    /* PREMIUM HERO LOGO */
     .hero-logo-clean {
       width: 260px;
       max-width: 90%;
@@ -120,7 +119,6 @@
       line-height:1.6;
     }
 
-    /* GRID — 5 KART */
     .grid{
       display:grid;
       gap:32px;
@@ -186,7 +184,6 @@
       transform:scale(1.08);
     }
 
-    /* FOOTER */
     footer{
       margin-top:80px;
       padding:36px 0;
@@ -208,7 +205,6 @@
       margin-bottom:8px;
     }
 
-    /* ASK MYSTAI FAB */
     .ask-fab{
       position:fixed;
       right:18px;
@@ -227,12 +223,6 @@
       gap:8px;
     }
 
-    .ask-fab:hover{
-      filter:brightness(1.06);
-      transform:translateY(-2px);
-    }
-
-    /* ASK MODAL */
     .ask-modal{
       position:fixed;
       inset:0;
@@ -251,85 +241,6 @@
       padding:20px;
       box-shadow:0 0 40px rgba(255,215,0,.35);
     }
-
-    .ask-title{
-      margin:0 0 10px;
-      color:#ffd54f;
-      font-family:'Cinzel',serif;
-    }
-
-    .ask-row{
-      display:flex;
-      gap:12px;
-      margin-top:10px;
-    }
-
-    .ask-row textarea{
-      flex:1;
-      height:110px;
-      resize:vertical;
-      border-radius:10px;
-      border:1px solid rgba(255,255,255,.15);
-      background:#0b132a;
-      color:#e6ecff;
-      padding:10px;
-      font-family:inherit;
-      font-size:15px;
-    }
-
-    .ask-actions{
-      display:flex;
-      gap:10px;
-      justify-content:flex-end;
-      margin-top:10px;
-    }
-
-    .ask-btn{
-      background:#ffd54f;
-      color:#111;
-      border:none;
-      border-radius:10px;
-      padding:10px 14px;
-      font-weight:700;
-      cursor:pointer;
-    }
-
-    .ask-secondary{
-      background:transparent;
-      color:#e6ecff;
-      border:1px solid rgba(255,255,255,.2)
-    }
-
-    .ask-output{
-      margin-top:14px;
-      background:rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.06);
-      padding:12px;
-      border-radius:10px;
-      display:none;
-      text-align:left;
-      white-space:pre-wrap;
-    }
-
-    .ask-hint{
-      color:#a9b4d0;
-      font-size:12px;
-      margin-top:6px;
-    }
-
-    .spinner{
-      display:none;
-      margin-left:6px;
-    }
-
-    @media(max-width:768px){
-      .hero{
-        padding-top:110px;
-      }
-      .hero-logo-clean{
-        width:200px;
-      }
-    }
   </style>
 </head>
 
@@ -344,6 +255,8 @@
 
     <div class="nav-btns">
       <span id="user-welcome" class="welcome"></span>
+
+      <button class="btn" id="profileBtn" data-i18n="profile">My Profile</button>
       <button class="btn" id="historyBtn" data-i18n="history">My History</button>
       <button class="btn" id="logoutBtn" data-i18n="logout">Logout</button>
     </div>
@@ -425,12 +338,10 @@
     </p>
   </footer>
 
-  <!-- ASK MYSTAI FAB -->
   <button class="ask-fab" id="askFab">
     🔮 <span data-i18n="ask">Ask MystAI</span>
   </button>
 
-  <!-- ASK MODAL -->
   <div class="ask-modal" id="askModal">
     <div class="ask-card">
       <h2 class="ask-title" data-i18n="askTitle">Ask MystAI 🔮</h2>
@@ -454,16 +365,10 @@
     </div>
   </div>
 
-  <script type="module">
+<script type="module">
 
-    /* ===================
-       BACKEND
-    ==================== */
     const BACKEND_URL = "https://mystai-international-1.onrender.com";
 
-    /* ===================
-       FIREBASE AUTH
-    ==================== */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
@@ -479,16 +384,11 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    /* ===================
-       UI ELEMENTS
-    ==================== */
     const logoutBtn   = document.getElementById('logoutBtn');
     const historyBtn  = document.getElementById('historyBtn');
+    const profileBtn  = document.getElementById('profileBtn');
     const userWelcome = document.getElementById('user-welcome');
 
-    /* ===================
-       i18n SYSTEM
-    ==================== */
     const i18n = {
       en: {
         choose:"Choose Your Reading",
@@ -506,6 +406,7 @@
         start:"Start Reading",
         logout:"Logout",
         history:"My History",
+        profile:"My Profile",
         terms:"Terms", privacy:"Privacy", cookies:"Cookies", disclaimer:"Disclaimer",
         rights:"All Rights Reserved.", dev:"Developed by GALAXY 🌌",
         ask:"Ask MystAI",
@@ -532,6 +433,7 @@
         start:"Falını Başlat",
         logout:"Çıkış Yap",
         history:"Geçmişim",
+        profile:"Profilim",
         terms:"Şartlar", privacy:"Gizlilik", cookies:"Çerezler", disclaimer:"Sorumluluk Reddi",
         rights:"Tüm Hakları Saklıdır.", dev:"GALAXY tarafından geliştirilmiştir 🌌",
         ask:"MystAI'ye Sor",
@@ -574,14 +476,12 @@
 
     setLang(activeLang);
 
-    /* ===================
-       AUTH / UI
-    ==================== */
     logoutBtn.addEventListener('click', ()=> {
       signOut(auth).then(()=>window.location.href="login.html");
     });
 
     historyBtn.addEventListener('click', ()=>window.location.href="history.html");
+    profileBtn.addEventListener('click', ()=>window.location.href="profile.html");
 
     onAuthStateChanged(auth, (user)=>{
       if(user){
@@ -593,9 +493,6 @@
       }
     });
 
-    /* ===================
-       START READING
-    ==================== */
     document.querySelectorAll('.tile').forEach(tile=>{
       const btn  = tile.querySelector('.start-btn');
       const type = tile.dataset.type;
@@ -609,72 +506,6 @@
       if(type === 'astrology') target = 'astrology.html';
 
       btn.addEventListener('click', ()=>window.location.href=target);
-    });
-
-    /* ===================
-       ASK MYSTAI SYSTEM
-    ==================== */
-    const askFab    = document.getElementById('askFab');
-    const askModal  = document.getElementById('askModal');
-    const askClose  = document.getElementById('askClose');
-    const askSend   = document.getElementById('askSend');
-    const askInput  = document.getElementById('askInput');
-    const askOutput = document.getElementById('askOutput');
-    const askSpin   = document.getElementById('askSpin');
-    const askAudio  = document.getElementById('askAudio');
-
-    askFab.addEventListener('click', ()=>{
-      askModal.style.display = 'flex';
-      askInput.focus();
-    });
-
-    askClose.addEventListener('click', ()=>{
-      askModal.style.display='none';
-      askOutput.style.display='none';
-      askInput.value='';
-    });
-
-    askModal.addEventListener('click', (e)=>{
-      if(e.target === askModal){ askClose.click(); }
-    });
-
-    askSend.addEventListener('click', async ()=>{
-      const question = askInput.value.trim();
-      if(!question){
-        alert(activeLang==='tr' ? 'Lütfen soru yazın.' : 'Please type a question.');
-        return;
-      }
-
-      askSpin.style.display='inline-block';
-      askSend.disabled = true;
-      askOutput.style.display='none';
-      askOutput.textContent='';
-
-      try{
-        const res = await fetch(`${BACKEND_URL}/predict`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ user_input: question })
-        });
-
-        const data = await res.json();
-
-        askOutput.style.display='block';
-        askOutput.textContent = data?.text || "No response.";
-
-        if(data?.audio){
-          askAudio.src = data.audio.startsWith("http")
-            ? data.audio
-            : BACKEND_URL + data.audio;
-          askAudio.play();
-        }
-      } catch(err){
-        askOutput.style.display='block';
-        askOutput.textContent = "Error: " + err.message;
-      } finally {
-        askSpin.style.display='none';
-        askSend.disabled=false;
-      }
     });
 
   </script>
