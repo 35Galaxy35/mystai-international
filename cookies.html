@@ -3,66 +3,295 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cookie Policy | MystAI.ai</title>
-  <meta name="description" content="Cookie Policy for MystAI.ai describing the cookies and similar technologies we use and your choices." />
-  <link rel="canonical" href="https://mystai.ai/cookies.html" />
-
-  <!-- OG / Twitter -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Cookie Policy | MystAI.ai" />
-  <meta property="og:description" content="Learn about cookies used on MystAI.ai and manage your preferences." />
-  <meta property="og:url" content="https://mystai.ai/cookies.html" />
-  <meta property="og:image" content="https://mystai.ai/logo.png" />
-  <meta name="twitter:card" content="summary_large_image" />
+  <title>MystAI — Cookies Policy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
   <style>
-    body{margin:0; font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto; color:#e7e7f1; background:#0f1431;}
-    main{max-width:960px; padding:48px 20px; margin:0 auto;}
-    h1,h2,h3{color:#ffd147; margin:24px 0 8px}
-    a{color:#ffd147; text-decoration:none}
-    a:hover{text-decoration:underline}
-    table{width:100%; border-collapse:collapse; margin:12px 0}
-    th,td{border:1px solid #1a2356; padding:10px; vertical-align:top}
-    footer{opacity:.8; margin-top:32px}
-    .btn{display:inline-block; padding:.6rem .9rem; border:1px solid #ffd147; border-radius:8px}
+    :root{
+      --bg:#050814;
+      --card:#0d1230;
+      --card2:#111738;
+      --text:#e7eaff;
+      --muted:#9aa3c7;
+      --gold:#f6d36b;
+      --gold-soft:#ffe9a8;
+    }
+
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:radial-gradient(circle at 50% -20%, #1b2559 0%, #050814 70%);
+      color:var(--text);
+      line-height:1.7;
+    }
+
+    header{
+      display:flex;
+      justify-content:center;
+      padding:14px;
+      position:sticky;
+      top:0;
+      background:rgba(8,12,30,.8);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      backdrop-filter:blur(18px);
+      z-index:50;
+    }
+
+    .lang-box button{
+      background:none;
+      border:1px solid var(--gold);
+      padding:6px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      color:var(--gold);
+      margin:0 6px;
+      font-weight:600;
+      font-size:13px;
+      transition:0.25s;
+    }
+    .lang-box button.active{
+      background:var(--gold);
+      color:#111;
+      box-shadow:0 0 16px rgba(246,211,107,.7);
+    }
+    .lang-box button:hover{
+      filter:brightness(1.08);
+      transform:translateY(-1px);
+    }
+
+    .container{
+      max-width:960px;
+      margin:0 auto;
+      padding:32px 18px 60px;
+    }
+
+    h1{
+      font-family:Cinzel,serif;
+      font-size:30px;
+      text-align:center;
+      margin-bottom:26px;
+      letter-spacing:0.08em;
+      color:var(--gold);
+      text-shadow:0 0 16px rgba(246,211,107,.5);
+    }
+
+    h2{
+      font-size:18px;
+      margin:22px 0 8px;
+      color:var(--gold-soft);
+    }
+    p, ul{
+      font-size:14px;
+    }
+
+    .section{
+      background:linear-gradient(145deg,var(--card),var(--card2));
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.08);
+      padding:18px 20px;
+      margin-bottom:18px;
+      box-shadow:0 0 26px rgba(0,0,0,.55);
+    }
+
+    footer{
+      border-top:1px solid rgba(255,255,255,.08);
+      padding:20px 10px 26px;
+      text-align:center;
+      font-size:13px;
+      color:var(--muted);
+    }
   </style>
 </head>
 <body>
-<main>
-  <h1>Cookie Policy</h1>
-  <p class="muted">Last updated: 10 November 2025</p>
 
-  <p>We use cookies and similar technologies to operate our site, measure performance, enhance security, and understand product usage. Some cookies are essential; others require your consent. You can manage consent via our cookie banner at any time.</p>
+  <header>
+    <div class="lang-box">
+      <button id="btn-en" class="active">EN</button>
+      <button id="btn-tr">TR</button>
+    </div>
+  </header>
 
-  <h2>Types of Cookies</h2>
-  <ul>
-    <li><strong>Strictly Necessary</strong> — required for core functionality (e.g., remembering cookie consent).</li>
-    <li><strong>Performance &amp; Analytics</strong> — aggregated usage insights (only after consent).</li>
-    <li><strong>Functionality</strong> — remembering preferences (language, UI state).</li>
-    <li><strong>Security</strong> — fraud prevention, rate-limiting.</li>
-  </ul>
+  <main class="container">
+    <h1 id="title">Cookies Policy</h1>
 
-  <h2>Cookies We May Use</h2>
-  <table>
-    <thead><tr><th>Name</th><th>Purpose</th><th>Duration</th></tr></thead>
-    <tbody>
-      <tr><td><code>cookiesAccepted</code> (1st-party)</td><td>Stores your cookie consent preference (Accept/Reject).</td><td>12 months</td></tr>
-      <tr><td><code>yandexuid</code> (Yandex Metrica)</td><td>Anonymous analytics identifier.</td><td>Up to 1 year</td></tr>
-      <tr><td><code>yuidss</code> (Yandex Metrica)</td><td>Analytics/session attribution.</td><td>Up to 1 year</td></tr>
-    </tbody>
-  </table>
+    <!-- ENGLISH VERSION -->
+    <div id="en-block">
 
-  <h2>Managing Cookies</h2>
-  <p>You can accept or reject non-essential cookies in our banner, or adjust settings in your browser (e.g., block/clear cookies). Blocking some cookies may impact site functionality.</p>
+      <div class="section">
+        <h2>1. What Are Cookies?</h2>
+        <p>
+          MystAI uses cookies and similar tracking technologies to enhance user experience,
+          improve functionality, analyze usage, and ensure secure authentication.
+          Cookies are small text files stored on your device to remember certain information.
+        </p>
+      </div>
 
-  <h2>Do Not Track &amp; Global Privacy Control</h2>
-  <p>Where technically feasible, we honor browser-level signals such as GPC to limit tracking to the extent required by applicable law.</p>
+      <div class="section">
+        <h2>2. Types of Cookies We Use</h2>
+        <ul>
+          <li><strong>Essential Cookies:</strong> Required for login, security, and core functions.</li>
+          <li><strong>Preference Cookies:</strong> Save your language and user settings.</li>
+          <li><strong>Analytics Cookies:</strong> Help us understand how users interact with MystAI.</li>
+          <li><strong>Performance Cookies:</strong> Improve loading speed and responsiveness.</li>
+        </ul>
+      </div>
 
-  <h2>Contact</h2>
-  <p>Email: <a href="mailto:support@mystai.ai">support@mystai.ai</a></p>
+      <div class="section">
+        <h2>3. Third-Party Services</h2>
+        <p>MystAI may use trusted third-party services, such as:</p>
+        <ul>
+          <li>Firebase Authentication</li>
+          <li>Firebase Firestore</li>
+          <li>Analytics tools</li>
+        </ul>
+        <p>
+          These providers may set their own cookies in compliance with GDPR and CCPA.
+        </p>
+      </div>
 
-  <p><a class="btn" href="/">← Back to MystAI.ai</a></p>
-  <footer>© 2025 MystAI.ai — All Rights Reserved.</footer>
-</main>
+      <div class="section">
+        <h2>4. Why We Use Cookies</h2>
+        <ul>
+          <li>To maintain secure sessions</li>
+          <li>To remember language preferences</li>
+          <li>To improve service performance</li>
+          <li>To understand user behaviour for future improvements</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>5. Managing Cookies</h2>
+        <p>
+          You can disable or delete cookies through your browser settings.  
+          However, turning off essential cookies may prevent MystAI from functioning properly,
+          including login and reading history features.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>6. Data Protection Compliance</h2>
+        <p>MystAI follows international data protection standards:</p>
+        <ul>
+          <li><strong>GDPR</strong> (Europe)</li>
+          <li><strong>KVKK</strong> (Türkiye)</li>
+          <li><strong>CCPA</strong> (California, USA)</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>7. Contact</h2>
+        <p>
+          If you have questions regarding cookies, contact us at:<br>
+          <strong>Email:</strong> support@mystai.ai
+        </p>
+      </div>
+
+    </div>
+
+    <!-- TURKISH VERSION -->
+    <div id="tr-block" style="display:none;">
+
+      <div class="section">
+        <h2>1. Çerez Nedir?</h2>
+        <p>
+          MystAI, kullanıcı deneyimini geliştirmek, güvenli oturum sağlamak,
+          performansı artırmak ve analiz yapmak amacıyla çerezler ve benzeri teknolojiler kullanır.
+          Çerezler, cihazınıza kaydedilen küçük metin dosyalarıdır.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>2. Kullandığımız Çerez Türleri</h2>
+        <ul>
+          <li><strong>Zorunlu Çerezler:</strong> Giriş, güvenlik ve temel işlevler için gereklidir.</li>
+          <li><strong>Tercih Çerezleri:</strong> Dil seçimi ve kullanıcı ayarlarını hatırlar.</li>
+          <li><strong>Analiz Çerezleri:</strong> MystAI kullanımını anlamamıza yardımcı olur.</li>
+          <li><strong>Performans Çerezleri:</strong> Yüklenme hızını ve verimliliği artırır.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>3. Üçüncü Taraf Hizmetleri</h2>
+        <p>MystAI aşağıdaki üçüncü taraf hizmetleri kullanabilir:</p>
+        <ul>
+          <li>Firebase Authentication</li>
+          <li>Firebase Firestore</li>
+          <li>Analitik araçlar</li>
+        </ul>
+        <p>
+          Bu sağlayıcılar, GDPR ve CCPA uyumlu olarak kendi çerezlerini kullanabilir.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>4. Çerezleri Kullanma Amaçlarımız</h2>
+        <ul>
+          <li>Güvenli oturum yönetimi</li>
+          <li>Dil tercihlerini hatırlamak</li>
+          <li>Hizmet performansını iyileştirmek</li>
+          <li>Kullanıcı davranışlarını anlamak</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>5. Çerezleri Yönetme</h2>
+        <p>
+          Tarayıcı ayarlarından çerezleri devre dışı bırakabilir veya silebilirsiniz.
+          Ancak zorunlu çerezlerin kapatılması, MystAI’nin düzgün çalışmamasına
+          (ör. giriş yapılamaması) neden olabilir.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>6. Veri Koruma Uyumluluğu</h2>
+        <p>MystAI aşağıdaki mevzuatlara uygun hareket eder:</p>
+        <ul>
+          <li><strong>GDPR</strong> (Avrupa Birliği)</li>
+          <li><strong>KVKK</strong> (Türkiye)</li>
+          <li><strong>CCPA</strong> (ABD – California)</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>7. İletişim</h2>
+        <p>
+          Çerez Politikası ile ilgili sorular için bizimle iletişime geçebilirsiniz:<br>
+          <strong>E-posta:</strong> support@mystai.ai
+        </p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer>
+    © 2025 MystAI — All Rights Reserved.
+  </footer>
+
+  <script>
+    const btnEn = document.getElementById("btn-en");
+    const btnTr = document.getElementById("btn-tr");
+    const enBlock = document.getElementById("en-block");
+    const trBlock = document.getElementById("tr-block");
+    const titleEl = document.getElementById("title");
+
+    btnEn.addEventListener("click", ()=>{
+      btnEn.classList.add("active");
+      btnTr.classList.remove("active");
+      enBlock.style.display = "block";
+      trBlock.style.display = "none";
+      titleEl.textContent = "Cookies Policy";
+    });
+
+    btnTr.addEventListener("click", ()=>{
+      btnTr.classList.add("active");
+      btnEn.classList.remove("active");
+      enBlock.style.display = "none";
+      trBlock.style.display = "block";
+      titleEl.textContent = "Çerez Politikası";
+    });
+  </script>
+
 </body>
 </html>
