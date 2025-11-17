@@ -915,7 +915,7 @@
         chartPlaceholder.style.display = "flex";
         downloadLink.style.display = "none";
 
-        const res = await fetch(`${BACKEND_URL}/astrology`, {
+       const res = await fetch(`${BACKEND_URL}/astrology-premium`, {
           method:"POST",
           headers:{ "Content-Type":"application/json" },
           body:JSON.stringify(payload)
