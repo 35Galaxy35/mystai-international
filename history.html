@@ -18,13 +18,16 @@
       --red:#ff5b66;
       --text:#dde4ff;
       --muted:#9fa8d6;
+      --border-soft:rgba(255,255,255,.12);
+      --border-strong:rgba(255,255,255,.22);
     }
     *{box-sizing:border-box;margin:0;padding:0}
 
     body{
       min-height:100vh;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      background:radial-gradient(1300px 800px at 50% -10%, #182561 0%, #050818 65%, #02030a 100%);
+      background:
+        radial-gradient(1300px 800px at 50% -10%, #182561 0%, #050818 65%, #02030a 100%);
       color:var(--text);
       display:flex;
       flex-direction:column;
@@ -69,6 +72,7 @@
       color:var(--gold-soft);
       text-shadow:0 0 8px rgba(246,211,107,.35);
       margin-right:6px;
+      white-space:nowrap;
     }
 
     .nav-btn{
@@ -84,6 +88,7 @@
       color:#fff;
       font-weight:600;
       transition:all .2s;
+      white-space:nowrap;
     }
     .nav-btn:hover{
       filter:brightness(1.07);
@@ -96,22 +101,95 @@
       display:flex;
       flex-direction:column;
       align-items:center;
-      padding:32px 12px 40px;
+      padding:26px 12px 40px;
     }
 
     .title{
       font-family:'Cinzel',serif;
-      font-size:32px;
+      font-size:28px;
       letter-spacing:2px;
       color:var(--gold);
       text-shadow:0 0 16px rgba(250,222,140,.55);
-      margin-bottom:26px;
+      margin-bottom:10px;
       text-align:center;
+    }
+
+    .subtitle{
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:22px;
+      text-align:center;
+      max-width:720px;
+    }
+
+    .toolbar{
+      width:100%;
+      max-width:880px;
+      margin-bottom:16px;
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:10px;
+      justify-content:space-between;
+    }
+
+    .filter-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+    }
+    .filter-chip{
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:11px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(6,12,40,.9);
+      color:var(--muted);
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:4px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      transition:all .18s ease;
+    }
+    .filter-chip span.emoji{
+      font-size:14px;
+    }
+    .filter-chip.active{
+      color:#111;
+      background:linear-gradient(120deg,#ffd700,#ffbf2f,#ffe680);
+      border-color:rgba(0,0,0,.45);
+      box-shadow:0 0 14px rgba(255,215,0,.6);
+    }
+
+    .search-box{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      padding:5px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(6,10,32,.9);
+      max-width:260px;
+      flex:1;
+    }
+    .search-box input{
+      background:transparent;
+      border:none;
+      outline:none;
+      color:var(--text);
+      font-size:12px;
+      width:100%;
+    }
+    .search-box span{
+      font-size:13px;
+      color:var(--muted);
     }
 
     .list{
       width:100%;
-      max-width:840px;
+      max-width:880px;
       display:flex;
       flex-direction:column;
       gap:14px;
@@ -120,25 +198,79 @@
     .empty{
       text-align:center;
       color:var(--muted);
-      font-size:15px;
+      font-size:14px;
       margin-top:30px;
+    }
+
+    .loader{
+      margin-top:20px;
+      font-size:13px;
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .loader-dot{
+      width:7px;height:7px;
+      border-radius:50%;
+      background:var(--gold);
+      animation:bounce 1s infinite alternate;
+    }
+    .loader-dot:nth-child(2){animation-delay:.15s;}
+    .loader-dot:nth-child(3){animation-delay:.3s;}
+    @keyframes bounce{
+      from{transform:translateY(0);opacity:.5;}
+      to{transform:translateY(-5px);opacity:1;}
     }
 
     .item{
       background:linear-gradient(135deg, rgba(12,24,70,.96), rgba(7,18,60,.96));
       border-radius:18px;
-      border:1px solid rgba(255,255,255,.12);
-      padding:12px 16px;
+      border:1px solid var(--border-soft);
+      padding:12px 14px;
       display:flex;
       justify-content:space-between;
       align-items:center;
       box-shadow:0 0 22px rgba(0,0,0,.55);
-      gap:14px;
+      gap:12px;
+      position:relative;
+      overflow:hidden;
     }
+    .item::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background:
+        radial-gradient(circle at 0 0,rgba(255,255,255,.08),transparent 60%),
+        radial-gradient(circle at 100% 100%,rgba(246,211,107,.16),transparent 60%);
+      opacity:.5;
+      pointer-events:none;
+    }
+    .item-inner{
+      position:relative;
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      flex:1;
+      z-index:1;
+    }
+
+    .item-icon{
+      width:34px;height:34px;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:19px;
+      background:radial-gradient(circle at 30% 20%,#fff2c9,#f6d36b 40%,#c58a3a 100%);
+      box-shadow:0 0 14px rgba(0,0,0,.7);
+      flex-shrink:0;
+    }
+
     .item-main{
       display:flex;
       flex-direction:column;
-      gap:4px;
+      gap:3px;
       font-size:13px;
     }
     .item-type{
@@ -147,7 +279,31 @@
     }
     .item-date{
       color:var(--muted);
-      font-size:12px;
+      font-size:11px;
+    }
+    .item-question{
+      margin-top:4px;
+      font-size:11px;
+      color:#c7cff7;
+      max-width:420px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .badge-type{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      border-radius:999px;
+      padding:2px 8px;
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      background:rgba(4,8,25,.9);
+      border:1px solid rgba(255,255,255,.18);
+      color:var(--muted);
+      margin-top:2px;
     }
 
     .item-actions{
@@ -155,12 +311,14 @@
       align-items:center;
       gap:8px;
       flex-shrink:0;
+      position:relative;
+      z-index:1;
     }
 
     .btn-see{
       border:none;
       border-radius:999px;
-      padding:7px 14px;
+      padding:7px 13px;
       font-size:12px;
       font-weight:700;
       cursor:pointer;
@@ -210,7 +368,138 @@
       text-shadow:0 0 10px rgba(255,249,194,.75);
     }
 
+    /* Modal */
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.65);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:40;
+    }
+    .modal{
+      width:min(760px,94vw);
+      max-height:80vh;
+      background:radial-gradient(circle at 0 0,#273067,#050816 55%);
+      border-radius:18px;
+      border:1px solid var(--border-strong);
+      box-shadow:0 20px 70px rgba(0,0,0,.9);
+      padding:16px 16px 14px;
+      display:flex;
+      flex-direction:column;
+      position:relative;
+      color:var(--text);
+    }
+
+    .modal-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      margin-bottom:6px;
+    }
+    .modal-title{
+      font-family:'Cinzel',serif;
+      font-size:18px;
+      color:var(--gold-soft);
+    }
+    .modal-meta{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:4px;
+    }
+
+    .modal-close-btn{
+      border:none;
+      border-radius:999px;
+      width:26px;height:26px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      background:rgba(255,255,255,.10);
+      color:#fff;
+      font-weight:700;
+      font-size:14px;
+    }
+
+    .modal-body{
+      flex:1;
+      overflow-y:auto;
+      padding:8px 2px 0;
+      font-size:13px;
+      line-height:1.7;
+    }
+    .modal-section-title{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.09em;
+      color:var(--muted);
+      margin-top:6px;
+      margin-bottom:3px;
+    }
+    .modal-box{
+      border-radius:10px;
+      padding:8px 10px;
+      background:rgba(5,10,30,.85);
+      border:1px solid rgba(255,255,255,.16);
+      white-space:pre-wrap;
+    }
+
+    .modal-footer{
+      margin-top:10px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .modal-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .modal-btn{
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+      padding:7px 12px;
+      font-size:12px;
+      font-weight:600;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .btn-ghost{
+      background:transparent;
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.24);
+    }
+    .btn-gold{
+      background:linear-gradient(120deg,#ffd700,#ffbf2f,#ffe680);
+      color:#111;
+      box-shadow:0 0 14px rgba(255,215,0,.6);
+    }
+
+    .modal-status{
+      font-size:11px;
+      color:var(--muted);
+    }
+    .modal-status.success{color:#7ce0a2;}
+    .modal-status.error{color:#ff8f96;}
+
     @media(max-width:640px){
+      .topbar{
+        padding:10px 14px;
+      }
+      .nav-btn{
+        padding-inline:10px;
+      }
+      .title{
+        font-size:24px;
+      }
       .item{
         flex-direction:column;
         align-items:flex-start;
@@ -236,7 +525,47 @@
 
   <main class="main">
     <h1 id="pageTitle" class="title">MY READING HISTORY</h1>
+    <p id="pageSubtitle" class="subtitle">
+      All AI-powered MystAI readings you’ve created so far are listed here. You can open, review or delete them anytime.
+    </p>
+
+    <section class="toolbar">
+      <div class="filter-row">
+        <button class="filter-chip active" data-filter="all" id="filterAll">
+          <span class="emoji">✨</span><span id="filterAllLabel">All</span>
+        </button>
+        <button class="filter-chip" data-filter="coffee" id="filterCoffee">
+          <span class="emoji">☕</span><span id="filterCoffeeLabel">Coffee</span>
+        </button>
+        <button class="filter-chip" data-filter="tarot" id="filterTarot">
+          <span class="emoji">🔮</span><span id="filterTarotLabel">Tarot</span>
+        </button>
+        <button class="filter-chip" data-filter="palm" id="filterPalm">
+          <span class="emoji">✋</span><span id="filterPalmLabel">Palm</span>
+        </button>
+        <button class="filter-chip" data-filter="energy" id="filterEnergy">
+          <span class="emoji">🌙</span><span id="filterEnergyLabel">Energy</span>
+        </button>
+        <button class="filter-chip" data-filter="astro" id="filterAstro">
+          <span class="emoji">🪐</span><span id="filterAstroLabel">Astrology</span>
+        </button>
+      </div>
+
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" id="searchInput" placeholder="Search in questions..." />
+      </div>
+    </section>
+
     <section id="list" class="list"></section>
+
+    <div id="loader" class="loader" style="display:none;">
+      <div class="loader-dot"></div>
+      <div class="loader-dot"></div>
+      <div class="loader-dot"></div>
+      <span id="loaderLabel">Loading your readings...</span>
+    </div>
+
     <div id="emptyState" class="empty" style="display:none;">
       No readings found yet.
     </div>
@@ -248,6 +577,42 @@
     <span id="contactLabel">Contact us:</span>
     <a href="mailto:support@mystai.ai">support@mystai.ai</a>
   </footer>
+
+  <!-- MODAL -->
+  <div id="detailModalBackdrop" class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalTitle" class="modal-title">Reading</h2>
+          <div id="modalMeta" class="modal-meta"></div>
+        </div>
+        <button id="modalClose" class="modal-close-btn">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-section-title" id="modalQuestionLabel">Question / Intention</div>
+        <div class="modal-box" id="modalQuestionText"></div>
+
+        <div class="modal-section-title" id="modalResultLabel" style="margin-top:10px;">Reading</div>
+        <div class="modal-box" id="modalResultText"></div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="modal-actions">
+          <button id="modalCopy" class="modal-btn btn-ghost">
+            📋 <span id="modalCopyLabel">Copy text</span>
+          </button>
+          <button id="modalDelete" class="modal-btn btn-ghost">
+            🗑 <span id="modalDeleteLabel">Delete reading</span>
+          </button>
+          <button id="modalCloseBottom" class="modal-btn btn-gold">
+            ✨ <span id="modalCloseLabel">Close</span>
+          </button>
+        </div>
+        <div id="modalStatus" class="modal-status"></div>
+      </div>
+    </div>
+  </div>
 
   <script type="module">
     /* ===== Firebase setup ===== */
@@ -288,16 +653,40 @@
     const logoutBtn   = document.getElementById("logoutBtn");
     const userLabel   = document.getElementById("user-label");
     const pageTitle   = document.getElementById("pageTitle");
+    const pageSubtitle= document.getElementById("pageSubtitle");
     const listEl      = document.getElementById("list");
     const emptyState  = document.getElementById("emptyState");
     const rightsLabel = document.getElementById("rightsLabel");
     const devLabel    = document.getElementById("devLabel");
     const contactLabel= document.getElementById("contactLabel");
+    const loader      = document.getElementById("loader");
+    const loaderLabel = document.getElementById("loaderLabel");
+    const searchInput = document.getElementById("searchInput");
+
+    const filterChips = Array.from(document.querySelectorAll(".filter-chip"));
+
+    // Modal elements
+    const modalBackdrop   = document.getElementById("detailModalBackdrop");
+    const modalClose      = document.getElementById("modalClose");
+    const modalCloseBottom= document.getElementById("modalCloseBottom");
+    const modalTitle      = document.getElementById("modalTitle");
+    const modalMeta       = document.getElementById("modalMeta");
+    const modalQuestionLabel = document.getElementById("modalQuestionLabel");
+    const modalResultLabel   = document.getElementById("modalResultLabel");
+    const modalQuestionText  = document.getElementById("modalQuestionText");
+    const modalResultText    = document.getElementById("modalResultText");
+    const modalCopy          = document.getElementById("modalCopy");
+    const modalDelete        = document.getElementById("modalDelete");
+    const modalCloseLabel    = document.getElementById("modalCloseLabel");
+    const modalCopyLabel     = document.getElementById("modalCopyLabel");
+    const modalDeleteLabel   = document.getElementById("modalDeleteLabel");
+    const modalStatus        = document.getElementById("modalStatus");
 
     /* ===== i18n ===== */
     const i18n = {
       en:{
         title:"MY READING HISTORY",
+        subtitle:"All AI-powered MystAI readings you’ve created so far are listed here. You can open, review or delete them anytime.",
         back:"Back",
         logout:"Logout",
         welcome:"Welcome, ",
@@ -310,9 +699,29 @@
         rights:"All Rights Reserved.",
         dev:"Developed by GALAXY 🌌",
         contact:"Contact us:",
+        filterAll:"All",
+        filterCoffee:"Coffee",
+        filterTarot:"Tarot",
+        filterPalm:"Palm",
+        filterEnergy:"Energy",
+        filterAstro:"Astrology",
+        loader:"Loading your readings...",
+        searchPlaceholder:"Search in questions...",
+        // Modal
+        modalQuestionLabel:"Question / Intention",
+        modalResultLabel:"Reading",
+        modalCopy:"Copy text",
+        modalDelete:"Delete reading",
+        modalClose:"Close",
+        modalCopySuccess:"Reading copied to clipboard.",
+        modalCopyError:"Could not copy. Please copy manually.",
+        modalDeleteConfirm:"Are you sure you want to delete this reading?",
+        modalDeleted:"Reading deleted.",
+        modalTitlePrefix:"",
       },
       tr:{
         title:"FAL GEÇMİŞİM",
+        subtitle:"Şimdiye kadar oluşturduğun tüm MystAI yapay zekâ falları burada. İstediğin zaman açabilir, inceleyebilir veya silebilirsin.",
         back:"Geri",
         logout:"Çıkış",
         welcome:"Hoş geldin, ",
@@ -325,89 +734,69 @@
         rights:"Tüm Hakları Saklıdır.",
         dev:"GALAXY tarafından geliştirilmiştir 🌌",
         contact:"İletişim:",
+        filterAll:"Hepsi",
+        filterCoffee:"Kahve",
+        filterTarot:"Tarot",
+        filterPalm:"El Falı",
+        filterEnergy:"Enerji",
+        filterAstro:"Astroloji",
+        loader:"Falların yükleniyor...",
+        searchPlaceholder:"Sorularda ara...",
+        // Modal
+        modalQuestionLabel:"Soru / Niyet",
+        modalResultLabel:"Fal Yorumu",
+        modalCopy:"Yazıyı kopyala",
+        modalDelete:"Falı sil",
+        modalClose:"Kapat",
+        modalCopySuccess:"Fal metni panoya kopyalandı.",
+        modalCopyError:"Kopyalanamadı. Lütfen elle kopyala.",
+        modalDeleteConfirm:"Bu fal kaydını silmek istediğine emin misin?",
+        modalDeleted:"Fal kaydı silindi.",
+        modalTitlePrefix:"",
       }
     };
 
     let activeLang = localStorage.getItem("myst_lang") || "en";
+    let allReadings = []; // tüm snapshot (id + data)
+    let currentFilter = "all";
+    let currentModalId = null;
 
-    function applyLang(){
-      const t = i18n[activeLang];
-      pageTitle.textContent   = t.title;
-      backBtn.textContent     = "⬅ " + t.back;
-      logoutBtn.textContent   = t.logout;
-      emptyState.textContent  = t.noReadings;
-      rightsLabel.textContent = t.rights;
-      devLabel.textContent    = t.dev;
-      contactLabel.textContent= t.contact;
-
-      btnEn.classList.toggle("active", activeLang === "en");
-      btnTr.classList.toggle("active", activeLang === "tr");
-
-      const user = auth.currentUser;
-      if(user){
-        const name = user.displayName || user.email;
-        userLabel.textContent = t.welcome + name;
-      }
-
-      // Kart altındaki statik label çevirimi yenilemek için
-      document.querySelectorAll("[data-type-label]").forEach(el=>{
-        el.textContent = t.typeLabel + ": " + el.dataset.value;
-      });
-      document.querySelectorAll("[data-date-label]").forEach(el=>{
-        el.textContent = t.dateLabel + ": " + el.dataset.value;
-      });
-      document.querySelectorAll("[data-btn-see]").forEach(el=>{
-        el.textContent = t.seeButton;
-      });
-    }
-
-    btnEn.addEventListener("click", ()=>{
-      activeLang = "en";
-      localStorage.setItem("myst_lang","en");
-      applyLang();
-      renderHistoryForCurrentUser(); // tipi/dili güncel tut
-    });
-
-    btnTr.addEventListener("click", ()=>{
-      activeLang = "tr";
-      localStorage.setItem("myst_lang","tr");
-      applyLang();
-      renderHistoryForCurrentUser();
-    });
-
-    backBtn.addEventListener("click", ()=>{
-      window.location.href = "app.html";
-    });
-
-    logoutBtn.addEventListener("click", ()=>{
-      signOut(auth).then(()=>window.location.href="login.html");
-    });
-
-    /* ===== Type Localization ===== */
+    /* ===== Type Localization + Icon + Category ===== */
     const typeMap = [
       {
         key: "coffee",
         en: "AI Coffee Reading",
         tr: "Yapay Zekâ Kahve Falı",
-        variants: ["AI Coffee Reading","Yapay Zekâ Kahve Falı"]
+        variants: ["AI Coffee Reading","Yapay Zekâ Kahve Falı"],
+        emoji:"☕"
       },
       {
         key: "palm",
         en: "AI Palm Reading",
         tr: "Yapay Zekâ El Falı",
-        variants: ["AI Palm Reading","Yapay Zekâ El Falı"]
+        variants: ["AI Palm Reading","Yapay Zekâ El Falı"],
+        emoji:"✋"
       },
       {
         key: "tarot",
         en: "AI Tarot Reading",
         tr: "Yapay Zekâ Tarot Falı",
-        variants: ["AI Tarot Reading","Yapay Zekâ Tarot Falı"]
+        variants: ["AI Tarot Reading","Yapay Zekâ Tarot Falı"],
+        emoji:"🔮"
       },
       {
         key: "energy",
         en: "Energy & Dreams",
         tr: "Enerji & Rüya Yorumu",
-        variants: ["Energy & Dreams","Enerji & Rüya Yorumu","Energy & Dreams Reading"]
+        variants: ["Energy & Dreams","Enerji & Rüya Yorumu","Energy & Dreams Reading"],
+        emoji:"🌙"
+      },
+      {
+        key: "astro",
+        en: "AI Astrology Report",
+        tr: "Yapay Zekâ Astroloji Raporu",
+        variants:["AI Astrology Report","Astrology","Astro Report"],
+        emoji:"🪐"
       }
     ];
 
@@ -418,8 +807,26 @@
           return m[lang];
         }
       }
-      // Bilinmeyen tipse olduğu gibi bırak
       return rawType;
+    }
+
+    function getTypeKey(rawType){
+      if(!rawType) return "other";
+      for(const m of typeMap){
+        if(m.variants.includes(rawType)){
+          return m.key;
+        }
+      }
+      return "other";
+    }
+
+    function getTypeEmoji(rawType){
+      for(const m of typeMap){
+        if(m.variants.includes(rawType)){
+          return m.emoji;
+        }
+      }
+      return "✨";
     }
 
     /* ===== Date format ===== */
@@ -447,109 +854,79 @@
       }
     }
 
-    /* ===== History Load & Render ===== */
-    let lastUserEmail = null;
-
-    async function renderHistoryForCurrentUser(){
-      const user = auth.currentUser;
-      if(!user) return;
-
+    /* ===== i18n apply ===== */
+    function applyLang(){
       const t = i18n[activeLang];
+      pageTitle.textContent   = t.title;
+      pageSubtitle.textContent= t.subtitle;
+      backBtn.textContent     = "⬅ " + t.back;
+      logoutBtn.textContent   = t.logout;
+      emptyState.textContent  = t.noReadings;
+      rightsLabel.textContent = t.rights;
+      devLabel.textContent    = t.dev;
+      contactLabel.textContent= t.contact;
+      loaderLabel.textContent = t.loader;
+      searchInput.placeholder = t.searchPlaceholder;
 
-      listEl.innerHTML = "";
-      emptyState.style.display = "none";
+      document.getElementById("filterAllLabel").textContent    = t.filterAll;
+      document.getElementById("filterCoffeeLabel").textContent = t.filterCoffee;
+      document.getElementById("filterTarotLabel").textContent  = t.filterTarot;
+      document.getElementById("filterPalmLabel").textContent   = t.filterPalm;
+      document.getElementById("filterEnergyLabel").textContent = t.filterEnergy;
+      document.getElementById("filterAstroLabel").textContent  = t.filterAstro;
 
-      try{
-        const q = query(
-          collection(db,"fortunes"),
-          where("user","==", user.email),
-          orderBy("createdAt","desc")
-        );
-        const snap = await getDocs(q);
+      // Modal labels
+      modalQuestionLabel.textContent = t.modalQuestionLabel;
+      modalResultLabel.textContent   = t.modalResultLabel;
+      modalCopyLabel.textContent     = t.modalCopy;
+      modalDeleteLabel.textContent   = t.modalDelete;
+      modalCloseLabel.textContent    = t.modalClose;
 
-        if(snap.empty){
-          emptyState.style.display = "block";
-          return;
-        }
+      btnEn.classList.toggle("active", activeLang === "en");
+      btnTr.classList.toggle("active", activeLang === "tr");
 
-        snap.forEach(docSnap=>{
-          const data = docSnap.data();
-          const id   = docSnap.id;
-
-          const rawType   = data.type || "";
-          const showType  = localizeType(rawType, activeLang);
-          const dateStr   = formatDate(data.createdAt);
-          const question  = data.question || "";
-          const result    = data.result || "";
-
-          const item = document.createElement("article");
-          item.className = "item";
-          item.dataset.id = id;
-
-          const main = document.createElement("div");
-          main.className = "item-main";
-
-          const typeRow = document.createElement("div");
-          typeRow.className = "item-type";
-          typeRow.dataset.typeLabel = "1";
-          typeRow.dataset.value = showType;
-          typeRow.textContent = `${t.typeLabel}: ${showType}`;
-
-          const dateRow = document.createElement("div");
-          dateRow.className = "item-date";
-          dateRow.dataset.dateLabel = "1";
-          dateRow.dataset.value = dateStr;
-          dateRow.textContent = `${t.dateLabel}: ${dateStr}`;
-
-          main.appendChild(typeRow);
-          main.appendChild(dateRow);
-
-          const actions = document.createElement("div");
-          actions.className = "item-actions";
-
-          const seeBtn = document.createElement("button");
-          seeBtn.className = "btn-see";
-          seeBtn.dataset.btnSee = "1";
-          seeBtn.textContent = t.seeButton;
-          seeBtn.addEventListener("click", ()=>{
-            const title = `${showType}`;
-            const qText = question ? `\n\n⚡ ${activeLang==="tr"?"Kullanıcı sorusu / niyeti:":"User question / intention:"}\n${question}` : "";
-            alert(title + qText + `\n\n🔮 ${activeLang==="tr"?"Yorum:":"Reading:"}\n\n` + result);
-          });
-
-          const delBtn = document.createElement("button");
-          delBtn.className = "btn-del";
-          delBtn.innerHTML = "🗑";
-          delBtn.addEventListener("click", async ()=>{
-            if(!confirm(t.deleteConfirm)) return;
-            try{
-              await deleteDoc(doc(db,"fortunes",id));
-              item.remove();
-              if(!listEl.children.length){
-                emptyState.style.display = "block";
-              }
-              alert(t.deleted);
-            }catch(err){
-              console.error(err);
-              alert("Error: " + (err?.message || err));
-            }
-          });
-
-          actions.appendChild(seeBtn);
-          actions.appendChild(delBtn);
-
-          item.appendChild(main);
-          item.appendChild(actions);
-
-          listEl.appendChild(item);
-        });
-
-      }catch(err){
-        console.error(err);
-        emptyState.style.display = "block";
-        emptyState.textContent = "Error loading history: " + (err?.message || err);
+      const user = auth.currentUser;
+      if(user){
+        const name = user.displayName || user.email;
+        userLabel.textContent = t.welcome + name;
       }
+
+      // var olan kartların type/date label ve butonları
+      document.querySelectorAll("[data-type-label]").forEach(el=>{
+        const showType = el.dataset.value;
+        el.textContent = `${t.typeLabel}: ${showType}`;
+      });
+      document.querySelectorAll("[data-date-label]").forEach(el=>{
+        const val = el.dataset.value;
+        el.textContent = `${t.dateLabel}: ${val}`;
+      });
+      document.querySelectorAll("[data-btn-see]").forEach(el=>{
+        el.textContent = t.seeButton;
+      });
     }
+
+    btnEn.addEventListener("click", ()=>{
+      activeLang = "en";
+      localStorage.setItem("myst_lang","en");
+      applyLang();
+      // sadece yazı değişir, filtre yeniden uygula
+      renderFilteredList();
+    });
+
+    btnTr.addEventListener("click", ()=>{
+      activeLang = "tr";
+      localStorage.setItem("myst_lang","tr");
+      applyLang();
+      renderFilteredList();
+    });
+
+    backBtn.addEventListener("click", ()=>{
+      window.location.href = "app.html";
+    });
+
+    logoutBtn.addEventListener("click", ()=>{
+      signOut(auth).then(()=>window.location.href="login.html");
+    });
 
     /* ===== Auth gate ===== */
     onAuthStateChanged(auth, user=>{
@@ -561,12 +938,264 @@
       const name = user.displayName || user.email;
       userLabel.textContent = t.welcome + name;
 
-      if(user.email !== lastUserEmail){
-        lastUserEmail = user.email;
-        renderHistoryForCurrentUser();
+      // sadece ilk defa yüklendiğinde Firestore'dan çek
+      loadHistoryForUser(user.email);
+    });
+
+    /* ===== History Load ===== */
+    async function loadHistoryForUser(email){
+      const t = i18n[activeLang];
+      listEl.innerHTML = "";
+      emptyState.style.display = "none";
+      loader.style.display = "flex";
+
+      allReadings = [];
+
+      try{
+        const q = query(
+          collection(db,"fortunes"),
+          where("user","==", email),
+          orderBy("createdAt","desc")
+        );
+        const snap = await getDocs(q);
+
+        if(snap.empty){
+          loader.style.display = "none";
+          emptyState.style.display = "block";
+          emptyState.textContent = t.noReadings;
+          return;
+        }
+
+        snap.forEach(docSnap=>{
+          allReadings.push({
+            id: docSnap.id,
+            data: docSnap.data()
+          });
+        });
+
+        loader.style.display = "none";
+        renderFilteredList();
+
+      }catch(err){
+        console.error(err);
+        loader.style.display = "none";
+        emptyState.style.display = "block";
+        emptyState.textContent = "Error loading history: " + (err?.message || err);
+      }
+    }
+
+    /* ===== Filtering + Search ===== */
+    filterChips.forEach(chip=>{
+      chip.addEventListener("click", ()=>{
+        filterChips.forEach(c=>c.classList.remove("active"));
+        chip.classList.add("active");
+        currentFilter = chip.dataset.filter || "all";
+        renderFilteredList();
+      });
+    });
+
+    searchInput.addEventListener("input", ()=>{
+      renderFilteredList();
+    });
+
+    function renderFilteredList(){
+      const t = i18n[activeLang];
+      listEl.innerHTML = "";
+      emptyState.style.display = "none";
+
+      const term = searchInput.value.trim().toLowerCase();
+
+      const filtered = allReadings.filter(item=>{
+        const { data } = item;
+        const typeKey = getTypeKey(data.type || "");
+        if(currentFilter !== "all" && typeKey !== currentFilter) return false;
+
+        if(term){
+          const q = (data.question || "").toLowerCase();
+          const r = (data.result || "").toLowerCase();
+          return q.includes(term) || r.includes(term);
+        }
+        return true;
+      });
+
+      if(filtered.length === 0){
+        emptyState.style.display = "block";
+        emptyState.textContent = t.noReadings;
+        return;
+      }
+
+      filtered.forEach(item=>{
+        const { id, data } = item;
+        const rawType   = data.type || "";
+        const showType  = localizeType(rawType, activeLang);
+        const typeKey   = getTypeKey(rawType);
+        const dateStr   = formatDate(data.createdAt);
+        const question  = data.question || "";
+        const emoji     = getTypeEmoji(rawType);
+
+        const article = document.createElement("article");
+        article.className = "item";
+        article.dataset.id = id;
+
+        const inner = document.createElement("div");
+        inner.className = "item-inner";
+
+        const iconBox = document.createElement("div");
+        iconBox.className = "item-icon";
+        iconBox.textContent = emoji;
+
+        const main = document.createElement("div");
+        main.className = "item-main";
+
+        const typeRow = document.createElement("div");
+        typeRow.className = "item-type";
+        typeRow.dataset.typeLabel = "1";
+        typeRow.dataset.value = showType;
+        typeRow.textContent = `${t.typeLabel}: ${showType}`;
+
+        const dateRow = document.createElement("div");
+        dateRow.className = "item-date";
+        dateRow.dataset.dateLabel = "1";
+        dateRow.dataset.value = dateStr;
+        dateRow.textContent = `${t.dateLabel}: ${dateStr}`;
+
+        const badge = document.createElement("div");
+        badge.className = "badge-type";
+        badge.textContent = showType;
+
+        const qRow = document.createElement("div");
+        qRow.className = "item-question";
+        if(question){
+          qRow.textContent = question;
+        }else{
+          qRow.textContent = activeLang === "tr"
+            ? "Bu kayda ait bir soru / niyet metni bulunmuyor."
+            : "No specific question / intention was saved for this reading.";
+        }
+
+        main.appendChild(typeRow);
+        main.appendChild(dateRow);
+        main.appendChild(badge);
+        main.appendChild(qRow);
+
+        inner.appendChild(iconBox);
+        inner.appendChild(main);
+
+        const actions = document.createElement("div");
+        actions.className = "item-actions";
+
+        const seeBtn = document.createElement("button");
+        seeBtn.className = "btn-see";
+        seeBtn.dataset.btnSee = "1";
+        seeBtn.textContent = t.seeButton;
+        seeBtn.addEventListener("click", ()=>{
+          openDetailModal(id, data);
+        });
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "btn-del";
+        delBtn.innerHTML = "🗑";
+        delBtn.addEventListener("click", async ()=>{
+          if(!confirm(t.deleteConfirm)) return;
+          try{
+            await deleteDoc(doc(db,"fortunes",id));
+            // local listeden çıkar
+            allReadings = allReadings.filter(r=>r.id!==id);
+            renderFilteredList();
+            alert(t.deleted);
+          }catch(err){
+            console.error(err);
+            alert("Error: " + (err?.message || err));
+          }
+        });
+
+        actions.appendChild(seeBtn);
+        actions.appendChild(delBtn);
+
+        article.appendChild(inner);
+        article.appendChild(actions);
+
+        listEl.appendChild(article);
+      });
+    }
+
+    /* ===== Modal logic ===== */
+    function openDetailModal(id, data){
+      const t = i18n[activeLang];
+      currentModalId = id;
+      modalStatus.textContent = "";
+      modalStatus.className = "modal-status";
+
+      const rawType  = data.type || "";
+      const showType = localizeType(rawType, activeLang);
+      const dateStr  = formatDate(data.createdAt);
+      const emoji    = getTypeEmoji(rawType);
+
+      modalTitle.textContent = `${emoji} ${showType}`;
+      modalMeta.textContent  = dateStr;
+
+      const question = data.question || "";
+      const result   = data.result || "";
+
+      modalQuestionText.textContent =
+        question || (activeLang==="tr"
+        ? "Bu kayda ait bir soru / niyet metni kaydedilmemiş."
+        : "No specific question / intention was saved for this reading.");
+
+      modalResultText.textContent =
+        result || (activeLang==="tr"
+        ? "Bu kayda ait bir yorum metni bulunamadı."
+        : "No reading text is available for this entry.");
+
+      modalBackdrop.style.display = "flex";
+    }
+
+    function closeDetailModal(){
+      modalBackdrop.style.display = "none";
+      currentModalId = null;
+    }
+
+    modalClose.addEventListener("click", closeDetailModal);
+    modalCloseBottom.addEventListener("click", closeDetailModal);
+    modalBackdrop.addEventListener("click", (e)=>{
+      if(e.target === modalBackdrop){
+        closeDetailModal();
       }
     });
 
+    modalCopy.addEventListener("click", async ()=>{
+      const t = i18n[activeLang];
+      const text = modalResultText.textContent || "";
+      try{
+        await navigator.clipboard.writeText(text);
+        modalStatus.textContent = t.modalCopySuccess;
+        modalStatus.className = "modal-status success";
+      }catch(err){
+        console.error(err);
+        modalStatus.textContent = t.modalCopyError;
+        modalStatus.className = "modal-status error";
+      }
+    });
+
+    modalDelete.addEventListener("click", async ()=>{
+      const t = i18n[activeLang];
+      if(!currentModalId) return;
+      if(!confirm(t.modalDeleteConfirm)) return;
+      try{
+        await deleteDoc(doc(db,"fortunes",currentModalId));
+        allReadings = allReadings.filter(r=>r.id!==currentModalId);
+        renderFilteredList();
+        modalStatus.textContent = t.modalDeleted;
+        modalStatus.className = "modal-status success";
+        setTimeout(closeDetailModal, 500);
+      }catch(err){
+        console.error(err);
+        modalStatus.textContent = "Error: " + (err?.message || err);
+        modalStatus.className = "modal-status error";
+      }
+    });
+
+    // İlk dil uygula
     applyLang();
   </script>
 </body>
