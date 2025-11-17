@@ -19,13 +19,6 @@ from fpdf import FPDF
 import base64
 
 # ---- Astrology Libraries ----
-from flatlib.chart import Chart
-from flatlib.datetime import Datetime
-from flatlib.geopos import GeoPos
-from flatlib import const
-import matplotlib.pyplot as plt
-from matplotlib.patches import Circle
-import numpy as np
 
 
 # ============================================
