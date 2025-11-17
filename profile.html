@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MystAI — My Profile</title>
+  <link rel="icon" type="image/png" href="mystai-logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{
+      --bg1:#05091e;
+      --bg2:#060b30;
+      --card:#0b1234;
+      --card-soft:#111b42;
+      --gold:#f6d36b;
+      --gold-soft:#ffeaa0;
+      --text:#dde4ff;
+      --muted:#9fa8d6;
+      --danger:#ff5b66;
+      --ok:#44e0a0;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+
+    body{
+      min-height:100vh;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:radial-gradient(1300px 800px at 50% -10%, #182561 0%, #050818 65%, #02030a 100%);
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* Top bar */
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:14px 24px;
+      background:rgba(5,10,35,.82);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(255,255,255,.1);
+      position:sticky;
+      top:0;
+      z-index:20;
+    }
+    .top-left,.top-right{display:flex;align-items:center;gap:10px;}
+
+    .flag-btn{
+      border:none;
+      width:32px;height:32px;
+      border-radius:50%;
+      background-size:cover;
+      background-position:center;
+      cursor:pointer;
+      outline:none;
+      transition:transform .2s, box-shadow .2s, border-color .2s;
+      border:2px solid transparent;
+    }
+    .flag-en{background-image:url("https://flagcdn.com/w40/gb.png");}
+    .flag-tr{background-image:url("https://flagcdn.com/w40/tr.png");}
+    .flag-btn.active{
+      transform:scale(1.06);
+      box-shadow:0 0 12px rgba(246,211,107,.9);
+      border-color:var(--gold);
+    }
+
+    .user-label{
+      font-size:13px;
+      color:var(--gold-soft);
+      text-shadow:0 0 8px rgba(246,211,107,.35);
+      margin-right:6px;
+    }
+
+    .nav-btn{
+      border:none;
+      border-radius:20px;
+      padding:7px 14px;
+      font-size:13px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:4px;
+      background:rgba(255,255,255,.12);
+      color:#fff;
+      font-weight:600;
+      transition:all .2s;
+    }
+    .nav-btn:hover{
+      filter:brightness(1.07);
+      transform:translateY(-1px);
+    }
+
+    /* Main layout */
+    .main{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:28px 12px 40px;
+    }
+
+    .title{
+      font-family:'Cinzel',serif;
+      font-size:30px;
+      letter-spacing:2px;
+      color:var(--gold);
+      text-shadow:0 0 16px rgba(250,222,140,.55);
+      margin-bottom:22px;
+      text-align:center;
+    }
+
+    .grid{
+      width:100%;
+      max-width:980px;
+      display:grid;
+      grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);
+      gap:18px;
+    }
+    @media(max-width:840px){
+      .grid{grid-template-columns:1fr;}
+    }
+
+    .card{
+      background:linear-gradient(135deg, rgba(10,18,60,.97), rgba(8,13,40,.97));
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.12);
+      padding:16px 18px 18px;
+      box-shadow:0 0 26px rgba(0,0,0,.65);
+    }
+
+    .card-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:10px;
+    }
+    .card-title{
+      font-size:15px;
+      font-weight:700;
+      color:var(--gold-soft);
+      letter-spacing:.06em;
+      text-transform:uppercase;
+    }
+    .card-sub{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:10px;
+    }
+
+    /* Profile summary */
+    .profile-row{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      margin-bottom:10px;
+    }
+    .avatar{
+      width:60px;height:60px;
+      border-radius:50%;
+      background:radial-gradient(circle at 30% 0%,#fff7d4,#f6d36b,#b3872b);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:26px;
+      font-weight:800;
+      color:#251703;
+      box-shadow:0 0 18px rgba(246,211,107,.9);
+    }
+    .profile-info{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      font-size:13px;
+    }
+    .profile-name{
+      font-weight:700;
+      font-size:14px;
+    }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      font-size:11px;
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.35);
+      background:rgba(3,8,30,.8);
+      color:var(--gold-soft);
+      margin-top:4px;
+      width:max-content;
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      margin-top:8px;
+    }
+    .stat-box{
+      border-radius:14px;
+      padding:9px 10px;
+      background:radial-gradient(circle at 0 0,rgba(255,255,255,.12),transparent 60%),
+                 rgba(5,10,38,.9);
+      border:1px solid rgba(255,255,255,.15);
+      font-size:12px;
+    }
+    .stat-label{color:var(--muted);margin-bottom:4px;}
+    .stat-value{font-size:18px;font-weight:700;color:var(--gold-soft);}
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:7px;
+      margin-top:8px;
+    }
+    .type-chip{
+      padding:4px 9px;
+      border-radius:999px;
+      font-size:11px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(4,10,32,.9);
+      color:var(--muted);
+    }
+
+    /* Settings */
+    .field{
+      margin-bottom:10px;
+      text-align:left;
+    }
+    .field-label{
+      font-size:12px;
+      margin-bottom:4px;
+      color:var(--gold-soft);
+    }
+    .input{
+      width:100%;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.2);
+      background:rgba(5,10,32,.9);
+      color:var(--text);
+      padding:7px 9px;
+      font-size:13px;
+      outline:none;
+    }
+    .input:focus{
+      border-color:var(--gold);
+      box-shadow:0 0 0 1px rgba(246,211,107,.5);
+    }
+    .hint{font-size:11px;color:var(--muted);margin-top:3px;}
+
+    .btn-sm{
+      border:none;
+      border-radius:999px;
+      padding:7px 12px;
+      font-size:12px;
+      font-weight:700;
+      cursor:pointer;
+      background:linear-gradient(120deg,#ffd700,#ffbf2f,#ffe680);
+      color:#111;
+      box-shadow:0 0 14px rgba(255,215,0,.55);
+      transition:all .2s;
+      white-space:nowrap;
+    }
+    .btn-sm:hover{transform:translateY(-1px) scale(1.02);}
+
+    .btn-ghost{
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.3);
+      background:rgba(5,10,32,.85);
+      color:var(--text);
+      padding:7px 12px;
+      font-size:12px;
+      font-weight:600;
+      cursor:pointer;
+      transition:all .2s;
+    }
+    .btn-ghost:hover{
+      border-color:var(--gold);
+      color:var(--gold-soft);
+    }
+
+    .btn-danger{
+      border:none;
+      border-radius:999px;
+      padding:7px 12px;
+      font-size:12px;
+      font-weight:700;
+      cursor:pointer;
+      background:radial-gradient(circle at 30% 0%,#ffb6b9,#ff5b66,#b00020);
+      color:#fff;
+      box-shadow:0 0 16px rgba(255,91,102,.85);
+      transition:all .2s;
+    }
+    .btn-danger:hover{transform:translateY(-1px) scale(1.02);}
+
+    .settings-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:8px;
+    }
+
+    .status{
+      margin-top:8px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .status.ok{color:var(--ok);}
+    .status.err{color:var(--danger);}
+
+    /* Footer */
+    footer{
+      border-top:1px solid rgba(255,255,255,.08);
+      padding:16px 10px 18px;
+      text-align:center;
+      font-size:13px;
+      color:var(--muted);
+    }
+    footer a{
+      color:var(--gold-soft);
+      text-decoration:none;
+      font-weight:600;
+    }
+    footer a:hover{
+      color:#fff9c2;
+      text-shadow:0 0 10px rgba(255,249,194,.75);
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="top-left">
+      <button id="btn-en" class="flag-btn flag-en"></button>
+      <button id="btn-tr" class="flag-btn flag-tr"></button>
+    </div>
+    <div class="top-right">
+      <span id="userLabel" class="user-label"></span>
+      <button id="backBtn" class="nav-btn">⬅ App</button>
+      <button id="logoutBtn" class="nav-btn">Logout</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <h1 id="pageTitle" class="title">MY PROFILE</h1>
+
+    <section class="grid">
+      <!-- LEFT: PROFILE & STATS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title" id="profileTitle">Profile Overview</div>
+        </div>
+        <p class="card-sub" id="profileSub">
+          This is your MystAI account summary and reading statistics.
+        </p>
+
+        <div class="profile-row">
+          <div class="avatar" id="avatar">M</div>
+          <div class="profile-info">
+            <div class="profile-name" id="profileName">MystAI User</div>
+            <div id="profileEmail" style="font-size:12px;color:var(--muted);">user@example.com</div>
+            <div class="tag" id="memberSinceTag">Member since —</div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label" id="totalReadingsLabel">Total readings</div>
+            <div class="stat-value" id="totalReadings">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label" id="lastReadingLabel">Last reading</div>
+            <div class="stat-value" style="font-size:13px" id="lastReading">—</div>
+          </div>
+        </div>
+
+        <div class="card-sub" style="margin-top:10px;" id="byTypeLabel">
+          Readings by type:
+        </div>
+        <div id="typeChips" class="chip-row">
+          <!-- doldurulacak -->
+        </div>
+
+        <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;">
+          <button id="historyBtn" class="btn-sm">📜 My reading history</button>
+        </div>
+      </div>
+
+      <!-- RIGHT: ACCOUNT SETTINGS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title" id="settingsTitle">Account Settings</div>
+        </div>
+        <p class="card-sub" id="settingsSub">
+          Manage your profile information, language preference and security options.
+        </p>
+
+        <div class="field">
+          <label class="field-label" id="displayNameLabel">Display name</label>
+          <input id="displayNameInput" class="input" type="text" />
+          <div class="hint" id="displayNameHint">
+            This is the name MystAI will use in your readings (optional).
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;">
+          <button id="saveDisplayName" class="btn-sm">💾 Save name</button>
+        </div>
+
+        <div class="field" style="margin-top:14px;">
+          <label class="field-label" id="languageLabel">Preferred language</label>
+          <div class="settings-row">
+            <button id="langEnBtn" class="btn-ghost">English</button>
+            <button id="langTrBtn" class="btn-ghost">Türkçe</button>
+          </div>
+          <div class="hint" id="languageHint">
+            MystAI will remember this preference across all pages.
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:16px;">
+          <label class="field-label" id="securityLabel">Security & access</label>
+          <div class="settings-row">
+            <button id="resetPasswordBtn" class="btn-ghost">🔑 Reset password by email</button>
+          </div>
+          <div class="hint" id="securityHint">
+            We will send a password reset link to your registered email address.
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:18px;">
+          <label class="field-label" id="dangerZoneLabel">Danger zone</label>
+          <div class="hint" id="dangerZoneHint">
+            This will permanently delete your account and all fortune records. This action cannot be undone.
+          </div>
+          <div class="settings-row" style="margin-top:10px;">
+            <button id="deleteAccountBtn" class="btn-danger">🗑 Delete my account & data</button>
+          </div>
+        </div>
+
+        <div id="statusText" class="status"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    © 2025 MystAI.ai — <span id="rightsLabel">All Rights Reserved.</span>
+    <span id="devLabel">Developed by GALAXY 🌌</span><br />
+    <span id="contactLabel">Contact us:</span>
+    <a href="mailto:support@mystai.ai">support@mystai.ai</a>
+  </footer>
+
+  <script type="module">
+    /* ===== Firebase setup ===== */
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut,
+      updateProfile,
+      sendPasswordResetEmail,
+      deleteUser
+    } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+    import {
+      getFirestore,
+      collection,
+      query,
+      where,
+      orderBy,
+      getDocs,
+      deleteDoc,
+      doc
+    } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
+      authDomain: "mystai-6cca2.firebaseapp.com",
+      projectId: "mystai-6cca2",
+      storageBucket: "mystai-6cca2.appspot.com",
+      messagingSenderId: "624127781219",
+      appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    /* ===== DOM ===== */
+    const btnEn       = document.getElementById("btn-en");
+    const btnTr       = document.getElementById("btn-tr");
+    const backBtn     = document.getElementById("backBtn");
+    const logoutBtn   = document.getElementById("logoutBtn");
+    const userLabel   = document.getElementById("userLabel");
+
+    const pageTitle   = document.getElementById("pageTitle");
+    const profileTitle= document.getElementById("profileTitle");
+    const profileSub  = document.getElementById("profileSub");
+    const settingsTitle= document.getElementById("settingsTitle");
+    const settingsSub = document.getElementById("settingsSub");
+
+    const avatar      = document.getElementById("avatar");
+    const profileName = document.getElementById("profileName");
+    const profileEmail= document.getElementById("profileEmail");
+    const memberSinceTag = document.getElementById("memberSinceTag");
+
+    const totalReadingsLabel = document.getElementById("totalReadingsLabel");
+    const totalReadings = document.getElementById("totalReadings");
+    const lastReadingLabel = document.getElementById("lastReadingLabel");
+    const lastReading = document.getElementById("lastReading");
+    const byTypeLabel = document.getElementById("byTypeLabel");
+    const typeChips   = document.getElementById("typeChips");
+    const historyBtn  = document.getElementById("historyBtn");
+
+    const displayNameLabel = document.getElementById("displayNameLabel");
+    const displayNameHint  = document.getElementById("displayNameHint");
+    const displayNameInput = document.getElementById("displayNameInput");
+    const saveDisplayName  = document.getElementById("saveDisplayName");
+
+    const languageLabel = document.getElementById("languageLabel");
+    const languageHint  = document.getElementById("languageHint");
+    const langEnBtn     = document.getElementById("langEnBtn");
+    const langTrBtn     = document.getElementById("langTrBtn");
+
+    const securityLabel = document.getElementById("securityLabel");
+    const securityHint  = document.getElementById("securityHint");
+    const resetPasswordBtn = document.getElementById("resetPasswordBtn");
+
+    const dangerZoneLabel = document.getElementById("dangerZoneLabel");
+    const dangerZoneHint  = document.getElementById("dangerZoneHint");
+    const deleteAccountBtn= document.getElementById("deleteAccountBtn");
+
+    const statusText   = document.getElementById("statusText");
+
+    const rightsLabel  = document.getElementById("rightsLabel");
+    const devLabel     = document.getElementById("devLabel");
+    const contactLabel = document.getElementById("contactLabel");
+
+    /* ===== i18n ===== */
+    const i18n = {
+      en:{
+        pageTitle:"MY PROFILE",
+        back:"Back",
+        logout:"Logout",
+        welcome:"Welcome, ",
+        profileTitle:"Profile Overview",
+        profileSub:"This is your MystAI account summary and reading statistics.",
+        settingsTitle:"Account Settings",
+        settingsSub:"Manage your profile information, language preference and security options.",
+        totalReadingsLabel:"Total readings",
+        lastReadingLabel:"Last reading",
+        lastReadingNone:"—",
+        byType:"Readings by type:",
+        historyBtn:"📜 My reading history",
+        memberSince:"Member since",
+        displayNameLabel:"Display name",
+        displayNameHint:"This is the name MystAI will use in your readings (optional).",
+        saveName:"💾 Save name",
+        languageLabel:"Preferred language",
+        languageHint:"MystAI will remember this preference across all pages.",
+        langEn:"English",
+        langTr:"Turkish",
+        securityLabel:"Security & access",
+        securityHint:"We will send a password reset link to your registered email address.",
+        resetPassword:"🔑 Reset password by email",
+        dangerZoneLabel:"Danger zone",
+        dangerZoneHint:"This will permanently delete your account and all fortune records. This action cannot be undone.",
+        deleteAccount:"🗑 Delete my account & data",
+        statusSaved:"Profile updated successfully.",
+        statusError:"An error occurred. Please try again.",
+        statusEmailSent:"Password reset email sent.",
+        statusDeleting:"Deleting your account and data...",
+        statusDeleted:"Your account and all readings have been deleted.",
+        confirmDelete1:"Are you sure you want to delete your account?",
+        confirmDelete2:"This action is permanent and will remove all your readings. Continue?",
+        rights:"All Rights Reserved.",
+        dev:"Developed by GALAXY 🌌",
+        contact:"Contact us:",
+      },
+      tr:{
+        pageTitle:"PROFİLİM",
+        back:"Geri",
+        logout:"Çıkış",
+        welcome:"Hoş geldin, ",
+        profileTitle:"Profil Özeti",
+        profileSub:"Bu bölümde MystAI hesabının özetini ve fal istatistiklerini görürsün.",
+        settingsTitle:"Hesap Ayarları",
+        settingsSub:"Profil bilgilerini, dil tercihini ve güvenlik ayarlarını buradan yönetebilirsin.",
+        totalReadingsLabel:"Toplam fal sayısı",
+        lastReadingLabel:"Son fal",
+        lastReadingNone:"—",
+        byType:"Fal türlerine göre dağılım:",
+        historyBtn:"📜 Fal geçmişimi gör",
+        memberSince:"Üyelik başlangıcı",
+        displayNameLabel:"Görünen ad",
+        displayNameHint:"MystAI fal yorumlarında kullanacağın isimdir (opsiyonel).",
+        saveName:"💾 İsmi kaydet",
+        languageLabel:"Tercih ettiğin dil",
+        languageHint:"MystAI bu tercihi tüm sayfalarda hatırlayacak.",
+        langEn:"İngilizce",
+        langTr:"Türkçe",
+        securityLabel:"Güvenlik & erişim",
+        securityHint:"Kayıtlı e-posta adresine bir şifre sıfırlama bağlantısı göndereceğiz.",
+        resetPassword:"🔑 E-posta ile şifre sıfırla",
+        dangerZoneLabel:"Tehlikeli bölge",
+        dangerZoneHint:"Bu işlem hesabını ve tüm fal kayıtlarını kalıcı olarak siler. Geri alınamaz.",
+        deleteAccount:"🗑 Hesabımı ve tüm verileri sil",
+        statusSaved:"Profilin başarıyla güncellendi.",
+        statusError:"Bir hata oluştu. Lütfen tekrar dene.",
+        statusEmailSent:"Şifre sıfırlama e-postası gönderildi.",
+        statusDeleting:"Hesabın ve verilerin siliniyor...",
+        statusDeleted:"Hesabın ve tüm fal kayıtların silindi.",
+        confirmDelete1:"Hesabını silmek istediğinden emin misin?",
+        confirmDelete2:"Bu işlem kalıcıdır ve bütün fal kayıtların silinir. Devam edilsin mi?",
+        rights:"Tüm Hakları Saklıdır.",
+        dev:"GALAXY tarafından geliştirilmiştir 🌌",
+        contact:"İletişim:",
+      }
+    };
+
+    let activeLang = localStorage.getItem("myst_lang") || "en";
+
+    function applyLang(){
+      const t = i18n[activeLang];
+      pageTitle.textContent    = t.pageTitle;
+      profileTitle.textContent = t.profileTitle;
+      profileSub.textContent   = t.profileSub;
+      settingsTitle.textContent= t.settingsTitle;
+      settingsSub.textContent  = t.settingsSub;
+
+      totalReadingsLabel.textContent = t.totalReadingsLabel;
+      lastReadingLabel.textContent   = t.lastReadingLabel;
+      byTypeLabel.textContent        = t.byType;
+      historyBtn.textContent         = t.historyBtn;
+
+      displayNameLabel.textContent   = t.displayNameLabel;
+      displayNameHint.textContent    = t.displayNameHint;
+      saveDisplayName.textContent    = t.saveName;
+
+      languageLabel.textContent      = t.languageLabel;
+      languageHint.textContent       = t.languageHint;
+      langEnBtn.textContent          = t.langEn;
+      langTrBtn.textContent          = t.langTr;
+
+      securityLabel.textContent      = t.securityLabel;
+      securityHint.textContent       = t.securityHint;
+      resetPasswordBtn.textContent   = t.resetPassword;
+
+      dangerZoneLabel.textContent    = t.dangerZoneLabel;
+      dangerZoneHint.textContent     = t.dangerZoneHint;
+      deleteAccountBtn.textContent   = t.deleteAccount;
+
+      backBtn.textContent            = "⬅ " + t.back;
+      logoutBtn.textContent          = t.logout;
+      rightsLabel.textContent        = t.rights;
+      devLabel.textContent           = t.dev;
+      contactLabel.textContent       = t.contact;
+
+      btnEn.classList.toggle("active",activeLang==="en");
+      btnTr.classList.toggle("active",activeLang==="tr");
+
+      const user = auth.currentUser;
+      if(user){
+        const name = user.displayName || user.email;
+        userLabel.textContent = t.welcome + name;
+      }
+    }
+
+    btnEn.addEventListener("click", ()=>{
+      activeLang="en";
+      localStorage.setItem("myst_lang","en");
+      applyLang();
+    });
+    btnTr.addEventListener("click", ()=>{
+      activeLang="tr";
+      localStorage.setItem("myst_lang","tr");
+      applyLang();
+    });
+
+    backBtn.addEventListener("click", ()=>{ window.location.href="app.html"; });
+    logoutBtn.addEventListener("click", ()=>{ signOut(auth).then(()=>window.location.href="login.html"); });
+    historyBtn.addEventListener("click", ()=>{ window.location.href="history.html"; });
+
+    langEnBtn.addEventListener("click", ()=>{
+      activeLang="en";
+      localStorage.setItem("myst_lang","en");
+      applyLang();
+      statusText.textContent = "";
+    });
+    langTrBtn.addEventListener("click", ()=>{
+      activeLang="tr";
+      localStorage.setItem("myst_lang","tr");
+      applyLang();
+      statusText.textContent = "";
+    });
+
+    /* ===== Helper: format date ===== */
+    function formatDate(value){
+      if(!value) return "";
+      let d = null;
+      if(typeof value === "string"){
+        const tmp = new Date(value);
+        if(!isNaN(tmp.getTime())) d = tmp;
+      }else if(typeof value === "object" && typeof value.toDate === "function"){
+        d = value.toDate();
+      }
+      if(!d) return "";
+
+      if(activeLang==="tr"){
+        return d.toLocaleString("tr-TR",{
+          year:"numeric",month:"2-digit",day:"2-digit",
+          hour:"2-digit",minute:"2-digit"
+        });
+      }else{
+        return d.toLocaleString("en-GB",{
+          year:"numeric",month:"2-digit",day:"2-digit",
+          hour:"2-digit",minute:"2-digit"
+        });
+      }
+    }
+
+    /* ===== Load profile & stats ===== */
+    async function loadStats(user){
+      const t = i18n[activeLang];
+      try{
+        const q = query(
+          collection(db,"fortunes"),
+          where("user","==", user.email),
+          orderBy("createdAt","desc")
+        );
+        const snap = await getDocs(q);
+
+        const countsByType = {};
+        let total = 0;
+        let lastDate = null;
+
+        snap.forEach(docSnap=>{
+          const data = docSnap.data();
+          total++;
+          const type = data.type || "Other";
+          countsByType[type] = (countsByType[type] || 0) + 1;
+          const created = data.createdAt;
+          // createdAt iso string or timestamp
+          let d = null;
+          if(typeof created === "string"){
+            const tmp = new Date(created);
+            if(!isNaN(tmp.getTime())) d = tmp;
+          }else if(created && typeof created.toDate==="function"){
+            d = created.toDate();
+          }
+          if(d && (!lastDate || d>lastDate)) lastDate = d;
+        });
+
+        totalReadings.textContent = total.toString();
+        lastReading.textContent   = lastDate ? formatDate(lastDate.toISOString()) : t.lastReadingNone;
+
+        typeChips.innerHTML = "";
+        Object.keys(countsByType).forEach(key=>{
+          const chip = document.createElement("div");
+          chip.className = "type-chip";
+          chip.textContent = `${key}: ${countsByType[key]}`;
+          typeChips.appendChild(chip);
+        });
+        if(!Object.keys(countsByType).length){
+          const chip = document.createElement("div");
+          chip.className = "type-chip";
+          chip.textContent = activeLang==="tr" ? "Henüz fal yok." : "No readings yet.";
+          typeChips.appendChild(chip);
+        }
+
+      }catch(err){
+        console.error(err);
+      }
+    }
+
+    /* ===== Save display name ===== */
+    saveDisplayName.addEventListener("click", async ()=>{
+      const t = i18n[activeLang];
+      const user = auth.currentUser;
+      if(!user) return;
+      const newName = displayNameInput.value.trim();
+      statusText.textContent = "";
+      try{
+        await updateProfile(user,{ displayName:newName || null });
+        profileName.textContent = newName || user.email;
+        userLabel.textContent = t.welcome + (newName || user.email);
+        statusText.textContent = t.statusSaved;
+        statusText.className = "status ok";
+      }catch(err){
+        console.error(err);
+        statusText.textContent = t.statusError;
+        statusText.className = "status err";
+      }
+    });
+
+    /* ===== Reset password ===== */
+    resetPasswordBtn.addEventListener("click", async ()=>{
+      const t = i18n[activeLang];
+      const user = auth.currentUser;
+      if(!user || !user.email) return;
+      statusText.textContent = "";
+      try{
+        await sendPasswordResetEmail(auth, user.email);
+        statusText.textContent = t.statusEmailSent;
+        statusText.className = "status ok";
+      }catch(err){
+        console.error(err);
+        statusText.textContent = t.statusError;
+        statusText.className = "status err";
+      }
+    });
+
+    /* ===== Delete account & data ===== */
+    deleteAccountBtn.addEventListener("click", async ()=>{
+      const t = i18n[activeLang];
+      const user = auth.currentUser;
+      if(!user) return;
+
+      if(!confirm(t.confirmDelete1)) return;
+      if(!confirm(t.confirmDelete2)) return;
+
+      statusText.textContent = t.statusDeleting;
+      statusText.className = "status";
+
+      try{
+        // delete fortunes
+        const q = query(
+          collection(db,"fortunes"),
+          where("user","==", user.email)
+        );
+        const snap = await getDocs(q);
+        const promises = [];
+        snap.forEach(docSnap=>{
+          promises.push(deleteDoc(doc(db,"fortunes",docSnap.id)));
+        });
+        await Promise.all(promises);
+
+        // delete auth user
+        await deleteUser(user);
+        statusText.textContent = t.statusDeleted;
+        statusText.className = "status ok";
+
+        setTimeout(()=>{ window.location.href="login.html"; }, 1500);
+      }catch(err){
+        console.error(err);
+        statusText.textContent = t.statusError + " " + (err?.message || "");
+        statusText.className = "status err";
+      }
+    });
+
+    /* ===== Auth gate ===== */
+    onAuthStateChanged(auth, user=>{
+      if(!user){
+        window.location.href = "login.html";
+        return;
+      }
+      const t = i18n[activeLang];
+      const name = user.displayName || user.email;
+      userLabel.textContent = t.welcome + name;
+      profileName.textContent = name;
+      profileEmail.textContent = user.email;
+
+      const initial = (name || "M").trim()[0]?.toUpperCase() || "M";
+      avatar.textContent = initial;
+
+      const createdTime = user.metadata?.creationTime;
+      if(createdTime){
+        const d = new Date(createdTime);
+        const label = activeLang==="tr" ? "Üyelik başlangıcı" : "Member since";
+        memberSinceTag.textContent = `${label}: ${d.toLocaleDateString(activeLang==="tr"?"tr-TR":"en-GB")}`;
+      }
+
+      displayNameInput.value = user.displayName || "";
+
+      applyLang();
+      loadStats(user);
+    });
+
+    applyLang();
+  </script>
+</body>
+</html>
