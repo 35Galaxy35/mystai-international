@@ -582,11 +582,17 @@
     /* ===================
        AUTH / UI
     ==================== */
-    logoutBtn.addEventListener('click', ()=> {
-      signOut(auth).then(()=>window.location.href="login.html");
-    });
+ logoutBtn.addEventListener('click', () => {
+  signOut(auth).then(() => window.location.href = "login.html");
+});
 
-    historyBtn.addEventListener('click', ()=>window.location.href="history.html");
+/* PROFİL BUTONU BURAYA GELECEK */
+document.getElementById("profileBtn").addEventListener("click", () => {
+  window.location.href = "profile.html";
+});
+
+historyBtn.addEventListener('click', () => window.location.href = "history.html");
+
 
     onAuthStateChanged(auth, (user)=>{
       if(user){
