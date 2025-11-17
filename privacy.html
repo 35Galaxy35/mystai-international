@@ -3,102 +3,515 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Privacy Policy | MystAI.ai</title>
-  <meta name="description" content="Privacy Policy for MystAI.ai describing how we collect, use, and protect personal data in compliance with GDPR/CCPA and global standards." />
-  <link rel="canonical" href="https://mystai.ai/privacy.html" />
-
-  <!-- Open Graph -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Privacy Policy | MystAI.ai" />
-  <meta property="og:description" content="How MystAI.ai collects, uses, and protects your personal data in compliance with GDPR/CCPA." />
-  <meta property="og:url" content="https://mystai.ai/privacy.html" />
-  <meta property="og:image" content="https://mystai.ai/logo.png" />
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Privacy Policy | MystAI.ai" />
-  <meta name="twitter:description" content="Your privacy, security, and clarity are our top priorities." />
-  <meta name="twitter:image" content="https://mystai.ai/logo.png" />
-
-  <!-- Schema.org -->
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"Organization",
-    "name":"MystAI.ai",
-    "url":"https://mystai.ai",
-    "logo":"https://mystai.ai/logo.png",
-    "contactPoint":[{"@type":"ContactPoint","email":"support@mystai.ai","contactType":"customer support","availableLanguage":["en","tr"]}]
-  }
-  </script>
+  <title>MystAI — Privacy Policy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
 
   <style>
-    body{margin:0; font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto; color:#e7e7f1; background:#0f1431;}
-    main{max-width:960px; padding:48px 20px; margin:0 auto;}
-    h1,h2,h3{color:#ffd147; margin:24px 0 8px}
-    a{color:#ffd147; text-decoration:none}
-    a:hover{text-decoration:underline}
-    .muted{opacity:.9}
-    ul{margin-left:1.2rem}
-    code{background:#12193d; padding:.08rem .35rem; border-radius:4px}
-    footer{opacity:.8; margin-top:32px}
+    :root{
+      --bg:#050814;
+      --card:#0d1230;
+      --card-soft:#111738;
+      --text:#eef2ff;
+      --muted:#9aa3c7;
+      --gold:#f6d36b;
+      --gold-soft:#ffe9a8;
+    }
+
+    *{box-sizing:border-box;}
+
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:radial-gradient(circle at 50% -20%, #1b2559 0%, #050814 70%);
+      color:var(--text);
+      line-height:1.7;
+    }
+
+    header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:14px 20px;
+      background:rgba(8,12,30,.8);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      backdrop-filter:blur(18px);
+      position:sticky;
+      top:0;
+      z-index:40;
+    }
+
+    .lang-box button{
+      background:none;
+      border:1px solid var(--gold);
+      padding:6px 12px;
+      border-radius:999px;
+      cursor:pointer;
+      color:var(--gold);
+      margin-right:8px;
+      font-weight:600;
+      font-size:13px;
+      transition:0.25s;
+    }
+    .lang-box button.active{
+      background:var(--gold);
+      color:#111;
+      box-shadow:0 0 16px rgba(246,211,107,.7);
+    }
+    .lang-box button:hover{
+      filter:brightness(1.08);
+      transform:translateY(-1px);
+    }
+
+    .container{
+      max-width:960px;
+      margin:0 auto;
+      padding:32px 18px 60px;
+    }
+
+    h1{
+      font-family:Cinzel,serif;
+      font-size:30px;
+      text-align:center;
+      margin-bottom:26px;
+      letter-spacing:0.08em;
+      color:var(--gold);
+      text-shadow:0 0 16px rgba(246,211,107,.5);
+    }
+
+    h2{
+      font-size:18px;
+      margin:0 0 8px;
+      color:var(--gold-soft);
+    }
+    h3{
+      font-size:15px;
+      margin:14px 0 4px;
+      color:var(--gold-soft);
+    }
+
+    .section{
+      background:linear-gradient(145deg,var(--card),var(--card-soft));
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.09);
+      padding:18px 20px 18px;
+      margin-bottom:18px;
+      box-shadow:0 0 26px rgba(0,0,0,.55);
+    }
+
+    p{margin:4px 0 8px;font-size:14px;color:var(--text);}
+    ul{margin:4px 0 8px 20px;padding:0;font-size:14px;color:var(--text);}
+
+    a{color:var(--gold-soft);text-decoration:none;}
+    a:hover{text-decoration:underline;}
+
+    footer{
+      border-top:1px solid rgba(255,255,255,.08);
+      padding:20px 10px 26px;
+      text-align:center;
+      font-size:13px;
+      color:var(--muted);
+    }
   </style>
 </head>
 <body>
-<main>
-  <h1>Privacy Policy</h1>
-  <p class="muted">Last updated: 10 November 2025</p>
+  <header>
+    <div class="lang-box">
+      <button id="btn-en" class="active">EN</button>
+      <button id="btn-tr">TR</button>
+    </div>
+  </header>
 
-  <p>At <strong>MystAI.ai</strong> (“<strong>MystAI</strong>”, “we”, “us”), we respect your privacy. This Policy explains how we collect, use, disclose, and protect personal information when you use our website and services located at <a href="https://mystai.ai/">mystai.ai</a> (the “<strong>Service</strong>”). We comply with the EU/UK GDPR, CCPA/CPRA, and other applicable global standards.</p>
+  <main class="container">
+    <h1 id="title">Privacy Policy</h1>
 
-  <h2>1. Data We Collect</h2>
-  <ul>
-    <li><strong>Account &amp; Contact Data:</strong> name, email address, and communication preferences when you contact us (e.g., <a href="mailto:support@mystai.ai">support@mystai.ai</a>).</li>
-    <li><strong>Usage &amp; Device Data:</strong> IP address, device and browser information, pages viewed, timestamps, referral source, and general geolocation (city/country) collected via analytics.</li>
-    <li><strong>Content You Provide:</strong> optional uploads for readings (e.g., images for coffee cup/palm, textual prompts for tarot/dream/energy). You should <em>not</em> upload sensitive personal data.</li>
-    <li><strong>Cookies &amp; Similar Technologies:</strong> see our <a href="/cookies.html">Cookie Policy</a> for details.</li>
-  </ul>
+    <!-- ENGLISH VERSION -->
+    <div id="en-block">
+      <div class="section">
+        <h2>1. Who We Are</h2>
+        <p>
+          MystAI (“we”, “us”, “our”) is a digital astrology, spiritual guidance and entertainment platform
+          operated internationally by <strong>Galaxy (MystAI Owner)</strong>.
+          This Privacy Policy explains how we collect, use and protect your personal data when you use MystAI.
+        </p>
+      </div>
 
-  <h2>2. Purposes &amp; Legal Bases (GDPR)</h2>
-  <ul>
-    <li><strong>Provide &amp; improve the Service</strong> (performance of a contract / legitimate interests).</li>
-    <li><strong>Security &amp; fraud prevention</strong> (legitimate interests / legal obligation).</li>
-    <li><strong>Support &amp; communications</strong> (legitimate interests / consent where required).</li>
-    <li><strong>Analytics &amp; product insights</strong> (consent where required via cookie banner).</li>
-  </ul>
+      <div class="section">
+        <h2>2. Scope of this Policy</h2>
+        <p>
+          This Policy applies to our website, web app and related services (collectively, the “Service”).
+          By using MystAI, you agree to the practices described here.
+        </p>
+      </div>
 
-  <h2>3. Data Retention</h2>
-  <p>We keep personal data only as long as necessary for the purposes described or as required by law. Uploaded content for readings may be processed transiently and is not retained longer than needed to provide the result, unless you request otherwise or legal obligations apply.</p>
+      <div class="section">
+        <h2>3. Data We Collect</h2>
+        <h3>3.1 Information you provide</h3>
+        <p>We may collect, for example:</p>
+        <ul>
+          <li>Email address and authentication data (for account creation and login)</li>
+          <li>Birth date, time, place, name or nickname (for astrology readings)</li>
+          <li>Questions, intentions, or text you write for readings (e.g., love, career, spiritual themes)</li>
+          <li>Uploaded images (e.g., palm, coffee cup, or other spiritual context visuals)</li>
+          <li>Language preference and basic settings</li>
+        </ul>
 
-  <h2>4. Sharing &amp; Processors</h2>
-  <p>We may share data with vetted third-party processors that help us operate our Service (e.g., hosting/CDN, error logging, analytics). These parties process data under contracts that include confidentiality and data protection clauses. We do not sell personal information.</p>
+        <h3>3.2 Automatically collected information</h3>
+        <p>When you use MystAI, we may automatically collect:</p>
+        <ul>
+          <li>Device and browser information</li>
+          <li>IP address and approximate location (city / country)</li>
+          <li>Usage data (pages viewed, clicks, time on page, features used)</li>
+        </ul>
 
-  <h2>5. International Transfers</h2>
-  <p>Where data is transferred internationally, we use appropriate safeguards such as Standard Contractual Clauses (SCCs) and supplementary measures.</p>
+        <h3>3.3 Data from third-party services</h3>
+        <p>
+          If you sign in with external providers (such as Google), we may receive basic profile information (email, name)
+          as allowed by your settings with that provider.
+        </p>
+      </div>
 
-  <h2>6. Your Rights</h2>
-  <ul>
-    <li>GDPR: access, rectification, erasure, restriction, portability, objection, and withdrawal of consent.</li>
-    <li>CCPA/CPRA: right to know, delete, correct, and opt-out of “sale”/“sharing” (we do not sell personal information).</li>
-  </ul>
-  <p>To exercise rights, contact: <a href="mailto:support@mystai.ai">support@mystai.ai</a>. We may need to verify your identity.</p>
+      <div class="section">
+        <h2>4. How We Use Your Data</h2>
+        <p>We use your personal data to:</p>
+        <ul>
+          <li>Provide you with personalized readings and spiritual / entertainment insights</li>
+          <li>Store your reading history so you can revisit past sessions</li>
+          <li>Improve, debug and secure our Service</li>
+          <li>Communicate with you (service updates, security, or support)</li>
+          <li>Where permitted, develop new features and product improvements</li>
+        </ul>
+        <p>
+          We do <strong>not</strong> sell your personal data to third parties.
+        </p>
+      </div>
 
-  <h2>7. Children</h2>
-  <p>Our Service is not directed to children under 16. If you believe a child provided personal data, contact us and we will take appropriate action.</p>
+      <div class="section">
+        <h2>5. Legal Bases (where applicable)</h2>
+        <p>Depending on your location, we may rely on one or more of the following legal bases:</p>
+        <ul>
+          <li><strong>Contract:</strong> to provide the Service you request</li>
+          <li><strong>Legitimate interests:</strong> to secure, maintain and improve MystAI</li>
+          <li><strong>Consent:</strong> for certain optional data uses (e.g. marketing, specific features)</li>
+          <li><strong>Legal obligation:</strong> where we must retain some data to comply with law</li>
+        </ul>
+      </div>
 
-  <h2>8. Security</h2>
-  <p>We use technical and organizational measures appropriate to the risk (encryption in transit, access controls, backups). No method of transmission or storage is 100% secure.</p>
+      <div class="section">
+        <h2>6. AI & Third-Party Providers</h2>
+        <p>
+          MystAI uses artificial intelligence models and third-party infrastructure (for example:
+          authentication, databases, analytics or hosting).
+        </p>
+        <p>
+          Your inputs (questions, birth data, text and images) may be processed by these systems in order to generate
+          your readings. We take reasonable steps to limit and protect this processing in line with this Policy.
+        </p>
+      </div>
 
-  <h2>9. Cookies</h2>
-  <p>See the <a href="/cookies.html">Cookie Policy</a> for types, purposes, and controls (including consent banner and preferences).</p>
+      <div class="section">
+        <h2>7. Data Storage & Retention</h2>
+        <p>
+          We store your readings and account information so that you can revisit your history and we can maintain the
+          integrity of the Service. We retain data only for as long as reasonably necessary for the purposes described
+          in this Policy or as required by applicable law.
+        </p>
+        <p>
+          You may request deletion of your account and related data by contacting us at
+          <a href="mailto:support@mystai.ai">support@mystai.ai</a>.
+        </p>
+      </div>
 
-  <h2>10. Contact</h2>
-  <p>Email: <a href="mailto:support@mystai.ai">support@mystai.ai</a></p>
+      <div class="section">
+        <h2>8. Cookies & Similar Technologies</h2>
+        <p>
+          MystAI may use cookies or similar technologies to:
+        </p>
+        <ul>
+          <li>Remember your language preference and session</li>
+          <li>Keep you signed in</li>
+          <li>Measure usage and performance (analytics)</li>
+        </ul>
+        <p>
+          You can control cookies through your browser settings. Some features may not function properly without certain
+          cookies.
+        </p>
+      </div>
 
-  <h2>11. Changes</h2>
-  <p>We may update this Policy. We will post the new version with an updated date. Material changes may be announced on the site.</p>
+      <div class="section">
+        <h2>9. Data Sharing</h2>
+        <p>We may share your data with:</p>
+        <ul>
+          <li>Service providers (e.g., hosting, email, analytics, authentication, payment processors)</li>
+          <li>Professional advisers (where needed, e.g., legal or accounting)</li>
+          <li>Authorities, if required by law or to protect our rights or those of others</li>
+        </ul>
+        <p>
+          We require our service providers to handle data in a manner consistent with this Policy and applicable law.
+        </p>
+      </div>
 
-  <footer>© 2025 MystAI.ai — All Rights Reserved.</footer>
-</main>
+      <div class="section">
+        <h2>10. International Data Transfers</h2>
+        <p>
+          Because MystAI operates internationally, your information may be transferred to and processed in countries
+          other than your own. We implement reasonable safeguards to protect your data in such transfers where required.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>11. Children’s Privacy</h2>
+        <p>
+          MystAI is not intended for children under 18. We do not knowingly collect personal data from anyone under 18.
+          If you believe a minor has provided us with personal data, please contact us so we can delete it.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>12. Your Rights</h2>
+        <p>
+          Depending on your jurisdiction, you may have rights to:
+        </p>
+        <ul>
+          <li>Access the personal data we hold about you</li>
+          <li>Request correction of inaccurate or incomplete data</li>
+          <li>Request deletion of your data</li>
+          <li>Object to or restrict certain processing</li>
+          <li>Withdraw consent where processing is based on consent</li>
+        </ul>
+        <p>
+          To exercise any of these rights, contact us at
+          <a href="mailto:support@mystai.ai">support@mystai.ai</a>.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>13. Changes to this Policy</h2>
+        <p>
+          We may update this Privacy Policy from time to time. We will update the “last updated” date and, where
+          appropriate, provide additional notice. Continued use of MystAI after changes means you accept the updated
+          Policy.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>14. Contact</h2>
+        <p>
+          If you have questions about this Privacy Policy or how we handle your data, you can contact us at:<br>
+          <strong>Email:</strong> <a href="mailto:support@mystai.ai">support@mystai.ai</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- TURKISH VERSION -->
+    <div id="tr-block" style="display:none;">
+      <div class="section">
+        <h2>1. Biz Kimiz?</h2>
+        <p>
+          MystAI (“biz”, “bize”, “bizim”), uluslararası olarak
+          <strong>Galaxy (MystAI Sahibi)</strong> tarafından sunulan dijital astroloji, ruhsal rehberlik ve
+          eğlence amaçlı bir platformdur. Bu Gizlilik Politikası, MystAI’yi kullandığınızda kişisel verilerinizi
+          nasıl topladığımızı, kullandığımızı ve koruduğumuzu açıklar.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>2. Politikanın Kapsamı</h2>
+        <p>
+          Bu Politika; web sitemiz, web uygulamamız ve bunlarla bağlantılı hizmetler (topluca “Hizmet”) için geçerlidir.
+          MystAI’yi kullanarak burada açıklanan uygulamaları kabul etmiş olursunuz.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>3. Topladığımız Veriler</h2>
+        <h3>3.1 Sizin sağladığınız bilgiler</h3>
+        <p>Örneğin aşağıdaki bilgileri toplayabiliriz:</p>
+        <ul>
+          <li>Hesap oluşturma ve giriş için e-posta adresi ve kimlik doğrulama verileri</li>
+          <li>Astroloji yorumları için doğum tarihi, doğum saati, doğum yeri, isim veya takma ad</li>
+          <li>Fal / yorum için yazdığınız niyetler, sorular, açıklamalar (ör. aşk, kariyer, ruhsal yol vb.)</li>
+          <li>Yüklediğiniz görseller (ör. avuç içi fotoğrafı, kahve fincanı veya diğer ruhsal bağlam görselleri)</li>
+          <li>Dil tercihiniz ve temel ayarlarınız</li>
+        </ul>
+
+        <h3>3.2 Otomatik toplanan bilgiler</h3>
+        <p>MystAI’yi kullandığınızda otomatik olarak toplayabileceğimiz veriler:</p>
+        <ul>
+          <li>Cihaz ve tarayıcı bilgileri</li>
+          <li>IP adresi ve yaklaşık konum (şehir / ülke)</li>
+          <li>Kullanım verileri (görüntülenen sayfalar, tıklamalar, sayfada kalma süresi, kullanılan özellikler)</li>
+        </ul>
+
+        <h3>3.3 Üçüncü taraf servislerden alınan veriler</h3>
+        <p>
+          Harici sağlayıcılarla (örneğin Google) oturum açmanız durumunda, ilgili sağlayıcının ayarlarınıza göre izin
+          verdiği temel profil bilgilerini (ör. e-posta, ad) alabiliriz.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>4. Verilerinizi Nasıl Kullanıyoruz?</h2>
+        <p>Kişisel verilerinizi aşağıdaki amaçlarla kullanırız:</p>
+        <ul>
+          <li>Kişiselleştirilmiş yorumlar ve ruhsal / eğlence amaçlı içgörüler sunmak</li>
+          <li>Geçmiş fal ve yorumlarınıza yeniden erişebilmeniz için kayıt tutmak</li>
+          <li>Hizmeti geliştirmek, test etmek ve güvenliğini sağlamak</li>
+          <li>Sizinle iletişime geçmek (hizmet güncellemeleri, güvenlik veya destek amaçlı)</li>
+          <li>Mevzuatın izin verdiği ölçüde yeni özellikler ve ürün geliştirmeleri yapmak</li>
+        </ul>
+        <p>
+          Kişisel verilerinizi <strong>üçüncü taraflara satmayız</strong>.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>5. Hukuki Dayanaklar (uygulanabildiği ölçüde)</h2>
+        <p>Bulunduğunuz ülkeye göre aşağıdaki hukuki dayanaklara dayanabiliriz:</p>
+        <ul>
+          <li><strong>Sözleşme:</strong> Talep ettiğiniz Hizmeti sunmak için</li>
+          <li><strong>Meşru menfaat:</strong> MystAI’nin güvenliğini, sürekliliğini ve gelişimini sağlamak için</li>
+          <li><strong>Açık rıza:</strong> Bazı isteğe bağlı veri kullanımları için (ör. pazarlama, belirli özellikler)</li>
+          <li><strong>Hukuki yükümlülük:</strong> Kanunen saklanması gereken veriler için</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>6. Yapay Zekâ ve Üçüncü Taraf Sağlayıcılar</h2>
+        <p>
+          MystAI; yapay zekâ modelleri ve üçüncü taraf altyapı sağlayıcıları (örneğin kimlik doğrulama, veritabanı,
+          analiz, barındırma) kullanır.
+        </p>
+        <p>
+          Girdiğiniz veriler (sorular, doğum bilgileri, yazdığınız metinler ve yüklediğiniz görseller) bu sistemler
+          tarafından işlenebilir. Bu işlemleri, bu Politika ve geçerli mevzuatla uyumlu olacak şekilde sınırlamak ve
+          korumak için makul teknik ve idari tedbirleri alırız.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>7. Veri Saklama Süresi</h2>
+        <p>
+          Hesabınızı ve fal geçmişinizi koruyabilmek, hizmet bütünlüğünü sağlayabilmek için verilerinizi belirli bir süre
+          saklarız. Veriler yalnızca bu Politikada belirtilen amaçlar için gerekli olduğu sürece veya yürürlükteki
+          mevzuatın zorunlu kıldığı süre boyunca tutulur.
+        </p>
+        <p>
+          Hesabınızın ve ilgili verilerinizin silinmesini talep etmek için
+          <a href="mailto:support@mystai.ai">support@mystai.ai</a> adresi üzerinden bize ulaşabilirsiniz.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>8. Çerezler ve Benzeri Teknolojiler</h2>
+        <p>
+          MystAI, aşağıdaki amaçlarla çerezler veya benzeri teknolojiler kullanabilir:
+        </p>
+        <ul>
+          <li>Dil tercihinizi ve oturum durumunuzu hatırlamak</li>
+          <li>Oturumunuzun devamlılığını sağlamak (giriş yapmış kalmanız için)</li>
+          <li>Kullanım ve performans ölçümleri yapmak (analitik amaçlı)</li>
+        </ul>
+        <p>
+          Çerezleri tarayıcı ayarlarınızdan yönetebilirsiniz; ancak bazı çerezleri devre dışı bırakmanız, belirli
+          özelliklerin düzgün çalışmamasına neden olabilir.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>9. Verilerin Paylaşılması</h2>
+        <p>Verilerinizi şu taraflarla paylaşabiliriz:</p>
+        <ul>
+          <li>Hizmet sağlayıcılar (barındırma, e-posta, analiz, kimlik doğrulama, ödeme altyapısı vb.)</li>
+          <li>Gerekli olduğunda profesyonel danışmanlar (ör. avukatlar, mali müşavirler)</li>
+          <li>Yasal zorunluluk veya haklarımızı/başkalarının haklarını koruma amacıyla yetkili kurumlar</li>
+        </ul>
+        <p>
+          Hizmet sağlayıcılarımızın verileri, bu Politika ve yürürlükteki mevzuatla uyumlu şekilde işlemelerini talep ederiz.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>10. Uluslararası Veri Aktarımları</h2>
+        <p>
+          MystAI uluslararası faaliyet gösterdiği için, bilgileriniz kendi ülkeniz dışındaki ülkelere aktarılabilir ve bu
+          ülkelerde işlenebilir. Böyle durumlarda, mevzuatın gerektirdiği ölçüde makul koruma önlemlerini uygulamaya
+          çalışırız.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>11. Çocukların Gizliliği</h2>
+        <p>
+          MystAI, 18 yaşın altındaki kişiler için tasarlanmamıştır. 18 yaşından küçüklerden bilerek kişisel veri
+          toplamıyoruz. Bir çocuğa ait veri sağlandığını düşünüyorsanız, verilerin silinebilmesi için bizimle
+          iletişime geçebilirsiniz.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>12. Haklarınız</h2>
+        <p>
+          Bulunduğunuz ülkeye ve geçerli mevzuata bağlı olarak, aşağıdaki haklara sahip olabilirsiniz:
+        </p>
+        <ul>
+          <li>Hakkınızda tuttuğumuz kişisel verilere erişme</li>
+          <li>Eksik veya hatalı verilerin düzeltilmesini talep etme</li>
+          <li>Verilerinizin silinmesini talep etme</li>
+          <li>Bazı veri işleme faaliyetlerine itiraz etme veya kısıtlama talep etme</li>
+          <li>İşlemenin rızaya dayandığı durumlarda rızanızı geri çekme</li>
+        </ul>
+        <p>
+          Bu haklardan herhangi birini kullanmak için
+          <a href="mailto:support@mystai.ai">support@mystai.ai</a> adresinden bizimle iletişime geçebilirsiniz.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>13. Bu Politikadaki Değişiklikler</h2>
+        <p>
+          Bu Gizlilik Politikasını zaman zaman güncelleyebiliriz. Sayfanın “son güncelleme” tarihini değiştirir ve uygun
+          hallerde ek bildirim sağlayabiliriz. Değişikliklerden sonra MystAI’yi kullanmaya devam etmeniz, güncellenen
+          Politikayı kabul ettiğiniz anlamına gelir.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>14. İletişim</h2>
+        <p>
+          Bu Gizlilik Politikası veya verilerinizin işlenmesiyle ilgili sorularınız için bizimle iletişime
+          geçebilirsiniz:<br>
+          <strong>E-posta:</strong> <a href="mailto:support@mystai.ai">support@mystai.ai</a>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    © 2025 MystAI — All Rights Reserved.
+  </footer>
+
+  <script>
+    const btnEn = document.getElementById("btn-en");
+    const btnTr = document.getElementById("btn-tr");
+    const enBlock = document.getElementById("en-block");
+    const trBlock = document.getElementById("tr-block");
+    const titleEl = document.getElementById("title");
+
+    btnEn.addEventListener("click", ()=>{
+      btnEn.classList.add("active");
+      btnTr.classList.remove("active");
+      enBlock.style.display = "block";
+      trBlock.style.display = "none";
+      titleEl.textContent = "Privacy Policy";
+    });
+
+    btnTr.addEventListener("click", ()=>{
+      btnTr.classList.add("active");
+      btnEn.classList.remove("active");
+      enBlock.style.display = "none";
+      trBlock.style.display = "block";
+      titleEl.textContent = "Gizlilik Politikası";
+    });
+  </script>
 </body>
 </html>
