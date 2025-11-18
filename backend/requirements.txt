@@ -7,3 +7,5 @@ langdetect
 fpdf
 flatlib
 pyswisseph
+matplotlib
+geopy
