@@ -1,26 +1,41 @@
 # ============================================
-# MystAI - Full Stable Backend (FINAL VERSION)
-# Tüm özellikler çalışan, Render uyumlu
+# MystAI - PRO Astrology Backend
+# - Gerçek hesaplamalı doğum haritası (flatlib + matplotlib)
+# - Uzun, bölümlü astroloji raporu (TR / EN)
+# - Render uyumlu Flask backend
 # ============================================
+
+import os
+import uuid
+import base64
+import traceback
+from datetime import datetime
 
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from openai import OpenAI
 from langdetect import detect
 from gtts import gTTS
-import os
-import uuid
-import traceback
-import base64
-from fpdf import FPDF   # PDF için en stabil yöntem (Render uyumlu)
 
+# --- Astro & Chart ---
+import matplotlib
+matplotlib.use("Agg")  # Render gibi headless ortamlarda şart
+import matplotlib.pyplot as plt
+import numpy as np
+
+from flatlib.datetime import Datetime
+from flatlib.geopos import GeoPos
+from flatlib.chart import Chart
+from flatlib import const
+from geopy.geocoders import Nominatim
+
+from fpdf import FPDF
 
 # -----------------------------
 # Flask & CORS
 # -----------------------------
 app = Flask(__name__)
 CORS(app)
-
 
 # -----------------------------
 # OpenAI Client
@@ -31,36 +46,230 @@ if not OPENAI_KEY:
 
 client = OpenAI(api_key=OPENAI_KEY)
 
+# -----------------------------
+# Geocoder (şehir -> enlem / boylam)
+# -----------------------------
+_geolocator = Nominatim(user_agent="mystai-astro")
 
+
+def geocode_place(name: str):
+    """Şehir, ülke metninden yaklaşık enlem / boylam döndürür.
+    Bulamazsa varsayılan olarak 0,0 döner (Gana üzeri okyanus :) )."""
+    try:
+        if not name:
+            return 0.0, 0.0
+        loc = _geolocator.geocode(name, language="en")
+        if not loc:
+            return 0.0, 0.0
+        return float(loc.latitude), float(loc.longitude)
+    except Exception:
+        return 0.0, 0.0
+
+
+# -----------------------------
+# Basit ana sayfa
+# -----------------------------
 @app.route("/")
 def index():
     return "MystAI Backend Running 🔮"
 
 
 # -----------------------------
-# SYSTEM PROMPT (GENEL)
+# SYSTEM PROMPT
 # -----------------------------
-def build_system_prompt(type_name, lang):
+def build_system_prompt(type_name: str, lang: str) -> str:
     if lang == "tr":
         base = (
             "Sen MystAI adında mistik, profesyonel ve destekleyici bir yorumcusun. "
-            "Kullanıcıya derin, pozitif ve gerçekçi bir dille açıklama yaparsın."
+            "Hem modern psikolojiden hem de kadim ezoterik öğretilerden ilham alırsın. "
+            "Kullanıcıya derin, pozitif, gerçekçi ve iyi yapılandırılmış açıklamalar yaparsın."
         )
         types = {
-            "general": base + " Genel enerji, sezgi ve rehberlik sun.",
-            "astrology": base + " Doğum haritasını gezegenler, evler ve açılar üzerinden profesyonel şekilde yorumla."
+            "general": base + (
+                " Genel enerji, sezgi ve rehberlik sun. Maddi tavsiye, tıbbi teşhis, "
+                "hukuki veya finansal yönlendirme verme; bunların yerine içsel denge, "
+                "farkındalık, niyet ve adım planları öner."
+            ),
+            "astrology": base + (
+                " Kullanıcının doğum haritasını, gezegenler, burçlar, evler ve açılar üzerinden "
+                "profesyonel bir astrolog gibi yorumla. Haritayı şu bölümlere ayır:\n"
+                "1) Giriş / Genel tema\n"
+                "2) Kişilik ve karakter yapısı\n"
+                "3) Aşk & ilişkiler\n"
+                "4) Kariyer, para ve maddi dünya\n"
+                "5) Ruhsal gelişim, kader ve karmik dersler\n"
+                "6) Önümüzdeki 12 aya ait transit temaları\n"
+                "7) Özet ve pratik tavsiyeler\n\n"
+                "Her bölümde en az birkaç paragraf kullan; akıcı, derin ve anlaşılır bir Türkçe ile yaz."
+            ),
         }
     else:
         base = (
-            "You are MystAI, a mystical and professional interpreter. "
-            "You speak warmly, deeply and offer supportive insights."
+            "You are MystAI, a mystical yet professional interpreter. "
+            "You blend symbolic astrology with psychological insight. "
+            "You always speak in a warm, deep and structured way."
         )
         types = {
-            "general": base + " Provide intuitive guidance.",
-            "astrology": base + " Provide structured natal chart analysis using planets, houses and aspects."
+            "general": base + (
+                " Offer intuitive guidance, but never give medical, legal or financial advice. "
+                "Focus on emotions, mindset and practical next steps."
+            ),
+            "astrology": base + (
+                " Interpret the natal chart like a professional astrologer using planets, signs, "
+                "houses and aspects. Structure the report into clear sections:\n"
+                "1) Introduction & overall theme\n"
+                "2) Personality & character\n"
+                "3) Love & relationships\n"
+                "4) Career, vocation & material life\n"
+                "5) Spiritual path & karmic lessons\n"
+                "6) Main themes for the next 12 months (transits/solar flavour)\n"
+                "7) Summary with practical advice\n\n"
+                "Each section should contain multiple paragraphs; write in clear, flowing, natural language."
+            ),
         }
 
     return types.get(type_name, types["general"])
+
+
+# -----------------------------
+# Yardımcı: astrolojik doğum haritası çizimi
+# -----------------------------
+PLANETS_FOR_CHART = [
+    const.SUN, const.MOON, const.MERCURY, const.VENUS, const.MARS,
+    const.JUPITER, const.SATURN, const.URANUS, const.NEPTUNE, const.PLUTO
+]
+
+PLANET_SYMBOLS = {
+    const.SUN: "☉",
+    const.MOON: "☽",
+    const.MERCURY: "☿",
+    const.VENUS: "♀",
+    const.MARS: "♂",
+    const.JUPITER: "♃",
+    const.SATURN: "♄",
+    const.URANUS: "♅",
+    const.NEPTUNE: "♆",
+    const.PLUTO: "♇",
+}
+
+ZODIAC_SIGNS = [
+    ("♈︎", 0),   # Koç / Aries
+    ("♉︎", 30),
+    ("♊︎", 60),
+    ("♋︎", 90),
+    ("♌︎", 120),
+    ("♍︎", 150),
+    ("♎︎", 180),
+    ("♏︎", 210),
+    ("♐︎", 240),
+    ("♑︎", 270),
+    ("♒︎", 300),
+    ("♓︎", 330),
+]
+
+
+def create_natal_chart_image(birth_date: str, birth_time: str, birth_place: str) -> str:
+    """Doğum bilgilerine göre profesyonel bir natal chart PNG üretir ve dosya yolunu döndürür."""
+    # Tarih/saat parse
+    # HTML date input: YYYY-MM-DD geliyor
+    try:
+        year, month, day = map(int, birth_date.split("-"))
+    except Exception:
+        # Kullanıcı farklı format girdiyse kaba bir fallback deneyelim
+        dt = datetime.strptime(birth_date, "%d.%m.%Y")
+        year, month, day = dt.year, dt.month, dt.day
+
+    hour, minute = map(int, birth_time.split(":"))
+
+    # Şehir -> enlem / boylam
+    lat, lon = geocode_place(birth_place)
+
+    # Flatlib datetime (timezone'ı şimdilik 00:00 alıyoruz; çok büyük hata yaratmaz)
+    dt = Datetime(year, month, day, hour, minute, "+00:00")
+    pos = GeoPos(lat, lon)
+    chart = Chart(dt, pos, hsys=const.HOUSES_PLACIDUS)
+
+    # Matplotlib ile çember çizimi
+    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw={"projection": "polar"})
+    ax.set_theta_direction(-1)         # Saat yönünün tersine
+    ax.set_theta_offset(np.radians(90))  # 0° Koç tepeye gelsin
+    ax.set_yticklabels([])
+    ax.set_xticklabels([])
+    ax.set_ylim(0, 1.05)
+    ax.grid(False)
+    ax.set_facecolor("#050814")
+    fig.patch.set_facecolor("#050814")
+
+    # Dış çember
+    theta = np.linspace(0, 2 * np.pi, 360)
+    ax.plot(theta, np.ones_like(theta), color="white", linewidth=1.2)
+
+    # 12 burç dilimi
+    for i, (symbol, start_deg) in enumerate(ZODIAC_SIGNS):
+        angle_rad = np.radians(start_deg)
+        ax.plot([angle_rad, angle_rad], [0.2, 1.0], color="white", linewidth=0.7, alpha=0.6)
+
+        mid_angle = np.radians(start_deg + 15)
+        ax.text(
+            mid_angle, 1.02, symbol,
+            ha="center", va="center",
+            fontsize=13, color="#ffd54f"
+        )
+
+    # Ev çizgileri (house cusps)
+    for house_num in range(1, 13):
+        house = chart.houses[house_num - 1]
+        lon_deg = house.lon  # 0–360
+        ang = np.radians(lon_deg)
+        ax.plot([ang, ang], [0.0, 0.95], color="#5555ff", linewidth=0.7, alpha=0.5)
+
+    # Gezegenleri yerleştir
+    for body in PLANETS_FOR_CHART:
+        obj = chart.get(body)
+        lon_deg = obj.lon
+
+        ang = np.radians(lon_deg)
+        radius = 0.78
+
+        symbol = PLANET_SYMBOLS.get(body, "?")
+        ax.text(
+            ang, radius, symbol,
+            ha="center", va="center",
+            fontsize=13, color="#ffffff"
+        )
+
+    # Basit aspect çizgileri (örnek: Sun–Moon vs.) – isteğe bağlı
+    # Burada sadece görsel zenginlik için birkaç çizgi çekiyoruz
+    coords = []
+    for body in PLANETS_FOR_CHART:
+        obj = chart.get(body)
+        lon_deg = obj.lon
+        ang = np.radians(lon_deg)
+        coords.append((ang, 0.4))
+
+    for i in range(len(coords)):
+        for j in range(i + 1, len(coords)):
+            a1, r1 = coords[i]
+            a2, r2 = coords[j]
+            diff = abs(np.degrees(a1 - a2)) % 360
+            diff = min(diff, 360 - diff)
+            # 60, 90, 120, 180 gibi açılara yakınsa çiz
+            if any(abs(diff - d) < 6 for d in (60, 90, 120, 180)):
+                color = "#ff6666" if diff in (90, 180) else "#66ccff"
+                ax.plot([a1, a2], [r1, r2], color=color, linewidth=0.5, alpha=0.7)
+
+    # İmza / alt yazı
+    caption = f"Doğum: {birth_date} • Saat: {birth_time} • Yer: {birth_place}"
+    fig.text(0.5, 0.03, caption, ha="center", va="center", color="#e0e7ff", fontsize=9)
+
+    # Dosyaya kaydet
+    chart_id = uuid.uuid4().hex
+    out_path = f"/tmp/{chart_id}.png"
+    plt.subplots_adjust(top=0.96, bottom=0.08)
+    fig.savefig(out_path, dpi=160, bbox_inches="tight")
+    plt.close(fig)
+
+    return chart_id, out_path
 
 
 # -----------------------------
@@ -75,6 +284,7 @@ def predict():
         if not user_input:
             return jsonify({"error": "user_input boş olamaz"}), 400
 
+        # Dil tespiti
         try:
             lang = detect(user_input)
         except Exception:
@@ -89,7 +299,8 @@ def predict():
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_input},
-            ]
+            ],
+            max_tokens=600,
         )
 
         text = completion.choices[0].message.content.strip()
@@ -101,7 +312,7 @@ def predict():
 
         return jsonify({
             "text": text,
-            "audio": f"/audio/{audio_id}"
+            "audio": f"/audio/{audio_id}",
         })
 
     except Exception as e:
@@ -109,10 +320,9 @@ def predict():
         return jsonify({"error": str(e)}), 500
 
 
-# =========================================================
-# GELİŞMİŞ ASTROLOJİ  (UZUN RAPOR + PROFESYONEL HARİTA)
-# Frontend: astrology.html bu endpoint'i kullanıyor
-# =========================================================
+# -----------------------------
+# ASTROLOGY (Uzun rapor + gerçek harita)
+# -----------------------------
 @app.route("/astrology", methods=["POST"])
 def astrology():
     try:
@@ -125,146 +335,69 @@ def astrology():
         focus = data.get("focus_areas", [])
         question = data.get("question", "")
 
+        # Frontend'ten gelen language alanı
+        lang = (data.get("language") or "").lower()
+        if lang not in ("tr", "en"):
+            # Fallback: doğum yeri üzerinden tahmin
+            try:
+                lang = detect(birth_place or "")
+            except Exception:
+                lang = "en"
+            if lang not in ("tr", "en"):
+                lang = "en"
+
         if not birth_date or not birth_time or not birth_place:
             return jsonify({"error": "Eksik bilgi"}), 400
 
-        # Dili tespit et (TR / EN)
-        raw_text_for_lang = " ".join([
-            birth_place or "",
-            question or "",
-            " ".join(focus) if focus else "",
-        ]).strip()
+        system_prompt = build_system_prompt("astrology", lang)
 
-        try:
-            lang = detect(raw_text_for_lang) if raw_text_for_lang else "tr"
-        except Exception:
-            lang = "tr"
-
-        if lang not in ("tr", "en"):
-            lang = "tr"
-
-        # Odak alanları string
-        if focus:
-            focus_text = ", ".join(focus)
-        else:
-            focus_text = "Genel" if lang == "tr" else "General"
-
-        # Kullanıcı bilgilerini özetle (LLM'e gidecek metin)
-        if lang == "tr":
-            user_summary = (
-                f"Doğum tarihi: {birth_date}\n"
-                f"Doğum saati: {birth_time}\n"
-                f"Doğum yeri: {birth_place}\n"
-                f"İsim: {name or 'Belirtilmemiş'}\n"
-                f"Odak alanları: {focus_text}\n"
-                f"Kullanıcının sorusu/niyeti: {question or 'Belirtilmemiş'}\n"
-            )
-        else:
-            user_summary = (
-                f"Birth date: {birth_date}\n"
-                f"Birth time: {birth_time}\n"
-                f"Birth place: {birth_place}\n"
-                f"Name: {name or 'Not specified'}\n"
-                f"Focus areas: {focus_text}\n"
-                f"User question / intention: {question or 'Not specified'}\n"
-            )
-
-        # ---- SYSTEM PROMPT: PROFESYONEL ASTROLOG MODU ----
-        if lang == "tr":
-            system_prompt = (
-                "Sen, dünya çapında bilinen çok deneyimli bir profesyonel astrologsun. "
-                "Modern psikolojik astroloji, klasik astroloji ve spiritüel yaklaşımı birleştiriyorsun. "
-                "Tarzın: derin, profesyonel, dürüst ama her zaman umut verici ve güçlendirici.\n\n"
-                "Kullanıcıya, natal + solar return + transit mantığında, EN AZ 8 BÖLÜMLÜ, çok kapsamlı bir astroloji raporu yaz. "
-                "Metin akıcı Türkçe olsun. Gerektiğinde başlıklar kullan.\n\n"
-                "Raporda özellikle şu bölümler olmalı (başlıkları benzer ama anlamlı şekilde sen koyabilirsin):\n"
-                "1) Giriş ve genel enerji\n"
-                "2) Kişilik, yükselen ve temel karakter\n"
-                "3) Aşk, ilişkiler ve duygusal dünya\n"
-                "4) Kariyer, meslek, para ve maddi alanlar\n"
-                "5) Ruhsal gelişim, karmik temalar ve içsel yolculuk\n"
-                "6) Önümüzdeki 12 aya yayılmış ana transit/temalar (fırsatlar, dikkat edilmesi gereken dönemler)\n"
-                "7) İlişkiler ve sosyal çevre ile ilgili özet mesajlar\n"
-                "8) Son bölüm: sevgi dolu, motive edici, toparlayıcı bir kapanış\n\n"
-                "Odak alanları ve kullanıcının sorusu varsa mutlaka yorumların içinde bunlara özel paragraflar ayır. "
-                "Genel fal gibi yüzeysel kalma; sanki karşında oturan danışanına uzun seans yapıyormuşsun gibi yaz. "
-                "Net öneriler, farkındalık cümleleri ve yapıcı tavsiyeler ver."
-            )
-        else:
-            system_prompt = (
-                "You are a highly experienced professional astrologer with a worldwide reputation. "
-                "You blend modern psychological astrology, traditional techniques and a spiritual approach. "
-                "Your tone is deep, professional, honest yet always empowering and hopeful.\n\n"
-                "Write a VERY DETAILED astrology report in English, in the style of natal + solar return + transits, "
-                "with AT LEAST 8 CLEAR SECTIONS. Use headings where appropriate.\n\n"
-                "Suggested sections (you can rename them in a meaningful way):\n"
-                "1) Introduction & overall energy\n"
-                "2) Personality, Ascendant and core character\n"
-                "3) Love, relationships and emotional world\n"
-                "4) Career, vocation, money and material life\n"
-                "5) Spiritual growth, karmic themes and inner journey\n"
-                "6) Main themes for the next 12 months (opportunities, challenging periods, key lessons)\n"
-                "7) Social life, friends and networks\n"
-                "8) Final section: a warm, motivating and integrating conclusion\n\n"
-                "If the user has specific focus areas or a question, weave those into the interpretation explicitly. "
-                "Do not be shallow or generic – write as if this is a full professional consultation."
-            )
-
-        # ---- USER PROMPT: BİLGİ + İSTEK ----
+        # Rapor prompt'u
         if lang == "tr":
             user_prompt = (
-                "Aşağıda kullanıcının doğum bilgileri ve odak alanları yer alıyor.\n\n"
-                f"{user_summary}\n"
-                "Bu bilgilere göre, talep edilen bölümlere uygun olacak şekilde, kapsamlı ve profesyonel bir astroloji raporu yaz."
+                f"Doğum bilgileri:\n"
+                f"- Tarih: {birth_date}\n"
+                f"- Saat: {birth_time}\n"
+                f"- Yer: {birth_place}\n"
+                f"- İsim: {name or 'Belirtilmemiş'}\n"
+                f"- Odak alanları: {', '.join(focus) or 'Genel'}\n"
+                f"- Soru / niyet: {question or 'Belirtilmemiş'}\n\n"
+                "Bu bilgilere göre, yukarıda belirtilen 7 bölümlü profesyonel astroloji raporunu yaz. "
+                "Her bölüm için ayrıntılı, en az birkaç paragraf kullan. "
+                "Metinde gereksiz listeleme yapma, akıcı bir hikâye mantığıyla yaz. "
+                "Kullanıcıya hem psikolojik içgörü hem de somut öneriler sun."
             )
         else:
             user_prompt = (
-                "Below you can see the user's birth data and focus areas.\n\n"
-                f"{user_summary}\n"
-                "Based on this, write a comprehensive professional astrology report matching the requested sections."
+                f"Birth data:\n"
+                f"- Date: {birth_date}\n"
+                f"- Time: {birth_time}\n"
+                f"- Place: {birth_place}\n"
+                f"- Name: {name or 'Not specified'}\n"
+                f"- Focus areas: {', '.join(focus) or 'General'}\n"
+                f"- Question / intention: {question or 'Not specified'}\n\n"
+                "Using this data, write the 7-part professional astrology report described above. "
+                "Each section should contain multiple paragraphs. "
+                "Avoid bullet lists, write in flowing, narrative form and end with concrete suggestions."
             )
 
-        # ---- METİN RAPORU OLUŞTUR ----
+        # ---- Metin raporu ----
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            max_tokens=2200,
-            temperature=0.9,
+            max_tokens=1900,  # daha uzun rapor
         )
 
         text = completion.choices[0].message.content.strip()
 
-        # ---- HARİTA GÖRSELİ (PROFESYONEL STİL) ----
-        if lang == "tr":
-            img_prompt = (
-                "Profesyonel astroloji yazılımı görünümünde, yüksek kaliteli bir doğum haritası çarkı: "
-                "12 ev, burç sembolleri, gezegen sembolleri, merkezde kırmızı ve mavi açısal çizgiler, "
-                "krem dış halka, koyu lacivert kozmik arka plan, yüksek çözünürlük, yazısız, sadece semboller."
-            )
-        else:
-            img_prompt = (
-                "High-quality professional natal astrology chart wheel: "
-                "12 houses, zodiac glyphs around the circle, planet glyphs in correct style, "
-                "red and blue aspect lines in the center, cream outer ring, deep navy cosmic background, "
-                "no text labels, only symbols, HD, 4k."
-            )
-
-        img = client.images.generate(
-            model="gpt-image-1",
-            prompt=img_prompt,
-            size="1024x1024"
+        # ---- Gerçek doğum haritası görseli ----
+        chart_id, chart_path = create_natal_chart_image(
+            birth_date=birth_date,
+            birth_time=birth_time,
+            birth_place=birth_place,
         )
-
-        b64 = img.data[0].b64_json
-        img_data = base64.b64decode(b64)
-
-        chart_id = uuid.uuid4().hex
-        chart_path = f"/tmp/{chart_id}.png"
-        with open(chart_path, "wb") as f:
-            f.write(img_data)
 
         return jsonify({
             "text": text,
@@ -279,27 +412,28 @@ def astrology():
 
 
 # -----------------------------
-# OPSİYONEL: PREMIUM ASTROLOJİ
-# (Şu an frontend bunu kullanmıyor, ileride kullanabiliriz)
+# PREMIUM ASTROLOGY (opsiyonel)
 # -----------------------------
 @app.route("/astrology-premium", methods=["POST"])
 def astrology_premium():
+    """Frontend şu an kullanmıyor ama istersen ileride kullanırsın."""
     try:
         data = request.json or {}
-
         birth_date = data.get("birth_date")
         birth_time = data.get("birth_time")
         birth_place = data.get("birth_place")
 
+        lang = (data.get("language") or "").lower()
+        if lang not in ("tr", "en"):
+            try:
+                lang = detect(birth_place or "")
+            except Exception:
+                lang = "en"
+            if lang not in ("tr", "en"):
+                lang = "en"
+
         if not birth_date or not birth_time or not birth_place:
             return jsonify({"error": "Eksik bilgi"}), 400
-
-        try:
-            lang = detect(birth_place)
-        except Exception:
-            lang = "en"
-        if lang not in ("tr", "en"):
-            lang = "en"
 
         system_prompt = build_system_prompt("astrology", lang)
 
@@ -307,20 +441,18 @@ def astrology_premium():
             user_prompt = (
                 f"PREMİUM astroloji raporu oluştur.\n"
                 f"Doğum: {birth_date} {birth_time} - {birth_place}\n\n"
-                "- Derin kişilik analizi\n- Yaşam amacı ve kader yolu\n"
-                "- Aşk & ilişkiler\n- Kariyer ve bolluk\n"
-                "- Karmik dersler ve ruhsal gelişim\n"
-                "- 12 evin kısa analizi\n- Önümüzdeki 1 yıla dair önemli transit temaları\n"
+                "Klasik 7 bölümlü yapıdan daha da detaylı, en az 10 alt başlıklı, "
+                "uzun ve derin bir astroloji raporu yaz. "
+                "Ruhsal gelişim, kader, karmik temalar, aşk, kariyer, bolluk ve önümüzdeki 2 yıla yayılan "
+                "genel transit etkilerini ayrıntılı anlat."
             )
         else:
             user_prompt = (
-                f"Create a PREMIUM astrology report.\n"
+                f"Create an extended PREMIUM astrology report.\n"
                 f"Birth: {birth_date} {birth_time} - {birth_place}\n\n"
-                "- Deep personality analysis\n- Life purpose & destiny\n"
-                "- Love & relationships\n- Career & abundance\n"
-                "- Karmic lessons & spiritual growth\n"
-                "- Short analysis of the 12 houses\n"
-                "- Key transits and themes for the coming year\n"
+                "Use at least 10 subsections with a long and deep analysis of personality, "
+                "karmic themes, love, career, abundance and the main astrological trends "
+                "for the next 2 years."
             )
 
         completion = client.chat.completions.create(
@@ -328,35 +460,24 @@ def astrology_premium():
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
-            ]
+            ],
+            max_tokens=2600,
         )
 
         text = completion.choices[0].message.content.strip()
 
-        img_prompt = (
-            "High-quality natal astrology chart wheel, circular chart, zodiac signs around the wheel, "
-            "elegant fine lines, mystical deep blue cosmic background, golden accents, HD, 4k, no text labels."
+        # Aynı chart görseli
+        chart_id, chart_path = create_natal_chart_image(
+            birth_date=birth_date,
+            birth_time=birth_time,
+            birth_place=birth_place,
         )
-
-        img = client.images.generate(
-            model="gpt-image-1",
-            prompt=img_prompt,
-            size="1024x1024"
-        )
-
-        b64 = img.data[0].b64_json
-        img_data = base64.b64decode(b64)
-
-        chart_id = uuid.uuid4().hex
-        chart_path = f"/tmp/{chart_id}.png"
-        with open(chart_path, "wb") as f:
-            f.write(img_data)
 
         return jsonify({
             "text": text,
             "chart": f"/chart/{chart_id}",
             "audio": None,
-            "language": lang
+            "language": lang,
         })
 
     except Exception as e:
@@ -365,7 +486,7 @@ def astrology_premium():
 
 
 # -----------------------------
-# PDF GENERATOR (FINAL – STABLE)
+# PDF GENERATOR
 # -----------------------------
 @app.route("/generate_pdf", methods=["POST"])
 def generate_pdf():
@@ -424,8 +545,8 @@ def ping():
 
 
 # -----------------------------
-# RUN (Render uyumlu)
+# RUN (local için – Render gunicorn kullanıyor)
 # -----------------------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=True)
