@@ -59,6 +59,7 @@ def _compute_longitudes(birth_date: str, birth_time: str, lat: float, lon: float
     t = _TS.utc(year, month, day, hour, minute)
 
     earth = _EPH["earth"]
+    # Önemli: skyfield için doğru parametre isimleri
     location = earth + wgs84.latlon(latitude_degrees=lat, longitude_degrees=lon)
 
     planet_keys = {
@@ -127,7 +128,7 @@ def _draw_chart(longitudes: dict) -> Image.Image:
     # Font
     try:
         font = ImageFont.truetype("DejaVuSans.ttf", 40)
-    except:
+    except Exception:
         font = ImageFont.load_default()
 
     # Gezegenlerin noktaları + sembolleri
@@ -149,7 +150,7 @@ def _draw_chart(longitudes: dict) -> Image.Image:
         tx, ty = _polar(cx, cy, text_r, angle)
         label = glyph or name[:2]
 
-        bbox = draw.textbbox((0, 0), label, font=font)   # <--- YENİ
+        bbox = draw.textbbox((0, 0), label, font=font)
         w = bbox[2] - bbox[0]
         h = bbox[3] - bbox[1]
 
