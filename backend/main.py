@@ -1,10 +1,5 @@
 # ============================================
 # MystAI - Full Stable Backend (PREMIUM VERSION)
-# - Normal fal / sohbet (/predict)
-# - Basic astroloji (/astrology)
-# - Premium astroloji + gerçek harita (/astrology-premium)
-# - Profesyonel PDF üretimi (/generate_pdf)
-# Render uyumlu
 # ============================================
 
 from flask import Flask, request, jsonify, send_file
@@ -12,7 +7,7 @@ from flask_cors import CORS
 from openai import OpenAI
 from langdetect import detect
 from gtts import gTTS
-from fpdf import FPDF  # fpdf2 paketiyle geliyor
+from fpdf import FPDF
 from geopy.geocoders import Nominatim
 
 import os
@@ -20,19 +15,23 @@ import uuid
 import traceback
 import base64
 import sys
+
+# Modül yolu düzeltme
 sys.path.append(os.path.dirname(__file__))
 
+# Chart generator import
 from chart_generator import generate_natal_chart
 
 
 # -----------------------------
-# Flask & CORS
+# FLASK
 # -----------------------------
 app = Flask(__name__)
 CORS(app)
 
+
 # -----------------------------
-# OpenAI Client
+# OPENAI CLIENT
 # -----------------------------
 OPENAI_KEY = os.environ.get("OPENAI_API_KEY")
 if not OPENAI_KEY:
@@ -40,14 +39,15 @@ if not OPENAI_KEY:
 
 client = OpenAI(api_key=OPENAI_KEY)
 
+
 # -----------------------------
-# Geocoder (doğum yeri → lat/lon)
+# GEOCODER
 # -----------------------------
 geolocator = Nominatim(user_agent="mystai-astrology")
 
 
 def geocode_place(place: str):
-    """Şehir/ülke bilgisinden enlem-boylam bulur. Hata olursa (0,0) döner."""
+    """Şehir/ülke bilgisi → enlem-boylam"""
     try:
         loc = geolocator.geocode(place, timeout=10)
         if loc:
@@ -58,30 +58,20 @@ def geocode_place(place: str):
 
 
 # -----------------------------
-# SYSTEM PROMPT
+# SYSTEM PROMPT BUILDER
 # -----------------------------
 def build_system_prompt(type_name, lang):
     if lang == "tr":
-        base = (
-            "Sen MystAI adında mistik, profesyonel ve destekleyici bir yorumcusun. "
-            "Kullanıcıya derin, pozitif ve gerçekçi bir dille açıklama yaparsın."
-        )
+        base = "Sen MystAI adlı profesyonel ve mistik bir yorumcusun. Derin, pozitif ve destekleyici konuşursun."
         types = {
-            "general": base + " Genel enerji, sezgi ve rehberlik sun.",
-            "astrology": base
-            + " Doğum haritasını gezegenler, evler ve açılar üzerinden profesyonel şekilde yorumla."
-            + " Teknik astroloji bilgini sade, anlaşılır ve danışanı güçlendiren bir üslupla kullan."
+            "general": base + " Genel rehberlik sun.",
+            "astrology": base + " Doğum haritasını profesyonel bir astroloji uzmanı gibi yorumla."
         }
     else:
-        base = (
-            "You are MystAI, a mystical and professional interpreter. "
-            "You speak warmly, deeply and offer supportive insights."
-        )
+        base = "You are MystAI, a mystical and professional interpreter. You speak warmly and deeply."
         types = {
             "general": base + " Provide intuitive guidance.",
-            "astrology": base
-            + " Provide a structured natal chart analysis using planets, houses and aspects."
-            + " Use clear, empowering language and avoid fatalistic statements."
+            "astrology": base + " Provide a structured astrology report using planets and houses."
         }
 
     return types.get(type_name, types["general"])
@@ -92,7 +82,7 @@ def build_system_prompt(type_name, lang):
 # -----------------------------
 @app.route("/")
 def index():
-    return "MystAI Backend Running 🔮"
+    return "MystAI Backend Running ✔"
 
 
 @app.route("/ping")
@@ -100,9 +90,9 @@ def ping():
     return jsonify({"status": "ok"})
 
 
-# -----------------------------
+# =====================================================
 # NORMAL /predict
-# -----------------------------
+# =====================================================
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
@@ -114,7 +104,7 @@ def predict():
 
         try:
             lang = detect(user_input)
-        except Exception:
+        except:
             lang = "en"
         if lang not in ("tr", "en"):
             lang = "en"
@@ -131,26 +121,20 @@ def predict():
 
         text = completion.choices[0].message.content.strip()
 
-        # Ses oluştur
         audio_id = uuid.uuid4().hex
         audio_path = f"/tmp/{audio_id}.mp3"
         gTTS(text=text, lang=lang).save(audio_path)
 
-        return jsonify(
-            {
-                "text": text,
-                "audio": f"/audio/{audio_id}",
-            }
-        )
+        return jsonify({"text": text, "audio": f"/audio/{audio_id}"})
 
     except Exception as e:
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 
-# -----------------------------
-# BASIC ASTROLOGY (daha kısa, text-only)
-# -----------------------------
+# =====================================================
+# BASIC ASTROLOGY
+# =====================================================
 @app.route("/astrology", methods=["POST"])
 def astrology():
     try:
@@ -168,7 +152,7 @@ def astrology():
 
         try:
             lang = detect(birth_place)
-        except Exception:
+        except:
             lang = "en"
         if lang not in ("tr", "en"):
             lang = "en"
@@ -180,14 +164,14 @@ def astrology():
                 f"Doğum: {birth_date} {birth_time} - {birth_place}\n"
                 f"İsim: {name}\nOdak: {', '.join(focus) or 'Genel'}\n"
                 f"Soru: {question}\n"
-                "Kısa ama anlamlı bir astroloji raporu yaz. En önemli temalara odaklan."
+                "Kısa ama anlamlı bir astroloji analizi yaz."
             )
         else:
             user_prompt = (
                 f"Birth: {birth_date} {birth_time} - {birth_place}\n"
                 f"Name: {name}\nFocus: {', '.join(focus) or 'General'}\n"
                 f"Question: {question}\n"
-                "Write a concise but meaningful astrology report focusing on the key themes."
+                "Write a meaningful but short astrology report."
             )
 
         completion = client.chat.completions.create(
@@ -196,7 +180,7 @@ def astrology():
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            max_tokens=900,
+            max_tokens=700,
         )
 
         text = completion.choices[0].message.content.strip()
@@ -208,15 +192,11 @@ def astrology():
         return jsonify({"error": str(e)}), 500
 
 
-# -----------------------------
-# PREMIUM ASTROLOGY
-# -----------------------------
+# =====================================================
+# PREMIUM ASTROLOGY (HARİTA + RAPOR)
+# =====================================================
 @app.route("/astrology-premium", methods=["POST"])
 def astrology_premium():
-    """
-    Uzun premium astroloji raporu + gerçek doğum haritası PNG üretir.
-    Frontend astrology.html bu endpoint'i kullanıyor.
-    """
     try:
         data = request.json or {}
 
@@ -227,52 +207,39 @@ def astrology_premium():
         focus = data.get("focus_areas", [])
         question = data.get("question", "")
 
-        if not birth_date or not birth_time or not birth_place:
+        if not all([birth_date, birth_time, birth_place]):
             return jsonify({"error": "Eksik bilgi"}), 400
 
-        # Dil tespiti
         try:
             lang = detect(birth_place)
-        except Exception:
+        except:
             lang = "en"
         if lang not in ("tr", "en"):
             lang = "en"
 
         system_prompt = build_system_prompt("astrology", lang)
 
+        # User prompt
         if lang == "tr":
             user_prompt = (
                 f"Premium astroloji raporu oluştur.\n"
                 f"Doğum: {birth_date} {birth_time} - {birth_place}\n"
                 f"İsim: {name}\n"
-                f"Odak alanları: {', '.join(focus) or 'Genel'}\n"
-                f"Özel soru/niyet: {question}\n\n"
-                "- Kişilik ve ruhsal yapı\n"
-                "- Yaşam amacı\n"
-                "- Aşk & İlişkiler\n"
-                "- Kariyer & Para\n"
-                "- Karmik dersler\n"
-                "- 12 Ev analizi (ev ev)\n"
-                "- Önümüzdeki 3-6 aya dair genel temalar\n"
-                "Pozitif, destekleyici ve gerçekçi bir dil kullan. Korkutucu, kesin kaderci ifadelerden kaçın."
+                f"Odak: {', '.join(focus) or 'Genel'}\n"
+                f"Soru: {question}\n\n"
+                "12 ev analizi, kişilik, ilişkiler, kariyer ve geleceğe dair temaları yaz."
             )
         else:
             user_prompt = (
                 f"Create a premium astrology report.\n"
                 f"Birth: {birth_date} {birth_time} - {birth_place}\n"
                 f"Name: {name}\n"
-                f"Focus areas: {', '.join(focus) or 'General'}\n"
-                f"Specific question/intention: {question}\n\n"
-                "- Personality & psyche\n"
-                "- Life purpose\n"
-                "- Love & relationships\n"
-                "- Career & finances\n"
-                "- Karmic lessons\n"
-                "- Detailed 12-house analysis\n"
-                "- General future themes for the next 3-6 months\n"
-                "Use a positive, empowering tone and avoid fatalistic statements."
+                f"Focus: {', '.join(focus) or 'General'}\n"
+                f"Question: {question}\n\n"
+                "Include 12 houses, personality, love, career and future themes."
             )
 
+        # LLM raporu
         completion = client.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -280,33 +247,25 @@ def astrology_premium():
                 {"role": "user", "content": user_prompt},
             ],
         )
-
         text = completion.choices[0].message.content.strip()
 
-        # ------- GERÇEK DOĞUM HARİTASI OLUŞTUR -------
+        # HARİTA
         lat, lon = geocode_place(birth_place)
-        try:
-            chart_id, chart_file_path = generate_natal_chart(
-                birth_date=birth_date,
-                birth_time=birth_time,
-                latitude=lat,
-                longitude=lon,
-                out_dir="/tmp",
-            )
-            chart_public_path = f"/chart/{chart_id}"
-        except Exception as e:
-            print("Chart generation error:", e)
-            chart_id = None
-            chart_file_path = None
-            chart_public_path = None
+
+        chart_id, chart_path = generate_natal_chart(
+            birth_date,
+            birth_time,
+            lat,
+            lon,
+            out_dir="/tmp"
+        )
 
         return jsonify(
             {
                 "text": text,
-                "chart": chart_public_path,  # frontend burayı kullanıyor
-                "chart_id": chart_id,        # PDF için gerekli
-                "audio": None,
-                "language": lang,
+                "chart": f"/chart/{chart_id}",
+                "chart_id": chart_id,
+                "language": lang
             }
         )
 
@@ -315,15 +274,14 @@ def astrology_premium():
         return jsonify({"error": str(e)}), 500
 
 
-# -----------------------------
-# PROFESYONEL PDF GENERATOR
-# -----------------------------
+# =====================================================
+# PDF GENERATOR
+# =====================================================
 class MystPDF(FPDF):
     def header(self):
-        # Üst başlık
         self.set_auto_page_break(auto=True, margin=18)
-        self.set_fill_color(12, 20, 45)  # koyu lacivert şerit
-        self.rect(0, 0, 210, 25, "F")    # tam genişlik başlık barı
+        self.set_fill_color(12, 20, 45)
+        self.rect(0, 0, 210, 25, "F")
         self.set_xy(10, 7)
         self.set_text_color(255, 215, 100)
         self.set_font("Helvetica", "B", 14)
@@ -333,7 +291,6 @@ class MystPDF(FPDF):
         self.cell(0, 4, "Powered by MystAI.ai", ln=1)
 
     def footer(self):
-        # Alt bilgi
         self.set_y(-15)
         self.set_font("Helvetica", "I", 8)
         self.set_text_color(150, 155, 180)
@@ -342,14 +299,6 @@ class MystPDF(FPDF):
 
 @app.route("/generate_pdf", methods=["POST"])
 def generate_pdf():
-    """
-    Frontend, astroText + chart_id + language ile çağırıyor.
-    Burada profesyonel görünümlü bir PDF üretilir:
-    - Kapak başlığı
-    - Doğum bilgileri (frontend pdfWrapper içinden değil, text'in üst kısmından)
-    - Harita görseli (varsa)
-    - Uzun rapor metni
-    """
     try:
         data = request.json or {}
         text = data.get("text", "").strip()
@@ -363,75 +312,58 @@ def generate_pdf():
         pdf_path = f"/tmp/{pdf_id}.pdf"
 
         pdf = MystPDF()
-        pdf.set_auto_page_break(auto=True, margin=18)
         pdf.add_page()
 
-        # Başlık alanı (header zaten koyu şerit çiziyor)
-        pdf.ln(20)  # header'dan sonra biraz boşluk
+        # Başlık
+        pdf.ln(20)
 
-        # Ana başlık (dile göre)
         if lang == "tr":
             title = "Yapay Zekâ Astroloji Raporun"
             sub = (
-                "MystAI, sembolik astrolojiyi yapay zekâ ile birleştirerek doğum haritan "
-                "üzerinden kişisel ve derinlemesine bir yorum sunar."
+                "MystAI, sembolik astrolojiyi yapay zekâ ile birleştirerek sana özel bir rapor sunar."
             )
         else:
             title = "Your AI Astrology Report"
             sub = (
-                "MystAI blends symbolic astrology with AI to offer a deep, personalised "
-                "interpretation of your natal chart."
+                "MystAI blends symbolic astrology with AI to deliver a personalised report."
             )
 
-        pdf.set_text_color(30, 35, 60)
         pdf.set_font("Helvetica", "B", 16)
         pdf.multi_cell(0, 8, title)
         pdf.ln(2)
 
         pdf.set_font("Helvetica", "", 11)
-        pdf.set_text_color(80, 86, 120)
         pdf.multi_cell(0, 6, sub)
         pdf.ln(4)
 
-        # Harita görseli (varsa)
+        # Harita ekle
         if chart_id:
             chart_file = f"/tmp/{chart_id}.png"
             if os.path.exists(chart_file):
-                # Sayfanın ortasına geniş bir harita yerleştir
-                # A4 genişlik: ~190mm; biz 130mm kullanalım
-                img_width = 130
-                x = (210 - img_width) / 2
-                y = pdf.get_y() + 4
                 try:
-                    pdf.image(chart_file, x=x, y=y, w=img_width)
-                    pdf.ln(90)  # resimden sonra boşluk
-                except Exception as e:
-                    print("PDF image error:", e)
-                    # Resim olmazsa devam edelim
+                    pdf.image(chart_file, x=40, y=pdf.get_y() + 5, w=130)
+                    pdf.ln(95)
+                except Exception:
                     pdf.ln(10)
 
-        # Rapor metni
+        # İçerik
         if lang == "tr":
-            body_intro = "Detaylı astroloji raporun aşağıdadır:\n"
+            intro = "Detaylı astroloji raporun:\n"
         else:
-            body_intro = "Your detailed astrology report is below:\n"
+            intro = "Your detailed astrology report:\n"
 
-        pdf.set_text_color(40, 40, 60)
         pdf.set_font("Helvetica", "B", 12)
-        pdf.multi_cell(0, 6, body_intro)
+        pdf.multi_cell(0, 6, intro)
         pdf.ln(2)
 
         pdf.set_font("Helvetica", "", 11)
-        pdf.set_text_color(30, 30, 40)
 
-        # Metni satırlara bölüp yazalım
         for line in text.split("\n"):
             line = line.strip()
             if not line:
                 pdf.ln(2)
                 continue
             pdf.multi_cell(0, 5.5, line)
-            pdf.ln(0.5)
 
         pdf.output(pdf_path)
 
@@ -442,9 +374,9 @@ def generate_pdf():
         return jsonify({"error": str(e)}), 500
 
 
-# -----------------------------
+# =====================================================
 # STATIC FILE SERVERS
-# -----------------------------
+# =====================================================
 @app.route("/audio/<id>")
 def serve_audio(id):
     path = f"/tmp/{id}.mp3"
@@ -461,9 +393,10 @@ def serve_chart(id):
     return send_file(path, mimetype="image/png")
 
 
-# -----------------------------
+# =====================================================
 # RUN (Render uyumlu)
-# -----------------------------
+# =====================================================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+
