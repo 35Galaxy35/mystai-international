@@ -4,6 +4,6 @@ openai>=1.33.0
 gtts
 gunicorn
 langdetect
-fpdf
+fpdf2
 geopy
 
