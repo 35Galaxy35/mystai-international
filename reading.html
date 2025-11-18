@@ -180,7 +180,7 @@
     // ⭐ AI BACKEND FONKSİYONU EKLENDİ
     async function fetchAIResult(prompt) {
       try {
-        const response = await fetch("https://mystai-international-1.onrender.com/predict", {
+        const response = await fetch("https://mystai-international.onrender.com/predict", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ user_input: prompt })
