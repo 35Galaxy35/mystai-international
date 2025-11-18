@@ -6,4 +6,7 @@ gunicorn
 langdetect
 fpdf2
 geopy
+skyfield
+numpy
+Pillow
 
