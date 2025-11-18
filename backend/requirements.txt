@@ -5,7 +5,5 @@ gtts
 gunicorn
 langdetect
 fpdf
-flatlib
-pyswisseph
-matplotlib
+
 geopy
