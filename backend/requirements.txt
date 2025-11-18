@@ -5,5 +5,5 @@ gtts
 gunicorn
 langdetect
 fpdf
-
-
+flatlib
+pyswisseph
