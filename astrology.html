@@ -606,7 +606,6 @@
 
     <!-- RIGHT: CHART + REPORT -->
     <section class="panel" id="reportPanel">
-      <!-- PDF içine girecek kısım -->
       <div id="pdfWrapper">
         <h2 class="panel-title" data-i18n="reportTitle">Your AI Astrology Report</h2>
         <p class="panel-sub" data-i18n="reportSub">
@@ -639,7 +638,6 @@
         <div id="astroText" class="report-box"></div>
       </div>
 
-      <!-- PDF BUTONU -->
       <button id="downloadPdfBtn" class="secondary-btn">
         📄 <span data-i18n="downloadPdfLabel">Download your report as PDF</span>
       </button>
@@ -684,11 +682,6 @@
       <audio id="askAudio" style="display:none;"></audio>
     </div>
   </div>
-
-  <!-- PDF KÜTÜPHANESİ -->
-<script src="html2pdf.bundle.min.js"></script>
-
-
 
   <script type="module">
     /* ========= CONFIG ========= */
@@ -873,7 +866,8 @@
     const pdfBtn       = document.getElementById("downloadPdfBtn");
 
     let lastChartURL = "";
-
+    let lastChartId  = "";
+    
     generateBtn.addEventListener("click", async ()=>{
       const birthDate  = document.getElementById("birthDate").value;
       const birthTime  = document.getElementById("birthTime").value;
@@ -888,7 +882,6 @@
         return;
       }
 
-      // seçili odak alanları
       const focusKeys = [];
       document.querySelectorAll(".focus-chip.active").forEach(ch=>{
         focusKeys.push(ch.dataset.key);
@@ -911,11 +904,12 @@
         statusLabel.className = "status";
         chartMeta.textContent = "";
         lastChartURL = "";
+        lastChartId  = "";
         chartImg.style.display = "none";
         chartPlaceholder.style.display = "flex";
         downloadLink.style.display = "none";
 
-        const res = await fetch(`${BACKEND_URL}/astrology`, {
+        const res = await fetch(`${BACKEND_URL}/astrology-premium`, {
           method:"POST",
           headers:{ "Content-Type":"application/json" },
           body:JSON.stringify(payload)
@@ -930,8 +924,9 @@
           throw new Error(data.error);
         }
 
-        const text = data.text || "";
+        const text      = data.text || "";
         const chartPath = data.chart;
+        const chartId   = data.chart_id;
 
         astroText.textContent = text || (activeLang==="tr"
           ? "Metin raporu alınamadı."
@@ -940,16 +935,16 @@
         statusLabel.textContent = dict.statusOk;
         statusLabel.className = "status ok";
 
-        // chart bilgisi (backend şu an chart üretmiyor ama hazır dursun)
         const niceDate = birthDate;
         const metaLine = (activeLang==="tr"
           ? `Doğum tarihi: ${niceDate} • Doğum saati: ${birthTime} • Doğum yeri: ${birthPlace}`
           : `Birth date: ${niceDate} • Birth time: ${birthTime} • Birth place: ${birthPlace}`);
         chartMeta.textContent = metaLine;
 
-        if(chartPath){
+        if(chartPath && chartId){
           const url = chartPath.startsWith("http") ? chartPath : `${BACKEND_URL}${chartPath}`;
           lastChartURL = url;
+          lastChartId  = chartId;
           chartImg.src = url;
           chartImg.style.display = "block";
           chartPlaceholder.style.display = "none";
@@ -976,9 +971,10 @@
       }
     });
 
-    /* ========= PDF İNDİR ========= */
-    pdfBtn.addEventListener("click", ()=>{
+    /* ========= PDF İNDİR – BACKEND /generate_pdf ========= */
+    pdfBtn.addEventListener("click", async ()=>{
       const dict = i18n[activeLang];
+
       if(!astroText.textContent.trim()){
         alert(activeLang==="tr"
           ? "Önce rapor oluşturmalısın."
@@ -986,22 +982,44 @@
         return;
       }
 
-      const element = document.getElementById("pdfWrapper");
-      const filename = activeLang==="tr"
-        ? "MystAI_astroloji_raporu.pdf"
-        : "MystAI_astrology_report.pdf";
+      try{
+        pdfBtn.disabled = true;
+        const payload = {
+          text: astroText.textContent,
+          chart_id: lastChartId || null,
+          language: activeLang
+        };
 
-      const opt = {
-        margin:       10,
-        filename:     filename,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS:true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
+        const res = await fetch(`${BACKEND_URL}/generate_pdf`, {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body:JSON.stringify(payload)
+        });
 
-       html2pdf().set(opt).from(element).save();
+        if(!res.ok){
+          throw new Error("HTTP " + res.status);
+        }
 
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = activeLang==="tr"
+          ? "MystAI_astroloji_raporu.pdf"
+          : "MystAI_astrology_report.pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
 
+      }catch(err){
+        console.error(err);
+        alert((activeLang==="tr"
+          ? "PDF oluşturulurken bir hata oluştu: "
+          : "Error while generating PDF: ") + (err?.message || err));
+      }finally{
+        pdfBtn.disabled = false;
+      }
     });
 
     /* ========= Ask MystAI modal ========= */
@@ -1063,7 +1081,7 @@
         const res = await fetch(`${BACKEND_URL}/predict`, {
           method:"POST",
           headers:{ "Content-Type":"application/json" },
-          body:JSON.stringify({ user_input:q })
+          body:JSON.stringify({ user_input:q, language:activeLang })
         });
 
         if(!res.ok){
