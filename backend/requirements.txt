@@ -9,4 +9,3 @@ geopy
 skyfield
 numpy
 Pillow
- 
