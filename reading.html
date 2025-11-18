@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MystAI — Reading Details</title>
+  <link rel="icon" type="image/png" href="mystai-logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:radial-gradient(1000px 700px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
+      color:#e6ecff;text-align:center;
+      min-height:100vh;
+      display:flex;flex-direction:column;justify-content:space-between;
+    }
+    h1 {
+      font-family:'Cinzel',serif;
+      color:#ffd54f;
+      margin-top:60px;
+      text-shadow:0 0 10px rgba(255,215,0,.4);
+    }
+    .container {
+      width:90%;max-width:800px;margin:40px auto;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      padding:24px;
+      box-shadow:0 0 30px rgba(255,215,0,.1);
+    }
+    .detail {
+      text-align:left;
+      margin:10px 0;
+      font-size:16px;
+      color:#cfd6ff;
+    }
+    .highlight { color:#ffd54f;font-weight:600; }
+    .ai-text {
+      margin-top:20px;
+      background:rgba(255,255,255,.04);
+      padding:18px;
+      border-radius:10px;
+      font-size:16px;
+      line-height:1.7;
+      color:#dbe3ff;
+      box-shadow:inset 0 0 15px rgba(255,215,0,.05);
+    }
+    .topbar {
+      display:flex;justify-content:flex-end;align-items:center;gap:10px;
+      padding:16px 24px;
+    }
+    .lang-btn {
+      border:none;
+      border-radius:50%;
+      width:36px;height:36px;
+      cursor:pointer;
+      background-size:cover;
+      background-position:center;
+      transition:transform .25s ease, box-shadow .25s ease;
+      border:2px solid transparent;
+    }
+    .lang-btn.active {
+      box-shadow:0 0 15px rgba(255,215,0,.6);
+      border-color:#ffd54f;
+      transform:scale(1.1);
+    }
+    .lang-btn:hover {transform:scale(1.15);}
+    .flag-en {background-image:url('https://flagcdn.com/w40/gb.png');}
+    .flag-tr {background-image:url('https://flagcdn.com/w40/tr.png');}
+
+    .nav-btn {
+      border:0;border-radius:20px;
+      background:rgba(255,255,255,.15);color:#fff;
+      padding:7px 14px;cursor:pointer;font-weight:600;
+    }
+    .nav-btn:hover {filter:brightness(1.2);}
+
+    footer {
+      border-top:1px solid rgba(255,255,255,.08);
+      padding:20px;
+      font-size:14px;
+      color:#aeb6cf;
+    }
+    footer a {
+      color:#ffd54f;
+      text-decoration:none;
+      font-weight:600;
+      transition:all .3s ease;
+    }
+    footer a:hover {
+      color:#fff6b0;
+      text-shadow:0 0 10px rgba(255,255,120,.6);
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <button class="lang-btn flag-en" id="btn-en"></button>
+    <button class="lang-btn flag-tr" id="btn-tr"></button>
+    <button class="nav-btn" id="backBtn">⬅ Back</button>
+    <button class="nav-btn" id="logoutBtn">Logout</button>
+  </div>
+
+  <h1 id="title">Your AI Reading</h1>
+
+  <div class="container">
+    <div class="detail"><span class="highlight" id="typeLabel">Type:</span> <span id="readingType"></span></div>
+    <div class="detail"><span class="highlight" id="dateLabel">Date:</span> <span id="readingDate"></span></div>
+    <div class="ai-text" id="readingText">✨ Your personalized AI fortune will appear here... ✨</div>
+  </div>
+
+  <footer>
+    <p>© 2025 MystAI.ai — All Rights Reserved. Developed by GALAXY 🌌<br>
+    <span id="contact-label">Contact us:</span>
+    <a href="mailto:support@mystai.ai">support@mystai.ai</a></p>
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
+      authDomain: "mystai-6cca2.firebaseapp.com",
+      projectId: "mystai-6cca2",
+      storageBucket: "mystai-6cca2.appspot.com",
+      messagingSenderId: "624127781219",
+      appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const i18n = {
+      en:{
+        title:"Your AI Reading",
+        type:"Type",
+        date:"Date",
+        back:"Back",
+        logout:"Logout",
+        contact:"Contact us:",
+        empty:"✨ Your personalized AI fortune will appear here... ✨"
+      },
+      tr:{
+        title:"Yapay Zekâ Falın",
+        type:"Tür",
+        date:"Tarih",
+        back:"Geri",
+        logout:"Çıkış Yap",
+        contact:"İletişim:",
+        empty:"✨ Kişisel yapay zekâ falın burada görünecek... ✨"
+      }
+    };
+
+    let lang = localStorage.getItem("myst_lang") || "en";
+    function setLang(l){
+      lang=l;localStorage.setItem("myst_lang",l);
+      document.getElementById("title").textContent=i18n[l].title;
+      document.getElementById("typeLabel").textContent=i18n[l].type+":";
+      document.getElementById("dateLabel").textContent=i18n[l].date+":";
+      document.getElementById("logoutBtn").textContent=i18n[l].logout;
+      document.getElementById("backBtn").textContent="⬅ "+i18n[l].back;
+      document.getElementById("contact-label").textContent=i18n[l].contact;
+      document.getElementById("btn-en").classList.toggle("active",l==="en");
+      document.getElementById("btn-tr").classList.toggle("active",l==="tr");
+    }
+    document.getElementById("btn-en").onclick=()=>setLang("en");
+    document.getElementById("btn-tr").onclick=()=>setLang("tr");
+    document.getElementById("backBtn").onclick=()=>location.href="history.html";
+    document.getElementById("logoutBtn").onclick=()=>signOut(auth).then(()=>location.href="login.html");
+    setLang(lang);
+
+    // Get reading ID from URL
+    const params=new URLSearchParams(window.location.search);
+    const id=params.get("id");
+
+    // ⭐ AI BACKEND FONKSİYONU EKLENDİ
+    async function fetchAIResult(prompt) {
+      try {
+        const response = await fetch("https://mystai-international-1.onrender.com/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_input: prompt })
+        });
+        const data = await response.json();
+        return data.text || "⚠ AI error.";
+      } catch {
+        return "⚠ Could not connect to AI server.";
+      }
+    }
+
+    // ⭐ Firebase + AI entegrasyonu
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){location.href="login.html";return;}
+      if(!id){document.getElementById("readingText").textContent=i18n[lang].empty;return;}
+
+      const ref=doc(db,"fortunes",id);
+      const snap=await getDoc(ref);
+
+      if(snap.exists()){
+        const data=snap.data();
+
+        document.getElementById("readingType").textContent=data.type;
+        document.getElementById("readingDate").textContent=new Date(data.createdAt).toLocaleString();
+
+        if (data.result) {
+          document.getElementById("readingText").textContent=data.result;
+        } else {
+          document.getElementById("readingText").textContent="🔮 AI is generating your reading…";
+          const aiText = await fetchAIResult("Generate a mystical fortune about: " + data.type);
+          document.getElementById("readingText").textContent = aiText;
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>
