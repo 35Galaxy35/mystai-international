@@ -1,460 +1,357 @@
-# chart_generator.py
-# ===================
-# MystAI - Profesyonel Astroloji Harita Üreticisi
-#
-# - Swiss Ephemeris (pyswisseph) varsa gerçek efemeris hesabı
-# - Placidus ev sistemi
-# - Natal & Solar return için ayrı haritalar
-# - Aspect çizgileri (konj., kare, üçgen, karşıt, sekstil)
-# - Render (headless) uyumlu matplotlib çıktısı (PNG)
-#
-# main.py bu modülden sadece:
-#   from chart_generator import generate_natal_chart
-#   chart_id, chart_file_path = generate_natal_chart(...)
-# çağrısını yapıyor.
-# Buradaki fonksiyon hem natal hem solar için kullanılabilir.
-# Solar return endpoint'i sadece farklı bir tarih gönderiyor.
-
 import os
 import math
 import uuid
 from datetime import datetime
 
-# -----------------------------------------
-# Swiss Ephemeris (pyswisseph) opsiyonel
-# -----------------------------------------
+# Swiss Ephemeris (profesyonel astroloji hesapları)
+# -------------------------------------------------
 HAS_SWISS = False
 try:
-    import swisseph as swe  # pyswisseph paket adı
-
+    import swisseph as swe  # pyswisseph paketi böyle import edilir
     HAS_SWISS = True
 except Exception:
     HAS_SWISS = False
 
-# -----------------------------------------
-# Matplotlib - headless (Render uyumlu)
-# -----------------------------------------
 import matplotlib
-
-matplotlib.use("Agg")  # GUI gerekmez
+matplotlib.use("Agg")  # GUI istemez, Render ile uyumlu
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 
-# -----------------------------------------
-# Gezegen & burç listeleri
-# -----------------------------------------
+# Yer koordinatları için (şehir, ülke -> enlem / boylam)
+try:
+    from geopy.geocoders import Nominatim
+    GEOLOCATOR = Nominatim(user_agent="mystai-astrology")
+except Exception:
+    GEOLOCATOR = None
 
+# =======================
+#  Genel sabitler
+# =======================
+
+# Gezegen listesi (Swiss Ephemeris sabitleri + semboller + isim)
 if HAS_SWISS:
-    # (İsim, Sembol, swe sabiti, çizim rengi)
     PLANETS = [
-        ("Sun", "☉", swe.SUN, "#ffcc33"),
-        ("Moon", "☽", swe.MOON, "#ffffff"),
-        ("Mercury", "☿", swe.MERCURY, "#f5f5f5"),
-        ("Venus", "♀", swe.VENUS, "#ff99cc"),
-        ("Mars", "♂", swe.MARS, "#ff6666"),
-        ("Jupiter", "♃", swe.JUPITER, "#ffd280"),
-        ("Saturn", "♄", swe.SATURN, "#cccccc"),
-        ("Uranus", "♅", swe.URANUS, "#66e0ff"),
-        ("Neptune", "♆", swe.NEPTUNE, "#66b3ff"),
-        ("Pluto", "♇", swe.PLUTO, "#ff99ff"),
+        (swe.SUN,     "☉", "Sun"),
+        (swe.MOON,    "☽", "Moon"),
+        (swe.MERCURY, "☿", "Mercury"),
+        (swe.VENUS,   "♀", "Venus"),
+        (swe.MARS,    "♂", "Mars"),
+        (swe.JUPITER, "♃", "Jupiter"),
+        (swe.SATURN,  "♄", "Saturn"),
+        (swe.URANUS,  "♅", "Uranus"),
+        (swe.NEPTUNE, "♆", "Neptune"),
+        (swe.PLUTO,   "♇", "Pluto"),
     ]
 else:
-    # Eğer Swiss yoksa tamamen görsel amaçlı, yaklaşık yerleşim
+    # Swiss çalışmazsa: sadece görsel amaçlı, eşit aralıklı yerleşim
     PLANETS = [
-        ("Sun", "☉", 0.0, "#ffcc33"),
-        ("Moon", "☽", 33.0, "#ffffff"),
-        ("Mercury", "☿", 66.0, "#f5f5f5"),
-        ("Venus", "♀", 99.0, "#ff99cc"),
-        ("Mars", "♂", 132.0, "#ff6666"),
-        ("Jupiter", "♃", 165.0, "#ffd280"),
-        ("Saturn", "♄", 198.0, "#cccccc"),
-        ("Uranus", "♅", 231.0, "#66e0ff"),
-        ("Neptune", "♆", 264.0, "#66b3ff"),
-        ("Pluto", "♇", 297.0, "#ff99ff"),
+        ("SUN",     "☉", "Sun"),
+        ("MOON",    "☽", "Moon"),
+        ("MERCURY", "☿", "Mercury"),
+        ("VENUS",   "♀", "Venus"),
+        ("MARS",    "♂", "Mars"),
+        ("JUPITER", "♃", "Jupiter"),
+        ("SATURN",  "♄", "Saturn"),
+        ("URANUS",  "♅", "Uranus"),
+        ("NEPTUNE", "♆", "Neptune"),
+        ("PLUTO",   "♇", "Pluto"),
     ]
 
 SIGNS = [
-    ("Aries", "♈"),
-    ("Taurus", "♉"),
-    ("Gemini", "♊"),
-    ("Cancer", "♋"),
-    ("Leo", "♌"),
-    ("Virgo", "♍"),
-    ("Libra", "♎"),
-    ("Scorpio", "♏"),
+    ("Aries",       "♈"),
+    ("Taurus",      "♉"),
+    ("Gemini",      "♊"),
+    ("Cancer",      "♋"),
+    ("Leo",         "♌"),
+    ("Virgo",       "♍"),
+    ("Libra",       "♎"),
+    ("Scorpio",     "♏"),
     ("Sagittarius", "♐"),
-    ("Capricorn", "♑"),
-    ("Aquarius", "♒"),
-    ("Pisces", "♓"),
+    ("Capricorn",   "♑"),
+    ("Aquarius",    "♒"),
+    ("Pisces",      "♓"),
 ]
 
-# Aspect tanımları: (açı, tolerans, renk, kalınlık)
+# Aspect tipi: (derece, orb, isim)
 ASPECTS = [
-    (0, 6, "#ff6666", 1.2),  # conjunction
-    (60, 4, "#66b3ff", 0.9),  # sextile
-    (90, 5, "#ff6666", 1.1),  # square
-    (120, 5, "#66b3ff", 1.1),  # trine
-    (180, 6, "#ff6666", 1.3),  # opposition
+    (0,   6, "conjunction"),
+    (60,  4, "sextile"),
+    (90,  5, "square"),
+    (120, 5, "trine"),
+    (180, 6, "opposition"),
 ]
 
 
-# -----------------------------------------
-# Yardımcı: tarih-saat -> Julian Day (UT)
-# -----------------------------------------
+# =======================
+#  Yardımcı fonksiyonlar
+# =======================
+
 def _parse_datetime(birth_date: str, birth_time: str) -> float:
     """
+    Doğum tarih-saatini alır, UT saatine yaklaşık çevirir ve Julian Day döner.
     birth_date: 'YYYY-MM-DD'
     birth_time: 'HH:MM'
-    Kullanıcı zaman dilimi bilinmediği için
-    kabaca UTC gibi ele alıyoruz (hepsine aynı davranıyor).
     """
-    try:
-        dt = datetime.strptime(f"{birth_date} {birth_time}", "%Y-%m-%d %H:%M")
-    except ValueError:
-        # Eğer format tutmazsa basit fallback: tarih kısmı
-        dt = datetime.strptime(birth_date, "%Y-%m-%d")
+    dt = datetime.strptime(f"{birth_date} {birth_time}", "%Y-%m-%d %H:%M")
+    # Basit yaklaşım: bulunduğu saati UT kabul ediyoruz (kullanıcı zaten yerel yazıyor).
     hour_decimal = dt.hour + dt.minute / 60.0
 
     if HAS_SWISS:
-        jd_ut = swe.julday(dt.year, dt.month, dt.day, hour_decimal, swe.GREG_CAL)
-        return jd_ut
-    else:
-        # basit Julian hesap (yaklaşık)
-        # kaynak: Numerical Recipes simple JD
-        a = (14 - dt.month) // 12
-        y = dt.year + 4800 - a
-        m = dt.month + 12 * a - 3
-        jdn = (
-            dt.day
-            + ((153 * m + 2) // 5)
-            + 365 * y
-            + y // 4
-            - y // 100
-            + y // 400
-            - 32045
-        )
-        jd = jdn + (hour_decimal - 12) / 24.0
+        jd = swe.julday(dt.year, dt.month, dt.day, hour_decimal, swe.GREG_CAL)
         return jd
+    else:
+        # Fallback: sadece saat bazlı basit bir değer, gerçek astrolojik değil
+        # ama çizim için yeterli (gezegenler eşit aralıkta dağıtılıyor).
+        return hour_decimal
 
 
-# -----------------------------------------
-# Yardımcı: gezegen & ev pozisyonları
-# -----------------------------------------
-def _compute_positions(
-    birth_date: str, birth_time: str, latitude: float, longitude: float
-):
+def _geocode_place(place: str):
     """
-    Swiss varsa:
-      - gezegen boylamları (0-360°)
-      - Placidus 12 ev cusp dereceleri
-    Swiss yoksa:
-      - gezegenler sabit örnek dereceler (PLANETS'ten)
-      - evler 30° aralıklarla
+    Şehir, ülke bilgisini enlem / boylama çevirir.
+    Geopy çalışmazsa varsayılan (0,0) döner.
     """
-    jd_ut = _parse_datetime(birth_date, birth_time)
+    if not place:
+        return 0.0, 0.0
 
-    planets_longitudes = []
-    houses = []
+    if GEOLOCATOR is None:
+        return 0.0, 0.0
+
+    try:
+        loc = GEOLOCATOR.geocode(place, timeout=5)
+        if loc:
+            return float(loc.latitude), float(loc.longitude)
+    except Exception:
+        pass
+    return 0.0, 0.0
+
+
+def _compute_positions_natal(birth_date: str, birth_time: str, place: str):
+    """
+    NATAL için gezegen ve ev pozisyonlarını hesaplar.
+    Swiss varsa gerçek hesap, yoksa görsel amaçlı eşit aralıklı dağıtım.
+    Dönen:
+      planets -> list[dict{name, symbol, lon}]
+      houses  -> list[float] 12 ev cuspu (0–360)
+    """
+    lat, lon = _geocode_place(place)
 
     if HAS_SWISS:
-        # Evler (Placidus)
-        try:
-            # houses() -> (cusps[1..12], ascmc[0..9])
-            cusps, ascmc = swe.houses(jd_ut, latitude, longitude, b"P")
-            # `cusps` 13 elemanlı dizi: 1..12 ev başlangıçları
-            houses = [float(cusps[i]) % 360.0 for i in range(1, 13)]
-        except Exception:
-            # Her ihtimale karşı fallback: 30° eşit evler
-            houses = [(i * 30.0) % 360.0 for i in range(12)]
+        jd = _parse_datetime(birth_date, birth_time)
 
-        # Gezegenler
-        for name, symbol, code, color in PLANETS:
-            if isinstance(code, (int, float)):
-                # Swiss sabiti
-                try:
-                    pos, _ = swe.calc_ut(jd_ut, code)
-                    lon = float(pos[0]) % 360.0
-                except Exception:
-                    lon = 0.0
-            else:
-                lon = 0.0
+        # Gezegen boylamları
+        planets = []
+        for p_const, symbol, name in PLANETS:
+            lonlat, _ = swe.calc_ut(jd, p_const)  # lon, lat
+            pl_long = float(lonlat[0]) % 360.0
+            planets.append({
+                "name": name,
+                "symbol": symbol,
+                "lon": pl_long,
+            })
 
-            planets_longitudes.append(
-                {
-                    "name": name,
-                    "symbol": symbol,
-                    "lon": lon,
-                    "color": color,
-                }
-            )
+        # Evler (Placidus varsayılan)
+        cusps, ascmc = swe.houses(jd, lat, lon)
+        houses = [float(c) % 360.0 for c in cusps]  # 12 eleman
 
-    else:
-        # Swiss yoksa: eşit ev & sabit planet dereceleri
-        houses = [(i * 30.0) % 360.0 for i in range(12)]
-        for name, symbol, deg, color in PLANETS:
-            planets_longitudes.append(
-                {
-                    "name": name,
-                    "symbol": symbol,
-                    "lon": float(deg) % 360.0,
-                    "color": color,
-                }
-            )
+        return planets, houses
 
-    return planets_longitudes, houses
+    # ------------ Fallback (Swiss yoksa) ------------
+    planets = []
+    step = 360.0 / len(PLANETS)
+    for idx, (_, symbol, name) in enumerate(PLANETS):
+        pl_long = (idx * step) % 360.0
+        planets.append({
+            "name": name,
+            "symbol": symbol,
+            "lon": pl_long,
+        })
+
+    houses = [(i * 30.0) % 360.0 for i in range(12)]
+    return planets, houses
 
 
-# -----------------------------------------
-# Yardımcı: açı farkı (0-180)
-# -----------------------------------------
-def _angle_diff(a, b):
-    """İki derece arasındaki en küçük fark (0-180)."""
-    diff = abs(a - b) % 360.0
-    if diff > 180.0:
-        diff = 360.0 - diff
-    return diff
+def _compute_positions_solar(birth_date: str, birth_time: str, place: str, year: int):
+    """
+    SOLAR RETURN için pozisyonlar.
+    Basit yaklaşım: aynı gün/ay + verilen yıl, aynı saat.
+    Swiss varsa yine gerçek gezegen/ev hesapları.
+    """
+    # Doğum tarihinden gün/ay al
+    dt_birth = datetime.strptime(birth_date, "%Y-%m-%d")
+    pseudo_date = f"{year:04d}-{dt_birth.month:02d}-{dt_birth.day:02d}"
+
+    return _compute_positions_natal(pseudo_date, birth_time, place)
 
 
-# -----------------------------------------
-# Aspect hesaplama
-# -----------------------------------------
 def _compute_aspects(planets):
     """
-    Basit aspect kontrolü:
-    Seçili gezegenler arasındaki açılar, ASPECTS listesine göre.
+    Gezegenler arası basic aspect hesaplaması.
+    Dönen liste: dict{p1, p2, type, angle, diff}
     """
-    aspects = []
+    aspects_found = []
     n = len(planets)
     for i in range(n):
         for j in range(i + 1, n):
-            p1 = planets[i]
-            p2 = planets[j]
-            diff = _angle_diff(p1["lon"], p2["lon"])
-            for angle, orb, color, width in ASPECTS:
-                if abs(diff - angle) <= orb:
-                    aspects.append(
-                        {
-                            "p1": p1,
-                            "p2": p2,
-                            "angle": angle,
-                            "diff": diff,
-                            "color": color,
-                            "width": width,
-                        }
-                    )
+            lon1 = planets[i]["lon"]
+            lon2 = planets[j]["lon"]
+            diff = abs(lon1 - lon2) % 360.0
+            if diff > 180.0:
+                diff = 360.0 - diff
+
+            for aspect_deg, orb, name in ASPECTS:
+                if abs(diff - aspect_deg) <= orb:
+                    aspects_found.append({
+                        "p1": planets[i],
+                        "p2": planets[j],
+                        "type": name,
+                        "angle": aspect_deg,
+                        "diff": diff,
+                    })
                     break
-    return aspects
+    return aspects_found
 
 
-# -----------------------------------------
-# Çizim fonksiyonu
-# -----------------------------------------
-def _draw_chart(
-    planets, houses, out_path, title_text="Natal Chart", subtitle_text=""
-):
+# =======================
+#  ÇİZİM
+# =======================
+
+def _draw_chart(planets, houses, aspects, mode: str, chart_id: str) -> str:
     """
-    planets: [{name, symbol, lon, color}, ...]
-    houses: [deg1, deg2, ..., deg12] (0-360)
-    out_path: kaydedilecek PNG yolu
+    Profesyonel görünümlü haritayı PNG olarak çizer.
+    mode: "natal" veya "solar"
+    charts/<chart_id>.png dosyasının yolunu döndürür.
     """
+    base_dir = os.path.dirname(__file__)
+    charts_dir = os.path.join(base_dir, "charts")
+    os.makedirs(charts_dir, exist_ok=True)
 
-    # Tema: koyu mavi / altın – sitenle uyumlu
-    fig = plt.figure(figsize=(6, 6), dpi=240)
-    ax = plt.subplot(111)
-    ax.set_aspect("equal")
-    ax.set_xlim(-1.1, 1.1)
-    ax.set_ylim(-1.1, 1.1)
-    ax.axis("off")
+    fig = plt.figure(figsize=(8, 8), dpi=150)
+    ax = fig.add_subplot(111, polar=True)
+    ax.set_axis_off()
 
-    # Arka plan
-    fig.patch.set_facecolor("#050816")
-    ax.set_facecolor("#050816")
+    # 0 derece Koç'u sol tarafta başlatmak yerine üstte başlatmak için:
+    ax.set_theta_zero_location("E")  # 0° sağda
+    ax.set_theta_direction(-1)       # saat yönünde artış
+
+    # Ana daireler
+    outer_r = 1.0
+    inner_r = 0.35
+    house_r = 0.9
 
     # Dış çember
-    outer = Circle((0, 0), 1.0, edgecolor="#f2d47f", facecolor="#101735", linewidth=2.0)
-    ax.add_patch(outer)
+    theta = [math.radians(i) for i in range(0, 361)]
+    ax.plot(theta, [outer_r] * len(theta), linewidth=1.2)
 
-    # İç çember (ev/planet alanı)
-    inner = Circle(
-        (0, 0), 0.7, edgecolor="#f2d47f", facecolor="#050816", linewidth=1.2
-    )
-    ax.add_patch(inner)
+    # İç çember (ev iç sınırı)
+    ax.plot(theta, [inner_r] * len(theta), linewidth=0.8)
 
-    # En iç çember (aspect çizgileri için sınır)
-    core = Circle(
-        (0, 0), 0.05, edgecolor="#30354f", facecolor="#050816", linewidth=0.8
-    )
-    ax.add_patch(core)
+    # 12 burç dilimi çizgileri (her 30°)
+    for i in range(12):
+        ang = math.radians(i * 30.0)
+        ax.plot([ang, ang], [inner_r, outer_r], linewidth=0.8)
 
-    # Burç dilimleri & semboller
-    for i, (name, symbol) in enumerate(SIGNS):
-        start_deg = i * 30.0
-        mid_deg = start_deg + 15.0
-        theta = math.radians(90.0 - mid_deg)
+    # Burç sembolleri
+    for i, (_, sign_symbol) in enumerate(SIGNS):
+        angle_deg = i * 30.0 + 15.0  # dilimin ortası
+        ang = math.radians(angle_deg)
+        r = outer_r + 0.05
+        ax.text(ang, r, sign_symbol, fontsize=12, ha="center", va="center")
 
-        x = 0.88 * math.cos(theta)
-        y = 0.88 * math.sin(theta)
+    # Ev çizgileri
+    for cusp in houses:
+        ang = math.radians(cusp)
+        ax.plot([ang, ang], [inner_r - 0.02, house_r], linewidth=1.0)
 
-        # ince çizgi (burç sınırı)
-        boundary_angle = math.radians(90.0 - start_deg)
-        bx = [0.0, 1.0 * math.cos(boundary_angle)]
-        by = [0.0, 1.0 * math.sin(boundary_angle)]
-        ax.plot(bx, by, color="#283055", linewidth=0.4, alpha=0.8)
+    # Ev numaraları
+    for i, cusp in enumerate(houses):
+        ang = math.radians((cusp + 15.0) % 360.0)
+        r = inner_r + 0.02
+        ax.text(ang, r, str(i + 1), fontsize=8, ha="center", va="center")
 
-        ax.text(
-            x,
-            y,
-            symbol,
-            fontsize=10,
-            ha="center",
-            va="center",
-            color="#ffe9a3",
-        )
+    # Gezegenler
+    planet_radius = (inner_r + house_r) / 2.0
+    for p in planets:
+        ang = math.radians(p["lon"])
+        ax.text(ang, planet_radius, p["symbol"], fontsize=13, ha="center", va="center")
 
-    # Ev çizgileri & numaralar
-    for idx, cusp_deg in enumerate(houses):
-        theta = math.radians(90.0 - cusp_deg)
-        x1 = 0.0
-        y1 = 0.0
-        x2 = 0.7 * math.cos(theta)
-        y2 = 0.7 * math.sin(theta)
-        ax.plot([x1, x2], [y1, y2], color="#f8f8ff", linewidth=0.8, alpha=0.8)
-
-        # Ev numarası
-        mid_r = 0.78
-        tx = mid_r * math.cos(theta)
-        ty = mid_r * math.sin(theta)
-        house_num = str(idx + 1)
-        ax.text(
-            tx,
-            ty,
-            house_num,
-            fontsize=7,
-            ha="center",
-            va="center",
-            color="#cfd2ff",
-        )
-
-    # Aspect çizgileri
-    aspects = _compute_aspects(planets)
+    # Aspect çizgileri (iç çemberin içinde)
+    aspect_inner_r = inner_r - 0.05
     for asp in aspects:
-        p1 = asp["p1"]
-        p2 = asp["p2"]
-        color = asp["color"]
-        width = asp["width"]
+        lon1 = asp["p1"]["lon"]
+        lon2 = asp["p2"]["lon"]
+        a1 = math.radians(lon1)
+        a2 = math.radians(lon2)
 
-        r = 0.67  # aspect dairesi yarıçapı
+        # Aspect tipine göre renk
+        t = asp["type"]
+        if t in ("conjunction", "opposition"):
+            color = "#ff5555"  # kırmızı ton
+        elif t in ("square",):
+            color = "#ff8800"  # turuncu
+        elif t in ("trine", "sextile"):
+            color = "#4a9cff"  # mavi ton
+        else:
+            color = "#888888"
 
-        t1 = math.radians(90.0 - p1["lon"])
-        t2 = math.radians(90.0 - p2["lon"])
-
-        x1 = r * math.cos(t1)
-        y1 = r * math.sin(t1)
-        x2 = r * math.cos(t2)
-        y2 = r * math.sin(t2)
-
-        ax.plot(
-            [x1, x2],
-            [y1, y2],
-            color=color,
-            linewidth=width * 0.6,
-            alpha=0.8,
-        )
-
-    # Gezegen sembolleri
-    for pl in planets:
-        theta = math.radians(90.0 - pl["lon"])
-        r = 0.82
-
-        x = r * math.cos(theta)
-        y = r * math.sin(theta)
-
-        # küçük nokta
-        ax.scatter(
-            [x],
-            [y],
-            s=8,
-            color=pl["color"],
-            zorder=5,
-        )
-
-        # sembol
-        tx = (r + 0.04) * math.cos(theta)
-        ty = (r + 0.04) * math.sin(theta)
-        ax.text(
-            tx,
-            ty,
-            pl["symbol"],
-            fontsize=9,
-            ha="center",
-            va="center",
-            color=pl["color"],
-        )
+        ax.plot([a1, a2], [aspect_inner_r, aspect_inner_r], linewidth=0.8, color=color)
 
     # Başlık
-    ax.text(
-        0,
-        1.05,
-        title_text,
-        ha="center",
-        va="bottom",
-        color="#ffe9a3",
-        fontsize=11,
-        fontweight="bold",
-    )
-    if subtitle_text:
-        ax.text(
-            0,
-            0.97,
-            subtitle_text,
-            ha="center",
-            va="bottom",
-            color="#cfd2ff",
-            fontsize=7,
-        )
+    if mode == "solar":
+        title = "Solar Return Chart"
+    else:
+        title = "Natal Chart"
+    fig.suptitle(title, fontsize=14)
 
     # Kayıt
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    fig.savefig(out_path, dpi=240, bbox_inches="tight", pad_inches=0.12)
+    file_path = os.path.join(charts_dir, f"{chart_id}.png")
+    fig.tight_layout()
+    fig.savefig(file_path, bbox_inches="tight", facecolor="white")
     plt.close(fig)
 
+    return file_path
 
-# -----------------------------------------
-# DIŞA AÇIK FONKSİYON
-# -----------------------------------------
-def generate_natal_chart(
-    birth_date: str,
-    birth_time: str,
-    latitude: float,
-    longitude: float,
-    out_dir: str = "/tmp",
-):
+
+# =======================
+#  DIŞA AÇIK FONKSİYONLAR
+# =======================
+
+def generate_natal_chart(birth_date: str, birth_time: str, birth_place: str):
     """
-    main.py tarafından çağrılan fonksiyon.
-
-    birth_date: 'YYYY-MM-DD'
-    birth_time: 'HH:MM'
-    latitude, longitude: float
-    out_dir: PNG'in yazılacağı klasör (Render'da /tmp)
-
-    DÖNER:
-      (chart_id, chart_file_path)
-
-    Not: Solar return endpoint'i de bu fonksiyonu kullanıyor,
-    sadece doğum tarihi yerine solar yılına göre tarih gönderiyor.
-    Yani bu fonksiyon hem natal hem solar için çalışır.
+    main.py tarafından çağrılır.
+    DÖNEN:
+      chart_path (str), chart_id (str), planets (list[dict]), houses (list[float])
     """
-    # Pozisyonları hesapla
-    planets, houses = _compute_positions(birth_date, birth_time, latitude, longitude)
+    planets, houses = _compute_positions_natal(birth_date, birth_time, birth_place)
+    aspects = _compute_aspects(planets)
 
-    # ID & dosya yolu
-    chart_id = uuid.uuid4().hex
-    chart_path = os.path.join(out_dir, f"{chart_id}.png")
+    chart_id = str(uuid.uuid4())
+    chart_path = _draw_chart(planets, houses, aspects, mode="natal", chart_id=chart_id)
 
-    # Başlık metni (sadece görsel için, main.py mod’u belirliyor)
-    title = "Astrology Chart"
-    subtitle = f"{birth_date}  •  {birth_time}"
+    return chart_path, chart_id, planets, houses
 
-    _draw_chart(planets, houses, chart_path, title, subtitle)
 
-    return chart_id, chart_path
+def generate_solar_return_chart(birth_date: str, birth_time: str, birth_place: str, year: int):
+    """
+    Solar return için aynı imza:
+      chart_path, chart_id, planets, houses
+    """
+    planets, houses = _compute_positions_solar(birth_date, birth_time, birth_place, year)
+    aspects = _compute_aspects(planets)
+
+    chart_id = str(uuid.uuid4())
+    chart_path = _draw_chart(planets, houses, aspects, mode="solar", chart_id=chart_id)
+
+    return chart_path, chart_id, planets, houses
+
+
+def get_chart_path(chart_id: str) -> str | None:
+    """
+    /chart/<chart_id> endpoint'i için dosya yolunu verir.
+    Dosya yoksa None.
+    """
+    base_dir = os.path.dirname(__file__)
+    charts_dir = os.path.join(base_dir, "charts")
+    path = os.path.join(charts_dir, f"{chart_id}.png")
+    if os.path.exists(path):
+        return path
+    return None
