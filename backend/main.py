@@ -646,25 +646,36 @@ def generate_pdf():
         pdf.multi_cell(0, 6, sub)
         pdf.ln(6)
 
-        # Harita görseli (varsa) – önce RGB'ye çevir
-        if chart_id:
-            chart_file = f"/tmp/{chart_id}.png"
-            if os.path.exists(chart_file):
-                try:
-                    from PIL import Image
+        # Harita görseli (varsa)
+if chart_id:
+    chart_file = f"/tmp/{chart_id}.png"
+    if os.path.exists(chart_file):
+        try:
+            from PIL import Image
 
-                    img = Image.open(chart_file).convert("RGB")
-                    rgb_fixed = f"/tmp/{chart_id}_rgb.jpg"
-                    img.save(rgb_fixed, "JPEG", quality=95)
+            # PNG → JPG (FPDF için daha stabil)
+            img = Image.open(chart_file).convert("RGB")
+            rgb_fixed = f"/tmp/{chart_id}_rgb.jpg"
+            img.save(rgb_fixed, "JPEG", quality=95)
 
-                    img_width = 130
-                    x = (210 - img_width) / 2
-                    y = pdf.get_y()
-                    pdf.image(rgb_fixed, x=x, y=y, w=img_width)
-                    pdf.ln(90)
-                except Exception as e:
-                    print("PDF image error:", e)
-                    pdf.ln(10)
+            # ---- HARİTA HER ZAMAN YENİ BİR SAYFADA ----
+            pdf.add_page()
+
+            pdf.set_font("Helvetica", "B", 14)
+            pdf.set_text_color(50, 50, 70)
+            pdf.cell(0, 10, "Natal Chart (Doğum Haritası)", ln=1, align="C")
+
+            img_width = 150
+            x = (210 - img_width) / 2
+
+            # Resmi ekle
+            pdf.image(rgb_fixed, x=x, y=30, w=img_width)
+
+            pdf.ln(150)
+
+        except Exception as e:
+            print("PDF IMAGE ERROR:", e)
+
 
         # Gövde
         pdf.set_text_color(40, 40, 60)
