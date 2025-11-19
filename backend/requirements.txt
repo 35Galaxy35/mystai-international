@@ -9,3 +9,6 @@ geopy
 skyfield
 numpy
 Pillow
+swisseph
+matplotlib
+
