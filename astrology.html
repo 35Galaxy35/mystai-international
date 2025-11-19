@@ -247,35 +247,56 @@
       box-shadow:0 12px 30px rgba(0,0,0,.7);
     }
 
-    /* Right panel - chart & report */
-    .mode-bar{
+    /* Right panel - tabs, chart & report */
+    .mode-tabs{
       display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:10px;
-      font-size:13px;
-      color:var(--muted);
-    }
-    .mode-pill{
+      gap:6px;
+      margin-bottom:12px;
+      background:rgba(3,8,30,.9);
       border-radius:999px;
-      padding:3px;
-      background:rgba(4,10,32,.9);
-      border:1px solid rgba(255,255,255,.18);
-      display:inline-flex;
-      gap:4px;
+      padding:4px;
+      border:1px solid rgba(255,255,255,.14);
     }
-    .mode-pill span{
-      font-size:11px;
-      padding:4px 10px;
+    .mode-tab{
+      flex:1;
+      text-align:center;
+      font-size:12px;
+      padding:7px 10px;
       border-radius:999px;
+      cursor:pointer;
+      border:none;
+      background:transparent;
+      color:#c3cffc;
       text-transform:uppercase;
-      letter-spacing:.09em;
-      opacity:.55;
+      letter-spacing:.08em;
+      font-weight:600;
+      transition:all .2s ease;
     }
-    .mode-pill span.active{
+    .mode-tab.active{
       background:linear-gradient(135deg,#ffd54f,#ffe680);
       color:#111;
-      opacity:1;
+      box-shadow:0 0 18px rgba(255,215,0,.6);
+    }
+
+    .mode-section{
+      display:none;
+    }
+    .mode-section.active{
+      display:block;
+    }
+
+    .section-title{
+      font-family:'Cinzel',serif;
+      font-size:18px;
+      letter-spacing:.05em;
+      color:#ffd76e;
+      margin:2px 0 8px;
+      text-transform:uppercase;
+    }
+    .section-sub{
+      font-size:12px;
+      color:var(--muted);
+      margin:0 0 10px;
     }
 
     .chart-card{
@@ -356,7 +377,7 @@
     .download-link:hover{text-decoration:underline;}
 
     .status{
-      margin-top:12px;
+      margin-top:10px;
       font-size:12px;
       color:var(--muted);
       text-align:left;
@@ -366,9 +387,9 @@
     .status.error{color:var(--error);}
 
     .report-box{
-      margin-top:10px;
+      margin-top:8px;
       width:100%;
-      max-height:260px;
+      max-height:220px;
       border-radius:12px;
       padding:12px 14px;
       background:rgba(3,9,26,.85);
@@ -378,6 +399,29 @@
       line-height:1.65;
       text-align:left;
       white-space:pre-wrap;
+    }
+
+    .pdf-btn{
+      margin-top:10px;
+      width:100%;
+      border-radius:999px;
+      padding:9px 14px;
+      border:1px solid rgba(255,255,255,.35);
+      background:rgba(5,10,25,.9);
+      color:#e8eeff;
+      font-weight:600;
+      font-size:13px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      transition:all .2s ease;
+    }
+    .pdf-btn:hover{
+      border-color:#ffd54f;
+      color:#fff8e0;
+      box-shadow:0 12px 30px rgba(0,0,0,.7);
     }
 
     /* Footer */
@@ -487,7 +531,7 @@
     .ask-hint{margin-top:6px;font-size:11px;color:var(--muted);}
     .spinner{display:none;margin-left:6px;}
 
-    /* Print tweaks for better PDF */
+    /* Print tweaks (kullanıcı tarayıcıdan yazdırırsa) */
     @media print{
       body{
         background:#fff;
@@ -596,51 +640,101 @@
         </div>
       </div>
 
-      <button id="generateBtn" class="primary-btn" data-i18n="generateBtn">
-        Generate Astrology Report
+      <!-- Solar Return yılı (opsiyonel) -->
+      <div class="form-group">
+        <label class="form-label" for="solarYear" data-i18n="solarYearLabel">Solar Return Year (optional)</label>
+        <input id="solarYear" type="number" class="form-input" placeholder="2025" />
+        <div class="hint" data-i18n="solarYearHint">
+          If empty, MystAI will use the current year.
+        </div>
+      </div>
+
+      <button id="generateBtn" class="primary-btn" data-i18n="generateNatalBtn">
+        Generate Natal Report
       </button>
       <div class="hint" style="margin-top:8px;" data-i18n="disclaimer">
         MystAI provides spiritual & entertainment-oriented guidance only and is not a substitute for medical, legal, financial or psychological advice.
       </div>
     </section>
 
-    <!-- RIGHT: CHART + REPORT -->
+    <!-- RIGHT: MODLAR / RAPORLAR -->
     <section class="panel" id="reportPanel">
-      <div id="pdfWrapper">
-        <h2 class="panel-title" data-i18n="reportTitle">Your AI Astrology Report</h2>
-        <p class="panel-sub" data-i18n="reportSub">
-          MystAI blends symbolic astrology with AI-generated insight to create a unique natal + solar return + transit style overview.
-        </p>
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="tab-natal" data-mode="natal" data-i18n="tabNatal">Natal Chart</button>
+        <button class="mode-tab" id="tab-solar" data-mode="solar" data-i18n="tabSolar">Solar Return</button>
+        <button class="mode-tab" id="tab-transits" data-mode="transits" data-i18n="tabTransits">Transits</button>
+      </div>
 
-        <div class="mode-bar">
-          <span data-i18n="modeLabel">Report mode:</span>
-          <div class="mode-pill">
-            <span class="active" data-i18n="modeNatalSolarTransits">Natal + Solar Return + Transits</span>
-          </div>
-        </div>
+      <!-- NATAL SECTION -->
+      <div class="mode-section active" id="section-natal">
+        <h2 class="section-title" data-i18n="natalTitle">Natal Astrology Report</h2>
+        <p class="section-sub" data-i18n="natalSub">
+          A deep, AI-enhanced interpretation of your natal chart, houses and aspects.
+        </p>
 
         <div class="chart-card">
           <div class="chart-container">
             <div class="chart-inner-frame"></div>
-            <img id="chartImg" class="chart-img" alt="Astrology chart" style="display:none;">
-            <div id="chartPlaceholder" class="chart-placeholder" data-i18n="chartPlaceholder">
-              When you create your report, MystAI will draw a unique mystical chart for you here.
+            <img id="chartImgNatal" class="chart-img" alt="Natal chart" style="display:none;">
+            <div id="chartPlaceholderNatal" class="chart-placeholder" data-i18n="chartPlaceholderNatal">
+              When you create your natal report, MystAI will draw a precise natal chart for you here.
             </div>
           </div>
-          <div id="chartMeta" class="chart-meta"></div>
-          <a id="downloadChart" href="#" class="download-link" style="display:none;" data-i18n="downloadChart">
-            Download chart as PNG
+          <div id="chartMetaNatal" class="chart-meta"></div>
+          <a id="downloadChartNatal" href="#" class="download-link" style="display:none;" data-i18n="downloadChartNatal">
+            Download natal chart as PNG
           </a>
         </div>
 
-        <div id="statusLabel" class="status"></div>
-
-        <div id="astroText" class="report-box"></div>
+        <div id="statusLabelNatal" class="status"></div>
+        <div id="astroTextNatal" class="report-box"></div>
+        <button id="downloadPdfNatal" class="pdf-btn">
+          📄 <span data-i18n="downloadPdfNatal">Download Natal PDF</span>
+        </button>
       </div>
 
-      <button id="downloadPdfBtn" class="secondary-btn">
-        📄 <span data-i18n="downloadPdfLabel">Download your report as PDF</span>
-      </button>
+      <!-- SOLAR RETURN SECTION -->
+      <div class="mode-section" id="section-solar">
+        <h2 class="section-title" data-i18n="solarTitle">Solar Return Report</h2>
+        <p class="section-sub" data-i18n="solarSub">
+          A yearly overview based on your solar return chart: themes, lessons and opportunities.
+        </p>
+
+        <div class="chart-card">
+          <div class="chart-container">
+            <div class="chart-inner-frame"></div>
+            <img id="chartImgSolar" class="chart-img" alt="Solar return chart" style="display:none;">
+            <div id="chartPlaceholderSolar" class="chart-placeholder" data-i18n="chartPlaceholderSolar">
+              When you create your solar return report, MystAI will draw a yearly chart for you here.
+            </div>
+          </div>
+          <div id="chartMetaSolar" class="chart-meta"></div>
+          <a id="downloadChartSolar" href="#" class="download-link" style="display:none;" data-i18n="downloadChartSolar">
+            Download solar return chart as PNG
+          </a>
+        </div>
+
+        <div id="statusLabelSolar" class="status"></div>
+        <div id="astroTextSolar" class="report-box"></div>
+        <button id="downloadPdfSolar" class="pdf-btn">
+          📄 <span data-i18n="downloadPdfSolar">Download Solar Return PDF</span>
+        </button>
+      </div>
+
+      <!-- TRANSITS SECTION -->
+      <div class="mode-section" id="section-transits">
+        <h2 class="section-title" data-i18n="transitTitle">Transit Report</h2>
+        <p class="section-sub" data-i18n="transitSub">
+          A focused interpretation of current and upcoming transits impacting your natal chart.
+        </p>
+
+        <!-- Transitlerde harita yok, sadece metin -->
+        <div id="statusLabelTransits" class="status"></div>
+        <div id="astroTextTransits" class="report-box"></div>
+        <button id="downloadPdfTransits" class="pdf-btn">
+          📄 <span data-i18n="downloadPdfTransits">Download Transits PDF</span>
+        </button>
+      </div>
     </section>
   </main>
 
@@ -731,19 +825,32 @@
         chipSpirit:"Spiritual growth and inner journey",
         questionLabel:"Any specific question or intention?",
         questionHint:"Example: “How will my love life and career be shaped in the next 12 months?”",
-        generateBtn:"Generate Astrology Report",
-        disclaimer:"MystAI provides spiritual & entertainment-oriented guidance only and does not replace medical, legal, financial or psychological advice.",
-        reportTitle:"Your AI Astrology Report",
-        reportSub:"MystAI blends symbolic astrology with AI-generated insight into a unique natal + solar return + transit style overview.",
-        modeLabel:"Report mode:",
-        modeNatalSolarTransits:"Natal + Solar Return + Transits",
-        chartPlaceholder:"When you create your report, MystAI will draw a unique mystical chart for you here.",
-        downloadChart:"Download chart as PNG",
+        solarYearLabel:"Solar Return Year (optional)",
+        solarYearHint:"If empty, MystAI will use the current year.",
+        /* Tabs + section titles */
+        tabNatal:"Natal Chart",
+        tabSolar:"Solar Return",
+        tabTransits:"Transits",
+        natalTitle:"Natal Astrology Report",
+        natalSub:"A deep, AI-enhanced interpretation of your natal chart, houses and aspects.",
+        solarTitle:"Solar Return Report",
+        solarSub:"A yearly overview based on your solar return chart: themes, lessons and opportunities.",
+        transitTitle:"Transit Report",
+        transitSub:"A focused interpretation of current and upcoming transits impacting your natal chart.",
+        chartPlaceholderNatal:"When you create your natal report, MystAI will draw a precise natal chart for you here.",
+        chartPlaceholderSolar:"When you create your solar return report, MystAI will draw a yearly chart for you here.",
+        downloadChartNatal:"Download natal chart as PNG",
+        downloadChartSolar:"Download solar return chart as PNG",
+        generateNatalBtn:"Generate Natal Report",
+        generateSolarBtn:"Generate Solar Return Report",
+        generateTransitBtn:"Generate Transit Report",
         statusWorking:"Preparing your personal chart and AI interpretation...",
         statusOk:"Your AI astrology report has been generated.",
         statusError:"An error occurred while generating your report. Please try again.",
-        downloadPdfLabel:"Download your report as PDF",
-        missingFields:"Please fill in birth date, time and place.",
+        downloadPdfNatal:"Download Natal PDF",
+        downloadPdfSolar:"Download Solar Return PDF",
+        downloadPdfTransits:"Download Transits PDF",
+        disclaimer:"MystAI provides spiritual & entertainment-oriented guidance only and does not replace medical, legal, financial or psychological advice.",
         terms:"Terms",
         privacy:"Privacy",
         cookies:"Cookies",
@@ -775,19 +882,32 @@
         chipSpirit:"Ruhsal gelişim ve içsel yolculuk",
         questionLabel:"Özel bir sorun ya da niyetin var mı?",
         questionHint:"Örnek: “Önümüzdeki 12 ay aşk ve kariyerim nasıl şekilleniyor?”",
-        generateBtn:"Astroloji Raporu Oluştur",
-        disclaimer:"MystAI yalnızca ruhsal ve eğlence amaçlı içgörüler sunar; tıbbi, hukuki, finansal veya psikolojik danışmanlığın yerine geçmez.",
-        reportTitle:"Yapay Zekâ Astroloji Raporun",
-        reportSub:"MystAI sembolik astrolojiyi yapay zekâ ile birleştirerek natal + solar return + transit tarzında benzersiz bir yorum üretir.",
-        modeLabel:"Rapor modu:",
-        modeNatalSolarTransits:"Natal + Solar Return + Transitler",
-        chartPlaceholder:"Raporunu oluşturduğunda MystAI sana özel, mistik bir doğum haritası çizecek.",
-        downloadChart:"Haritayı PNG olarak indir",
+        solarYearLabel:"Solar Return Yılı (opsiyonel)",
+        solarYearHint:"Boş bırakırsan, MystAI içinde bulunduğun yılı kullanır.",
+        /* Tabs + section titles */
+        tabNatal:"Natal Harita",
+        tabSolar:"Solar Return",
+        tabTransits:"Transitler",
+        natalTitle:"Natal Astroloji Raporun",
+        natalSub:"Doğum haritandaki gezegenler, evler ve açılar üzerinden derinlemesine, yapay zekâ destekli bir yorum.",
+        solarTitle:"Solar Return Raporun",
+        solarSub:"Bu yılın ana temaları, dersleri ve fırsatları üzerine yıllık solar return yorumun.",
+        transitTitle:"Transit Raporun",
+        transitSub:"Şu anki ve yaklaşan transitlerin doğum haritandaki etkilerine odaklanan güncel bir yorum.",
+        chartPlaceholderNatal:"Natal raporunu oluşturduğunda MystAI sana özel, gerçekçi bir doğum haritası çizecek.",
+        chartPlaceholderSolar:"Solar return raporunu oluşturduğunda MystAI o yıla ait yıllık haritanı çizecek.",
+        downloadChartNatal:"Natal haritayı PNG olarak indir",
+        downloadChartSolar:"Solar return haritasını PNG olarak indir",
+        generateNatalBtn:"Natal Raporu Oluştur",
+        generateSolarBtn:"Solar Return Raporu Oluştur",
+        generateTransitBtn:"Transit Raporu Oluştur",
         statusWorking:"Kişisel haritan ve yapay zekâ yorumun hazırlanıyor...",
         statusOk:"Yapay zekâ astroloji raporun hazır.",
         statusError:"Rapor oluşturulurken bir hata oluştu. Lütfen tekrar dene.",
-        downloadPdfLabel:"Raporunu PDF olarak indir",
-        missingFields:"Lütfen doğum tarihi, saati ve yeri alanlarını doldur.",
+        downloadPdfNatal:"Natal Raporunu PDF olarak indir",
+        downloadPdfSolar:"Solar Return Raporunu PDF olarak indir",
+        downloadPdfTransits:"Transit Raporunu PDF olarak indir",
+        disclaimer:"MystAI yalnızca ruhsal ve eğlence amaçlı içgörüler sunar; tıbbi, hukuki, finansal veya psikolojik danışmanlığın yerine geçmez.",
         terms:"Şartlar",
         privacy:"Gizlilik",
         cookies:"Çerezler",
@@ -807,7 +927,19 @@
     };
 
     let activeLang = localStorage.getItem("myst_lang") || "tr";
+    let activeMode = "natal"; // natal | solar | transits
 
+    const natalTab   = document.getElementById("tab-natal");
+    const solarTab   = document.getElementById("tab-solar");
+    const transTab   = document.getElementById("tab-transits");
+
+    const sectionNatal   = document.getElementById("section-natal");
+    const sectionSolar   = document.getElementById("section-solar");
+    const sectionTrans   = document.getElementById("section-transits");
+
+    const generateBtn  = document.getElementById("generateBtn");
+
+    /* ========= i18n helper ========= */
     function setLang(lang){
       activeLang = lang;
       localStorage.setItem("myst_lang", lang);
@@ -816,7 +948,7 @@
       document.querySelectorAll("[data-i18n]").forEach(el=>{
         const key = el.getAttribute("data-i18n");
         if(!dict[key]) return;
-        if(key === "formSub" || key==="reportSub"){
+        if(key === "formSub"){
           el.innerHTML = dict[key];
         }else{
           el.textContent = dict[key];
@@ -828,6 +960,9 @@
 
       document.getElementById("btn-en").classList.toggle("secondary", lang!=="en");
       document.getElementById("btn-tr").classList.toggle("secondary", lang!=="tr");
+
+      // aktif moda göre buton yazısı
+      updateGenerateButtonLabel();
 
       if(auth.currentUser){
         const name = auth.currentUser.displayName || auth.currentUser.email;
@@ -855,30 +990,87 @@
       });
     });
 
-    /* ========= Astrology report generation ========= */
-    const generateBtn  = document.getElementById("generateBtn");
-    const astroText    = document.getElementById("astroText");
-    const statusLabel  = document.getElementById("statusLabel");
-    const chartImg     = document.getElementById("chartImg");
-    const chartPlaceholder = document.getElementById("chartPlaceholder");
-    const chartMeta    = document.getElementById("chartMeta");
-    const downloadLink = document.getElementById("downloadChart");
-    const pdfBtn       = document.getElementById("downloadPdfBtn");
+    /* ========= Tabs (natal / solar / transits) ========= */
+    function setActiveMode(mode){
+      activeMode = mode;
 
-    let lastChartURL = "";
-    let lastChartId  = "";
-    
-    generateBtn.addEventListener("click", async ()=>{
-      const birthDate  = document.getElementById("birthDate").value;
-      const birthTime  = document.getElementById("birthTime").value;
-      const birthPlace = document.getElementById("birthPlace").value.trim();
-      const name       = document.getElementById("name").value.trim();
-      const question   = document.getElementById("question").value.trim();
+      natalTab.classList.toggle("active", mode==="natal");
+      solarTab.classList.toggle("active", mode==="solar");
+      transTab.classList.toggle("active", mode==="transits");
 
+      sectionNatal.classList.toggle("active", mode==="natal");
+      sectionSolar.classList.toggle("active", mode==="solar");
+      sectionTrans.classList.toggle("active", mode==="transits");
+
+      updateGenerateButtonLabel();
+    }
+
+    function updateGenerateButtonLabel(){
       const dict = i18n[activeLang];
+      if(activeMode==="natal"){
+        generateBtn.textContent = dict.generateNatalBtn;
+      }else if(activeMode==="solar"){
+        generateBtn.textContent = dict.generateSolarBtn;
+      }else{
+        generateBtn.textContent = dict.generateTransitBtn;
+      }
+    }
+
+    natalTab.addEventListener("click", ()=> setActiveMode("natal"));
+    solarTab.addEventListener("click", ()=> setActiveMode("solar"));
+    transTab.addEventListener("click", ()=> setActiveMode("transits"));
+
+    /* ========= DOM referansları ========= */
+    // Ortak form
+    const birthDateInput  = document.getElementById("birthDate");
+    const birthTimeInput  = document.getElementById("birthTime");
+    const birthPlaceInput = document.getElementById("birthPlace");
+    const nameInput       = document.getElementById("name");
+    const questionInput   = document.getElementById("question");
+    const solarYearInput  = document.getElementById("solarYear");
+
+    // NATAL
+    const astroTextNatal      = document.getElementById("astroTextNatal");
+    const statusLabelNatal    = document.getElementById("statusLabelNatal");
+    const chartImgNatal       = document.getElementById("chartImgNatal");
+    const chartPlaceholderNat = document.getElementById("chartPlaceholderNatal");
+    const chartMetaNatal      = document.getElementById("chartMetaNatal");
+    const downloadChartNatal  = document.getElementById("downloadChartNatal");
+    const downloadPdfNatal    = document.getElementById("downloadPdfNatal");
+    let lastNatalChartURL = "";
+    let lastNatalChartId  = "";
+
+    // SOLAR
+    const astroTextSolar      = document.getElementById("astroTextSolar");
+    const statusLabelSolar    = document.getElementById("statusLabelSolar");
+    const chartImgSolar       = document.getElementById("chartImgSolar");
+    const chartPlaceholderSol = document.getElementById("chartPlaceholderSolar");
+    const chartMetaSolar      = document.getElementById("chartMetaSolar");
+    const downloadChartSolar  = document.getElementById("downloadChartSolar");
+    const downloadPdfSolar    = document.getElementById("downloadPdfSolar");
+    let lastSolarChartURL = "";
+    let lastSolarChartId  = "";
+
+    // TRANSITS
+    const astroTextTransits   = document.getElementById("astroTextTransits");
+    const statusLabelTransits = document.getElementById("statusLabelTransits");
+    const downloadPdfTransits = document.getElementById("downloadPdfTransits");
+
+    const dictFor = () => i18n[activeLang];
+
+    /* ========= Rapor üret (aktif moda göre) ========= */
+    generateBtn.addEventListener("click", async ()=>{
+      const birthDate  = birthDateInput.value;
+      const birthTime  = birthTimeInput.value;
+      const birthPlace = birthPlaceInput.value.trim();
+      const name       = nameInput.value.trim();
+      const question   = questionInput.value.trim();
+      const dict       = dictFor();
 
       if(!birthDate || !birthTime || !birthPlace){
-        alert(dict.missingFields);
+        alert(dict.missingFields || (activeLang==="tr"
+          ? "Lütfen doğum tarihi, saati ve yeri alanlarını doldur."
+          : "Please fill in birth date, time and place."));
         return;
       }
 
@@ -887,106 +1079,236 @@
         focusKeys.push(ch.dataset.key);
       });
 
-      const payload = {
-        birth_date: birthDate,
-        birth_time: birthTime,
-        birth_place: birthPlace,
-        name: name,
-        focus_areas: focusKeys,
-        question: question,
-        language: activeLang
-      };
-
       try{
         generateBtn.disabled = true;
-        astroText.textContent = "";
-        statusLabel.textContent = dict.statusWorking;
-        statusLabel.className = "status";
-        chartMeta.textContent = "";
-        lastChartURL = "";
-        lastChartId  = "";
-        chartImg.style.display = "none";
-        chartPlaceholder.style.display = "flex";
-        downloadLink.style.display = "none";
 
-        const res = await fetch(`${BACKEND_URL}/astrology-premium`, {
-          method:"POST",
-          headers:{ "Content-Type":"application/json" },
-          body:JSON.stringify(payload)
-        });
+        if(activeMode==="natal"){
+          // UI reset
+          astroTextNatal.textContent = "";
+          statusLabelNatal.textContent = dict.statusWorking;
+          statusLabelNatal.className = "status";
+          chartMetaNatal.textContent = "";
+          lastNatalChartURL = "";
+          lastNatalChartId  = "";
+          chartImgNatal.style.display = "none";
+          chartPlaceholderNat.style.display = "flex";
+          downloadChartNatal.style.display = "none";
 
-        if(!res.ok){
-          throw new Error("HTTP " + res.status);
+          const payload = {
+            birth_date: birthDate,
+            birth_time: birthTime,
+            birth_place: birthPlace,
+            name: name,
+            focus_areas: focusKeys,
+            question: question,
+            language: activeLang
+          };
+
+          const res = await fetch(`${BACKEND_URL}/astrology-premium`, {
+            method:"POST",
+            headers:{ "Content-Type":"application/json" },
+            body:JSON.stringify(payload)
+          });
+
+          if(!res.ok){
+            throw new Error("HTTP " + res.status);
+          }
+          const data = await res.json();
+          if(data.error){
+            throw new Error(data.error);
+          }
+
+          const text    = data.text || "";
+          const chart   = data.chart;
+          const chartId = data.chart_id;
+
+          astroTextNatal.textContent = text || (activeLang==="tr"
+            ? "Metin raporu alınamadı."
+            : "No report text received.");
+
+          statusLabelNatal.textContent = dict.statusOk;
+          statusLabelNatal.className = "status ok";
+
+          const metaLine = (activeLang==="tr"
+            ? `Doğum tarihi: ${birthDate} • Doğum saati: ${birthTime} • Doğum yeri: ${birthPlace}`
+            : `Birth date: ${birthDate} • Birth time: ${birthTime} • Birth place: ${birthPlace}`);
+          chartMetaNatal.textContent = metaLine;
+
+          if(chart && chartId){
+            const url = chart.startsWith("http") ? chart : `${BACKEND_URL}${chart}`;
+            lastNatalChartURL = url;
+            lastNatalChartId  = chartId;
+            chartImgNatal.src = url;
+            chartImgNatal.style.display = "block";
+            chartPlaceholderNat.style.display = "none";
+            downloadChartNatal.href = url;
+            downloadChartNatal.setAttribute("download","mystai_natal_chart.png");
+            downloadChartNatal.style.display = "inline-block";
+          }
+
+        } else if(activeMode==="solar"){
+          astroTextSolar.textContent = "";
+          statusLabelSolar.textContent = dict.statusWorking;
+          statusLabelSolar.className = "status";
+          chartMetaSolar.textContent = "";
+          lastSolarChartURL = "";
+          lastSolarChartId  = "";
+          chartImgSolar.style.display = "none";
+          chartPlaceholderSol.style.display = "flex";
+          downloadChartSolar.style.display = "none";
+
+          const yearVal = solarYearInput.value ? parseInt(solarYearInput.value,10) : null;
+
+          const payload = {
+            birth_date: birthDate,
+            birth_time: birthTime,
+            birth_place: birthPlace,
+            year: yearVal,
+            language: activeLang
+          };
+
+          const res = await fetch(`${BACKEND_URL}/solar-return`, {
+            method:"POST",
+            headers:{ "Content-Type":"application/json" },
+            body:JSON.stringify(payload)
+          });
+
+          if(!res.ok){
+            throw new Error("HTTP " + res.status);
+          }
+          const data = await res.json();
+          if(data.error){
+            throw new Error(data.error);
+          }
+
+          const text    = data.text || "";
+          const chart   = data.chart;
+          const chartId = data.chart_id;
+          const yearUsed = yearVal || (new Date().getFullYear());
+
+          astroTextSolar.textContent = text || (activeLang==="tr"
+            ? "Solar return metni alınamadı."
+            : "No solar return text received.");
+
+          statusLabelSolar.textContent = dict.statusOk;
+          statusLabelSolar.className = "status ok";
+
+          const metaLine = (activeLang==="tr"
+            ? `Solar return yılı: ${yearUsed} • Doğum: ${birthDate} • Saat: ${birthTime} • Yer: ${birthPlace}`
+            : `Solar return year: ${yearUsed} • Birth: ${birthDate} • Time: ${birthTime} • Place: ${birthPlace}`);
+          chartMetaSolar.textContent = metaLine;
+
+          if(chart && chartId){
+            const url = chart.startsWith("http") ? chart : `${BACKEND_URL}${chart}`;
+            lastSolarChartURL = url;
+            lastSolarChartId  = chartId;
+            chartImgSolar.src = url;
+            chartImgSolar.style.display = "block";
+            chartPlaceholderSol.style.display = "none";
+            downloadChartSolar.href = url;
+            downloadChartSolar.setAttribute("download","mystai_solar_return_chart.png");
+            downloadChartSolar.style.display = "inline-block";
+          }
+
+        } else { // transits
+          astroTextTransits.textContent = "";
+          statusLabelTransits.textContent = dict.statusWorking;
+          statusLabelTransits.className = "status";
+
+          const payload = {
+            birth_date: birthDate,
+            birth_time: birthTime,
+            birth_place: birthPlace,
+            name: name,
+            language: activeLang
+          };
+
+          const res = await fetch(`${BACKEND_URL}/transits`, {
+            method:"POST",
+            headers:{ "Content-Type":"application/json" },
+            body:JSON.stringify(payload)
+          });
+
+          if(!res.ok){
+            throw new Error("HTTP " + res.status);
+          }
+          const data = await res.json();
+          if(data.error){
+            throw new Error(data.error);
+          }
+
+          const text = data.text || "";
+          astroTextTransits.textContent = text || (activeLang==="tr"
+            ? "Transit raporu alınamadı."
+            : "No transit report received.");
+
+          statusLabelTransits.textContent = dict.statusOk;
+          statusLabelTransits.className = "status ok";
         }
 
-        const data = await res.json();
-        if(data.error){
-          throw new Error(data.error);
-        }
-
-        const text      = data.text || "";
-        const chartPath = data.chart;
-        const chartId   = data.chart_id;
-
-        astroText.textContent = text || (activeLang==="tr"
-          ? "Metin raporu alınamadı."
-          : "No report text received.");
-
-        statusLabel.textContent = dict.statusOk;
-        statusLabel.className = "status ok";
-
-        const niceDate = birthDate;
-        const metaLine = (activeLang==="tr"
-          ? `Doğum tarihi: ${niceDate} • Doğum saati: ${birthTime} • Doğum yeri: ${birthPlace}`
-          : `Birth date: ${niceDate} • Birth time: ${birthTime} • Birth place: ${birthPlace}`);
-        chartMeta.textContent = metaLine;
-
-        if(chartPath && chartId){
-          const url = chartPath.startsWith("http") ? chartPath : `${BACKEND_URL}${chartPath}`;
-          lastChartURL = url;
-          lastChartId  = chartId;
-          chartImg.src = url;
-          chartImg.style.display = "block";
-          chartPlaceholder.style.display = "none";
-          downloadLink.href = url;
-          downloadLink.setAttribute("download","mystai_birth_chart.png");
-          downloadLink.style.display = "inline-block";
-        }else{
-          chartImg.style.display = "none";
-          chartPlaceholder.style.display = "flex";
-          downloadLink.style.display = "none";
-        }
       }catch(err){
         console.error(err);
-        statusLabel.textContent = dict.statusError + " (" + (err?.message || err) + ")";
-        statusLabel.className = "status error";
+        const msg = dict.statusError + " (" + (err?.message || err) + ")";
+        if(activeMode==="natal"){
+          statusLabelNatal.textContent = msg;
+          statusLabelNatal.className = "status error";
+        }else if(activeMode==="solar"){
+          statusLabelSolar.textContent = msg;
+          statusLabelSolar.className = "status error";
+        }else{
+          statusLabelTransits.textContent = msg;
+          statusLabelTransits.className = "status error";
+        }
       }finally{
         generateBtn.disabled = false;
       }
     });
 
-    downloadLink.addEventListener("click", (e)=>{
-      if(!lastChartURL){
-        e.preventDefault();
-      }
+    downloadChartNatal.addEventListener("click",(e)=>{
+      if(!lastNatalChartURL){ e.preventDefault(); }
+    });
+    downloadChartSolar.addEventListener("click",(e)=>{
+      if(!lastSolarChartURL){ e.preventDefault(); }
     });
 
-    /* ========= PDF İNDİR – BACKEND /generate_pdf ========= */
-    pdfBtn.addEventListener("click", async ()=>{
-      const dict = i18n[activeLang];
-
-      if(!astroText.textContent.trim()){
-        alert(activeLang==="tr"
-          ? "Önce rapor oluşturmalısın."
-          : "Please generate your report first.");
-        return;
-      }
-
+    /* ========= PDF butonları (her mod ayrı) ========= */
+    async function downloadPdfFor(mode){
+      const dict = dictFor();
       try{
-        pdfBtn.disabled = true;
+        let text = "";
+        let chartId = null;
+        let filename = "";
+
+        if(mode==="natal"){
+          text = (astroTextNatal.textContent || "").trim();
+          chartId = lastNatalChartId || null;
+          filename = activeLang==="tr"
+            ? "MystAI_natal_raporu.pdf"
+            : "MystAI_natal_report.pdf";
+        }else if(mode==="solar"){
+          text = (astroTextSolar.textContent || "").trim();
+          chartId = lastSolarChartId || null;
+          filename = activeLang==="tr"
+            ? "MystAI_solar_return_raporu.pdf"
+            : "MystAI_solar_return_report.pdf";
+        }else{
+          text = (astroTextTransits.textContent || "").trim();
+          chartId = null;
+          filename = activeLang==="tr"
+            ? "MystAI_transit_raporu.pdf"
+            : "MystAI_transits_report.pdf";
+        }
+
+        if(!text){
+          alert(activeLang==="tr"
+            ? "Önce bu mod için rapor oluşturmalısın."
+            : "Please generate the report for this mode first.");
+          return;
+        }
+
         const payload = {
-          text: astroText.textContent,
-          chart_id: lastChartId || null,
+          text,
+          chart_id: chartId,
           language: activeLang
         };
 
@@ -1004,9 +1326,7 @@
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = activeLang==="tr"
-          ? "MystAI_astroloji_raporu.pdf"
-          : "MystAI_astrology_report.pdf";
+        a.download = filename;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -1017,10 +1337,12 @@
         alert((activeLang==="tr"
           ? "PDF oluşturulurken bir hata oluştu: "
           : "Error while generating PDF: ") + (err?.message || err));
-      }finally{
-        pdfBtn.disabled = false;
       }
-    });
+    }
+
+    downloadPdfNatal.addEventListener("click", ()=>downloadPdfFor("natal"));
+    downloadPdfSolar.addEventListener("click", ()=>downloadPdfFor("solar"));
+    downloadPdfTransits.addEventListener("click", ()=>downloadPdfFor("transits"));
 
     /* ========= Ask MystAI modal ========= */
     const askFab    = document.getElementById("askFab");
@@ -1054,7 +1376,7 @@
 
     askSend.addEventListener("click", async ()=>{
       const q = askInput.value.trim();
-      const dict = i18n[activeLang];
+      const dict = dictFor();
 
       if(!q){
         alert(activeLang==="tr" ? "Lütfen bir soru yaz." : "Please type a question.");
