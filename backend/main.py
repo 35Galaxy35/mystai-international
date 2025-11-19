@@ -4,14 +4,15 @@
 # Özellikler:
 # - /predict           : Normal fal / sohbet + TTS
 # - /astrology         : Kısa, text-only astroloji
-# - /astrology-premium : Uzun premium rapor + gerçek natal harita PNG
-# - /solar-return      : Basit Solar Return raporu + harita (yaklaşık)
+# - /astrology-premium : Uzun premium natal rapor + gerçek natal harita
+# - /solar-return      : Solar return raporu + harita (basit)
 # - /transits          : Transit odaklı yorum
-# - /generate_pdf      : Profesyonel PDF çıktısı (harita + uzun rapor)
+# - /generate_pdf      : Profesyonel PDF (kapak + harita sayfası + metin)
 # - /audio/<id>        : TTS dosyası
 # - /chart/<id>        : Harita PNG dosyası
+# - /health, /version  : Durum kontrolü
 #
-# Render uyumlu, haritalar /tmp altında saklanır.
+# Render uyumlu, tüm görseller /tmp altında oluşturulur.
 # ============================================
 
 from flask import Flask, request, jsonify, send_file
@@ -26,28 +27,83 @@ import os
 import sys
 import uuid
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
+
+# ---------------------------------
+# Yol ayarları
+# ---------------------------------
+BASE_DIR = os.path.dirname(__file__)
+ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, ".."))
+IMAGES_DIR = os.path.join(ROOT_DIR, "images")
+FONTS_DIR = os.path.join(BASE_DIR, "fonts")
+
+LOGO_PATH = os.path.join(IMAGES_DIR, "mystai-logo.png")
+DEJAVU_PATH = os.path.join(FONTS_DIR, "DejaVuSans.ttf")  # Unicode destekli font
 
 # chart_generator.py aynı klasörde olduğu için:
-sys.path.append(os.path.dirname(__file__))
+sys.path.append(BASE_DIR)
 from chart_generator import generate_natal_chart  # doğum haritası çizer
+
+# Versiyon
+BACKEND_VERSION = "1.0.0-premium"
 
 
 # -----------------------------
 # Flask & CORS
 # -----------------------------
 app = Flask(__name__)
-CORS(app)
+
+# Güvenli CORS (gerekirse localhost'u da bıraktım)
+CORS(
+    app,
+    resources={
+        r"/*": {
+            "origins": [
+                "https://mystai.ai",
+                "https://mystai-international.onrender.com",
+                "http://localhost:5173",
+                "http://127.0.0.1:5173",
+            ]
+        }
+    },
+)
 
 
 # -----------------------------
-# OpenAI Client
+# OpenAI Client + Helper
 # -----------------------------
 OPENAI_KEY = os.environ.get("OPENAI_API_KEY")
 if not OPENAI_KEY:
     raise Exception("OPENAI_API_KEY bulunamadı!")
 
 client = OpenAI(api_key=OPENAI_KEY)
+
+
+def safe_chat_completion(messages, max_tokens=900, temperature=0.9):
+    """
+    OpenAI modeli için güvenli çağrı:
+    - Önce gpt-4o
+    - Sonra gpt-4o-mini
+    - Gerekirse gpt-3.5-turbo
+    """
+    models = ["gpt-4o", "gpt-4o-mini", "gpt-3.5-turbo"]
+
+    last_error = None
+    for model in models:
+        try:
+            completion = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                max_tokens=max_tokens,
+                temperature=temperature,
+            )
+            return completion.choices[0].message.content.strip()
+        except Exception as e:
+            print(f"[OpenAI] Model {model} error:", e)
+            last_error = e
+
+    # Hepsi çökerse
+    raise last_error or Exception("OpenAI completion failed")
 
 
 # -----------------------------
@@ -68,26 +124,51 @@ def geocode_place(place: str):
 
 
 # -----------------------------
+# /tmp temizlik
+# -----------------------------
+def clean_tmp_files(max_age_hours: int = 24):
+    """24 saatten eski geçici dosyaları siler."""
+    tmp_dir = "/tmp"
+    try:
+        now = datetime.utcnow()
+        limit = now - timedelta(hours=max_age_hours)
+
+        for filename in os.listdir(tmp_dir):
+            full_path = os.path.join(tmp_dir, filename)
+            if not os.path.isfile(full_path):
+                continue
+
+            try:
+                mtime = datetime.utcfromtimestamp(os.path.getmtime(full_path))
+                if mtime < limit:
+                    os.remove(full_path)
+            except Exception as e:
+                print("clean_tmp_files error:", e)
+    except Exception as e:
+        print("clean_tmp_files TOP error:", e)
+
+
+# -----------------------------
 # SYSTEM PROMPT
 # -----------------------------
 def build_system_prompt(type_name: str, lang: str) -> str:
     if lang == "tr":
         base = (
-            "Sen MystAI adinda mistik, profesyonel ve destekleyici bir yorumcusun. "
-            "Kullanicıya derin, pozitif ve gercekci bir dille aciklama yaparsın."
+            "Sen MystAI adında mistik, profesyonel ve destekleyici bir yorumcusun. "
+            "Kullanıcıya derin, pozitif ve gerçekçi bir dille açıklama yaparsın."
         )
         types = {
             "general": base + " Genel enerji, sezgi ve rehberlik sun.",
             "astrology": base
-            + " Dogum haritasini gezegenler, evler ve acilar uzerinden profesyonel sekilde yorumla. "
-            + "Teknik astroloji bilgin yuksek, fakat dili sade ve guclendirici kullan. "
+            + " Doğum haritasını gezegenler, evler ve açılar üzerinden profesyonel şekilde yorumla. "
+            + "Teknik astroloji bilgin yüksek, fakat dili sade ve güçlendirici kullan. "
             + "Korkutucu, kesin kaderci ifadelerden uzak dur.",
             "transit": base
-            + " Transit gezegenlerin danisanin dogum haritasi uzerindeki etkilerini acikla. "
-            + "Onumuzdeki birkac hafta ve ay icin ana temalari ozetle; gunluk fal gibi yuzeysel olma.",
+            + " Transit gezegenlerin danışanın doğum haritası üzerindeki etkilerini açıkla. "
+            + "Önümüzdeki birkaç hafta/ay için ana temaları özetle; günlük fal gibi yüzeysel olma.",
             "solar_return": base
-            + " Solar return (gunes donusu) haritasini yillik tema olarak yorumla. "
-            + "Bu yilin ana derslerini ve firsatlarini, ozellikle ask, kariyer ve ruhsal gelisim acisindan acikla.",
+            + " Solar return (güneş dönüşü) haritasını yıllık tema olarak yorumla. "
+            + "Bu yılın ana derslerini ve fırsatlarını, özellikle aşk, kariyer ve ruhsal gelişim açısından açıkla.",
         }
     else:
         base = (
@@ -111,7 +192,7 @@ def build_system_prompt(type_name: str, lang: str) -> str:
 
 
 # -----------------------------
-# HEALTH CHECK
+# HEALTH / VERSION
 # -----------------------------
 @app.route("/")
 def index():
@@ -123,17 +204,34 @@ def ping():
     return jsonify({"status": "ok"})
 
 
+@app.route("/health")
+def health():
+    return jsonify(
+        {
+            "status": "ok",
+            "version": BACKEND_VERSION,
+            "time": datetime.utcnow().isoformat() + "Z",
+        }
+    )
+
+
+@app.route("/version")
+def version():
+    return jsonify({"version": BACKEND_VERSION})
+
+
 # -----------------------------
 # NORMAL /predict (fal + TTS)
 # -----------------------------
 @app.route("/predict", methods=["POST"])
 def predict():
+    clean_tmp_files()
     try:
         data = request.json or {}
         user_input = data.get("user_input", "").strip()
 
         if not user_input:
-            return jsonify({"error": "user_input bos olamaz"}), 400
+            return jsonify({"error": "user_input boş olamaz"}), 400
 
         try:
             lang = detect(user_input)
@@ -144,15 +242,13 @@ def predict():
 
         system_prompt = build_system_prompt("general", lang)
 
-        completion = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
+        text = safe_chat_completion(
+            [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_input},
             ],
+            max_tokens=700,
         )
-
-        text = completion.choices[0].message.content.strip()
 
         # Ses dosyası oluştur
         audio_id = uuid.uuid4().hex
@@ -171,6 +267,7 @@ def predict():
 # -----------------------------
 @app.route("/astrology", methods=["POST"])
 def astrology():
+    clean_tmp_files()
     try:
         data = request.json or {}
 
@@ -197,11 +294,11 @@ def astrology():
 
         if lang == "tr":
             user_prompt = (
-                f"Dogum: {birth_date} {birth_time} - {birth_place}\n"
-                f"Isim: {name}\nOdak: {', '.join(focus) or 'Genel'}\n"
+                f"Doğum: {birth_date} {birth_time} - {birth_place}\n"
+                f"İsim: {name}\nOdak: {', '.join(focus) or 'Genel'}\n"
                 f"Soru: {question}\n"
-                "Natal haritaya dayali, kisa ama anlamli bir astroloji raporu yaz. "
-                "En onemli 3-4 temaya odaklan."
+                "Natal haritaya dayalı, kısa ama anlamlı bir astroloji raporu yaz. "
+                "En önemli 3-4 temaya odaklan."
             )
         else:
             user_prompt = (
@@ -212,16 +309,13 @@ def astrology():
                 "Focus on the 3–4 most important themes."
             )
 
-        completion = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
+        text = safe_chat_completion(
+            [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
             max_tokens=900,
         )
-
-        text = completion.choices[0].message.content.strip()
 
         return jsonify({"text": text, "chart": None, "audio": None, "language": lang})
 
@@ -239,6 +333,7 @@ def astrology_premium():
     Uzun premium astroloji raporu + gerçek doğum haritası PNG üretir.
     Frontend astrology.html bu endpoint'i kullanabilir.
     """
+    clean_tmp_files()
     try:
         data = request.json or {}
 
@@ -266,20 +361,20 @@ def astrology_premium():
 
         if lang == "tr":
             user_prompt = (
-                f"Premium astroloji raporu olustur.\n"
-                f"Dogum: {birth_date} {birth_time} - {birth_place}\n"
-                f"Isim: {name}\n"
-                f"Odak alanlari: {', '.join(focus) or 'Genel'}\n"
-                f"Ozel soru/niyet: {question}\n\n"
-                "- Kisilik ve ruhsal yapi\n"
-                "- Yasam amaci\n"
-                "- Ask & Iliskiler\n"
+                f"Premium astroloji raporu oluştur.\n"
+                f"Doğum: {birth_date} {birth_time} - {birth_place}\n"
+                f"İsim: {name}\n"
+                f"Odak alanları: {', '.join(focus) or 'Genel'}\n"
+                f"Özel soru/niyet: {question}\n\n"
+                "- Kişilik ve ruhsal yapı\n"
+                "- Yaşam amacı\n"
+                "- Aşk & İlişkiler\n"
                 "- Kariyer & Para\n"
                 "- Karmik dersler\n"
-                "- 12 Ev analizi (ev ev, basliklarla)\n"
-                "- Onumuzdeki 3-6 aya dair genel temalar\n"
-                "Pozitif, destekleyici ve gercekci bir dil kullan. "
-                "Korkutucu, kesin kaderci ifadelerden kacin."
+                "- 12 Ev analizi (ev ev, başlıklarla)\n"
+                "- Önümüzdeki 3-6 aya dair genel temalar\n"
+                "Pozitif, destekleyici ve gerçekçi bir dil kullan. "
+                "Korkutucu, kesin kaderci ifadelerden kaçın."
             )
         else:
             user_prompt = (
@@ -298,15 +393,13 @@ def astrology_premium():
                 "Use a positive, empowering tone and avoid fatalistic statements."
             )
 
-        completion = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
+        text = safe_chat_completion(
+            [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
+            max_tokens=1800,
         )
-
-        text = completion.choices[0].message.content.strip()
 
         # ------- GERÇEK DOĞUM HARİTASI OLUŞTUR -------
         lat, lon = geocode_place(birth_place)
@@ -314,7 +407,7 @@ def astrology_premium():
         chart_public_path = None
 
         try:
-            chart_id, chart_file_path = generate_natal_chart(
+            chart_id, _ = generate_natal_chart(
                 birth_date=birth_date,
                 birth_time=birth_time,
                 latitude=lat,
@@ -329,7 +422,7 @@ def astrology_premium():
             {
                 "text": text,
                 "chart": chart_public_path,  # frontend burayı kullanıyor
-                "chart_id": chart_id,        # PDF için gerekli
+                "chart_id": chart_id,  # PDF için gerekli
                 "audio": None,
                 "language": lang,
             }
@@ -350,6 +443,7 @@ def solar_return():
     - Aynı doğum günü ve saati kullanarak, seçilen yıl için harita çıkarır.
     - Astronomik olarak %100 hassas değil ama yorum için yeterli.
     """
+    clean_tmp_files()
     try:
         data = request.json or {}
         birth_date = data.get("birth_date")
@@ -382,7 +476,7 @@ def solar_return():
         chart_id = None
         chart_public_path = None
         try:
-            chart_id, chart_file_path = generate_natal_chart(
+            chart_id, _ = generate_natal_chart(
                 birth_date=sr_date,
                 birth_time=birth_time,
                 latitude=lat,
@@ -398,14 +492,14 @@ def solar_return():
 
         if lang == "tr":
             user_prompt = (
-                f"Solar return (gunes donusu) astroloji raporu olustur.\n"
-                f"Dogum: {birth_date} {birth_time} - {birth_place}\n"
-                f"Solar return yili: {year}\n\n"
-                "- Bu yilin ana temalari\n"
-                "- Ask ve iliskiler\n"
-                "- Kariyer, para ve firsatlar\n"
-                "- Ruhsal gelisim ve karmik dersler\n"
-                "Yaklasik bir yillik donemi genel hatlariyla yorumla."
+                f"Solar return (güneş dönüşü) astroloji raporu oluştur.\n"
+                f"Doğum: {birth_date} {birth_time} - {birth_place}\n"
+                f"Solar return yılı: {year}\n\n"
+                "- Bu yılın ana temaları\n"
+                "- Aşk ve ilişkiler\n"
+                "- Kariyer, para ve fırsatlar\n"
+                "- Ruhsal gelişim ve karmik dersler\n"
+                "Yaklaşık bir yıllık dönemi genel hatlarıyla yorumla."
             )
         else:
             user_prompt = (
@@ -419,16 +513,13 @@ def solar_return():
                 "Describe roughly the upcoming year."
             )
 
-        completion = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
+        text = safe_chat_completion(
+            [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            max_tokens=900,
+            max_tokens=1200,
         )
-
-        text = completion.choices[0].message.content.strip()
 
         return jsonify(
             {
@@ -436,6 +527,7 @@ def solar_return():
                 "chart": chart_public_path,
                 "chart_id": chart_id,
                 "language": lang,
+                "year": year,
             }
         )
 
@@ -453,6 +545,7 @@ def transits():
     Transit odaklı yorum (şu anki/çok yakın gelecek enerji).
     Grafik çizdirmiyoruz; sadece profesyonel metin.
     """
+    clean_tmp_files()
     try:
         data = request.json or {}
         birth_date = data.get("birth_date")
@@ -478,15 +571,15 @@ def transits():
 
         if lang == "tr":
             user_prompt = (
-                f"Transit odakli astroloji raporu olustur.\n"
-                f"Dogum: {birth_date} {birth_time} - {birth_place}\n"
-                f"Danisan: {name}\n"
-                f"Bugun: {today}\n\n"
-                "- Yakin gecmis ve su anki enerji\n"
-                "- Onumuzdeki haftalar icin ana temalar\n"
-                "- Ask, kariyer, finans ve ruhsal gelisim icin ayri paragraflar\n"
-                "- Saturn, Uranus, Neptun ve Pluton transitlerinin onemli etkileri\n"
-                "Somut tavsiyeler ver; korkutucu olmayip guclendirici bir dil kullan."
+                f"Transit odaklı astroloji raporu oluştur.\n"
+                f"Doğum: {birth_date} {birth_time} - {birth_place}\n"
+                f"Danışan: {name}\n"
+                f"Bugün: {today}\n\n"
+                "- Yakın geçmiş ve şu anki enerji\n"
+                "- Önümüzdeki haftalar için ana temalar\n"
+                "- Aşk, kariyer, finans ve ruhsal gelişim için ayrı paragraflar\n"
+                "- Satürn, Uranüs, Neptün ve Plüton transitlerinin önemli etkileri\n"
+                "Somut tavsiyeler ver; korkutucu olmayıp güçlendirici bir dil kullan."
             )
         else:
             user_prompt = (
@@ -501,16 +594,13 @@ def transits():
                 "Give concrete advice, use an empowering tone and avoid fear-based language."
             )
 
-        completion = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
+        text = safe_chat_completion(
+            [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            max_tokens=900,
+            max_tokens=1200,
         )
-
-        text = completion.choices[0].message.content.strip()
         return jsonify({"text": text, "language": lang})
 
     except Exception as e:
@@ -519,68 +609,86 @@ def transits():
 
 
 # -----------------------------
-# PDF YAZARKEN TÜRKÇE KARAKTER TEMİZLEME
-# (FPDF latin-1 destekli; ı,ğ,ş,ö,ç,ü sorun çıkarıyordu)
-# -----------------------------
-REPLACE_MAP = str.maketrans({
-    "ı": "i", "İ": "I",
-    "ğ": "g", "Ğ": "G",
-    "ş": "s", "Ş": "S",
-    "ö": "o", "Ö": "O",
-    "ü": "u", "Ü": "U",
-    "ç": "c", "Ç": "C",
-})
-
-
-def pdf_safe(text: str) -> str:
-    if not text:
-        return ""
-    return text.translate(REPLACE_MAP)
-
-
-# -----------------------------
 # PROFESYONEL PDF GENERATOR
 # -----------------------------
 class MystPDF(FPDF):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Unicode font ekle (DejaVu)
+        try:
+            if os.path.exists(DEJAVU_PATH):
+                self.add_font("DejaVu", "", DEJAVU_PATH, uni=True)
+                self.add_font("DejaVu", "B", DEJAVU_PATH, uni=True)
+        except Exception as e:
+            print("Font load error:", e)
+
     def header(self):
-        # üst lacivert şerit
+        # Tüm sayfalarda üst bant
         self.set_fill_color(12, 20, 45)  # koyu lacivert
-        self.rect(0, 0, 210, 25, "F")
-        self.set_xy(10, 7)
+        self.rect(0, 0, 210, 20, "F")
+        self.set_xy(10, 5)
+
+        # Logo (varsa)
+        if os.path.exists(LOGO_PATH):
+            try:
+                self.image(LOGO_PATH, x=10, y=2, w=16)
+                self.set_xy(28, 6)
+            except Exception as e:
+                print("Header logo error:", e)
+                self.set_xy(10, 6)
+
         self.set_text_color(255, 215, 120)
-        self.set_font("Helvetica", "B", 14)
-        self.cell(0, 6, pdf_safe("MystAI Astrology Report"), ln=1)
-        self.set_font("Helvetica", "", 9)
+        try:
+            self.set_font("DejaVu", "B", 11)
+        except Exception:
+            self.set_font("Helvetica", "B", 11)
+        self.cell(0, 5, "MystAI Astrology Report", ln=1)
+
         self.set_text_color(220, 230, 255)
-        self.cell(0, 4, pdf_safe("mystai.ai - AI powered divination & astrology"), ln=1)
+        try:
+            self.set_font("DejaVu", "", 8)
+        except Exception:
+            self.set_font("Helvetica", "", 8)
+        self.cell(0, 4, "mystai.ai • AI-powered divination & astrology", ln=1)
+
+        self.ln(4)
 
     def footer(self):
-        self.set_y(-15)
-        self.set_font("Helvetica", "I", 8)
-        self.set_text_color(150, 155, 180)
-        self.cell(0, 10, pdf_safe(f"MystAI.ai - Page {self.page_no()}"), align="C")
+        self.set_y(-12)
+        self.set_text_color(160, 165, 190)
+        try:
+            self.set_font("DejaVu", "I", 8)
+        except Exception:
+            self.set_font("Helvetica", "I", 8)
+        page_text = f"MystAI.ai • Page {self.page_no()}"
+        self.cell(0, 8, page_text, align="C")
 
 
 @app.route("/generate_pdf", methods=["POST"])
 def generate_pdf():
     """
-    Frontend, text + chart_id + language ile çağırır.
+    Frontend, text + chart_id + language (+ opsiyonel solar/transit metinleri) ile çağırır.
     Profesyonel görünümlü bir PDF üretir:
-    - 1. sayfa: Baslik + kisa aciklama
-    - 2. sayfa: Tam sayfa dogum haritasi (varsa)
-    - Sonraki sayfalar: Uzun rapor metni
+    1. Kapak sayfası (logo + başlık)
+    2. Natal harita sayfası (harita büyük ve ortada)
+    3. Rapor sayfaları:
+       - Natal rapor (text)
+       - Opsiyonel: Solar return raporu
+       - Opsiyonel: Transit raporu
     """
+    clean_tmp_files()
     try:
         data = request.json or {}
-        text_raw = (data.get("text") or "").strip()
+        text = data.get("text", "").strip()  # ana natal rapor
         chart_id = data.get("chart_id")
         lang = data.get("language", "en")
 
-        if not text_raw:
-            return jsonify({"error": "Metin yok"}), 400
+        # Opsiyonel ek bölümler
+        solar_text = (data.get("solar_text") or "").strip()
+        transit_text = (data.get("transit_text") or "").strip()
 
-        # PDF icin guvenli metin (Turkce karakter temizleme)
-        text = pdf_safe(text_raw)
+        if not text:
+            return jsonify({"error": "Metin yok"}), 400
 
         pdf_id = uuid.uuid4().hex
         pdf_path = f"/tmp/{pdf_id}.pdf"
@@ -588,80 +696,170 @@ def generate_pdf():
         pdf = MystPDF()
         pdf.set_auto_page_break(auto=True, margin=18)
 
-        # ----- SAYFA 1: Kapak + giris -----
+        # 1) KAPAK SAYFASI
         pdf.add_page()
+
+        # Kapakta header zaten var; biraz aşağı in
         pdf.ln(20)
 
         if lang == "tr":
-            title = pdf_safe("Yapay Zeka Astroloji Raporun")
-            sub = pdf_safe(
-                "MystAI, sembolik astrolojiyi yapay zeka ile birlestirerek dogum haritan "
-                "ve gokyuzu hareketleri uzerinden kisisel ve derinlemesine bir yorum sunar."
+            title = "Yapay Zekâ Astroloji Raporun"
+            sub = (
+                "MystAI, sembolik astrolojiyi yapay zekâ ile birleştirerek doğum haritan "
+                "ve gökyüzü hareketleri üzerinden kişisel ve derinlemesine bir yorum sunar."
             )
-            intro = pdf_safe("Detayli astroloji raporun asagidadir:")
         else:
             title = "Your AI Astrology Report"
             sub = (
                 "MystAI blends symbolic astrology with advanced AI to offer a deep, "
                 "personalised interpretation of your chart and the current sky."
             )
-            intro = "Your detailed astrology report is below:"
 
-        # Baslik
+        # Kapak başlık
         pdf.set_text_color(30, 35, 60)
-        pdf.set_font("Helvetica", "B", 16)
-        pdf.multi_cell(0, 8, title)
-        pdf.ln(2)
+        try:
+            pdf.set_font("DejaVu", "B", 18)
+        except Exception:
+            pdf.set_font("Helvetica", "B", 18)
+        pdf.multi_cell(0, 10, title, align="L")
+        pdf.ln(4)
 
-        pdf.set_font("Helvetica", "", 11)
+        try:
+            pdf.set_font("DejaVu", "", 11)
+        except Exception:
+            pdf.set_font("Helvetica", "", 11)
         pdf.set_text_color(80, 86, 120)
         pdf.multi_cell(0, 6, sub)
+        pdf.ln(10)
 
-        # ----- SAYFA 2: Harita (varsa) -----
+        if lang == "tr":
+            cover_note = (
+                "Bu rapor, doğum haritanın sembolik dilini ve güncel gökyüzü enerjilerini "
+                "bir araya getirerek seni güçlendirmeyi amaçlayan, mistik ama ayakları yere basan "
+                "bir rehberdir. Aşağıdaki sayfalarda natal haritan, olası yıllık temaların ve "
+                "önümüzdeki süreçteki transit etkilerin hakkında derinlemesine yorumlar bulacaksın."
+            )
+        else:
+            cover_note = (
+                "This report weaves together the symbolic language of your natal chart and the "
+                "current movements in the sky. Its purpose is to support and empower you with "
+                "grounded yet mystical guidance for the path ahead."
+            )
+
+        pdf.multi_cell(0, 6, cover_note)
+
+        # 2) NATAL CHART SAYFASI
         if chart_id:
             chart_file = f"/tmp/{chart_id}.png"
             if os.path.exists(chart_file):
                 try:
                     from PIL import Image
 
-                    # PNG -> JPG (FPDF icin daha stabil) + RGB
+                    # PNG → RGB JPEG (bazı PDF kütüphaneleri için daha stabil)
                     img = Image.open(chart_file).convert("RGB")
                     rgb_fixed = f"/tmp/{chart_id}_rgb.jpg"
                     img.save(rgb_fixed, "JPEG", quality=95)
 
                     pdf.add_page()
 
-                    pdf.set_font("Helvetica", "B", 14)
-                    pdf.set_text_color(50, 50, 70)
-                    pdf.cell(0, 10, pdf_safe("Natal Chart (Dogum Haritasi)"), ln=1, align="C")
-                    pdf.ln(5)
+                    # Başlık
+                    pdf.ln(18)
+                    pdf.set_text_color(40, 45, 70)
+                    try:
+                        pdf.set_font("DejaVu", "B", 14)
+                    except Exception:
+                        pdf.set_font("Helvetica", "B", 14)
 
-                    img_width = 150
+                    if lang == "tr":
+                        chart_title = "Natal Chart (Doğum Haritası)"
+                    else:
+                        chart_title = "Natal Chart"
+
+                    pdf.multi_cell(0, 8, chart_title, align="C")
+                    pdf.ln(6)
+
+                    # Haritayı ortalı yerleştir
+                    img_width = 150  # mm
                     x = (210 - img_width) / 2
                     y = pdf.get_y()
                     pdf.image(rgb_fixed, x=x, y=y, w=img_width)
                     pdf.ln(160)
                 except Exception as e:
-                    print("PDF IMAGE ERROR:", e)
+                    print("PDF image error:", e)
 
-        # ----- SAYFA 3+ : UZUN RAPOR -----
+        # 3) RAPOR SAYFALARI
         pdf.add_page()
+
+        # Giriş başlığı
+        pdf.ln(10)
         pdf.set_text_color(40, 40, 60)
-        pdf.set_font("Helvetica", "B", 12)
-        pdf.multi_cell(0, 6, intro)
+        try:
+            pdf.set_font("DejaVu", "B", 13)
+        except Exception:
+            pdf.set_font("Helvetica", "B", 13)
+
+        if lang == "tr":
+            intro = "Detaylı Astroloji Raporun"
+        else:
+            intro = "Your Detailed Astrology Report"
+
+        pdf.multi_cell(0, 7, intro)
         pdf.ln(4)
 
-        pdf.set_font("Helvetica", "", 11)
+        # Gövde metni ayarı
+        try:
+            pdf.set_font("DejaVu", "", 11)
+        except Exception:
+            pdf.set_font("Helvetica", "", 11)
         pdf.set_text_color(25, 25, 40)
 
-        for line in text.split("\n"):
-            line = line.strip()
-            if not line:
-                pdf.ln(2)
-                continue
-            pdf.multi_cell(0, 5.5, line)
-            pdf.ln(0.5)
+        def write_section(header, body):
+            if not body:
+                return
+            pdf.ln(4)
+            try:
+                pdf.set_font("DejaVu", "B", 12)
+            except Exception:
+                pdf.set_font("Helvetica", "B", 12)
+            pdf.multi_cell(0, 6, header)
+            pdf.ln(1)
+            try:
+                pdf.set_font("DejaVu", "", 11)
+            except Exception:
+                pdf.set_font("Helvetica", "", 11)
+            for line in body.split("\n"):
+                line = line.strip()
+                if not line:
+                    pdf.ln(2)
+                    continue
+                pdf.multi_cell(0, 5.5, line)
+                pdf.ln(0.5)
 
+        # Ana natal rapor
+        if lang == "tr":
+            natal_header = "1) Natal Harita Analizi"
+        else:
+            natal_header = "1) Natal Chart Analysis"
+
+        write_section(natal_header, text)
+
+        # Solar return bölümü (opsiyonel)
+        if solar_text:
+            if lang == "tr":
+                sr_header = "2) Solar Return (Yıllık Tema)"
+            else:
+                sr_header = "2) Solar Return (Yearly Themes)"
+            write_section(sr_header, solar_text)
+
+        # Transit bölümü (opsiyonel)
+        if transit_text:
+            if lang == "tr":
+                tr_header = "3) Transit Etkileri"
+            else:
+                tr_header = "3) Transit Influences"
+            write_section(tr_header, transit_text)
+
+        # PDF'i kaydet
         pdf.output(pdf_path)
         return send_file(pdf_path, as_attachment=True, download_name="mystai-report.pdf")
 
