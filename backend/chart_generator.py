@@ -8,7 +8,6 @@
 import os
 import uuid
 import math
-from datetime import datetime
 
 from skyfield.api import load, wgs84
 from PIL import Image, ImageDraw, ImageFont
@@ -44,6 +43,21 @@ PLANETS = [
     ("Pluto",   "♇"),
 ]
 
+ZODIAC_SIGNS = [
+    ("♈", "Aries"),
+    ("♉", "Taurus"),
+    ("♊", "Gemini"),
+    ("♋", "Cancer"),
+    ("♌", "Leo"),
+    ("♍", "Virgo"),
+    ("♎", "Libra"),
+    ("♏", "Scorpio"),
+    ("♐", "Sagittarius"),
+    ("♑", "Capricorn"),
+    ("♒", "Aquarius"),
+    ("♓", "Pisces"),
+]
+
 # Skyfield ephemeris
 _TS = load.timescale()
 _EPH = load("de421.bsp")   # ücretsiz, küçük ephemeris
@@ -59,7 +73,6 @@ def _compute_longitudes(birth_date: str, birth_time: str, lat: float, lon: float
     t = _TS.utc(year, month, day, hour, minute)
 
     earth = _EPH["earth"]
-    # Önemli: skyfield için doğru parametre isimleri
     location = earth + wgs84.latlon(latitude_degrees=lat, longitude_degrees=lon)
 
     planet_keys = {
@@ -102,6 +115,7 @@ def _draw_chart(longitudes: dict) -> Image.Image:
 
     cx = cy = size // 2
     outer_r = size * 0.46
+    zodiac_r = size * 0.49
     inner_r = size * 0.18
     text_r  = size * 0.41
     aspect_r = size * 0.34
@@ -125,11 +139,26 @@ def _draw_chart(longitudes: dict) -> Image.Image:
         x2, y2 = _polar(cx, cy, outer_r, angle)
         draw.line([x1, y1, x2, y2], fill=HOUSE_LINE_COLOR, width=2)
 
-    # Font
+    # Fontlar
     try:
-        font = ImageFont.truetype("DejaVuSans.ttf", 40)
+        planet_font = ImageFont.truetype("DejaVuSans.ttf", 40)
+        zodiac_font = ImageFont.truetype("DejaVuSans.ttf", 32)
     except Exception:
-        font = ImageFont.load_default()
+        planet_font = ImageFont.load_default()
+        zodiac_font = ImageFont.load_default()
+
+    # Zodyak sembolleri dış halka
+    for i, (glyph, name) in enumerate(ZODIAC_SIGNS):
+        # Her burcun ortası (i*30 + 15), 0° Koç yukarı olacak şekilde -90
+        angle = (i * 30 + 15) - 90
+        tx, ty = _polar(cx, cy, zodiac_r, angle)
+
+        label = glyph
+        bbox = draw.textbbox((0, 0), label, font=zodiac_font)
+        w = bbox[2] - bbox[0]
+        h = bbox[3] - bbox[1]
+
+        draw.text((tx - w / 2, ty - h / 2), label, font=zodiac_font, fill=(60, 50, 40))
 
     # Gezegenlerin noktaları + sembolleri
     planet_points = {}
@@ -150,18 +179,18 @@ def _draw_chart(longitudes: dict) -> Image.Image:
         tx, ty = _polar(cx, cy, text_r, angle)
         label = glyph or name[:2]
 
-        bbox = draw.textbbox((0, 0), label, font=font)
+        bbox = draw.textbbox((0, 0), label, font=planet_font)
         w = bbox[2] - bbox[0]
         h = bbox[3] - bbox[1]
 
-        draw.text((tx - w/2, ty - h/2), label, font=font, fill=(20, 20, 20))
+        draw.text((tx - w / 2, ty - h / 2), label, font=planet_font, fill=(20, 20, 20))
 
         planet_points[name] = (px, py, lon_deg)
 
     # Aspect çizimleri
     names = list(planet_points.keys())
     for i in range(len(names)):
-        for j in range(i+1, len(names)):
+        for j in range(i + 1, len(names)):
             n1, n2 = names[i], names[j]
             x1, y1, lon1 = planet_points[n1]
             x2, y2, lon2 = planet_points[n2]
@@ -183,7 +212,7 @@ def _draw_chart(longitudes: dict) -> Image.Image:
                 aspect = "opp"
 
             if aspect:
-                color = ASPECT_COLORS.get(aspect, (150,150,150))
+                color = ASPECT_COLORS.get(aspect, (150, 150, 150))
                 draw.line([x1, y1, x2, y2], fill=color, width=2)
 
     return img
