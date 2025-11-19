@@ -9,6 +9,7 @@ geopy
 skyfield
 numpy
 Pillow
-swisseph
+pyswisseph
 matplotlib
+
 
