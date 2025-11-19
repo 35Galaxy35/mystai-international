@@ -38,19 +38,35 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 
 
-# Gezegen listesi (Swiss Ephemeris sabitleri + kısaltmalar)
-PLANETS = [
-    ("Sun", "☉", getattr(swe, "SUN", 0)),
-    ("Moon", "☽", getattr(swe, "MOON", 1)),
-    ("Mercury", "☿", getattr(swe, "MERCURY", 2)),
-    ("Venus", "♀", getattr(swe, "VENUS", 3)),
-    ("Mars", "♂", getattr(swe, "MARS", 4)),
-    ("Jupiter", "♃", getattr(swe, "JUPITER", 5)),
-    ("Saturn", "♄", getattr(swe, "SATURN", 6)),
-    ("Uranus", "♅", getattr(swe, "URANUS", 7)),
-    ("Neptune", "♆", getattr(swe, "NEPTUNE", 8)),
-    ("Pluto", "♇", getattr(swe, "PLUTO", 9)),
-]
+# Gezegen listesi (Swiss Ephemeris sabitleri + fallback)
+if HAS_SWISS:
+    PLANETS = [
+        ("Sun", "☉", swe.SUN),
+        ("Moon", "☽", swe.MOON),
+        ("Mercury", "☿", swe.MERCURY),
+        ("Venus", "♀", swe.VENUS),
+        ("Mars", "♂", swe.MARS),
+        ("Jupiter", "♃", swe.JUPITER),
+        ("Saturn", "♄", swe.SATURN),
+        ("Uranus", "♅", swe.URANUS),
+        ("Neptune", "♆", swe.NEPTUNE),
+        ("Pluto", "♇", swe.PLUTO),
+    ]
+else:
+    # Eğer Swiss Ephemeris yoksa fallback pozisyonlar
+    PLANETS = [
+        ("Sun", "☉", 0),
+        ("Moon", "☽", 30),
+        ("Mercury", "☿", 60),
+        ("Venus", "♀", 90),
+        ("Mars", "♂", 120),
+        ("Jupiter", "♃", 150),
+        ("Saturn", "♄", 180),
+        ("Uranus", "♅", 210),
+        ("Neptune", "♆", 240),
+        ("Pluto", "♇", 270),
+    ]
+
 
 # Zodyak işaret isimleri
 SIGNS = [
