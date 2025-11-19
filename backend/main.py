@@ -1,37 +1,29 @@
-# ============================================
-# MystAI - Full Premium Backend (Commercial Ready)
-# VER: v4.2 (Full Fix Pack)
-# --------------------------------------------
-# - /predict : sohbet + TTS
-# - /astrology-premium (NATAL)
-# - /solar-return        (SOLAR)
-# - /transits            (TRANSIT)
-# - /generate_pdf        (Doğru başlık + kesintisiz metin + PNG render)
-# - /chart/<id>, /audio/<id>
-# ============================================
-
 import os
+import sys
 import uuid
 import traceback
 from datetime import datetime
+
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from openai import OpenAI
 from langdetect import detect
 from gtts import gTTS
-from fpdf import FPDF
 from geopy.geocoders import Nominatim
+from fpdf import FPDF
 
-import sys
+# chart_generator.py aynı klasörde
 sys.path.append(os.path.dirname(__file__))
 from chart_generator import generate_natal_chart
 
-
+# -----------------------------
+# Flask
+# -----------------------------
 app = Flask(__name__)
 CORS(app)
 
 # -----------------------------
-# OpenAI
+# OpenAI API
 # -----------------------------
 OPENAI_KEY = os.environ.get("OPENAI_API_KEY")
 if not OPENAI_KEY:
@@ -40,7 +32,7 @@ if not OPENAI_KEY:
 client = OpenAI(api_key=OPENAI_KEY)
 
 # -----------------------------
-# Yol sabitleri
+# Yol sabitleri (font + logo)
 # -----------------------------
 BACKEND_DIR = os.path.dirname(__file__)
 ROOT_DIR = os.path.abspath(os.path.join(BACKEND_DIR, ".."))
@@ -53,8 +45,7 @@ LOGO_PATH = os.path.join(ROOT_DIR, "images", "mystai-logo.png")
 # -----------------------------
 geolocator = Nominatim(user_agent="mystai-astrology")
 
-
-def geocode_place(place):
+def geocode_place(place: str):
     try:
         loc = geolocator.geocode(place, timeout=10)
         if loc:
@@ -65,37 +56,53 @@ def geocode_place(place):
 
 
 # -----------------------------
-# System Prompts
+# SYSTEM PROMPT BUILDER
 # -----------------------------
-def build_system_prompt(kind, lang):
-    if lang == "tr":
-        base = (
-            "Sen MystAI'sin. Profesyonel, destekleyici, sakin ve derin bir üslup kullan. "
-            "Kaderci veya korkutucu ifadeler kullanma."
-        )
-        mapping = {
-            "general": base + " Genel sezgisel rehberlik sun.",
-            "astrology": base + " Natal haritayı gezegenler, evler ve açılarla profesyonelce yorumla.",
-            "solar_return": base + " Solar return haritasını yıllık tema olarak yorumla.",
-            "transit": base + " Transit gezegen etkilerini danışanın doğum haritası üzerinden açıkla."
-        }
-    else:
-        base = (
-            "You are MystAI. You speak professionally, warmly and with supportive clarity. "
-            "Avoid fear-based or fatalistic statements."
-        )
-        mapping = {
-            "general": base + " Provide intuitive guidance.",
-            "astrology": base + " Interpret the natal chart using planets, houses and aspects.",
-            "solar_return": base + " Explain the yearly themes via the solar return chart.",
-            "transit": base + " Explain how current transits interact with the natal chart."
-        }
+def build_system_prompt(kind: str, lang: str):
 
-    return mapping.get(kind, mapping["general"])
+    base_tr = (
+        "Sen MystAI adında profesyonel, mistik ve destekleyici bir yorumcusun. "
+        "Kullanıcıya güçlü, pozitif ve derin bir dille yorum yap."
+    )
+    base_en = (
+        "You are MystAI, a mystical and professional interpreter. "
+        "Speak warmly, clearly and with empowering insights."
+    )
+
+    mapping_tr = {
+        "general": base_tr,
+        "astrology": base_tr + " Doğum haritasını gezegenler, evler ve açılarla profesyonelce yorumla.",
+        "solar_return": base_tr + " Solar return (güneş dönüşü) temasını yıllık olarak yorumla.",
+        "transit": base_tr + " Transitlerin danışan üzerindeki etkilerini detaylandır.",
+    }
+
+    mapping_en = {
+        "general": base_en,
+        "astrology": base_en + " Interpret the natal chart with planets, houses, and aspects.",
+        "solar_return": base_en + " Interpret the solar return theme for the year ahead.",
+        "transit": base_en + " Explain how the current transits affect the natal chart.",
+    }
+
+    if lang == "tr":
+        return mapping_tr.get(kind, mapping_tr["general"])
+    return mapping_en.get(kind, mapping_en["general"])
+
+
+# -----------------------------
+# ROUTES
+# -----------------------------
+@app.route("/")
+def index():
+    return "MystAI Backend Running 🔮"
+
+
+@app.route("/ping")
+def ping():
+    return jsonify({"status": "ok"})
 
 
 # =====================================================
-# Normal /predict
+#  NORMAL /predict
 # =====================================================
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -104,12 +111,13 @@ def predict():
         user_input = (data.get("user_input") or "").strip()
 
         if not user_input:
-            return jsonify({"error": "user_input boş"}), 400
+            return jsonify({"error": "user_input boş olamaz"}), 400
 
         try:
             lang = detect(user_input)
         except:
             lang = "en"
+
         if lang not in ("tr", "en"):
             lang = "en"
 
@@ -125,7 +133,6 @@ def predict():
 
         text = completion.choices[0].message.content.strip()
 
-        # TTS
         audio_id = uuid.uuid4().hex
         audio_path = f"/tmp/{audio_id}.mp3"
         gTTS(text=text, lang=lang).save(audio_path)
@@ -137,8 +144,9 @@ def predict():
         return jsonify({"error": str(e)}), 500
 
 
+
 # =====================================================
-# NATAL
+#  NATAL PREMIUM
 # =====================================================
 @app.route("/astrology-premium", methods=["POST"])
 def astrology_premium():
@@ -151,39 +159,45 @@ def astrology_premium():
         name = data.get("name", "")
         focus = data.get("focus_areas", [])
         question = data.get("question", "")
-        lang = data.get("language")
+        lang = data.get("language", "en")
 
-        if not (birth_date and birth_time and birth_place):
+        if not birth_date or not birth_time or not birth_place:
             return jsonify({"error": "Eksik bilgi"}), 400
 
-        if not lang:
-            try:
-                lang = detect(birth_place)
-            except:
-                lang = "en"
         if lang not in ("tr", "en"):
             lang = "en"
 
+        lat, lon = geocode_place(birth_place)
+
+        # NATAL CHART
+        chart_id, chart_file = generate_natal_chart(
+            birth_date=birth_date,
+            birth_time=birth_time,
+            latitude=lat,
+            longitude=lon,
+            out_dir="/tmp",
+        )
+
+        # AI TEXT
         system_prompt = build_system_prompt("astrology", lang)
 
         if lang == "tr":
             user_prompt = (
-                f"NATAL astroloji raporu oluştur.\n"
+                f"Premium NATAL astroloji raporu oluştur.\n"
                 f"Doğum: {birth_date} {birth_time} - {birth_place}\n"
                 f"İsim: {name}\n"
-                f"Odak: {', '.join(focus) or 'Genel'}\n"
+                f"Odak alanları: {', '.join(focus) or 'Genel'}\n"
                 f"Soru: {question}\n\n"
-                "- Kişilik, ruhsal yapı\n"
+                "- Kişilik & ruhsal yapı\n"
                 "- Yaşam amacı\n"
-                "- Aşk / İlişkiler\n"
-                "- Kariyer ve maddi alan\n"
-                "- Karmik temalar\n"
-                "- 12 evin detaylı analizi\n"
-                "- Önümüzdeki 3-6 aylık genel temalar\n"
+                "- Aşk & ilişkiler\n"
+                "- Kariyer & para\n"
+                "- 12 Ev analizi\n"
+                "- Önümüzdeki 3–6 ay"
             )
         else:
             user_prompt = (
-                f"Create a NATAL astrology report.\n"
+                f"Create a premium NATAL astrology report.\n"
                 f"Birth: {birth_date} {birth_time} - {birth_place}\n"
                 f"Name: {name}\n"
                 f"Focus: {', '.join(focus) or 'General'}\n"
@@ -191,10 +205,9 @@ def astrology_premium():
                 "- Personality\n"
                 "- Life purpose\n"
                 "- Love & relationships\n"
-                "- Career & money\n"
-                "- Karmic themes\n"
-                "- Full house-by-house analysis\n"
-                "- Themes for next 3–6 months\n"
+                "- Career & finances\n"
+                "- 12-house analysis\n"
+                "- Next 3–6 months"
             )
 
         completion = client.chat.completions.create(
@@ -204,30 +217,15 @@ def astrology_premium():
                 {"role": "user", "content": user_prompt},
             ],
         )
-        text = completion.choices[0].message.content.strip()
 
-        # Harita
-        lat, lon = geocode_place(birth_place)
-        cid = None
-        path = None
-        try:
-            cid, fpath = generate_natal_chart(
-                birth_date=birth_date,
-                birth_time=birth_time,
-                latitude=lat,
-                longitude=lon,
-                out_dir="/tmp"
-            )
-            path = f"/chart/{cid}"
-        except Exception as e:
-            print("Natal chart error:", e)
+        text = completion.choices[0].message.content.strip()
 
         return jsonify({
             "text": text,
-            "chart": path,
-            "chart_id": cid,
+            "chart": f"/chart/{chart_id}",
+            "chart_id": chart_id,
+            "language": lang,
             "mode": "natal",
-            "language": lang
         })
 
     except Exception as e:
@@ -235,70 +233,53 @@ def astrology_premium():
         return jsonify({"error": str(e)}), 500
 
 
+
 # =====================================================
-# SOLAR RETURN
+#  SOLAR RETURN
 # =====================================================
 @app.route("/solar-return", methods=["POST"])
 def solar_return():
     try:
         data = request.json or {}
+
         birth_date = data.get("birth_date")
         birth_time = data.get("birth_time")
         birth_place = data.get("birth_place")
-        year = data.get("year")
-        lang = data.get("language")
+        lang = data.get("language", "en")
+        year = int(data.get("year") or datetime.utcnow().year)
 
-        if not (birth_date and birth_time and birth_place):
+        if not birth_date or not birth_time or not birth_place:
             return jsonify({"error": "Eksik bilgi"}), 400
 
-        if not year:
-            year = datetime.utcnow().year
-        year = int(year)
-
-        if not lang:
-            lang = "tr"
         if lang not in ("tr", "en"):
             lang = "en"
 
-        # SR tarih
-        y0, m0, d0 = map(int, birth_date.split("-"))
-        sr_date = f"{year}-{m0:02d}-{d0:02d}"
+        y, m, d = map(int, birth_date.split("-"))
+        sr_date = f"{year}-{m:02d}-{d:02d}"
 
-        # Harita
         lat, lon = geocode_place(birth_place)
-        cid = None
-        path = None
-        try:
-            cid, fpath = generate_natal_chart(
-                birth_date=sr_date,
-                birth_time=birth_time,
-                latitude=lat,
-                longitude=lon,
-                out_dir="/tmp"
-            )
-            path = f"/chart/{cid}"
-        except Exception as e:
-            print("Solar chart error:", e)
+
+        chart_id, _ = generate_natal_chart(
+            birth_date=sr_date,
+            birth_time=birth_time,
+            latitude=lat,
+            longitude=lon,
+            out_dir="/tmp",
+        )
 
         system_prompt = build_system_prompt("solar_return", lang)
 
         if lang == "tr":
             user_prompt = (
-                f"Solar return yılı: {year}\n"
-                f"Doğum: {birth_date} {birth_time} - {birth_place}\n\n"
-                "- Bu yılın ana temaları\n"
-                "- Aşk & ilişkiler\n"
-                "- Kariyer & maddi fırsatlar\n"
-                "- Ruhsal gelişim ve karmik dersler\n"
+                f"Solar return raporu oluştur.\n"
+                f"Doğum: {birth_date} {birth_time} - {birth_place}\n"
+                f"Yıl: {year}"
             )
         else:
             user_prompt = (
-                f"Solar return year: {year}\n"
-                f"Birth: {birth_date} {birth_time} - {birth_place}\n\n"
-                "- Main themes\n"
-                "- Love & relationships\n"
-                "- Career & opportunities\n"
-                "- Spiritual & karmic lessons\n"
+                f"Create a solar return astrology report.\n"
+                f"Birth: {birth_date} {birth_time} - {birth_place}\n"
+                f"Year: {year}"
             )
 
         completion = client.chat.completions.create(
@@ -307,17 +288,18 @@ def solar_return():
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
+            max_tokens=900,
         )
 
         text = completion.choices[0].message.content.strip()
 
         return jsonify({
             "text": text,
-            "chart": path,
-            "chart_id": cid,
+            "chart": f"/chart/{chart_id}",
+            "chart_id": chart_id,
+            "language": lang,
             "mode": "solar",
             "solar_year": year,
-            "language": lang
         })
 
     except Exception as e:
@@ -325,8 +307,9 @@ def solar_return():
         return jsonify({"error": str(e)}), 500
 
 
+
 # =====================================================
-# TRANSITS
+#  TRANSITS
 # =====================================================
 @app.route("/transits", methods=["POST"])
 def transits():
@@ -337,15 +320,10 @@ def transits():
         birth_time = data.get("birth_time")
         birth_place = data.get("birth_place")
         name = data.get("name", "")
-        lang = data.get("language")
+        lang = data.get("language", "en")
 
-        if not (birth_date and birth_time and birth_place):
+        if not birth_date or not birth_time or not birth_place:
             return jsonify({"error": "Eksik bilgi"}), 400
-
-        if not lang:
-            lang = "tr"
-        if lang not in ("tr", "en"):
-            lang = "en"
 
         today = datetime.utcnow().strftime("%Y-%m-%d")
 
@@ -353,25 +331,17 @@ def transits():
 
         if lang == "tr":
             user_prompt = (
-                f"Transit raporu oluştur.\n"
+                f"Transit odaklı astroloji raporu oluştur.\n"
                 f"Doğum: {birth_date} {birth_time} - {birth_place}\n"
                 f"Danışan: {name}\n"
-                f"Bugün: {today}\n\n"
-                "- Şu anki ana enerji\n"
-                "- Yakın gelecek temaları\n"
-                "- Aşk, kariyer, para, ruhsal gelişim\n"
-                "- Satürn, Uranüs, Neptün, Plüton transit etkileri\n"
+                f"Bugün: {today}"
             )
         else:
             user_prompt = (
-                f"Create a transit report.\n"
+                f"Create a transit-focused astrology report.\n"
                 f"Birth: {birth_date} {birth_time} - {birth_place}\n"
                 f"Name: {name}\n"
-                f"Today: {today}\n\n"
-                "- Current energy\n"
-                "- Themes for coming weeks\n"
-                "- Love, career, finances, spiritual growth\n"
-                "- Saturn / Uranus / Neptune / Pluto effects\n"
+                f"Today: {today}"
             )
 
         completion = client.chat.completions.create(
@@ -384,19 +354,16 @@ def transits():
 
         text = completion.choices[0].message.content.strip()
 
-        return jsonify({
-            "text": text,
-            "language": lang,
-            "mode": "transits"
-        })
+        return jsonify({"text": text, "language": lang, "mode": "transits"})
 
     except Exception as e:
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 
+
 # =====================================================
-# PDF TEMPLATE
+#  PDF
 # =====================================================
 class MystPDF(FPDF):
     def __init__(self):
@@ -406,32 +373,18 @@ class MystPDF(FPDF):
             self.add_font("DejaVu", "B", FONT_PATH_TTF, uni=True)
 
     def header(self):
-        # Logo sol üst
+        # LOGO SOL ÜSTTE - ORTA BOY
         if os.path.exists(LOGO_PATH):
-            self.image(LOGO_PATH, 10, 7, 15)
-
-        self.set_xy(30, 8)
-        self.set_font("DejaVu", "B", 11)
-        self.set_text_color(25, 30, 55)
-        self.cell(0, 5, "MystAI Astrology", ln=1)
-
-        self.set_xy(30, 14)
-        self.set_font("DejaVu", "", 8)
-        self.set_text_color(110, 115, 150)
-        self.cell(0, 4, "mystai.ai  •  AI-powered divination & astrology", ln=1)
-
-        self.ln(4)
+            self.image(LOGO_PATH, x=10, y=6, w=38)  # burası sol üst + orta boy
+        self.ln(20)
 
     def footer(self):
-        self.set_y(-13)
-        self.set_font("DejaVu", "", 8)
-        self.set_text_color(130, 130, 160)
-        self.cell(0, 8, f"Page {self.page_no()} • MystAI.ai", align="C")
+        self.set_y(-15)
+        self.set_font("DejaVu", "", 9)
+        self.set_text_color(120, 120, 120)
+        self.cell(0, 10, f"MystAI.ai • Page {self.page_no()}", align="C")
 
 
-# =====================================================
-# GENERATE PDF (Fix Pack)
-# =====================================================
 @app.route("/generate_pdf", methods=["POST"])
 def generate_pdf():
     try:
@@ -440,16 +393,12 @@ def generate_pdf():
         text = (data.get("text") or "").strip()
         chart_id = data.get("chart_id")
         lang = data.get("language", "en")
-        report_type = data.get("report_type", "natal").lower()
-
-        birth_date = data.get("birth_date")
-        birth_time = data.get("birth_time")
-        birth_place = data.get("birth_place")
-        name = data.get("name")
+        report_type = data.get("report_type", "natal")
 
         if not text:
             return jsonify({"error": "Metin yok"}), 400
 
+        # PDF
         pdf_id = uuid.uuid4().hex
         pdf_path = f"/tmp/{pdf_id}.pdf"
 
@@ -457,87 +406,50 @@ def generate_pdf():
         pdf.set_auto_page_break(auto=True, margin=18)
         pdf.add_page()
 
-        # Başlıklar
+        # -------------------------------------------
+        # BAŞLIK (Logo alta yazı)
+        # -------------------------------------------
+        pdf.set_font("DejaVu", "B", 18)
+        pdf.set_text_color(30, 28, 60)
+
         if lang == "tr":
             titles = {
-                "natal": ("MystAI Natal Doğum Haritası Raporu",
-                          "Bu rapor doğum haritanın derinlemesine yorumlanmış halidir."),
-                "solar": ("MystAI Solar Return Astroloji Raporu",
-                          "Bu rapor önümüzdeki yılın ana temalarını solar return üzerinden açıklar."),
-                "transits": ("MystAI Transit Astroloji Raporu",
-                             "Bu rapor güncel gezegen transitlerini senin doğum haritan ile ilişkilendirir.")
+                "natal": "MystAI Natal Doğum Haritası Raporu",
+                "solar": "MystAI Solar Return Astroloji Raporu",
+                "transits": "MystAI Transit Astroloji Raporu"
             }
-            intro_heading = "Detaylı astroloji raporun aşağıdadır:"
         else:
             titles = {
-                "natal": ("MystAI Natal Astrology Report",
-                          "A deep interpretation of your natal chart."),
-                "solar": ("MystAI Solar Return Report",
-                          "This report reveals the main themes of your year ahead."),
-                "transits": ("MystAI Transit Astrology Report",
-                             "This report explains how current transits interact with your chart.")
+                "natal": "MystAI Natal Astrology Report",
+                "solar": "MystAI Solar Return Report",
+                "transits": "MystAI Transit Report"
             }
-            intro_heading = "Your detailed astrology report is below:"
 
-        title, subtitle = titles.get(report_type, titles["natal"])
+        pdf.multi_cell(0, 10, titles.get(report_type, "MystAI Report"))
+        pdf.ln(4)
 
-        pdf.set_font("DejaVu", "B", 17)
-        pdf.set_text_color(30, 32, 60)
-        pdf.multi_cell(0, 8, title)
-        pdf.ln(2)
-
-        pdf.set_font("DejaVu", "", 11)
-        pdf.set_text_color(85, 90, 125)
-        pdf.multi_cell(0, 6, subtitle)
-        pdf.ln(5)
-
-        # Meta
-        meta = []
-        if birth_date and birth_time and birth_place:
-            if lang == "tr":
-                meta.append(f"Doğum: {birth_date} • {birth_time} • {birth_place}")
-            else:
-                meta.append(f"Birth: {birth_date} • {birth_time} • {birth_place}")
-
-        if name:
-            if lang == "tr":
-                meta.append(f"Danışan: {name}")
-            else:
-                meta.append(f"Client: {name}")
-
-        if meta:
-            pdf.set_font("DejaVu", "", 9)
-            pdf.set_text_color(105, 110, 140)
-            pdf.multi_cell(0, 5, "  •  ".join(meta))
-            pdf.ln(5)
-
-        # Harita (PNG direkt!)
+        # -------------------------------------------
+        # CHART (sadece natal & solar)
+        # -------------------------------------------
         if chart_id and report_type in ("natal", "solar"):
-            chart_file = f"/tmp/{chart_id}.png"
-            if os.path.exists(chart_file):
-                img_w = 140
-                x = (210 - img_w) / 2
-                y = pdf.get_y()
-                pdf.image(chart_file, x=x, y=y, w=img_w)
+            chart_path = f"/tmp/{chart_id}.png"
+            if os.path.exists(chart_path):
+                pdf.image(chart_path, x=25, w=160)
+                pdf.ln(8)
                 pdf.add_page()
 
-        # Metin
+        # -------------------------------------------
+        # METİN
+        # -------------------------------------------
         pdf.set_font("DejaVu", "", 11)
         pdf.set_text_color(25, 25, 40)
 
-        pdf.set_font("DejaVu", "B", 13)
-        pdf.multi_cell(0, 7, intro_heading)
-        pdf.ln(3)
-
-        pdf.set_font("DejaVu", "", 11)
-
-        paragraphs = text.split("\n")
-        for p in paragraphs:
-            p = p.strip()
-            if not p:
+        for line in text.split("\n"):
+            line = line.strip()
+            if not line:
                 pdf.ln(3)
                 continue
-            pdf.multi_cell(0, 6, p)
+            pdf.multi_cell(0, 6, line)
             pdf.ln(1)
 
         pdf.output(pdf_path)
@@ -549,29 +461,30 @@ def generate_pdf():
         return jsonify({"error": str(e)}), 500
 
 
+
+
 # =====================================================
-# SERVERS
+#  STATIC FILES
 # =====================================================
 @app.route("/audio/<id>")
 def serve_audio(id):
-    f = f"/tmp/{id}.mp3"
-    if not os.path.exists(f):
-        return jsonify({"error": "Ses yok"}), 404
-    return send_file(f, mimetype="audio/mpeg")
+    path = f"/tmp/{id}.mp3"
+    if not os.path.exists(path):
+        return jsonify({"error": "not found"}), 404
+    return send_file(path, mimetype="audio/mpeg")
 
 
 @app.route("/chart/<id>")
 def serve_chart(id):
-    f = f"/tmp/{id}.png"
-    if not os.path.exists(f):
-        return jsonify({"error": "Harita yok"}), 404
-    return send_file(f, mimetype="image/png")
+    path = f"/tmp/{id}.png"
+    if not os.path.exists(path):
+        return jsonify({"error": "not found"}), 404
+    return send_file(path, mimetype="image/png")
 
 
 # =====================================================
-# Run
+# RUN
 # =====================================================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
-
