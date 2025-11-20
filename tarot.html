@@ -644,32 +644,648 @@
     const tarotRow   = document.getElementById("tarotRow");
     const cardElems  = Array.from(tarotRow.querySelectorAll(".tarot-card"));
 
-    /* ====== TAROT DECK (MAJOR ARCANA ÖRNEĞİ) ====== */
-    // İstersek bunu sonra 78 karta genişletiriz; yapı hazır.
-    const TAROT_DECK = [
-      { key:"the-fool",        en:"The Fool",        tr:"Deli",             vibe_en:"new journeys, innocence",          vibe_tr:"yeni başlangıçlar, saf enerji" },
-      { key:"the-magician",    en:"The Magician",    tr:"Büyücü",           vibe_en:"manifestation, focus",             vibe_tr:"yaratım gücü, odak" },
-      { key:"the-high-priestess", en:"The High Priestess", tr:"Başrahibe",  vibe_en:"intuition, mystery",               vibe_tr:"sezgi, gizem" },
-      { key:"the-empress",     en:"The Empress",     tr:"İmparatoriçe",     vibe_en:"abundance, nurture",               vibe_tr:"bolluk, şefkat" },
-      { key:"the-emperor",     en:"The Emperor",     tr:"İmparator",        vibe_en:"structure, authority",             vibe_tr:"düzen, otorite" },
-      { key:"the-hierophant",  en:"The Hierophant",  tr:"Başrahip",         vibe_en:"tradition, guidance",              vibe_tr:"gelenek, rehberlik" },
-      { key:"the-lovers",      en:"The Lovers",      tr:"Aşıklar",          vibe_en:"union, choice",                    vibe_tr:"bağlantı, seçim" },
-      { key:"the-chariot",     en:"The Chariot",     tr:"Savaş Arabası",    vibe_en:"willpower, movement",              vibe_tr:"irade, ilerleyiş" },
-      { key:"strength",        en:"Strength",        tr:"Güç",              vibe_en:"inner strength, courage",          vibe_tr:"içsel güç, cesaret" },
-      { key:"the-hermit",      en:"The Hermit",      tr:"Ermiş",            vibe_en:"wisdom, retreat",                  vibe_tr:"bilgelik, içe dönüş" },
-      { key:"wheel-of-fortune",en:"Wheel of Fortune",tr:"Kader Çarkı",      vibe_en:"cycles, destiny",                  vibe_tr:"döngüler, kader" },
-      { key:"justice",         en:"Justice",         tr:"Adalet",           vibe_en:"truth, balance",                   vibe_tr:"gerçek, denge" },
-      { key:"the-hanged-man",  en:"The Hanged Man",  tr:"Asılan Adam",      vibe_en:"surrender, new view",              vibe_tr:"teslimiyet, yeni bakış" },
-      { key:"death",           en:"Death",           tr:"Ölüm",             vibe_en:"transformation, rebirth",          vibe_tr:"dönüşüm, yeniden doğuş" },
-      { key:"temperance",      en:"Temperance",      tr:"Denge",            vibe_en:"alchemic balance",                 vibe_tr:"denge, uyum" },
-      { key:"the-devil",       en:"The Devil",       tr:"Şeytan",           vibe_en:"attachments, shadow",              vibe_tr:"bağımlılıklar, gölge" },
-      { key:"the-tower",       en:"The Tower",       tr:"Kule",             vibe_en:"sudden change, revelation",        vibe_tr:"ani değişim, uyanış" },
-      { key:"the-star",        en:"The Star",        tr:"Yıldız",           vibe_en:"hope, healing",                    vibe_tr:"umut, şifa" },
-      { key:"the-moon",        en:"The Moon",        tr:"Ay",               vibe_en:"dreams, subconscious",             vibe_tr:"rüyalar, bilinçdışı" },
-      { key:"the-sun",         en:"The Sun",         tr:"Güneş",            vibe_en:"joy, vitality",                    vibe_tr:"neşe, yaşam enerjisi" },
-      { key:"judgement",       en:"Judgement",       tr:"Yargı",            vibe_en:"awakening, call",                  vibe_tr:"uyanış, çağrı" },
-      { key:"the-world",       en:"The World",       tr:"Dünya",            vibe_en:"completion, wholeness",            vibe_tr:"tamamlanma, bütünlük" }
-    ];
+   <script>
+/* ===========================
+      78 KARTLIK TAROT DESTE
+   =========================== */
+
+const TAROT_DECK = [
+  /* ===== MAJOR ARCANA ===== */
+  {
+    key: "the-fool",
+    en: "The Fool",
+    tr: "Deli",
+    image: "assets/cards/the-fool.png",
+    vibe_en: "Stepping into a new chapter with innocence and faith, even if you don’t fully see the path ahead.",
+    vibe_tr: "Önünü tam göremesen bile, masumiyet ve güvenle yeni bir döneme adım atıyorsun."
+  },
+  {
+    key: "the-magician",
+    en: "The Magician",
+    tr: "Büyücü",
+    image: "assets/cards/the-magician.png",
+    vibe_en: "Your talents and focus can turn ideas into reality; the tools you need are already in your hands.",
+    vibe_tr: "Yeteneklerin ve odağın, fikirlerini gerçeğe dönüştürebilir; ihtiyacın olan her şey zaten elinde."
+  },
+  {
+    key: "the-high-priestess",
+    en: "The High Priestess",
+    tr: "Başrahibe",
+    image: "assets/cards/the-high-priestess.png",
+    vibe_en: "Hidden truths and intuition are guiding you; listen to the quiet voice within rather than outer noise.",
+    vibe_tr: "Gizli gerçekler ve sezgiler sana yol gösteriyor; dış gürültü yerine içindeki sessiz sese kulak ver."
+  },
+  {
+    key: "the-empress",
+    en: "The Empress",
+    tr: "İmparatoriçe",
+    image: "assets/cards/the-empress.png",
+    vibe_en: "A time of growth, creativity and emotional abundance is opening; nurture what you love.",
+    vibe_tr: "Büyüme, yaratıcılık ve duygusal bolluk zamanı açılıyor; sevdiğin şeyleri şefkatle besle."
+  },
+  {
+    key: "the-emperor",
+    en: "The Emperor",
+    tr: "İmparator",
+    image: "assets/cards/the-emperor.png",
+    vibe_en: "Structure, discipline and clear boundaries bring stability and long-term success.",
+    vibe_tr: "Düzen, disiplin ve net sınırlar; istikrarlı ve uzun vadeli başarı getiriyor."
+  },
+  {
+    key: "the-hierophant",
+    en: "The Hierophant",
+    tr: "Başrahip",
+    image: "assets/cards/the-hierophant.png",
+    vibe_en: "Tradition, spiritual guidance or a mentor figure can help you find the right path now.",
+    vibe_tr: "Gelenek, ruhsal rehberlik veya bir mentor figürü şu anda doğru yolu bulmana yardım edebilir."
+  },
+  {
+    key: "the-lovers",
+    en: "The Lovers",
+    tr: "Aşıklar",
+    image: "assets/cards/the-lovers.png",
+    vibe_en: "A heartfelt choice or deep connection asks you to act with honesty and alignment with your values.",
+    vibe_tr: "Kalpten gelen bir seçim ya da derin bir bağ, değerlerinle uyumlu ve dürüst davranmanı istiyor."
+  },
+  {
+    key: "the-chariot",
+    en: "The Chariot",
+    tr: "Savaş Arabası",
+    image: "assets/cards/the-chariot.png",
+    vibe_en: "Determination and self-control help you move forward quickly toward your goals.",
+    vibe_tr: "Kararlılık ve öz disiplin, hedeflerine doğru hızlıca ilerlemene yardım ediyor."
+  },
+  {
+    key: "strength",
+    en: "Strength",
+    tr: "Güç",
+    image: "assets/cards/strength.png",
+    vibe_en: "True strength comes from calm courage and gentle compassion, not from force.",
+    vibe_tr: "Gerçek güç, zorlamadan değil; sakin cesaret ve yumuşak şefkatten doğar."
+  },
+  {
+    key: "the-hermit",
+    en: "The Hermit",
+    tr: "Ermiş",
+    image: "assets/cards/the-hermit.png",
+    vibe_en: "Stepping back to reflect brings the insight you need; solitude can be sacred now.",
+    vibe_tr: "Bir adım geri çekilip düşünmek, ihtiyacın olan içgörüyü getiriyor; yalnızlık şu an kutsal olabilir."
+  },
+  {
+    key: "wheel-of-fortune",
+    en: "Wheel of Fortune",
+    tr: "Kader Çarkı",
+    image: "assets/cards/wheel-of-fortune.png",
+    vibe_en: "Life is turning into a new cycle; timing and fate are opening unexpected doors.",
+    vibe_tr: "Hayat yeni bir döngüye giriyor; zamanlama ve kader, beklemediğin kapıları açıyor."
+  },
+  {
+    key: "justice",
+    en: "Justice",
+    tr: "Adalet",
+    image: "assets/cards/justice.png",
+    vibe_en: "Truth, fairness and consequences are in focus; a situation seeks balance and honesty.",
+    vibe_tr: "Gerçek, adalet ve sonuçlar ön planda; bir durum denge ve dürüstlük istiyor."
+  },
+  {
+    key: "the-hanged-man",
+    en: "The Hanged Man",
+    tr: "Asılan Adam",
+    image: "assets/cards/the-hanged-man.png",
+    vibe_en: "Pause, surrender and seeing things from a new angle can unlock the next step.",
+    vibe_tr: "Durmak, teslim olmak ve olaya farklı bir açıdan bakmak, bir sonraki adımı açabilir."
+  },
+  {
+    key: "death",
+    en: "Death",
+    tr: "Death (Ölüm)",
+    image: "assets/cards/death.png",
+    vibe_en: "An old cycle is ending so a new one can begin; release what has already served its purpose.",
+    vibe_tr: "Eski bir döngü sona eriyor ki yenisi başlayabilsin; görevini tamamlamış olanı bırakma zamanı."
+  },
+  {
+    key: "temperance",
+    en: "Temperance",
+    tr: "Denge",
+    image: "assets/cards/temperance.png",
+    vibe_en: "Balance, moderation and blending different energies bring harmony to your life.",
+    vibe_tr: "Denge, ölçülülük ve farklı enerjileri uyumla harmanlamak hayatına huzur getiriyor."
+  },
+  {
+    key: "the-devil",
+    en: "The Devil",
+    tr: "Şeytan",
+    image: "assets/cards/the-devil.png",
+    vibe_en: "Attachments, fears or habits may be holding you back; awareness is the first step to freedom.",
+    vibe_tr: "Bağımlılıklar, korkular veya alışkanlıklar seni tutuyor olabilir; farkındalık özgürlüğün ilk adımı."
+  },
+  {
+    key: "the-tower",
+    en: "The Tower",
+    tr: "Kule",
+    image: "assets/cards/the-tower.png",
+    vibe_en: "Sudden change breaks false structures, making space for a more authentic life.",
+    vibe_tr: "Ani değişimler, sahte yapıları yıkarak daha gerçek bir yaşam için alan açıyor."
+  },
+  {
+    key: "the-star",
+    en: "The Star",
+    tr: "Yıldız",
+    image: "assets/cards/the-star.png",
+    vibe_en: "Hope, healing and gentle guidance are surrounding you; trust that light is returning.",
+    vibe_tr: "Umut, şifa ve yumuşak bir rehberlik seni sarıyor; ışığın geri döndüğüne güven."
+  },
+  {
+    key: "the-moon",
+    en: "The Moon",
+    tr: "Ay",
+    image: "assets/cards/the-moon.png",
+    vibe_en: "Dreams, emotions and uncertainty are strong; move slowly and listen to your intuition.",
+    vibe_tr: "Rüyalar, duygular ve belirsizlik yoğun; yavaş ilerle ve sezgilerini dinle."
+  },
+  {
+    key: "the-sun",
+    en: "The Sun",
+    tr: "Güneş",
+    image: "assets/cards/the-sun.png",
+    vibe_en: "Joy, clarity and success are shining on you; this is a time to be seen and to celebrate.",
+    vibe_tr: "Neşe, açıklık ve başarı üzerine doğuyor; görünür olma ve kutlama zamanı."
+  },
+  {
+    key: "judgement",
+    en: "Judgement",
+    tr: "Yargı",
+    image: "assets/cards/judgement.png",
+    vibe_en: "A spiritual wake-up call asks you to rise above the past and answer a higher calling.",
+    vibe_tr: "Ruhsal bir uyanış çağrısı, geçmişin ötesine geçip daha yüksek bir çağrıya cevap vermeni istiyor."
+  },
+  {
+    key: "the-world",
+    en: "The World",
+    tr: "Dünya",
+    image: "assets/cards/the-world.png",
+    vibe_en: "A cycle reaches completion; you are integrating lessons and stepping into a wider world.",
+    vibe_tr: "Bir döngü tamamlanıyor; dersleri özümsüyor ve daha geniş bir dünyaya adım atıyorsun."
+  },
+
+  /* ===== CUPS ===== */
+  {
+    key: "ace-of-cups",
+    en: "Ace of Cups",
+    tr: "Kupa Ası",
+    image: "assets/cards/ace-of-cups.png",
+    vibe_en: "A fresh emotional beginning, new love, or a heart-opening experience flows toward you.",
+    vibe_tr: "Yeni bir duygusal başlangıç, taze bir aşk veya kalbini açan bir deneyim sana doğru akıyor."
+  },
+  {
+    key: "two-of-cups",
+    en: "Two of Cups",
+    tr: "Kupa İki",
+    image: "assets/cards/two-of-cups.png",
+    vibe_en: "Soul-level connection, partnership or reconciliation is highlighted now.",
+    vibe_tr: "Ruh düzeyinde bir bağlantı, ortaklık veya barışma enerjisi ön plana çıkıyor."
+  },
+  {
+    key: "three-of-cups",
+    en: "Three of Cups",
+    tr: "Kupa Üç",
+    image: "assets/cards/three-of-cups.png",
+    vibe_en: "Celebration, friendship and supportive community uplift your spirit.",
+    vibe_tr: "Kutlama, dostluk ve destekleyici bir çevre ruhunu yükseltiyor."
+  },
+  {
+    key: "four-of-cups",
+    en: "Four of Cups",
+    tr: "Kupa Dört",
+    image: "assets/cards/four-of-cups.png",
+    vibe_en: "Emotional boredom or dissatisfaction invites you to notice the new opportunity being offered.",
+    vibe_tr: "Duygusal sıkılma veya tatminsizlik, sana sunulan yeni fırsatı fark etmen için bir çağrı."
+  },
+  {
+    key: "five-of-cups",
+    en: "Five of Cups",
+    tr: "Kupa Beş",
+    image: "assets/cards/five-of-cups.png",
+    vibe_en: "Grief or regret is present, yet not all is lost; there is still something to build from.",
+    vibe_tr: "Kayıp veya pişmanlık hissi güçlü, ama her şey bitmiş değil; hâlâ üzerine kurabileceğin bir şeyler var."
+  },
+  {
+    key: "six-of-cups",
+    en: "Six of Cups",
+    tr: "Kupa Altı",
+    image: "assets/cards/six-of-cups.png",
+    vibe_en: "Nostalgia, childhood memories or a pure, kind energy returns to your life.",
+    vibe_tr: "Nostalji, çocukluk anıları veya saf, iyi niyetli bir enerji hayatına geri dönüyor."
+  },
+  {
+    key: "seven-of-cups",
+    en: "Seven of Cups",
+    tr: "Kupa Yedi",
+    image: "assets/cards/seven-of-cups.png",
+    vibe_en: "Many options appear, but not all are real or healthy; clarity comes when you ground yourself.",
+    vibe_tr: "Birçok seçenek var, fakat hepsi gerçekçi veya sağlıklı değil; kendini merkezlediğinde netlik kazanacaksın."
+  },
+  {
+    key: "eight-of-cups",
+    en: "Eight of Cups",
+    tr: "Kupa Sekiz",
+    image: "assets/cards/eight-of-cups.png",
+    vibe_en: "Walking away from what no longer nourishes you opens the path to deeper fulfillment.",
+    vibe_tr: "Artık beslemediği şeylerden uzaklaşmak, seni daha derin bir tatmine götürecek yolu açıyor."
+  },
+  {
+    key: "nine-of-cups",
+    en: "Nine of Cups",
+    tr: "Kupa Dokuz",
+    image: "assets/cards/nine-of-cups.png",
+    vibe_en: "A wish fulfilled and emotional satisfaction are within reach; enjoy what you’ve created.",
+    vibe_tr: "Bir dileğin gerçekleşmesi ve duygusal tatmin yakın; yarattığın şeylerin tadını çıkar."
+  },
+  {
+    key: "ten-of-cups",
+    en: "Ten of Cups",
+    tr: "Kupa On",
+    image: "assets/cards/ten-of-cups.png",
+    vibe_en: "Harmony in relationships and emotional completion bring a sense of home and belonging.",
+    vibe_tr: "İlişkilerde uyum ve duygusal tamamlanma, ait olma ve yuva hissini güçlendiriyor."
+  },
+  {
+    key: "page-of-cups",
+    en: "Page of Cups",
+    tr: "Kupa Vale",
+    image: "assets/cards/page-of-cups.png",
+    vibe_en: "Sensitive messages, creative ideas or shy romantic energy are entering your world.",
+    vibe_tr: "Hassas mesajlar, yaratıcı fikirler veya utangaç bir romantik enerji hayatına giriyor."
+  },
+  {
+    key: "knight-of-cups",
+    en: "Knight of Cups",
+    tr: "Kupa Şövalyesi",
+    image: "assets/cards/knight-of-cups.png",
+    vibe_en: "A romantic, idealistic or emotionally driven offer may sweep you off your feet.",
+    vibe_tr: "Romantik, idealist veya duygusal bir teklif, seni ayaklarından kesebilir."
+  },
+  {
+    key: "queen-of-cups",
+    en: "Queen of Cups",
+    tr: "Kupa Kraliçesi",
+    image: "assets/cards/queen-of-cups.png",
+    vibe_en: "Empathy, intuition and emotional depth support healing for yourself and others.",
+    vibe_tr: "Empati, sezgi ve duygusal derinlik; hem senin hem başkalarının şifalanmasını destekliyor."
+  },
+  {
+    key: "king-of-cups",
+    en: "King of Cups",
+    tr: "Kupa Kralı",
+    image: "assets/cards/king-of-cups.png",
+    vibe_en: "Emotional maturity and calm leadership help you navigate complex feelings wisely.",
+    vibe_tr: "Duygusal olgunluk ve sakin liderlik, karmaşık duyguları bilgece yönetmene yardım ediyor."
+  },
+
+  /* ===== WANDS ===== */
+  {
+    key: "ace-of-wands",
+    en: "Ace of Wands",
+    tr: "Değnek Ası",
+    image: "assets/cards/ace-of-wands.png",
+    vibe_en: "A spark of inspiration, passion or new project wants to be born through you.",
+    vibe_tr: "İlham, tutku veya yeni bir proje kıvılcımı içinden doğmak istiyor."
+  },
+  {
+    key: "two-of-wands",
+    en: "Two of Wands",
+    tr: "Değnek İki",
+    image: "assets/cards/two-of-wands.png",
+    vibe_en: "You’re planning your next move; the world feels open if you dare to expand.",
+    vibe_tr: "Bir sonraki adımını planlıyorsun; cesaret edersen dünya sana açık görünüyor."
+  },
+  {
+    key: "three-of-wands",
+    en: "Three of Wands",
+    tr: "Değnek Üç",
+    image: "assets/cards/three-of-wands.png",
+    vibe_en: "Your efforts begin to show results; something you set in motion is now returning.",
+    vibe_tr: "Emeğinin sonuçlarını görmeye başlıyorsun; harekete geçirdiğin bir şey sana geri dönüyor."
+  },
+  {
+    key: "four-of-wands",
+    en: "Four of Wands",
+    tr: "Değnek Dört",
+    image: "assets/cards/four-of-wands.png",
+    vibe_en: "Stability, homecoming or a joyful milestone invites you to celebrate.",
+    vibe_tr: "İstikrar, eve dönüş veya neşeli bir dönüm noktası; kutlama yapman için seni çağırıyor."
+  },
+  {
+    key: "five-of-wands",
+    en: "Five of Wands",
+    tr: "Değnek Beş",
+    image: "assets/cards/five-of-wands.png",
+    vibe_en: "Competition, tension or ego clashes need healthy communication and perspective.",
+    vibe_tr: "Rekabet, gerginlik veya ego çatışmaları; sağlıklı iletişim ve bakış açısı istiyor."
+  },
+  {
+    key: "six-of-wands",
+    en: "Six of Wands",
+    tr: "Değnek Altı",
+    image: "assets/cards/six-of-wands.png",
+    vibe_en: "Recognition, victory or progress is visible; you’re being seen for your efforts.",
+    vibe_tr: "Takdir, zafer veya ilerleme görünür hâle geliyor; emeğin fark ediliyor."
+  },
+  {
+    key: "seven-of-wands",
+    en: "Seven of Wands",
+    tr: "Değnek Yedi",
+    image: "assets/cards/seven-of-wands.png",
+    vibe_en: "You may need to stand your ground and protect your position with courage.",
+    vibe_tr: "Duruşunu koruman ve konumunu cesaretle savunman gerekebilir."
+  },
+  {
+    key: "eight-of-wands",
+    en: "Eight of Wands",
+    tr: "Değnek Sekiz",
+    image: "assets/cards/eight-of-wands.png",
+    vibe_en: "Things accelerate quickly—messages, travel or decisions move at high speed.",
+    vibe_tr: "Her şey hızlanıyor; mesajlar, yolculuklar veya kararlar yüksek tempoya giriyor."
+  },
+  {
+    key: "nine-of-wands",
+    en: "Nine of Wands",
+    tr: "Değnek Dokuz",
+    image: "assets/cards/nine-of-wands.png",
+    vibe_en: "You’re tired but close to the finish line; resilience will carry you through.",
+    vibe_tr: "Yorgunsun ama bitiş çizgisine çok yakınsın; dayanıklılığın seni oraya taşıyacak."
+  },
+  {
+    key: "ten-of-wands",
+    en: "Ten of Wands",
+    tr: "Değnek On",
+    image: "assets/cards/ten-of-wands.png",
+    vibe_en: "Carrying too many responsibilities alone; it’s time to delegate or release some weight.",
+    vibe_tr: "Çok fazla sorumluluğu tek başına taşıyorsun; yükün bir kısmını bırakma veya paylaşma zamanı."
+  },
+  {
+    key: "page-of-wands",
+    en: "Page of Wands",
+    tr: "Değnek Vale",
+    image: "assets/cards/page-of-wands.png",
+    vibe_en: "Exciting news, adventurous ideas or playful energy ignite your curiosity.",
+    vibe_tr: "Heyecan verici haberler, maceracı fikirler veya neşeli bir enerji merakını ateşliyor."
+  },
+  {
+    key: "knight-of-wands",
+    en: "Knight of Wands",
+    tr: "Değnek Şövalyesi",
+    image: "assets/cards/knight-of-wands.png",
+    vibe_en: "Bold, fiery movement pushes you to act, but watch for impulsiveness.",
+    vibe_tr: "Cesur ve ateşli bir hareket seni eyleme itiyor, ancak düşünmeden atlamamaya dikkat et."
+  },
+  {
+    key: "queen-of-wands",
+    en: "Queen of Wands",
+    tr: "Değnek Kraliçesi",
+    image: "assets/cards/queen-of-wands.png",
+    vibe_en: "Confidence, charisma and creative fire help you shine and inspire others.",
+    vibe_tr: "Özgüven, çekicilik ve yaratıcı ateş; parlamanı ve başkalarına ilham vermeni sağlıyor."
+  },
+  {
+    key: "king-of-wands",
+    en: "King of Wands",
+    tr: "Değnek Kralı",
+    image: "assets/cards/king-of-wands.png",
+    vibe_en: "Visionary leadership and courageous action move your plans forward.",
+    vibe_tr: "Vizyoner liderlik ve cesur adımlar, planlarını ileriye taşıyor."
+  },
+
+  /* ===== SWORDS ===== */
+  {
+    key: "ace-of-swords",
+    en: "Ace of Swords",
+    tr: "Kılıç Ası",
+    image: "assets/cards/ace-of-swords.png",
+    vibe_en: "A sharp new idea or clear truth cuts through confusion.",
+    vibe_tr: "Keskin bir fikir veya açık bir gerçek, kafa karışıklığını dağıtıyor."
+  },
+  {
+    key: "two-of-swords",
+    en: "Two of Swords",
+    tr: "Kılıç İki",
+    image: "assets/cards/two-of-swords.png",
+    vibe_en: "Indecision and mental stalemate ask you to look within and choose.",
+    vibe_tr: "Kararsızlık ve zihinsel kilitlenme, içe bakıp bir seçim yapmanı istiyor."
+  },
+  {
+    key: "three-of-swords",
+    en: "Three of Swords",
+    tr: "Kılıç Üç",
+    image: "assets/cards/three-of-swords.png",
+    vibe_en: "Heartache or disappointment needs acknowledgment so healing can begin.",
+    vibe_tr: "Kalp kırıklığı veya hayal kırıklığı, şifanın başlayabilmesi için görülmek ve kabul edilmek istiyor."
+  },
+  {
+    key: "four-of-swords",
+    en: "Four of Swords",
+    tr: "Kılıç Dört",
+    image: "assets/cards/four-of-swords.png",
+    vibe_en: "Rest, retreat and mental pause are necessary to restore your energy.",
+    vibe_tr: "Dinlenme, geri çekilme ve zihinsel mola; enerjini yenilemen için gerekli."
+  },
+  {
+    key: "five-of-swords",
+    en: "Five of Swords",
+    tr: "Kılıç Beş",
+    image: "assets/cards/five-of-swords.png",
+    vibe_en: "Winning at any cost may harm relationships; consider what truly matters.",
+    vibe_tr: "Her ne pahasına olursa olsun kazanmak, ilişkileri zedeleyebilir; gerçekten neyin önemli olduğunu düşün."
+  },
+  {
+    key: "six-of-swords",
+    en: "Six of Swords",
+    tr: "Kılıç Altı",
+    image: "assets/cards/six-of-swords.png",
+    vibe_en: "You’re moving away from turmoil toward calmer waters, even if the transition feels emotional.",
+    vibe_tr: "Çalkantıdan uzaklaşıp daha sakin sulara gidiyorsun; geçiş duygusal olsa da yönün doğru."
+  },
+  {
+    key: "seven-of-swords",
+    en: "Seven of Swords",
+    tr: "Kılıç Yedi",
+    image: "assets/cards/seven-of-swords.png",
+    vibe_en: "Strategy or secrecy is at play; make sure you’re aligned with integrity.",
+    vibe_tr: "Strateji veya gizlilik söz konusu; niyetlerinin dürüstlükle uyumlu olduğundan emin ol."
+  },
+  {
+    key: "eight-of-swords",
+    en: "Eight of Swords",
+    tr: "Kılıç Sekiz",
+    image: "assets/cards/eight-of-swords.png",
+    vibe_en: "Feeling trapped by thoughts, yet the way out appears once you shift your perspective.",
+    vibe_tr: "Düşünceler tarafından sıkışmış gibi hissediyorsun, ancak bakış açını değiştirince çıkış yolu beliriyor."
+  },
+  {
+    key: "nine-of-swords",
+    en: "Nine of Swords",
+    tr: "Kılıç Dokuz",
+    image: "assets/cards/nine-of-swords.png",
+    vibe_en: "Anxiety and late-night worries may be louder than reality; compassion for yourself is needed.",
+    vibe_tr: "Kaygı ve gece düşünceleri, gerçeklikten daha gürültülü olabilir; kendine şefkat gösterme zamanı."
+  },
+  {
+    key: "ten-of-swords",
+    en: "Ten of Swords",
+    tr: "Kılıç On",
+    image: "assets/cards/ten-of-swords.png",
+    vibe_en: "A painful ending has reached its peak; from here, the only direction is up.",
+    vibe_tr: "Acı veren bir son noktaya ulaştı; buradan sonra tek yön yukarı."
+  },
+  {
+    key: "page-of-swords",
+    en: "Page of Swords",
+    tr: "Kılıç Vale",
+    image: "assets/cards/page-of-swords.png",
+    vibe_en: "Curious, alert energy brings new ideas, questions and mental exploration.",
+    vibe_tr: "Meraklı ve tetikte bir enerji; yeni fikirler, sorular ve zihinsel keşifler getiriyor."
+  },
+  {
+    key: "knight-of-swords",
+    en: "Knight of Swords",
+    tr: "Kılıç Şövalyesi",
+    image: "assets/cards/knight-of-swords.png",
+    vibe_en: "Fast action and bold words cut through delays, but be mindful of harshness.",
+    vibe_tr: "Hızlı hareket ve keskin sözler gecikmeleri kesip atıyor, ancak sertlikten kaçınmaya dikkat et."
+  },
+  {
+    key: "queen-of-swords",
+    en: "Queen of Swords",
+    tr: "Kılıç Kraliçesi",
+    image: "assets/cards/queen-of-swords.png",
+    vibe_en: "Clear thinking, honesty and healthy boundaries protect your inner truth.",
+    vibe_tr: "Net düşünce, dürüstlük ve sağlıklı sınırlar; içsel gerçeğini korumana yardım ediyor."
+  },
+  {
+    key: "king-of-swords",
+    en: "King of Swords",
+    tr: "Kılıç Kralı",
+    image: "assets/cards/king-of-swords.png",
+    vibe_en: "Logic, fairness and wise judgment guide the decisions you’re making.",
+    vibe_tr: "Mantık, adalet ve bilge yargı; verdiğin kararlara rehberlik ediyor."
+  },
+
+  /* ===== PENTACLES ===== */
+  {
+    key: "ace-of-pentacles",
+    en: "Ace of Pentacles",
+    tr: "Tılsım Ası",
+    image: "assets/cards/ace-of-pentacles.png",
+    vibe_en: "A concrete opportunity in money, work or stability is being offered.",
+    vibe_tr: "Para, iş veya istikrar alanında somut bir fırsat sana sunuluyor."
+  },
+  {
+    key: "two-of-pentacles",
+    en: "Two of Pentacles",
+    tr: "Tılsım İki",
+    image: "assets/cards/two-of-pentacles.png",
+    vibe_en: "You’re juggling multiple demands; flexibility and prioritizing will help.",
+    vibe_tr: "Birden fazla talebi dengelemeye çalışıyorsun; esneklik ve önceliklendirme sana yardımcı olacak."
+  },
+  {
+    key: "three-of-pentacles",
+    en: "Three of Pentacles",
+    tr: "Tılsım Üç",
+    image: "assets/cards/three-of-pentacles.png",
+    vibe_en: "Collaboration, skill and shared effort build something strong and lasting.",
+    vibe_tr: "İşbirliği, beceri ve ortak emek; güçlü ve kalıcı bir şey inşa ediyor."
+  },
+  {
+    key: "four-of-pentacles",
+    en: "Four of Pentacles",
+    tr: "Tılsım Dört",
+    image: "assets/cards/four-of-pentacles.png",
+    vibe_en: "Holding too tightly to security can block the flow of abundance.",
+    vibe_tr: "Güvene çok sıkı tutunmak, bolluğun akışını tıkayabilir."
+  },
+  {
+    key: "five-of-pentacles",
+    en: "Five of Pentacles",
+    tr: "Tılsım Beş",
+    image: "assets/cards/five-of-pentacles.png",
+    vibe_en: "Feelings of lack or exclusion soften when you reach for support and new perspectives.",
+    vibe_tr: "Yoksunluk veya dışlanmışlık hissi, destek arayıp farklı bakış açılarına açıldığında hafifler."
+  },
+  {
+    key: "six-of-pentacles",
+    en: "Six of Pentacles",
+    tr: "Tılsım Altı",
+    image: "assets/cards/six-of-pentacles.png",
+    vibe_en: "Giving and receiving are coming into balance; generosity blesses both sides.",
+    vibe_tr: "Verme ve alma dengeleniyor; cömertlik, hem vereni hem alanı bereketlendiriyor."
+  },
+  {
+    key: "seven-of-pentacles",
+    en: "Seven of Pentacles",
+    tr: "Tılsım Yedi",
+    image: "assets/cards/seven-of-pentacles.png",
+    vibe_en: "Patience is required; your long-term investments are slowly bearing fruit.",
+    vibe_tr: "Sabır gerekiyor; uzun vadeli emeklerin yavaş yavaş meyve veriyor."
+  },
+  {
+    key: "eight-of-pentacles",
+    en: "Eight of Pentacles",
+    tr: "Tılsım Sekiz",
+    image: "assets/cards/eight-of-pentacles.png",
+    vibe_en: "Hard work, practice and attention to detail grow your mastery.",
+    vibe_tr: "Sıkı çalışma, pratik ve detaya gösterilen özen; ustalığını geliştiriyor."
+  },
+  {
+    key: "nine-of-pentacles",
+    en: "Nine of Pentacles",
+    tr: "Tılsım Dokuz",
+    image: "assets/cards/nine-of-pentacles.png",
+    vibe_en: "Independence, comfort and self-worth are highlighted; enjoy what you’ve earned.",
+    vibe_tr: "Bağımsızlık, konfor ve öz değer vurgulanıyor; kazandıklarının tadını çıkar."
+  },
+  {
+    key: "ten-of-pentacles",
+    en: "Ten of Pentacles",
+    tr: "Tılsım On",
+    image: "assets/cards/ten-of-pentacles.png",
+    vibe_en: "Legacy, family stability and long-term security are in focus now.",
+    vibe_tr: "Miras, aile istikrarı ve uzun vadeli güvence şu an gündeminde."
+  },
+  {
+    key: "page-of-pentacles",
+    en: "Page of Pentacles",
+    tr: "Tılsım Vale",
+    image: "assets/cards/page-of-pentacles.png",
+    vibe_en: "New studies, job offers or practical ideas about the future appear.",
+    vibe_tr: "Yeni eğitimler, iş teklifleri veya geleceğe dair pratik fikirler karşına çıkıyor."
+  },
+  {
+    key: "knight-of-pentacles",
+    en: "Knight of Pentacles",
+    tr: "Tılsım Şövalyesi",
+    image: "assets/cards/knight-of-pentacles.png",
+    vibe_en: "Steady, reliable effort and patience bring lasting results.",
+    vibe_tr: "Ağır ama emin adımlar ve sabır, kalıcı sonuçlar getiriyor."
+  },
+  {
+    key: "queen-of-pentacles",
+    en: "Queen of Pentacles",
+    tr: "Tılsım Kraliçesi",
+    image: "assets/cards/queen-of-pentacles.png",
+    vibe_en: "Grounded nurturing energy supports both material and emotional well-being.",
+    vibe_tr: "Ayakları yere basan şefkatli bir enerji, hem maddi hem duygusal iyi oluşu destekliyor."
+  },
+  {
+    key: "king-of-pentacles",
+    en: "King of Pentacles",
+    tr: "Tılsım Kralı",
+    image: "assets/cards/king-of-pentacles.png",
+    vibe_en: "Stability, prosperity and practical wisdom help you build solid foundations.",
+    vibe_tr: "İstikrar, bolluk ve pratik bilgelik; sağlam temeller kurmana yardım ediyor."
+  }
+];
+</script>
+
 
     /* ====== i18n ====== */
     const i18n = {
