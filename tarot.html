@@ -1437,27 +1437,32 @@
       statusText.textContent = allSelected ? t.statusIdle : t.statusNeedCards;
     }
 
-    cardElems.forEach(card=>{
-      card.addEventListener("click",()=>{
-        const slot = card.getAttribute("data-pos"); // past / present / future
-        if(selectedCards[slot]) return; // zaten açık
+cardElems.forEach(card=>{
+    card.addEventListener("click", ()=>{
+
+        const slot = card.getAttribute("data-pos");
+        if(selectedCards[slot]) return;
 
         const cardData = drawRandomCard();
         if(!cardData) return;
 
-        const posText   = getPositionText(slot);
-        const caption   = getCaptionText(cardData);
-        const nameText  = activeLang==="tr" ? cardData.tr : cardData.en;
+        const posText = getPositionText(slot);
+        const caption = getCaptionText(cardData);
+        const nameText = activeLang=="tr" ? cardData.tr : cardData.en;
+
+        // 🔥 Kartın resmini tam burada ekliyoruz
+        const imgEl = card.querySelector(".tarot-card-img");
+        if(imgEl) imgEl.src = cardData.image;
 
         selectedCards[slot] = { card: cardData, posText };
 
-        const nameEl    = card.querySelector('[data-role="name"]');
-        const posEl     = card.querySelector('[data-role="pos"]');
+        const nameEl = card.querySelector('[data-role="name"]');
+        const posEl  = card.querySelector('[data-role="pos"]');
         const illusText = card.querySelector('[data-role="illus-text"]');
         const captionEl = card.querySelector('[data-role="caption"]');
 
-        if(nameEl)    nameEl.textContent    = nameText;
-        if(posEl)     posEl.textContent     = posText;
+        if(nameEl) nameEl.textContent = nameText;
+        if(posEl)  posEl.textContent  = posText;
         if(illusText) illusText.textContent = caption;
         if(captionEl) captionEl.textContent = nameText.toUpperCase();
 
@@ -1465,8 +1470,9 @@
         card.classList.add("disabled");
 
         updateReadButtonState();
-      });
     });
+});
+
 
     /* ====== TAROT READING (BACKEND + FIRESTORE) ====== */
     readBtn.addEventListener("click", async ()=>{
