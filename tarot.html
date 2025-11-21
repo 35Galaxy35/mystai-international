@@ -271,16 +271,15 @@
       position:relative;
       overflow:hidden;
     }
-   .card-illus{
+  .card-illus{
     position:absolute;
-    inset:4px 6px 16px;   /* Çerçeveye daha iyi oturması için optimize edildi */
+    inset:0;              /* Tam oturması için boşluk yok */
     border-radius:9px;
     background:linear-gradient(160deg,#15152a,#050612 70%);
     box-shadow:0 0 20px rgba(0,0,0,.85) inset;
     display:flex;
-    align-items:flex-end;
+    align-items:center;
     justify-content:center;
-    padding:2px;
     overflow:hidden;
 }
 
@@ -289,10 +288,11 @@
     inset:0;
     width:100%;
     height:100%;
-    object-fit:cover;
+    object-fit:contain;   /* Resmi KIRPMADAN tam oturtur */
     opacity:0.97;
-    transform: scale(1.35);   /* Resim %35 büyütülerek çerçeveyi tam dolduracak */
+    transform:none;       /* Yaklaştırma yok, doğal boyut */
 }
+
 
 
     .card-illus span.card-illus-label{
