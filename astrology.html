@@ -1306,11 +1306,12 @@
           return;
         }
 
-        const payload = {
-          text,
-          chart_id: chartId,
-          language: activeLang
-        };
+       const payload = {
+    text,
+    chart_id: chartId,
+    language: activeLang,
+    report_type: mode   // ← BUNU EKLİYORSUN
+};
 
         const res = await fetch(`${BACKEND_URL}/generate_pdf`, {
           method:"POST",
