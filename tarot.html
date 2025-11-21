@@ -1,984 +1,970 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MystAI — AI Tarot Reading</title>
-  <link rel="icon" type="image/png" href="mystai-logo.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
+    <meta charset="UTF-8" />
+    <title>MystAI – Yapay Zekâ Tarot Açılımı</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+        name="description"
+        content="MystAI ile yapay zekâ destekli profesyonel tarot açılımı. Geçmiş–Şimdi–Gelecek kartlarını seç, niyetini yaz, kişiselleştirilmiş yorumunu al."
+    />
 
-  <style>
-    :root{
-      --bg-start:#0d1440;
-      --bg-end:#0b0f1f;
-      --text:#d8e0ff;
-      --muted:#a9b4d0;
-      --accent:#f2c84b;
-      --card-border:#f7e8b0;
-    }
-    *{box-sizing:border-box;margin:0;padding:0;}
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet"
+    />
 
-    body{
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      background:radial-gradient(1100px 700px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
-      color:var(--text);
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-    }
+    <style>
+        :root {
+            --bg-main: radial-gradient(circle at top, #252a5c 0%, #050816 55%, #02040a 100%);
+            --card-bg: rgba(9, 16, 40, 0.9);
+            --panel-bg: rgba(9, 16, 40, 0.85);
+            --accent: #ffd54a;
+            --accent-soft: rgba(255, 213, 74, 0.18);
+            --accent-strong: #ffea82;
+            --text-main: #f5f7ff;
+            --text-muted: #a3afd9;
+            --danger: #ff6262;
+            --border-soft: rgba(255, 255, 255, 0.08);
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-strong: 0 24px 60px rgba(0, 0, 0, 0.8);
+            --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.55);
+            --blur: 22px;
+        }
 
-    /* TOP BAR */
-    .topbar{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      padding:14px 24px;
-      background:rgba(10,15,30,0.45);
-      backdrop-filter:blur(12px);
-      border-bottom:1px solid rgba(255,255,255,0.08);
-      position:sticky;
-      top:0;
-      z-index:20;
-    }
-    .top-left,.top-right{
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
+        * {
+            box-sizing: border-box;
+        }
 
-    .lang-btn{
-      border:none;
-      border-radius:50%;
-      width:34px;height:34px;
-      cursor:pointer;
-      background-size:cover;
-      background-position:center;
-      transition:transform .25s ease,box-shadow .25s ease;
-      border:2px solid transparent;
-    }
-    .flag-en{background-image:url('https://flagcdn.com/w40/gb.png');}
-    .flag-tr{background-image:url('https://flagcdn.com/w40/tr.png');}
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: #02040a;
+            color: var(--text-main);
+            font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
 
-    .lang-btn.active{
-      box-shadow:0 0 12px rgba(255,215,0,.8);
-      border-color:#ffd54f;
-      transform:scale(1.08);
-    }
-    .lang-btn:hover{transform:scale(1.12);}
+        body {
+            background-image: var(--bg-main);
+            background-attachment: fixed;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+        }
 
-    .nav-btn{
-      border:0;
-      border-radius:20px;
-      background:rgba(255,255,255,.12);
-      color:#fff;
-      padding:7px 14px;
-      cursor:pointer;
-      font-weight:600;
-      font-size:13px;
-      display:flex;
-      align-items:center;
-      gap:4px;
-      transition:all .25s ease;
-    }
-    .nav-btn:hover{filter:brightness(1.2);transform:translateY(-1px);}
+        .page-shell {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 20px 16px 32px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
 
-    .user-label{
-      font-size:13px;
-      color:#ffe680;
-      text-shadow:0 0 8px rgba(255,215,0,.4);
-      margin-right:4px;
-    }
+        /* HEADER */
 
-    /* MAIN LAYOUT */
-    .wrapper{
-      flex:1;
-      display:flex;
-      justify-content:center;
-      align-items:flex-start;
-      padding:30px 16px 40px;
-    }
-    .card-shell{
-      width:100%;
-      max-width:1120px;
-      background:radial-gradient(circle at top,rgba(40,50,110,.9),rgba(4,8,24,.96));
-      border-radius:20px;
-      border:1px solid rgba(255,255,255,.15);
-      box-shadow:0 0 40px rgba(0,0,0,.7);
-      padding:24px;
-      display:grid;
-      grid-template-columns:minmax(0,1.25fr) minmax(0,0.9fr);
-      gap:26px;
-      position:relative;
-      overflow:hidden;
-    }
-    .card-shell::before{
-      content:"";
-      position:absolute;
-      inset:-40%;
-      background:radial-gradient(circle at 10% 0%,rgba(255,215,0,.18),transparent 55%),
-                 radial-gradient(circle at 90% 100%,rgba(120,90,255,.25),transparent 55%);
-      opacity:.7;
-      pointer-events:none;
-    }
-    .card-shell > *{position:relative; z-index:2;}
-    @media(max-width:960px){
-      .card-shell{grid-template-columns:1fr;}
-    }
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(9, 16, 40, 0.9), rgba(10, 20, 60, 0.9));
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(18px);
+        }
 
-    /* LEFT SIDE */
-    .section-title{
-      font-family:'Cinzel',serif;
-      color:#ffd54f;
-      font-size:28px;
-      margin-bottom:8px;
-      text-shadow:0 0 14px rgba(255,220,120,.7);
-      text-align:left;
-    }
-    .section-sub{
-      font-size:14px;
-      color:#e0e5ff;
-      text-align:left;
-      line-height:1.7;
-      margin-bottom:18px;
-    }
-    .section-sub span{
-      color:#ffd966;
-      font-weight:600;
-    }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-    .label{
-      text-align:left;
-      font-size:13px;
-      font-weight:600;
-      color:#ffe680;
-      margin-bottom:6px;
-      margin-top:12px;
-    }
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 30% 30%, #fffae0, #ffd54a 40%, #f5a623 70%, #8c5cff 100%);
+            box-shadow: 0 0 18px rgba(255, 213, 74, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: #20124d;
+        }
 
-    /* TAROT CARDS ROW */
-    .tarot-row{
-      display:flex;
-      gap:18px;
-      margin-top:6px;
-      margin-bottom:4px;
-      flex-wrap:wrap;
-    }
-    .tarot-card{
-      width:120px;
-      height:210px;
-      perspective:1200px;
-      cursor:pointer;
-      position:relative;
-    }
-    .tarot-card.disabled{
-      cursor:default;
-      opacity:.9;
-    }
-    .card-inner{
-      width:100%;height:100%;
-      position:relative;
-      transform-style:preserve-3d;
-      transition:transform .7s ease;
-    }
-    .tarot-card.flipped .card-inner{
-      transform:rotateY(180deg);
-    }
-    .card-face{
-      position:absolute;
-      width:100%;height:100%;
-      border-radius:14px;
-      backface-visibility:hidden;
-      box-shadow:0 14px 35px rgba(0,0,0,.8);
-      overflow:hidden;
-    }
+        .brand-text-main {
+            font-family: "Playfair Display", serif;
+            font-size: 20px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
 
-    /* BACK: MystAI GOLD SPIRAL STYLE */
-    .card-front{
-      background:radial-gradient(circle at 18% 10%,#fff9d8,#f2c84b 38%,#8f6cff 100%);
-      border:1px solid rgba(250,240,190,.85);
-      position:relative;
-    }
-    .card-front::before{
-      content:"";
-      position:absolute;
-      inset:11px;
-      border-radius:11px;
-      border:1px solid rgba(90,50,210,.9);
-      box-shadow:0 0 22px rgba(255,255,255,.7) inset;
-    }
-    .spiral{
-      width:64px;height:64px;
-      border-radius:50%;
-      border:3px solid rgba(25,15,80,.9);
-      box-shadow:0 0 18px rgba(0,0,0,.75);
-      position:absolute;
-      top:50%;left:50%;
-      transform:translate(-50%,-50%);
-      background:radial-gradient(circle at 30% 30%,#fffbe8,#f2c84b,#e0a93b);
-    }
-    .spiral::before{
-      content:"";
-      position:absolute;
-      inset:9px;
-      border-radius:50%;
-      border:2px dashed rgba(90,40,180,.95);
-    }
-    .spiral::after{
-      content:"MystAI";
-      position:absolute;
-      inset:20px;
-      border-radius:50%;
-      border:2px solid rgba(30,18,90,.95);
-      box-shadow:0 0 10px rgba(0,0,0,.85);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:10px;
-      font-weight:800;
-      letter-spacing:1px;
-      color:#281545;
-    }
+        .brand-text-sub {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.16em;
+        }
 
-    /* FRONT FACE (GERÇEK KART TARZI) */
-    .card-back{
-      transform:rotateY(180deg);
-      background:linear-gradient(160deg,#16162f,#040713);
-      border:1px solid rgba(247,232,176,.9);
-      display:flex;
-      flex-direction:column;
-    }
-    .card-frame{
-      flex:1;
-      margin:6px;
-      border-radius:11px;
-      border:1px solid rgba(247,232,176,.7);
-      background:radial-gradient(circle at top,#27285b,#050712);
-      position:relative;
-      overflow:hidden;
-    }
-    .card-illus{
-      position:absolute;
-      inset:10px 12px 36px;
-      border-radius:9px;
-      background:radial-gradient(circle at 30% 10%,rgba(255,245,210,.35),transparent 45%),
-                 radial-gradient(circle at 50% 90%,rgba(120,90,255,.45),transparent 55%),
-                 linear-gradient(160deg,#15152a,#050612 70%);
-      box-shadow:0 0 20px rgba(0,0,0,.85) inset;
-      display:flex;
-      align-items:flex-end;
-      justify-content:center;
-      padding:8px;
-    }
-    .card-illus span{
-      font-size:11px;
-      text-align:center;
-      color:#f7f0ff;
-      text-shadow:0 0 8px rgba(0,0,0,.9);
-    }
+        .top-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-    .card-caption{
-      position:absolute;
-      left:0;right:0;
-      bottom:8px;
-      text-align:center;
-      font-size:11px;
-      color:#ffeec0;
-      text-transform:uppercase;
-      letter-spacing:1px;
-      font-weight:700;
-    }
+        .pill-tag {
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-muted);
+        }
 
-    .card-meta{
-      padding:4px 6px 7px;
-      text-align:center;
-      border-top:1px solid rgba(247,232,176,.45);
-      background:linear-gradient(180deg,rgba(20,20,40,.85),rgba(10,8,22,.95));
-    }
-    .card-meta-name{
-      font-size:12px;
-      font-weight:700;
-      color:#fff5cf;
-      text-shadow:0 0 8px rgba(0,0,0,.8);
-    }
-    .card-meta-pos{
-      font-size:11px;
-      color:#cfd5ff;
-      margin-top:1px;
-    }
+        .user-pill {
+            padding: 5px 12px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid var(--border-soft);
+            font-size: 11px;
+            color: var(--text-muted);
+        }
 
-    .card-hint{
-      font-size:11px;
-      color:#b2b9f5;
-      margin-top:6px;
-      text-align:left;
-    }
+        /* MAIN LAYOUT */
 
-    textarea{
-      width:100%;
-      min-height:90px;
-      border-radius:10px;
-      border:1px solid rgba(255,255,255,.18);
-      background:#050b20;
-      color:#e6ecff;
-      padding:10px;
-      font-family:inherit;
-      font-size:14px;
-      resize:vertical;
-      outline:none;
-      box-shadow:inset 0 0 10px rgba(0,0,0,.35);
-      margin-top:4px;
-    }
-    textarea::placeholder{
-      color:#808abf;
-      font-size:13px;
-    }
+        .main-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+            gap: 18px;
+            margin-top: 4px;
+        }
 
-    .primary-btn{
-      margin-top:14px;
-      border:0;
-      border-radius:12px;
-      padding:10px 18px;
-      background:linear-gradient(120deg,#ffd700,#ffb600,#ffe680);
-      color:#111;
-      font-weight:800;
-      font-size:14px;
-      cursor:pointer;
-      box-shadow:0 0 18px rgba(255,215,0,.5);
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      transition:all .25s ease;
-    }
-    .primary-btn:hover{transform:translateY(-1px) scale(1.03);}
-    .primary-btn:disabled{
-      opacity:.6;
-      cursor:not-allowed;
-      transform:none;
-      box-shadow:none;
-    }
+        .panel {
+            background: var(--panel-bg);
+            border-radius: var(--radius-lg);
+            padding: 18px 18px 20px;
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-strong);
+            backdrop-filter: blur(var(--blur));
+            position: relative;
+            overflow: hidden;
+        }
 
-    .status{
-      margin-top:8px;
-      font-size:12px;
-      color:#aeb6ff;
-      text-align:left;
-    }
+        .panel::before {
+            content: "";
+            position: absolute;
+            inset: -40%;
+            background: radial-gradient(circle at top left, rgba(255, 213, 74, 0.11), transparent 55%);
+            opacity: 0.7;
+            pointer-events: none;
+        }
 
-    /* RIGHT SIDE – RESULT */
-    .result-box{
-      border-radius:16px;
-      background:radial-gradient(circle at 0% 0%,#323b7a,#070c24 55%);
-      border:1px solid rgba(255,255,255,.16);
-      padding:16px;
-      box-shadow:0 0 30px rgba(0,0,0,.6);
-      display:flex;
-      flex-direction:column;
-      height:100%;
-    }
-    .result-header{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:8px;
-    }
-    .result-title{
-      font-size:15px;
-      font-weight:700;
-      color:#ffd966;
-    }
-    .audio-btn{
-      border:0;
-      border-radius:999px;
-      padding:6px 12px;
-      font-size:12px;
-      font-weight:600;
-      background:rgba(255,255,255,.12);
-      color:#fff;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      gap:6px;
-    }
-    .audio-btn[disabled]{
-      opacity:.5;
-      cursor:not-allowed;
-    }
+        .panel-inner {
+            position: relative;
+            z-index: 1;
+        }
 
-    .spread-labels{
-      display:flex;
-      justify-content:space-between;
-      font-size:11px;
-      color:#aeb6ff;
-      margin-bottom:4px;
-      gap:8px;
-      flex-wrap:wrap;
-    }
+        /* LEFT – CARDS & QUESTION */
 
-    .result-content{
-      margin-top:6px;
-      font-size:14px;
-      color:#dbe3ff;
-      text-align:left;
-      line-height:1.7;
-      overflow-y:auto;
-      max-height:280px;
-      padding-right:4px;
-      white-space:pre-wrap;
-    }
-    .result-hint{
-      font-size:12px;
-      color:#9098d0;
-      margin-top:6px;
-    }
+        .section-title {
+            font-family: "Playfair Display", serif;
+            font-size: 22px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
 
-    /* FOOTER */
-    footer{
-      border-top:1px solid rgba(255,255,255,.08);
-      padding:18px;
-      font-size:13px;
-      color:#aeb6cf;
-      text-align:center;
-    }
-    footer a{
-      color:#ffd54f;
-      text-decoration:none;
-      font-weight:600;
-    }
-    footer a:hover{
-      color:#fff6b0;
-      text-shadow:0 0 10px rgba(255,255,120,.6);
-    }
-  </style>
+        .section-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .mini-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .spread-labels {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 4px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .spread-labels span strong {
+            color: var(--accent-strong);
+        }
+
+        .card-row {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin: 10px 0 8px;
+        }
+
+        .tarot-slot {
+            width: 120px;
+            aspect-ratio: 3/5;
+            perspective: 1200px;
+        }
+
+        .tarot-card {
+            width: 100%;
+            height: 100%;
+            border-radius: 14px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.7s ease, box-shadow 0.3s ease, border 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: radial-gradient(circle at top, #f7f7ff, #d7d4ff);
+        }
+
+        .tarot-card.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .tarot-card-inner {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            overflow: hidden;
+        }
+
+        .tarot-face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+        }
+
+        .tarot-face img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+        }
+
+        .tarot-face.back {
+            transform: rotateY(0deg);
+        }
+
+        .tarot-face.front {
+            transform: rotateY(180deg);
+        }
+
+        .tarot-card:hover {
+            box-shadow: 0 22px 45px rgba(0, 0, 0, 0.9);
+            border-color: rgba(255, 213, 74, 0.6);
+        }
+
+        .card-helper {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .question-block {
+            margin-top: 8px;
+        }
+
+        .question-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .question-label-row span {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .question-label-row strong {
+            color: var(--accent-strong);
+        }
+
+        .question-input {
+            width: 100%;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-soft);
+            background: rgba(5, 8, 22, 0.8);
+            color: var(--text-main);
+            padding: 10px 11px;
+            font-size: 13px;
+            resize: vertical;
+            min-height: 70px;
+            outline: none;
+            transition: border 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .question-input::placeholder {
+            color: rgba(163, 175, 217, 0.78);
+        }
+
+        .question-input:focus {
+            border-color: rgba(255, 213, 74, 0.9);
+            box-shadow: 0 0 0 1px rgba(255, 213, 74, 0.6);
+            background: rgba(5, 8, 22, 0.95);
+        }
+
+        .cta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .primary-btn {
+            border: none;
+            outline: none;
+            cursor: pointer;
+            border-radius: 999px;
+            padding: 10px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: radial-gradient(circle at top left, #fff8cf, #ffd54a, #f1a93c);
+            color: #2d2153;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.8);
+            transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+            white-space: nowrap;
+        }
+
+        .primary-btn span.icon {
+            font-size: 15px;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
+            filter: brightness(1.05);
+        }
+
+        .primary-btn:active {
+            transform: translateY(1px) scale(0.99);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.75);
+            filter: brightness(0.98);
+        }
+
+        .cta-hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            max-width: 260px;
+        }
+
+        .error-text {
+            font-size: 11px;
+            color: var(--danger);
+            margin-top: 4px;
+        }
+
+        /* RIGHT – READING */
+
+        .reading-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .reading-title {
+            font-family: "Playfair Display", serif;
+            font-size: 18px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tab-pill {
+            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+        }
+
+        .tab-pill.is-active {
+            background: var(--accent-soft);
+            border-color: rgba(255, 213, 74, 0.7);
+            color: var(--accent-strong);
+        }
+
+        .reading-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .reading-content {
+            background: radial-gradient(circle at top, rgba(12, 20, 60, 0.95), rgba(3, 7, 20, 0.96));
+            border-radius: var(--radius-md);
+            padding: 12px 12px 13px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reading-content::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle at 20% 0%, rgba(255, 213, 74, 0.13), transparent 45%),
+                radial-gradient(circle at 100% 120%, rgba(163, 175, 217, 0.25), transparent 55%);
+            opacity: 0.9;
+            pointer-events: none;
+            mix-blend-mode: soft-light;
+        }
+
+        .reading-body {
+            position: relative;
+            z-index: 1;
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        .reading-body p {
+            margin: 0 0 4px;
+        }
+
+        .reading-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .reading-footer-note {
+            position: relative;
+            z-index: 1;
+            margin-top: auto;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.08);
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .selected-cards-strip {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 11px;
+        }
+
+        .chip {
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: var(--text-muted);
+        }
+
+        .chip strong {
+            color: var(--accent-strong);
+        }
+
+        /* FOOTER */
+
+        .footer {
+            margin-top: 18px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            opacity: 0.85;
+        }
+
+        .footer a {
+            color: var(--accent-strong);
+            text-decoration: none;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 900px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .panel {
+                padding: 16px 14px 17px;
+            }
+
+            .card-row {
+                gap: 12px;
+            }
+
+            .tarot-slot {
+                width: 108px;
+            }
+
+            .reading-content {
+                min-height: 170px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .brand-text-main {
+                font-size: 18px;
+            }
+
+            .main-layout {
+                gap: 14px;
+            }
+
+            .card-row {
+                gap: 10px;
+            }
+
+            .tarot-slot {
+                width: 95px;
+            }
+
+            .cta-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .primary-btn {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .cta-hint {
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
+
 <body>
-  <!-- TOP BAR -->
-  <div class="topbar">
-    <div class="top-left">
-      <button class="lang-btn flag-en" id="btn-en"></button>
-      <button class="lang-btn flag-tr" id="btn-tr"></button>
-    </div>
-    <div class="top-right">
-      <span class="user-label" id="userLabel"></span>
-      <button class="nav-btn" id="backBtn">⬅ App</button>
-      <button class="nav-btn" id="logoutBtn">Logout</button>
-    </div>
-  </div>
-
-  <!-- MAIN CONTENT -->
-  <div class="wrapper">
-    <div class="card-shell">
-      <!-- LEFT SIDE -->
-      <div>
-        <h1 class="section-title" id="title">AI Tarot Reading</h1>
-        <p class="section-sub" id="subtitle">
-          Select three cards for your <span>Past – Present – Future</span> and share your intention. MystAI will interpret the full spread in a mystical but clear way.
-        </p>
-
-        <div class="label" id="labelCards">Choose 3 Cards (Past – Present – Future)</div>
-        <div class="tarot-row" id="tarotRow">
-          <div class="tarot-card" data-pos="past">
-            <div class="card-inner">
-              <!-- BACK SIDE (KART SIRTİ) -->
-              <div class="card-face card-front">
-                <div class="spiral"></div>
-              </div>
-              <!-- FRONT SIDE (AÇILDIKTAN SONRA) -->
-              <div class="card-face card-back">
-                <div class="card-frame">
-                  <div class="card-illus">
-                    <span data-role="illus-text"></span>
-                  </div>
-                  <div class="card-caption" data-role="caption"></div>
-                </div>
-                <div class="card-meta">
-                  <div class="card-meta-name" data-role="name"></div>
-                  <div class="card-meta-pos"  data-role="pos"></div>
-                </div>
-              </div>
+<div class="page-shell">
+    <!-- TOP BAR -->
+    <header class="top-bar">
+        <div class="brand">
+            <div class="brand-logo">M</div>
+            <div>
+                <div class="brand-text-main">MystAI Tarot</div>
+                <div class="brand-text-sub">Yapay Zekâ Destekli Tarot Açılımı</div>
             </div>
-          </div>
+        </div>
 
-          <div class="tarot-card" data-pos="present">
-            <div class="card-inner">
-              <div class="card-face card-front">
-                <div class="spiral"></div>
-              </div>
-              <div class="card-face card-back">
-                <div class="card-frame">
-                  <div class="card-illus">
-                    <span data-role="illus-text"></span>
-                  </div>
-                  <div class="card-caption" data-role="caption"></div>
+        <div class="top-right">
+            <div class="pill-tag">AI Tarot Engine v1</div>
+            <div class="user-pill">Misafir kullanıcı</div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="main-layout">
+        <!-- LEFT: Cards + Question -->
+        <section class="panel">
+            <div class="panel-inner">
+                <div class="section-title">Yapay Zekâ Tarot Açılımı</div>
+                <div class="section-subtitle">
+                    Üç kart (Geçmiş – Şimdi – Gelecek) ve net bir niyet ile, MystAI senin adına kartların dilini çözer.
                 </div>
-                <div class="card-meta">
-                  <div class="card-meta-name" data-role="name"></div>
-                  <div class="card-meta-pos"  data-role="pos"></div>
+
+                <div class="mini-label">3 Kart Açılımı</div>
+
+                <div class="spread-labels">
+                    <span><strong>Geçmiş</strong> – kökler, geçmiş etkiler</span>
+                    <span><strong>Şimdi</strong> – mevcut durum</span>
+                    <span><strong>Gelecek</strong> – olası yön</span>
                 </div>
-              </div>
+
+                <div class="card-row" id="cardRow">
+                    <div class="tarot-slot" data-position="past">
+                        <div class="tarot-card">
+                            <div class="tarot-card-inner">
+                                <div class="tarot-face back">
+                                    <img src="assets/cards/back.png" alt="Tarot arka yüzü" />
+                                </div>
+                                <div class="tarot-face front">
+                                    <img src="assets/cards/back.png" alt="Tarot kartı" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tarot-slot" data-position="present">
+                        <div class="tarot-card">
+                            <div class="tarot-card-inner">
+                                <div class="tarot-face back">
+                                    <img src="assets/cards/back.png" alt="Tarot arka yüzü" />
+                                </div>
+                                <div class="tarot-face front">
+                                    <img src="assets/cards/back.png" alt="Tarot kartı" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tarot-slot" data-position="future">
+                        <div class="tarot-card">
+                            <div class="tarot-card-inner">
+                                <div class="tarot-face back">
+                                    <img src="assets/cards/back.png" alt="Tarot arka yüzü" />
+                                </div>
+                                <div class="tarot-face front">
+                                    <img src="assets/cards/back.png" alt="Tarot kartı" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-helper">
+                    Kartların her biri desteden rastgele seçilir ve çevrilir. Aynı kart iki kez çekilmez.
+                </div>
+
+                <div class="question-block">
+                    <div class="question-label-row">
+                        <span><strong>Sorun / Niyetin</strong></span>
+                        <span>Aşk, kariyer, para, ruhsal yolculuk...</span>
+                    </div>
+
+                    <textarea
+                        id="questionInput"
+                        class="question-input"
+                        placeholder="Aşk ilişkilerimle ilgili blokajlarımı görmek istiyorum... &nbsp;veya &nbsp;Kariyerimde önümdeki 6 ayda beni neler bekliyor?"
+                    ></textarea>
+                    <div id="questionError" class="error-text" style="display:none;">
+                        Lütfen niyetini birkaç cümleyle netleştir. Yapay zekâ, ne kadar net olursan o kadar iyi yorumlar.
+                    </div>
+                </div>
+
+                <div class="cta-row">
+                    <button id="drawButton" class="primary-btn">
+                        <span class="icon">✨</span>
+                        <span>Tarot Açılımımı Göster</span>
+                    </button>
+                    <div class="cta-hint">
+                        Kartlar seçildikten sonra sağ tarafta bireysel kart yorumlarını ve Geçmiş–Şimdi–Gelecek özetini göreceksin.
+                    </div>
+                </div>
             </div>
-          </div>
+        </section>
 
-          <div class="tarot-card" data-pos="future">
-            <div class="card-inner">
-              <div class="card-face card-front">
-                <div class="spiral"></div>
-              </div>
-              <div class="card-face card-back">
-                <div class="card-frame">
-                  <div class="card-illus">
-                    <span data-role="illus-text"></span>
-                  </div>
-                  <div class="card-caption" data-role="caption"></div>
+        <!-- RIGHT: AI Reading -->
+        <section class="panel">
+            <div class="panel-inner">
+                <div class="reading-header">
+                    <div class="reading-title">Tarot Açılımın</div>
+                    <div class="tabs">
+                        <div class="tab-pill is-active">Geçmiş</div>
+                        <div class="tab-pill is-active">Şimdi</div>
+                        <div class="tab-pill is-active">Gelecek</div>
+                    </div>
                 </div>
-                <div class="card-meta">
-                  <div class="card-meta-name" data-role="name"></div>
-                  <div class="card-meta-pos"  data-role="pos"></div>
+
+                <div class="reading-meta" id="readingMeta">
+                    3 kart seçip niyetini yazdıktan sonra yapay zekâ tarot yorumun burada görünecek.
                 </div>
-              </div>
+
+                <div class="reading-content">
+                    <div class="reading-body" id="readingBody">
+                        <p>
+                            Niyetini netleştirirken mümkün olduğunca somut ol:
+                        </p>
+                        <p>
+                            <em>“Önümüzdeki 3 ay içinde kariyerimde hangi fırsatlara odaklanmalıyım?”</em> gibi.
+                        </p>
+                        <p>
+                            Kartlar çekildiğinde MystAI, seçilen arketipleri bir bütün olarak okuyarak sana özgü bir
+                            Geçmiş–Şimdi–Gelecek hikâyesi kurar.
+                        </p>
+                    </div>
+
+                    <div class="reading-footer-note">
+                        MystAI, eğlence ve farkındalık amaçlı yapay zekâ tarot yorumcudur; profesyonel finansal, hukuki
+                        veya tıbbi tavsiye yerine geçmez.
+                    </div>
+                </div>
+
+                <div class="selected-cards-strip" id="selectedCardsStrip" style="display:none;"></div>
             </div>
-          </div>
-        </div>
+        </section>
+    </main>
 
-        <div class="card-hint" id="cardHint">
-          Click each card one by one. The golden MystAI backs will flip and reveal your tarot archetypes.
-        </div>
+    <!-- FOOTER -->
+    <footer class="footer">
+        © 2025 MystAI – Tüm hakları saklıdır. Bu sayfa 35GALAXY35 tarafından ticari kullanım için
+        geliştirilmiştir. &nbsp;|&nbsp; Destek: <a href="mailto:support@myst.ai">support@myst.ai</a>
+    </footer>
+</div>
 
-        <div class="label" id="labelQuestion">Your Question / Intention</div>
-        <textarea id="tarotQuestion"
-          placeholder="Write what you’d like MystAI to focus on (love, relationships, career, spiritual path...)"></textarea>
+<script>
+    // ----------------------------------------------------
+    //  TAROT DECK TANIMI
+    // ----------------------------------------------------
+    // 🔴 ÖNEMLİ: Buradaki img yollarını, GitHub’daki
+    // /assets/cards/ klasöründeki gerçek dosya adlarınla
+    // birebir aynı yap.
+    // Örnek: "assets/cards/ace-of-cups.png"
+    // ----------------------------------------------------
+    const tarotDeck = [
+        { id: "the-fool", name: "The Fool", img: "assets/cards/the-fool.png" },
+        { id: "the-magician", name: "The Magician", img: "assets/cards/the-magician.png" },
+        { id: "the-high-priestess", name: "The High Priestess", img: "assets/cards/the-high-priestess.png" },
+        { id: "the-empress", name: "The Empress", img: "assets/cards/the-empress.png" },
+        { id: "the-emperor", name: "The Emperor", img: "assets/cards/the-emperor.png" },
+        { id: "the-hierophant", name: "The Hierophant", img: "assets/cards/the-hierophant.png" },
+        { id: "the-lovers", name: "The Lovers", img: "assets/cards/the-lovers.png" },
+        { id: "the-chariot", name: "The Chariot", img: "assets/cards/the-chariot.png" },
+        { id: "strength", name: "Strength", img: "assets/cards/strength.png" },
+        { id: "the-hermit", name: "The Hermit", img: "assets/cards/the-hermit.png" },
+        { id: "wheel-of-fortune", name: "Wheel of Fortune", img: "assets/cards/wheel-of-fortune.png" },
+        { id: "justice", name: "Justice", img: "assets/cards/justice.png" },
+        { id: "the-hanged-man", name: "The Hanged Man", img: "assets/cards/the-hanged-man.png" },
+        { id: "death", name: "Death", img: "assets/cards/death.png" },
+        { id: "temperance", name: "Temperance", img: "assets/cards/temperance.png" },
+        { id: "the-devil", name: "The Devil", img: "assets/cards/the-devil.png" },
+        { id: "the-tower", name: "The Tower", img: "assets/cards/the-tower.png" },
+        { id: "the-star", name: "The Star", img: "assets/cards/the-star.png" },
+        { id: "the-moon", name: "The Moon", img: "assets/cards/the-moon.png" },
+        { id: "the-sun", name: "The Sun", img: "assets/cards/the-sun.png" },
+        { id: "judgement", name: "Judgement", img: "assets/cards/judgement.png" },
+        { id: "the-world", name: "The World", img: "assets/cards/the-world.png" },
 
-        <button class="primary-btn" id="readBtn" disabled>
-          🔮 <span id="readBtnText">Reveal My Tarot Reading</span>
-        </button>
+        // Küçük Arkana – Örnek birkaç tanesi:
+        { id: "ace-of-cups", name: "Ace of Cups", img: "assets/cards/ace-of-cups.png" },
+        { id: "two-of-cups", name: "Two of Cups", img: "assets/cards/two-of-cups.png" },
+        { id: "three-of-cups", name: "Three of Cups", img: "assets/cards/three-of-cups.png" },
+        { id: "four-of-cups", name: "Four of Cups", img: "assets/cards/four-of-cups.png" },
+        { id: "five-of-cups", name: "Five of Cups", img: "assets/cards/five-of-cups.png" },
+        { id: "six-of-cups", name: "Six of Cups", img: "assets/cards/six-of-cups.png" },
+        { id: "seven-of-cups", name: "Seven of Cups", img: "assets/cards/seven-of-cups.png" },
+        { id: "eight-of-cups", name: "Eight of Cups", img: "assets/cards/eight-of-cups.png" },
+        { id: "nine-of-cups", name: "Nine of Cups", img: "assets/cards/nine-of-cups.png" },
+        { id: "ten-of-cups", name: "Ten of Cups", img: "assets/cards/ten-of-cups.png" },
 
-        <div class="status" id="statusText"></div>
-      </div>
+        { id: "ace-of-pentacles", name: "Ace of Pentacles", img: "assets/cards/ace-of-pentacles.png" },
+        { id: "two-of-pentacles", name: "Two of Pentacles", img: "assets/cards/two-of-pentacles.png" },
+        { id: "three-of-pentacles", name: "Three of Pentacles", img: "assets/cards/three-of-pentacles.png" },
+        { id: "four-of-pentacles", name: "Four of Pentacles", img: "assets/cards/four-of-pentacles.png" },
+        { id: "five-of-pentacles", name: "Five of Pentacles", img: "assets/cards/five-of-pentacles.png" },
+        { id: "six-of-pentacles", name: "Six of Pentacles", img: "assets/cards/six-of-pentacles.png" },
+        { id: "seven-of-pentacles", name: "Seven of Pentacles", img: "assets/cards/seven-of-pentacles.png" },
+        { id: "eight-of-pentacles", name: "Eight of Pentacles", img: "assets/cards/eight-of-pentacles.png" },
+        { id: "nine-of-pentacles", name: "Nine of Pentacles", img: "assets/cards/nine-of-pentacles.png" },
+        { id: "ten-of-pentacles", name: "Ten of Pentacles", img: "assets/cards/ten-of-pentacles.png" },
 
-      <!-- RIGHT SIDE -->
-      <div class="result-box">
-        <div class="result-header">
-          <div class="result-title" id="resultTitle">Your Tarot Spread</div>
-          <button class="audio-btn" id="listenBtn" disabled>
-            🔊 <span id="listenLabel">Listen</span>
-          </button>
-        </div>
-        <div class="spread-labels">
-          <span id="lblPast">Past</span>
-          <span id="lblPresent">Present</span>
-          <span id="lblFuture">Future</span>
-        </div>
-        <div class="result-content" id="resultText">
-          ✨ After you choose 3 cards and send your intention, MystAI will reveal your tarot reading here. ✨
-        </div>
-        <div class="result-hint" id="resultHint">
-          MystAI is an AI-based entertainment tool and should not be taken as professional or medical advice.
-        </div>
-      </div>
-    </div>
-  </div>
+        { id: "ace-of-swords", name: "Ace of Swords", img: "assets/cards/ace-of-swords.png" },
+        { id: "two-of-swords", name: "Two of Swords", img: "assets/cards/two-of-swords.png" },
+        { id: "three-of-swords", name: "Three of Swords", img: "assets/cards/three-of-swords.png" },
+        { id: "four-of-swords", name: "Four of Swords", img: "assets/cards/four-of-swords.png" },
+        { id: "five-of-swords", name: "Five of Swords", img: "assets/cards/five-of-swords.png" },
+        { id: "six-of-swords", name: "Six of Swords", img: "assets/cards/six-of-swords.png" },
+        { id: "seven-of-swords", name: "Seven of Swords", img: "assets/cards/seven-of-swords.png" },
+        { id: "eight-of-swords", name: "Eight of Swords", img: "assets/cards/eight-of-swords.png" },
+        { id: "nine-of-swords", name: "Nine of Swords", img: "assets/cards/nine-of-swords.png" },
+        { id: "ten-of-swords", name: "Ten of Swords", img: "assets/cards/ten-of-swords.png" },
 
-  <footer>
-    <p>
-      © 2025 MystAI.ai — <span id="rightsLabel">All Rights Reserved.</span>
-      <span id="devLabel">Developed by GALAXY 🌌</span><br />
-      <span id="contactLabel">Contact us:</span>
-      <a href="mailto:support@mystai.ai">support@mystai.ai</a>
-    </p>
-  </footer>
+        { id: "ace-of-wands", name: "Ace of Wands", img: "assets/cards/ace-of-wands.png" },
+        { id: "two-of-wands", name: "Two of Wands", img: "assets/cards/two-of-wands.png" },
+        { id: "three-of-wands", name: "Three of Wands", img: "assets/cards/three-of-wands.png" },
+        { id: "four-of-wands", name: "Four of Wands", img: "assets/cards/four-of-wands.png" },
+        { id: "five-of-wands", name: "Five of Wands", img: "assets/cards/five-of-wands.png" },
+        { id: "six-of-wands", name: "Six of Wands", img: "assets/cards/six-of-wands.png" },
+        { id: "seven-of-wands", name: "Seven of Wands", img: "assets/cards/seven-of-wands.png" },
+        { id: "eight-of-wands", name: "Eight of Wands", img: "assets/cards/eight-of-wands.png" },
+        { id: "nine-of-wands", name: "Nine of Wands", img: "assets/cards/nine-of-wands.png" },
+        { id: "ten-of-wands", name: "Ten of Wands", img: "assets/cards/ten-of-wands.png" },
 
-  <audio id="audioPlayer" style="display:none;"></audio>
+        // Saray kartları
+        { id: "page-of-cups", name: "Page of Cups", img: "assets/cards/page-of-cups.png" },
+        { id: "knight-of-cups", name: "Knight of Cups", img: "assets/cards/knight-of-cups.png" },
+        { id: "queen-of-cups", name: "Queen of Cups", img: "assets/cards/queen-of-cups.png" },
+        { id: "king-of-cups", name: "King of Cups", img: "assets/cards/king-of-cups.png" },
 
-  <script type="module">
-    /* ====== CONFIG ====== */
-    const BACKEND_URL = "https://mystai-international.onrender.com";
+        { id: "page-of-pentacles", name: "Page of Pentacles", img: "assets/cards/page-of-pentacles.png" },
+        { id: "knight-of-pentacles", name: "Knight of Pentacles", img: "assets/cards/knight-of-pentacles.png" },
+        { id: "queen-of-pentacles", name: "Queen of Pentacles", img: "assets/cards/queen-of-pentacles.png" },
+        { id: "king-of-pentacles", name: "King of Pentacles", img: "assets/cards/king-of-pentacles.png" },
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+        { id: "page-of-swords", name: "Page of Swords", img: "assets/cards/page-of-swords.png" },
+        { id: "knight-of-swords", name: "Knight of Swords", img: "assets/cards/knight-of-swords.png" },
+        { id: "queen-of-swords", name: "Queen of Swords", img: "assets/cards/queen-of-swords.png" },
+        { id: "king-of-swords", name: "King of Swords", img: "assets/cards/king-of-swords.png" },
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
-      authDomain: "mystai-6cca2.firebaseapp.com",
-      projectId: "mystai-6cca2",
-      storageBucket: "mystai-6cca2.appspot.com",
-      messagingSenderId: "624127781219",
-      appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
-
-    /* ====== ELEMENTS ====== */
-    const btnEn       = document.getElementById("btn-en");
-    const btnTr       = document.getElementById("btn-tr");
-    const backBtn     = document.getElementById("backBtn");
-    const logoutBtn   = document.getElementById("logoutBtn");
-    const userLabel   = document.getElementById("userLabel");
-
-    const titleEl     = document.getElementById("title");
-    const subtitleEl  = document.getElementById("subtitle");
-    const labelCards  = document.getElementById("labelCards");
-    const cardHint    = document.getElementById("cardHint");
-    const labelQuestion = document.getElementById("labelQuestion");
-    const tarotQuestion = document.getElementById("tarotQuestion");
-    const readBtn     = document.getElementById("readBtn");
-    const readBtnText = document.getElementById("readBtnText");
-    const statusText  = document.getElementById("statusText");
-
-    const resultTitle = document.getElementById("resultTitle");
-    const resultText  = document.getElementById("resultText");
-    const resultHint  = document.getElementById("resultHint");
-    const listenBtn   = document.getElementById("listenBtn");
-    const listenLabel = document.getElementById("listenLabel");
-    const audioPlayer = document.getElementById("audioPlayer");
-
-    const rightsLabel  = document.getElementById("rightsLabel");
-    const devLabel     = document.getElementById("devLabel");
-    const contactLabel = document.getElementById("contactLabel");
-
-    const lblPast    = document.getElementById("lblPast");
-    const lblPresent = document.getElementById("lblPresent");
-    const lblFuture  = document.getElementById("lblFuture");
-
-    const tarotRow   = document.getElementById("tarotRow");
-    const cardElems  = Array.from(tarotRow.querySelectorAll(".tarot-card"));
-
-    /* ====== TAROT DECK (MAJOR ARCANA ÖRNEĞİ) ====== */
-    // İstersek bunu sonra 78 karta genişletiriz; yapı hazır.
-    const TAROT_DECK = [
-      { key:"the-fool",        en:"The Fool",        tr:"Deli",             vibe_en:"new journeys, innocence",          vibe_tr:"yeni başlangıçlar, saf enerji" },
-      { key:"the-magician",    en:"The Magician",    tr:"Büyücü",           vibe_en:"manifestation, focus",             vibe_tr:"yaratım gücü, odak" },
-      { key:"the-high-priestess", en:"The High Priestess", tr:"Başrahibe",  vibe_en:"intuition, mystery",               vibe_tr:"sezgi, gizem" },
-      { key:"the-empress",     en:"The Empress",     tr:"İmparatoriçe",     vibe_en:"abundance, nurture",               vibe_tr:"bolluk, şefkat" },
-      { key:"the-emperor",     en:"The Emperor",     tr:"İmparator",        vibe_en:"structure, authority",             vibe_tr:"düzen, otorite" },
-      { key:"the-hierophant",  en:"The Hierophant",  tr:"Başrahip",         vibe_en:"tradition, guidance",              vibe_tr:"gelenek, rehberlik" },
-      { key:"the-lovers",      en:"The Lovers",      tr:"Aşıklar",          vibe_en:"union, choice",                    vibe_tr:"bağlantı, seçim" },
-      { key:"the-chariot",     en:"The Chariot",     tr:"Savaş Arabası",    vibe_en:"willpower, movement",              vibe_tr:"irade, ilerleyiş" },
-      { key:"strength",        en:"Strength",        tr:"Güç",              vibe_en:"inner strength, courage",          vibe_tr:"içsel güç, cesaret" },
-      { key:"the-hermit",      en:"The Hermit",      tr:"Ermiş",            vibe_en:"wisdom, retreat",                  vibe_tr:"bilgelik, içe dönüş" },
-      { key:"wheel-of-fortune",en:"Wheel of Fortune",tr:"Kader Çarkı",      vibe_en:"cycles, destiny",                  vibe_tr:"döngüler, kader" },
-      { key:"justice",         en:"Justice",         tr:"Adalet",           vibe_en:"truth, balance",                   vibe_tr:"gerçek, denge" },
-      { key:"the-hanged-man",  en:"The Hanged Man",  tr:"Asılan Adam",      vibe_en:"surrender, new view",              vibe_tr:"teslimiyet, yeni bakış" },
-      { key:"death",           en:"Death",           tr:"Ölüm",             vibe_en:"transformation, rebirth",          vibe_tr:"dönüşüm, yeniden doğuş" },
-      { key:"temperance",      en:"Temperance",      tr:"Denge",            vibe_en:"alchemic balance",                 vibe_tr:"denge, uyum" },
-      { key:"the-devil",       en:"The Devil",       tr:"Şeytan",           vibe_en:"attachments, shadow",              vibe_tr:"bağımlılıklar, gölge" },
-      { key:"the-tower",       en:"The Tower",       tr:"Kule",             vibe_en:"sudden change, revelation",        vibe_tr:"ani değişim, uyanış" },
-      { key:"the-star",        en:"The Star",        tr:"Yıldız",           vibe_en:"hope, healing",                    vibe_tr:"umut, şifa" },
-      { key:"the-moon",        en:"The Moon",        tr:"Ay",               vibe_en:"dreams, subconscious",             vibe_tr:"rüyalar, bilinçdışı" },
-      { key:"the-sun",         en:"The Sun",         tr:"Güneş",            vibe_en:"joy, vitality",                    vibe_tr:"neşe, yaşam enerjisi" },
-      { key:"judgement",       en:"Judgement",       tr:"Yargı",            vibe_en:"awakening, call",                  vibe_tr:"uyanış, çağrı" },
-      { key:"the-world",       en:"The World",       tr:"Dünya",            vibe_en:"completion, wholeness",            vibe_tr:"tamamlanma, bütünlük" }
+        { id: "page-of-wands", name: "Page of Wands", img: "assets/cards/page-of-wands.png" },
+        { id: "knight-of-wands", name: "Knight of Wands", img: "assets/cards/knight-of-wands.png" },
+        { id: "queen-of-wands", name: "Queen of Wands", img: "assets/cards/queen-of-wands.png" },
+        { id: "king-of-wands", name: "King of Wands", img: "assets/cards/king-of-wands.png" },
     ];
 
-    /* ====== i18n ====== */
-    const i18n = {
-      en:{
-        title:"AI Tarot Reading",
-        subtitle:"Select three cards for your Past – Present – Future and share your intention. MystAI will read your full spread with mystical clarity.",
-        cardsLabel:"Choose 3 Cards (Past – Present – Future)",
-        cardHint:"Click each card one by one. The golden MystAI backs will flip and reveal your tarot archetypes.",
-        questionLabel:"Your Question / Intention",
-        placeholder:"Write what you’d like MystAI to focus on (love, relationships, career, spiritual path...)",
-        btnText:"Reveal My Tarot Reading",
-        statusIdle:"",
-        statusNeedCards:"Please select 3 cards first.",
-        statusNeedText:"Please write at least a short question or intention.",
-        statusLoading:"Shuffling the deck and reading your spread...",
-        statusDone:"Your tarot reading is ready.",
-        statusError:"An error occurred. Please try again.",
-        userWelcome:"Welcome, ",
-        resultTitle:"Your Tarot Spread",
-        resultInitial:"✨ After you choose 3 cards and send your intention, MystAI will reveal your tarot reading here. ✨",
-        resultHint:"MystAI is an AI-based entertainment tool and should not be taken as professional or medical advice.",
-        listen:"Listen",
-        listening:"Playing...",
-        back:"Back to App",
-        logout:"Logout",
-        lblPast:"Past",
-        lblPresent:"Present",
-        lblFuture:"Future",
-        rights:"All Rights Reserved.",
-        dev:"Developed by GALAXY 🌌",
-        contact:"Contact us:"
-      },
-      tr:{
-        title:"Yapay Zekâ Tarot Açılımı",
-        subtitle:"Geçmiş – Şimdi – Gelecek için üç kart seç ve niyetini yaz. MystAI, tüm açılımını mistik ama net bir dille yorumlasın.",
-        cardsLabel:"3 Kart Seç (Geçmiş – Şimdi – Gelecek)",
-        cardHint:"Kartlara teker teker tıkla. Altın MystAI sırtları dönecek ve senin için seçilen tarot arketiplerini gösterecek.",
-        questionLabel:"Sorun / Niyetin",
-        placeholder:"Aşk, ilişkiler, kariyer veya ruhsal yolculuğunla ilgili merak ettiklerini buraya yaz...",
-        btnText:"Tarot Açılımımı Göster",
-        statusIdle:"",
-        statusNeedCards:"Lütfen önce 3 kart seç.",
-        statusNeedText:"Lütfen en azından kısa bir soru veya niyet yaz.",
-        statusLoading:"Deste karılıyor, enerjin tarot kartlarına yansıyor...",
-        statusDone:"Tarot açılımın hazır.",
-        statusError:"Bir hata oluştu. Lütfen tekrar dene.",
-        userWelcome:"Hoş geldin, ",
-        resultTitle:"Tarot Açılımın",
-        resultInitial:"✨ 3 kartını seçip niyetini yazdıktan sonra yapay zekâ tarot yorumun burada görünecek. ✨",
-        resultHint:"MystAI eğlence amaçlı bir yapay zekâ fal yorumlayıcısıdır; profesyonel veya tıbbi tavsiye yerine geçmez.",
-        listen:"Dinle",
-        listening:"Çalıyor...",
-        back:"Uygulamaya Dön",
-        logout:"Çıkış Yap",
-        lblPast:"Geçmiş",
-        lblPresent:"Şimdi",
-        lblFuture:"Gelecek",
-        rights:"Tüm Hakları Saklıdır.",
-        dev:"GALAXY tarafından geliştirilmiştir 🌌",
-        contact:"İletişim:"
-      }
-    };
+    const drawButton = document.getElementById("drawButton");
+    const questionInput = document.getElementById("questionInput");
+    const questionError = document.getElementById("questionError");
+    const readingMeta = document.getElementById("readingMeta");
+    const readingBody = document.getElementById("readingBody");
+    const selectedCardsStrip = document.getElementById("selectedCardsStrip");
 
-    let activeLang     = localStorage.getItem("myst_lang") || "en";
-    let selectedCards  = {}; // {past:{cardObj,posText}, ...}
-
-    function applyLang(lang){
-      activeLang = lang;
-      localStorage.setItem("myst_lang",lang);
-      const t = i18n[lang];
-
-      titleEl.textContent       = t.title;
-      subtitleEl.textContent    = t.subtitle;
-      labelCards.textContent    = t.cardsLabel;
-      cardHint.textContent      = t.cardHint;
-      labelQuestion.textContent = t.questionLabel;
-      tarotQuestion.placeholder = t.placeholder;
-      readBtnText.textContent   = t.btnText;
-      resultTitle.textContent   = t.resultTitle;
-      resultText.textContent    = t.resultInitial;
-      resultHint.textContent    = t.resultHint;
-      listenLabel.textContent   = t.listen;
-      rightsLabel.textContent   = t.rights;
-      devLabel.textContent      = t.dev;
-      contactLabel.textContent  = t.contact;
-      backBtn.textContent       = "⬅ " + t.back;
-      logoutBtn.textContent     = t.logout;
-      lblPast.textContent       = t.lblPast;
-      lblPresent.textContent    = t.lblPresent;
-      lblFuture.textContent     = t.lblFuture;
-
-      btnEn.classList.toggle("active",lang==="en");
-      btnTr.classList.toggle("active",lang==="tr");
-
-      if(auth.currentUser){
-        const name = auth.currentUser.displayName || auth.currentUser.email;
-        userLabel.textContent = t.userWelcome + name;
-      }
-
-      // Kart pozisyon metinlerini güncelle (örneğin sayfa yenilenmeden dil değişince)
-      Object.entries(selectedCards).forEach(([slot, info])=>{
-        const posText = getPositionText(slot);
-        info.posText  = posText;
-        const cardEl  = tarotRow.querySelector(`.tarot-card[data-pos="${slot}"]`);
-        if(cardEl){
-          const posEl = cardEl.querySelector('[data-role="pos"]');
-          if(posEl) posEl.textContent = posText;
+    function shuffle(array) {
+        const copy = [...array];
+        for (let i = copy.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [copy[i], copy[j]] = [copy[j], copy[i]];
         }
-      });
+        return copy;
     }
 
-    btnEn.addEventListener("click",()=>applyLang("en"));
-    btnTr.addEventListener("click",()=>applyLang("tr"));
-
-    backBtn.addEventListener("click",()=>{ window.location.href="app.html"; });
-    logoutBtn.addEventListener("click",()=>{ signOut(auth).then(()=>window.location.href="login.html"); });
-
-    onAuthStateChanged(auth,(user)=>{
-      if(!user){
-        window.location.href="login.html";
-        return;
-      }
-      const t = i18n[activeLang];
-      const name = user.displayName || user.email;
-      userLabel.textContent = t.userWelcome + name;
-    });
-
-    applyLang(activeLang);
-
-    /* ====== TAROT SEÇİM LOGİC ====== */
-
-    function getPositionText(slot){
-      if(slot==="past")    return activeLang==="tr" ? "Geçmiş Enerji" : "Past energy";
-      if(slot==="present") return activeLang==="tr" ? "Şu Anki Durum" : "Current situation";
-      return activeLang==="tr" ? "Gelecek Potansiyeli" : "Future potential";
+    function drawThreeCards() {
+        const shuffled = shuffle(tarotDeck);
+        return {
+            past: shuffled[0],
+            present: shuffled[1],
+            future: shuffled[2],
+        };
     }
 
-    function getCaptionText(card){
-      return activeLang==="tr" ? card.vibe_tr : card.vibe_en;
+    function flipCardsAndRender(drawn) {
+        const slots = document.querySelectorAll(".tarot-slot");
+
+        slots.forEach((slot) => {
+            const position = slot.getAttribute("data-position"); // past | present | future
+            const cardData = drawn[position];
+
+            const card = slot.querySelector(".tarot-card");
+            const frontImg = slot.querySelector(".tarot-face.front img");
+
+            // önce back göster, sonra hafif gecikmeyle flip
+            card.classList.remove("is-flipped");
+            frontImg.src = cardData.img;
+            frontImg.alt = cardData.name + " kartı";
+
+            setTimeout(() => {
+                card.classList.add("is-flipped");
+            }, 80);
+        });
     }
 
-    function drawRandomCard(){
-      const usedKeys = new Set(Object.values(selectedCards).map(info=>info.card.key));
-      const remaining = TAROT_DECK.filter(c=>!usedKeys.has(c.key));
-      if(!remaining.length) return null;
-      const idx = Math.floor(Math.random()*remaining.length);
-      return remaining[idx];
-    }
+    function updateSelectedStrip(drawn) {
+        selectedCardsStrip.innerHTML = "";
 
-    function updateReadButtonState(){
-      const t = i18n[activeLang];
-      const slots = ["past","present","future"];
-      const allSelected = slots.every(s=>selectedCards[s]);
-      readBtn.disabled = !allSelected;
-      statusText.textContent = allSelected ? t.statusIdle : t.statusNeedCards;
-    }
+        const map = [
+            { label: "Geçmiş", key: "past" },
+            { label: "Şimdi", key: "present" },
+            { label: "Gelecek", key: "future" },
+        ];
 
-    cardElems.forEach(card=>{
-      card.addEventListener("click",()=>{
-        const slot = card.getAttribute("data-pos"); // past / present / future
-        if(selectedCards[slot]) return; // zaten açık
-
-        const cardData = drawRandomCard();
-        if(!cardData) return;
-
-        const posText   = getPositionText(slot);
-        const caption   = getCaptionText(cardData);
-        const nameText  = activeLang==="tr" ? cardData.tr : cardData.en;
-
-        selectedCards[slot] = { card: cardData, posText };
-
-        const nameEl    = card.querySelector('[data-role="name"]');
-        const posEl     = card.querySelector('[data-role="pos"]');
-        const illusText = card.querySelector('[data-role="illus-text"]');
-        const captionEl = card.querySelector('[data-role="caption"]');
-
-        if(nameEl)    nameEl.textContent    = nameText;
-        if(posEl)     posEl.textContent     = posText;
-        if(illusText) illusText.textContent = caption;
-        if(captionEl) captionEl.textContent = nameText.toUpperCase();
-
-        card.classList.add("flipped");
-        card.classList.add("disabled");
-
-        updateReadButtonState();
-      });
-    });
-
-    /* ====== TAROT READING (BACKEND + FIRESTORE) ====== */
-    readBtn.addEventListener("click", async ()=>{
-      const t = i18n[activeLang];
-      const user = auth.currentUser;
-      if(!user){
-        alert(activeLang==="tr" ? "Lütfen önce giriş yap." : "Please log in first.");
-        return;
-      }
-
-      const slots = ["past","present","future"];
-      const allSelected = slots.every(s=>selectedCards[s]);
-      if(!allSelected){
-        alert(t.statusNeedCards);
-        return;
-      }
-
-      const question = tarotQuestion.value.trim();
-      if(!question){
-        alert(t.statusNeedText);
-        return;
-      }
-
-      readBtn.disabled = true;
-      statusText.textContent = t.statusLoading;
-      resultText.textContent = "";
-      listenBtn.disabled = true;
-      audioPlayer.pause();
-      audioPlayer.currentTime = 0;
-      audioPlayer.src = "";
-
-      try{
-        if(!BACKEND_URL || BACKEND_URL.includes("YOUR-BACKEND-URL")){
-          statusText.textContent = "Backend URL is not configured.";
-          readBtn.disabled = false;
-          return;
-        }
-
-        const cardsDescription = slots.map(slot=>{
-          const info = selectedCards[slot];
-          const c    = info.card;
-          const posLabel = (
-            slot==="past"    ? (activeLang==="tr"?"Geçmiş":"Past") :
-            slot==="present" ? (activeLang==="tr"?"Şimdi":"Present") :
-                               (activeLang==="tr"?"Gelecek":"Future")
-          );
-          const cardName = activeLang==="tr" ? c.tr : c.en;
-          return `${posLabel}: ${cardName} – ${getCaptionText(c)}`;
-        }).join("\n");
-
-        const headerText = activeLang==="tr"
-          ? "Bu bir tarot açılımıdır. Geçmiş–Şimdi–Gelecek için seçilen kartları ve kullanıcının sorusunu, mistik ama net ve detaylı bir dille yorumla."
-          : "This is a tarot spread. Interpret the Past–Present–Future cards and the user's question in a mystical, warm and detailed way.";
-
-        const userText =
-          headerText +
-          "\n\n" +
-          (activeLang==="tr" ? "Kartlar:\n" : "Cards:\n") +
-          cardsDescription +
-          "\n\n" +
-          (activeLang==="tr" ? "Kullanıcının sorusu/niyeti: " : "User's question/intention: ") +
-          question;
-
-        const res = await fetch(`${BACKEND_URL}/predict`,{
-          method:"POST",
-          headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify({ user_input: userText })
+        map.forEach((item) => {
+            const card = drawn[item.key];
+            const chip = document.createElement("div");
+            chip.className = "chip";
+            chip.innerHTML = `<strong>${item.label}:</strong> ${card.name}`;
+            selectedCardsStrip.appendChild(chip);
         });
 
-        if(!res.ok){
-          throw new Error("HTTP " + res.status);
+        selectedCardsStrip.style.display = "flex";
+    }
+
+    function buildLocalReading(drawn, question) {
+        // Bu kısım gerçek AI entegrasyonu gelene kadar
+        // kullanabileceğin "akıllı placeholder" yorumudur.
+        // Daha sonra burayı kendi backend API çağrınla değiştirebilirsin.
+        //
+        // Örnek: fetch("/api/tarot-reading", { ... })
+        const textQuestion = question.trim();
+
+        const intro = textQuestion
+            ? `Niyetin: “${textQuestion}”\n\n`
+            : "";
+
+        const parts = [];
+
+        parts.push(
+            `🔮 <strong>Geçmiş (${drawn.past.name})</strong><br>` +
+                `Geçmişte yaşadığın bazı deneyimler hâlâ bugünkü kararlarını şekillendiriyor. Bu kart, özellikle tekrar eden bir tema veya dersin altını çiziyor.`
+        );
+
+        parts.push(
+            `✨ <strong>Şimdi (${drawn.present.name})</strong><br>` +
+                `Şu anda odaklandığın enerji, dönüşüm potansiyeli çok yüksek bir eşikte olduğunu gösteriyor. Kendi merkezini korudukça fırsatları daha net görebileceksin.`
+        );
+
+        parts.push(
+            `🌙 <strong>Gelecek (${drawn.future.name})</strong><br>` +
+                `Bu kart, önündeki dönemde hangi kapıların açılabileceğine dair bir işaret. Seçimlerin, bu enerjiyi nasıl yaşayacağını doğrudan etkiliyor.`
+        );
+
+        const closing =
+            "MystAI, kartları senin niyetinle birlikte okur; burada gördüğün olasılıklar, özgür iraden ve bilinçli seçimlerinle şekillenir.";
+
+        return { intro, parts, closing };
+    }
+
+    drawButton.addEventListener("click", () => {
+        const question = questionInput.value || "";
+        const trimmed = question.trim();
+
+        if (!trimmed) {
+            questionError.style.display = "block";
+        } else {
+            questionError.style.display = "none";
         }
 
-        const data = await res.json();
-        const text = data?.text || (activeLang==="tr" ? "Yanıt alınamadı." : "No response.");
-        const audioPath = data?.audio;
+        const drawn = drawThreeCards();
+        flipCardsAndRender(drawn);
+        updateSelectedStrip(drawn);
 
-        resultText.textContent = text;
-        statusText.textContent = t.statusDone;
+        // Local / yapay yorum
+        const reading = buildLocalReading(drawn, question);
 
-        // Firestore kaydı
-        try{
-          await addDoc(collection(db,"fortunes"),{
-            user: user.email,
-            type: "AI Tarot Reading",
-            question,
-            result: text,
-            cards: {
-              past:    selectedCards.past?.card?.key    || null,
-              present: selectedCards.present?.card?.key || null,
-              future:  selectedCards.future?.card?.key  || null
-            },
-            createdAt: new Date().toISOString(),
-            source: "tarot-page"
-          });
-        }catch(e){
-          console.warn("Firestore save error:",e);
+        readingMeta.textContent =
+            "Aşağıdaki yorumlar, seçtiğin Geçmiş–Şimdi–Gelecek kartlarının enerjisini niyetinle birleştirerek oluşturulmuştur.";
+
+        let html = "";
+        if (reading.intro) {
+            html += `<p>${reading.intro.replace(/\n/g, "<br>")}</p>`;
         }
+        reading.parts.forEach((p) => {
+            html += `<p>${p}</p>`;
+        });
+        html += `<p>${reading.closing}</p>`;
 
-        if(audioPath){
-          const fullURL = audioPath.startsWith("http") ? audioPath : `${BACKEND_URL}${audioPath}`;
-          audioPlayer.src = fullURL;
-          listenBtn.disabled = false;
-        }
-
-      }catch(err){
-        console.error(err);
-        statusText.textContent = t.statusError;
-        resultText.textContent =
-          (activeLang==="tr" ? "Hata: " : "Error: ") + (err?.message || String(err));
-      }finally{
-        readBtn.disabled = false;
-      }
+        readingBody.innerHTML = html;
     });
-
-    listenBtn.addEventListener("click",()=>{
-      if(!audioPlayer.src) return;
-      const t = i18n[activeLang];
-      listenLabel.textContent = t.listening;
-      audioPlayer.play().catch(()=>{});
-      audioPlayer.onended = ()=>{ listenLabel.textContent = t.listen; };
-    });
-  </script>
+</script>
 </body>
 </html>
