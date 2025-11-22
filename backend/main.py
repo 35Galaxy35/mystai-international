@@ -11,8 +11,8 @@
 # - /chart/<id>        : Harita PNG dosyası
 #
 # Notlar:
-# - Haritalar Skyfield + de421 ile hesaplanır (gerçek gökyüzü).
-# - Ev sistemi: eşit ev (gezegen derece doğruluğunu etkilemez).
+# - Haritalar Swiss Ephemeris + gerçek timezone ile hesaplanır (Astro.com uyumlu).
+# - Ev sistemi: chart_generator içindeki sisteme göre (Placidus).
 # - PDF: DejaVuSans.ttf ile tam Unicode (TR/EN) desteği.
 # ============================================
 
@@ -30,9 +30,12 @@ from gtts import gTTS
 from fpdf import FPDF
 from geopy.geocoders import Nominatim
 
+# NEW: Doğum yeri (lat/lon) → timezone
+from timezonefinder import TimezoneFinder
+
 # chart_generator.py aynı klasörde
 sys.path.append(os.path.dirname(__file__))
-from chart_generator import generate_natal_chart  # gerçek wheel
+from chart_generator import generate_natal_chart  # Swiss Ephemeris tabanlı
 
 # -----------------------------
 # Flask & CORS
@@ -63,6 +66,9 @@ LOGO_PATH = os.path.join(ROOT_DIR, "images", "mystai-logo.png")
 # -----------------------------
 geolocator = Nominatim(user_agent="mystai-astrology")
 
+# NEW: TimezoneFinder instance
+tf = TimezoneFinder()
+
 
 def geocode_place(place: str):
     """Şehir/ülke bilgisinden enlem-boylam bulur. Hata olursa (0,0) döner."""
@@ -73,6 +79,25 @@ def geocode_place(place: str):
     except Exception as e:
         print("Geocode error:", e)
     return 0.0, 0.0
+
+
+def get_timezone_from_latlon(lat: float, lon: float) -> str:
+    """
+    Enlem-boylamdan IANA timezone ismini bulur.
+    Örn: Europe/Istanbul, America/New_York, Europe/London, Asia/Tokyo
+    Hata durumunda UTC döner.
+    """
+    try:
+        if lat == 0.0 and lon == 0.0:
+            # Geocode başarısızsa en azından stabil bir sonuç verelim
+            return "UTC"
+        tz = tf.timezone_at(lat=lat, lng=lon)
+        if tz is None:
+            return "UTC"
+        return tz
+    except Exception as e:
+        print("Timezone error:", e)
+        return "UTC"
 
 
 # -----------------------------
@@ -118,7 +143,7 @@ def build_system_prompt(kind: str, lang: str) -> str:
             + "Describe love, career, money, spiritual growth and personal transformation as yearly topics.",
             "transit": base
             + "Explain how the current planetary transits affect the natal chart. "
-            + "Pay special attention to Saturn, Uranus, Neptune and Pluto processes, as well as Jupiter and Mars. "
+            + "Pay special attention to Saturn, Uranus, Neptune, and Pluto processes, as well as Jupiter and Mars. "
             + "Give concrete, practical advice.",
         }
     return mapping.get(kind, mapping["general"])
@@ -164,7 +189,7 @@ def predict():
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_input},
             ],
-            max_tokens=5000,
+            max_tokens=800,
         )
 
         text = completion.choices[0].message.content.strip()
@@ -267,7 +292,7 @@ def astrology_premium():
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            max_tokens=6000,
+            max_tokens=2300,
         )
         text = completion.choices[0].message.content.strip()
 
@@ -277,12 +302,14 @@ def astrology_premium():
         chart_public_path = None
 
         try:
+            timezone_str = get_timezone_from_latlon(lat, lon)
             chart_id, chart_file_path = generate_natal_chart(
                 birth_date=birth_date,
                 birth_time=birth_time,
                 latitude=lat,
                 longitude=lon,
                 out_dir="/tmp",
+                timezone_str=timezone_str,
             )
             chart_public_path = f"/chart/{chart_id}"
         except Exception as e:
@@ -311,7 +338,7 @@ def solar_return():
     """
     Solar return raporu + harita.
     Not: Solar return tarihi, doğum günü + aynı saat üzerinden yaklaşık alınır
-    (profesyonel yorum için yeterli; gezegen konumları gerçek ephemeris ile hesaplanır).
+    (profesyonel yorum için yeterli; gezegen konumları gerçek efemeris ile hesaplanır).
     """
     try:
         data = request.json or {}
@@ -346,12 +373,14 @@ def solar_return():
         chart_id = None
         chart_public_path = None
         try:
+            timezone_str = get_timezone_from_latlon(lat, lon)
             chart_id, chart_file_path = generate_natal_chart(
                 birth_date=sr_date,
                 birth_time=birth_time,
                 latitude=lat,
                 longitude=lon,
                 out_dir="/tmp",
+                timezone_str=timezone_str,
             )
             chart_public_path = f"/chart/{chart_id}"
         except Exception as e:
@@ -398,7 +427,7 @@ def solar_return():
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            max_tokens=5000,
+            max_tokens=1600,
         )
         text = completion.choices[0].message.content.strip()
 
