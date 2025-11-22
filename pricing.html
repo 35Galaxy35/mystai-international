@@ -1,102 +1,637 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MystAI.ai | Pricing</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #0a0a1a;
-      color: #fff;
-      text-align: center;
-      margin: 0;
-      padding: 40px 20px;
-    }
-    h1 {
-      font-size: 2em;
-      color: #f9d342;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-    }
-    .plan {
-      background: #14142b;
-      border-radius: 12px;
-      padding: 20px;
-      margin: 20px 0;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-    }
-    .price {
-      font-size: 1.5em;
-      color: #f9d342;
-      margin: 10px 0;
-    }
-    footer {
-      margin-top: 30px;
-      font-size: 0.9em;
-      color: #ccc;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <title>MystAI – Pricing</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Basic styles (no external dependencies) -->
+    <style>
+        :root {
+            --bg-dark: #050616;
+            --bg-card: #0b0c1f;
+            --accent: #a971ff;
+            --accent-soft: rgba(169, 113, 255, 0.12);
+            --gold: #f5d37a;
+            --text-main: #f4f3ff;
+            --text-soft: #a0a3c2;
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --danger: #ff5c7b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                "Segoe UI", sans-serif;
+            background: radial-gradient(circle at top, #171936 0, #050616 50%, #050614 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 18px 16px 32px;
+        }
+
+        /* HEADER */
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .header-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            background: radial-gradient(circle at 30% 0, #ffffff 0, #f5d37a 15%, #a971ff 52%, #050616 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 25px rgba(169, 113, 255, 0.6);
+        }
+
+        .header-logo span {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .header-title {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .header-title h1 {
+            font-size: 20px;
+            letter-spacing: 0.03em;
+        }
+
+        .header-title span {
+            font-size: 12px;
+            color: var(--text-soft);
+        }
+
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-actions a {
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-soft);
+            background: rgba(5, 6, 22, 0.7);
+        }
+
+        .header-actions a.primary {
+            border-color: rgba(245, 211, 122, 0.5);
+            background: radial-gradient(circle at top, rgba(245, 211, 122, 0.22), rgba(5, 6, 22, 0.95));
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        /* INTRO */
+
+        .intro {
+            margin-bottom: 22px;
+        }
+
+        .intro-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            background: rgba(169, 113, 255, 0.08);
+            color: var(--accent);
+            border: 1px solid rgba(169, 113, 255, 0.3);
+            margin-bottom: 8px;
+        }
+
+        .intro-label span {
+            font-size: 10px;
+        }
+
+        .intro h2 {
+            font-size: 22px;
+            margin-bottom: 6px;
+        }
+
+        .intro-sub {
+            font-size: 13px;
+            color: var(--text-soft);
+            max-width: 520px;
+            line-height: 1.5;
+        }
+
+        .billing-toggle {
+            margin-top: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border-subtle);
+            background: rgba(0, 0, 0, 0.35);
+            font-size: 11px;
+            color: var(--text-soft);
+        }
+
+        .billing-toggle span.badge {
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: rgba(245, 211, 122, 0.16);
+            color: var(--gold);
+            font-size: 10px;
+            border: 1px solid rgba(245, 211, 122, 0.5);
+        }
+
+        /* PRICING GRID */
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .plan-card {
+            border-radius: 16px;
+            border: 1px solid var(--border-subtle);
+            background:
+                radial-gradient(circle at top, rgba(169, 113, 255, 0.22), transparent 58%),
+                radial-gradient(circle at bottom, rgba(10, 13, 48, 0.9), #050616 70%);
+            padding: 14px 14px 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plan-card--highlight {
+            border-color: rgba(245, 211, 122, 0.7);
+            box-shadow: 0 0 0 1px rgba(245, 211, 122, 0.25), 0 14px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .plan-pill {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: rgba(245, 211, 122, 0.14);
+            border: 1px solid rgba(245, 211, 122, 0.6);
+            color: var(--gold);
+        }
+
+        .plan-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .plan-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 10px;
+            background: radial-gradient(circle at 30% 0, #fff 0, #f5d37a 20%, #a971ff 70%, #050616 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            box-shadow: 0 0 16px rgba(169, 113, 255, 0.75);
+        }
+
+        .plan-title-block {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .plan-title-block h3 {
+            font-size: 15px;
+        }
+
+        .plan-title-block span {
+            font-size: 11px;
+            color: var(--text-soft);
+        }
+
+        .plan-price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .plan-price-main {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .plan-price-main small {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-soft);
+            margin-left: 2px;
+        }
+
+        .plan-hint {
+            font-size: 11px;
+            color: var(--text-soft);
+            margin-bottom: 10px;
+        }
+
+        .plan-features {
+            list-style: none;
+            font-size: 11px;
+            color: var(--text-soft);
+            display: grid;
+            gap: 5px;
+            margin-bottom: 12px;
+        }
+
+        .plan-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        .plan-features li::before {
+            content: "✦";
+            font-size: 9px;
+            color: var(--accent);
+            margin-top: 2px;
+        }
+
+        .plan-cta {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .plan-cta a.primary {
+            flex: 1;
+            text-align: center;
+            font-size: 12px;
+            padding: 8px 10px;
+            border-radius: 999px;
+            background: radial-gradient(circle at top, rgba(245, 211, 122, 0.4), rgba(169, 113, 255, 0.3));
+            border: 1px solid rgba(245, 211, 122, 0.9);
+            color: #050616;
+            font-weight: 600;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.9);
+        }
+
+        .plan-cta a.secondary {
+            font-size: 11px;
+            padding: 7px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-soft);
+            background: rgba(5, 6, 22, 0.7);
+        }
+
+        /* NOTICE */
+
+        .notice {
+            margin-top: 18px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px dashed rgba(245, 211, 122, 0.4);
+            background: rgba(8, 8, 24, 0.9);
+            font-size: 11px;
+            color: var(--text-soft);
+            display: flex;
+            gap: 8px;
+        }
+
+        .notice span.icon {
+            font-size: 13px;
+        }
+
+        .notice strong {
+            color: var(--gold);
+        }
+
+        /* FAQ MINI */
+
+        .faq-mini {
+            margin-top: 22px;
+        }
+
+        .faq-mini h3 {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .faq-list {
+            list-style: none;
+            display: grid;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--text-soft);
+        }
+
+        .faq-list li strong {
+            display: block;
+            margin-bottom: 2px;
+            color: var(--text-main);
+        }
+
+        /* FOOTER */
+
+        .footer {
+            margin-top: 26px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 10px;
+            color: var(--text-soft);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .footer span.brand {
+            color: var(--gold);
+        }
+
+        .footer-links {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        .footer-links a {
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        /* DESKTOP */
+
+        @media (min-width: 768px) {
+            .page {
+                padding: 28px 18px 40px;
+            }
+
+            .header-title h1 {
+                font-size: 22px;
+            }
+
+            .intro h2 {
+                font-size: 26px;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .plan-card {
+                height: 100%;
+            }
+        }
+    </style>
 </head>
+
 <body>
+<div class="page">
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-logo">
+            <span>M</span>
+        </div>
+        <div class="header-title">
+            <h1>MystAI Pricing</h1>
+            <span>AI-powered readings • Coffee • Tarot • Palm • Energy • Astrology</span>
+        </div>
+        <div class="header-actions">
+            <a href="index.html">← Back to home</a>
+            <a href="profile.html" class="primary">My readings</a>
+        </div>
+    </header>
 
-  <div class="container">
-    <h1>🌟 MystAI.ai – Pricing Plans</h1>
-    <p>Experience the power of AI-driven fortune readings. Choose your plan below.</p>
+    <!-- INTRO -->
+    <section class="intro">
+        <div class="intro-label">
+            <span>✨ MystAI</span> • <span>Premium AI readings</span>
+        </div>
+        <h2>Choose your reading and let AI reveal your path.</h2>
+        <p class="intro-sub">
+            All readings are generated by advanced AI, personalized to your energy, symbols and birth information.
+            Prices below are per reading and shown in Turkish Lira (₺).
+        </p>
+        <div class="billing-toggle">
+            Billing: <strong>Per reading</strong>
+            <span class="badge">No subscription – pay as you go</span>
+        </div>
+    </section>
 
-    <div class="plan">
-      <h2>✨ Basic Plan</h2>
-      <p>Includes 3 AI readings per month (Coffee, Tarot, or Dream).</p>
-      <p class="price">$4.99 / month</p>
-      <p><em>Ideal for personal users.</em></p>
-    </div>
+    <!-- PRICING GRID -->
+    <section class="pricing-grid">
 
-    <div class="plan">
-      <h2>🔮 Premium Plan</h2>
-      <p>Unlimited readings with all categories (Palm, Energy, Mind, etc.).</p>
-      <p class="price">$14.99 / month</p>
-      <p><em>Perfect for frequent users and deeper insights.</em></p>
-    </div>
+        <!-- COFFEE -->
+        <article class="plan-card">
+            <div class="plan-header">
+                <div class="plan-icon">☕</div>
+                <div class="plan-title-block">
+                    <h3>Coffee Reading</h3>
+                    <span>AI-generated cup & plate interpretation</span>
+                </div>
+            </div>
+            <div class="plan-price-row">
+                <div class="plan-price-main">169 ₺<small>/ reading</small></div>
+            </div>
+            <p class="plan-hint">
+                Perfect for quick, intuitive guidance from your coffee symbols.
+            </p>
+            <ul class="plan-features">
+                <li>Upload cup & plate photos for detailed analysis</li>
+                <li>Personalized interpretation based on your intention</li>
+                <li>Love, career, money & general life insights</li>
+                <li>Instant AI reading – available 24/7</li>
+            </ul>
+            <div class="plan-cta">
+                <!-- TODO: SHOPIER COFFEE LINK -->
+                <a href="#" class="primary">Buy Coffee Reading</a>
+                <a href="coffee.html" class="secondary">Details</a>
+            </div>
+        </article>
 
-    <div class="plan">
-      <h2>💼 Enterprise / Partner Plan</h2>
-      <p>For collaboration or white-label AI reading solutions.</p>
-      <p class="price">Contact us at support@mystai.ai</p>
-    </div>
+        <!-- TAROT (HIGHLIGHT) -->
+        <article class="plan-card plan-card--highlight">
+            <div class="plan-pill">Most popular</div>
+            <div class="plan-header">
+                <div class="plan-icon">🔮</div>
+                <div class="plan-title-block">
+                    <h3>Tarot Reading</h3>
+                    <span>In-depth AI spread interpretation</span>
+                </div>
+            </div>
+            <div class="plan-price-row">
+                <div class="plan-price-main">229 ₺<small>/ reading</small></div>
+            </div>
+            <p class="plan-hint">
+                Deep multi-card insights tailored to your question and energy.
+            </p>
+            <ul class="plan-features">
+                <li>Select your spread & focus question</li>
+                <li>Card-by-card AI interpretation with symbolism</li>
+                <li>Emotional patterns, challenges & guidance</li>
+                <li>Ideal for love, decisions & life direction</li>
+            </ul>
+            <div class="plan-cta">
+                <!-- TODO: SHOPIER TAROT LINK -->
+                <a href="#" class="primary">Buy Tarot Reading</a>
+                <a href="tarot.html" class="secondary">Details</a>
+            </div>
+        </article>
 
-    <hr style="margin: 40px 0; opacity: 0.2;">
+        <!-- PALM -->
+        <article class="plan-card">
+            <div class="plan-header">
+                <div class="plan-icon">✋</div>
+                <div class="plan-title-block">
+                    <h3>Palm Reading</h3>
+                    <span>AI-assisted palm line analysis</span>
+                </div>
+            </div>
+            <div class="plan-price-row">
+                <div class="plan-price-main">199 ₺<small>/ reading</small></div>
+            </div>
+            <p class="plan-hint">
+                Your hand reveals personality, tendencies and life path clues.
+            </p>
+            <ul class="plan-features">
+                <li>Upload clear photos of your palm</li>
+                <li>AI reads main lines & significant markings</li>
+                <li>Personality, talents & emotional themes</li>
+                <li>Practical guidance based on your hand map</li>
+            </ul>
+            <div class="plan-cta">
+                <!-- TODO: SHOPIER PALM LINK -->
+                <a href="#" class="primary">Buy Palm Reading</a>
+                <a href="palm.html" class="secondary">Details</a>
+            </div>
+        </article>
 
-    <h1>🌙 MystAI.ai – Fiyatlandırma (Türkçe)</h1>
-    <p>Yapay zekâ destekli fal deneyimini yaşayın. Aşağıdan planınızı seçin.</p>
+        <!-- ENERGY & DREAMS -->
+        <article class="plan-card">
+            <div class="plan-header">
+                <div class="plan-icon">⚡</div>
+                <div class="plan-title-block">
+                    <h3>Energy & Dreams</h3>
+                    <span>Subconscious & energetic insight</span>
+                </div>
+            </div>
+            <div class="plan-price-row">
+                <div class="plan-price-main">149 ₺<small>/ reading</small></div>
+            </div>
+            <p class="plan-hint">
+                Ideal for understanding your emotional energy & symbolic dreams.
+            </p>
+            <ul class="plan-features">
+                <li>Describe your dream or current energy state</li>
+                <li>AI decodes symbols & emotional patterns</li>
+                <li>Spiritual + psychological style interpretation</li>
+                <li>Gentle, supportive guidance for your next steps</li>
+            </ul>
+            <div class="plan-cta">
+                <!-- TODO: SHOPIER ENERGY LINK -->
+                <a href="#" class="primary">Buy Energy/Dream Reading</a>
+                <a href="energy.html" class="secondary">Details</a>
+            </div>
+        </article>
 
-    <div class="plan">
-      <h2>✨ Temel Plan</h2>
-      <p>Ayda 3 adet yapay zekâ destekli fal (Kahve, Tarot veya Rüya).</p>
-      <p class="price">₺149 / ay</p>
-      <p><em>Kişisel kullanım için uygundur.</em></p>
-    </div>
+        <!-- ASTROLOGY -->
+        <article class="plan-card">
+            <div class="plan-header">
+                <div class="plan-icon">🌌</div>
+                <div class="plan-title-block">
+                    <h3>Astrology Natal Report</h3>
+                    <span>Full AI-generated birth chart PDF</span>
+                </div>
+            </div>
+            <div class="plan-price-row">
+                <div class="plan-price-main">349 ₺<small>/ report</small></div>
+            </div>
+            <p class="plan-hint">
+                Comprehensive natal chart with AI-crafted PDF report for deeper self-knowledge.
+            </p>
+            <ul class="plan-features">
+                <li>Full birth chart: planets, houses & aspects</li>
+                <li>AI-generated multi-page PDF in your profile</li>
+                <li>Strengths, challenges, life themes & patterns</li>
+                <li>Perfect for those seeking in-depth astrology</li>
+            </ul>
+            <div class="plan-cta">
+                <!-- TODO: SHOPIER ASTROLOGY LINK -->
+                <a href="#" class="primary">Buy Astrology Report</a>
+                <a href="astrology.html" class="secondary">Details</a>
+            </div>
+        </article>
 
-    <div class="plan">
-      <h2>🔮 Premium Plan</h2>
-      <p>Tüm fal türlerinde sınırsız erişim (El, Enerji, Zihin vb.).</p>
-      <p class="price">₺399 / ay</p>
-      <p><em>Daha sık ve derin okumalar isteyen kullanıcılar için.</em></p>
-    </div>
+    </section>
 
-    <div class="plan">
-      <h2>💼 Kurumsal / İş Ortaklığı Planı</h2>
-      <p>İş birliği veya özel markalı AI fal çözümleri için.</p>
-      <p class="price">support@mystai.ai adresinden iletişime geçin.</p>
-    </div>
+    <!-- NOTICE -->
+    <section class="notice">
+        <span class="icon">🕊</span>
+        <div>
+            <strong>Important:</strong> Payments will be processed securely via Shopier once your payment
+            integration is approved. Until then, this pricing page is for information and testing only.
+        </div>
+    </section>
 
-    <footer>
-      <p>© 2025 MystAI.ai | <a href="terms.html" style="color:#f9d342;">Terms</a> | 
-      <a href="privacy.html" style="color:#f9d342;">Privacy</a> | 
-      <a href="refund.html" style="color:#f9d342;">Refund</a></p>
+    <!-- FAQ MINI -->
+    <section class="faq-mini">
+        <h3>Frequently asked questions</h3>
+        <ul class="faq-list">
+            <li>
+                <strong>Do you store my photos or birth data?</strong>
+                We only use your images and data to generate your reading. Your content is not shared with
+                third parties and is stored securely.
+            </li>
+            <li>
+                <strong>When will payments be active?</strong>
+                Payments for Turkey will be enabled as soon as your Shopier account is approved. After that,
+                you will be able to purchase readings directly from this page.
+            </li>
+            <li>
+                <strong>Is each reading unique?</strong>
+                Yes. Every reading is generated by AI in real time, using your own photos, details and intentions.
+            </li>
+        </ul>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <span>© <span class="brand">MystAI</span> – AI-powered fortune & astrology.</span>
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="profile.html">My readings</a>
+        </div>
     </footer>
-  </div>
-
+</div>
 </body>
 </html>
