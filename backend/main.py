@@ -147,50 +147,64 @@ def build_system_prompt(kind: str, lang: str) -> str:
     return mapping.get(kind, mapping["general"])
 
 
+def degree_to_sign(deg: float) -> str:
+    """0–360 dereceyi burç adına çevirir (Astro.com ile birebir)."""
+    signs = [
+        "Koç", "Boğa", "İkizler", "Yengeç",
+        "Aslan", "Başak", "Terazi", "Akrep",
+        "Yay", "Oğlak", "Kova", "Balık"
+    ]
+    index = int(deg // 30) % 12
+    return signs[index]
+
+
 def build_chart_summary(chart_meta: dict, lang: str) -> str:
     """AI'ya gönderilecek gerçek harita özetini üretir."""
     if not chart_meta:
         return ""
 
     planets = chart_meta.get("planets", [])
-    asc = chart_meta.get("asc")
-    mc = chart_meta.get("mc")
+    asc_deg = chart_meta.get("asc")
+    mc_deg = chart_meta.get("mc")
 
-    sun = next((p for p in planets if p.get("name") == "Sun"), None)
-    moon = next((p for p in planets if p.get("name") == "Moon"), None)
+    fixed = []
+    for p in planets:
+        name = p.get("name")
+        deg = p.get("lon")
+        sign = degree_to_sign(deg)
+        fixed.append({"name": name, "degree": deg, "sign": sign})
+
+    asc_sign = degree_to_sign(asc_deg) if asc_deg is not None else None
+    mc_sign = degree_to_sign(mc_deg) if mc_deg is not None else None
 
     lines = []
+
     if lang == "tr":
-        lines.append("Gerçek doğum haritası yerleşimleri (Swiss Ephemeris ile hesaplandı):")
-        if asc:
-            lines.append(
-                f"- Yükselen (ASC): {asc['sign']} ({asc['degree_in_sign']:.1f}° {asc['symbol']})"
-            )
-        if sun:
-            lines.append(
-                f"- Güneş: {sun['sign']} ({sun['degree_in_sign']:.1f}° {sun['sign_symbol']})"
-            )
-        if moon:
-            lines.append(
-                f"- Ay: {moon['sign']} ({moon['degree_in_sign']:.1f}° {moon['sign_symbol']})"
-            )
+        lines.append("Gerçek doğum haritası yerleşimleri:")
+        if asc_sign:
+            lines.append(f"• Yükselen (ASC): {asc_sign} ({asc_deg:.2f}°)")
+        if mc_sign:
+            lines.append(f"• MC: {mc_sign} ({mc_deg:.2f}°)")
+
+        for p in fixed:
+            lines.append(f"• {p['name']}: {p['sign']} ({p['degree']:.2f}°)")
+
     else:
-        lines.append("Actual natal chart placements (calculated with Swiss Ephemeris):")
-        if asc:
-            lines.append(
-                f"- Ascendant (ASC): {asc['sign']} ({asc['degree_in_sign']:.1f}° {asc['symbol']})"
-            )
-        if sun:
-            lines.append(
-                f"- Sun: {sun['sign']} ({sun['degree_in_sign']:.1f}° {sun['sign_symbol']})"
-            )
-        if moon:
-            lines.append(
-                f"- Moon: {moon['sign']} ({moon['degree_in_sign']:.1f}° {moon['sign_symbol']})"
-            )
+        en_signs = {
+            "Koç": "Aries", "Boğa": "Taurus", "İkizler": "Gemini", "Yengeç": "Cancer",
+            "Aslan": "Leo", "Başak": "Virgo", "Terazi": "Libra", "Akrep": "Scorpio",
+            "Yay": "Sagittarius", "Oğlak": "Capricorn", "Kova": "Aquarius", "Balık": "Pisces"
+        }
+        lines.append("True natal chart placements:")
+        if asc_sign:
+            lines.append(f"• Ascendant: {en_signs[asc_sign]} ({asc_deg:.2f}°)")
+        if mc_sign:
+            lines.append(f"• MC: {en_signs[mc_sign]} ({mc_deg:.2f}°)")
+
+        for p in fixed:
+            lines.append(f"• {p['name']}: {en_signs[p['sign']]} ({p['degree']:.2f}°)")
 
     return "\n".join(lines)
-
 
 # -----------------------------
 # HEALTH CHECK
