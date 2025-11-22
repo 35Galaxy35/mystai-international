@@ -29,9 +29,8 @@ from langdetect import detect
 from gtts import gTTS
 from fpdf import FPDF
 from geopy.geocoders import Nominatim
-
-# NEW: Doğum yeri (lat/lon) → timezone
 from timezonefinder import TimezoneFinder
+from PIL import Image
 
 # chart_generator.py aynı klasörde
 sys.path.append(os.path.dirname(__file__))
@@ -66,7 +65,7 @@ LOGO_PATH = os.path.join(ROOT_DIR, "images", "mystai-logo.png")
 # -----------------------------
 geolocator = Nominatim(user_agent="mystai-astrology")
 
-# NEW: TimezoneFinder instance
+# TimezoneFinder instance
 tf = TimezoneFinder()
 
 
@@ -89,7 +88,6 @@ def get_timezone_from_latlon(lat: float, lon: float) -> str:
     """
     try:
         if lat == 0.0 and lon == 0.0:
-            # Geocode başarısızsa en azından stabil bir sonuç verelim
             return "UTC"
         tz = tf.timezone_at(lat=lat, lng=lon)
         if tz is None:
@@ -149,6 +147,51 @@ def build_system_prompt(kind: str, lang: str) -> str:
     return mapping.get(kind, mapping["general"])
 
 
+def build_chart_summary(chart_meta: dict, lang: str) -> str:
+    """AI'ya gönderilecek gerçek harita özetini üretir."""
+    if not chart_meta:
+        return ""
+
+    planets = chart_meta.get("planets", [])
+    asc = chart_meta.get("asc")
+    mc = chart_meta.get("mc")
+
+    sun = next((p for p in planets if p.get("name") == "Sun"), None)
+    moon = next((p for p in planets if p.get("name") == "Moon"), None)
+
+    lines = []
+    if lang == "tr":
+        lines.append("Gerçek doğum haritası yerleşimleri (Swiss Ephemeris ile hesaplandı):")
+        if asc:
+            lines.append(
+                f"- Yükselen (ASC): {asc['sign']} ({asc['degree_in_sign']:.1f}° {asc['symbol']})"
+            )
+        if sun:
+            lines.append(
+                f"- Güneş: {sun['sign']} ({sun['degree_in_sign']:.1f}° {sun['sign_symbol']})"
+            )
+        if moon:
+            lines.append(
+                f"- Ay: {moon['sign']} ({moon['degree_in_sign']:.1f}° {moon['sign_symbol']})"
+            )
+    else:
+        lines.append("Actual natal chart placements (calculated with Swiss Ephemeris):")
+        if asc:
+            lines.append(
+                f"- Ascendant (ASC): {asc['sign']} ({asc['degree_in_sign']:.1f}° {asc['symbol']})"
+            )
+        if sun:
+            lines.append(
+                f"- Sun: {sun['sign']} ({sun['degree_in_sign']:.1f}° {sun['sign_symbol']})"
+            )
+        if moon:
+            lines.append(
+                f"- Moon: {moon['sign']} ({moon['degree_in_sign']:.1f}° {moon['sign_symbol']})"
+            )
+
+    return "\n".join(lines)
+
+
 # -----------------------------
 # HEALTH CHECK
 # -----------------------------
@@ -194,7 +237,6 @@ def predict():
 
         text = completion.choices[0].message.content.strip()
 
-        # Ses dosyası (TTS)
         audio_id = uuid.uuid4().hex
         audio_path = f"/tmp/{audio_id}.mp3"
         gTTS(text=text, lang=lang).save(audio_path)
@@ -229,7 +271,6 @@ def astrology_premium():
         if not birth_date or not birth_time or not birth_place:
             return jsonify({"error": "Eksik bilgi"}), 400
 
-        # Dil
         if not lang:
             try:
                 lang = detect(birth_place)
@@ -239,8 +280,29 @@ def astrology_premium():
             lang = "en"
 
         system_prompt = build_system_prompt("astrology", lang)
-
         focus_str = ", ".join(focus) if focus else ("Genel" if lang == "tr" else "General")
+
+        # ---- NATAL HARİTASI (GERÇEK HESAP) ----
+        lat, lon = geocode_place(birth_place)
+        chart_id = None
+        chart_public_path = None
+        chart_meta = None
+
+        try:
+            timezone_str = get_timezone_from_latlon(lat, lon)
+            chart_id, chart_file_path, chart_meta = generate_natal_chart(
+                birth_date=birth_date,
+                birth_time=birth_time,
+                latitude=lat,
+                longitude=lon,
+                out_dir="/tmp",
+                timezone_str=timezone_str,
+            )
+            chart_public_path = f"/chart/{chart_id}"
+        except Exception as e:
+            print("Natal chart generation error:", e)
+
+        chart_summary = build_chart_summary(chart_meta, lang)
 
         if lang == "tr":
             user_prompt = (
@@ -251,6 +313,9 @@ def astrology_premium():
                 f"Danışan ismi: {name}\n"
                 f"Odak alanları: {focus_str}\n"
                 f"Özel soru veya niyet: {question}\n\n"
+                "Aşağıda Swiss Ephemeris ile hesaplanmış gerçek doğum haritası yerleşimleri verilmiştir. "
+                "Lütfen yorumlarını bu yerleşimlere sadık kalarak yap:\n\n"
+                f"{chart_summary}\n\n"
                 "Lütfen raporu şu başlıklarla ve detaylı şekilde yaz:\n"
                 "1) Giriş ve genel enerji\n"
                 "2) Kişilik, ego ve ruhsal yapı (Güneş, Ay, ASC)\n"
@@ -273,6 +338,9 @@ def astrology_premium():
                 f"Client name: {name}\n"
                 f"Focus areas: {focus_str}\n"
                 f"Specific question or intention: {question}\n\n"
+                "Below are the actual natal chart placements calculated with Swiss Ephemeris. "
+                "Please base your interpretation strictly on these placements:\n\n"
+                f"{chart_summary}\n\n"
                 "Please structure the report with clear headings:\n"
                 "1) Introduction and overall energy\n"
                 "2) Personality, ego and soul structure (Sun, Moon, ASC)\n"
@@ -296,30 +364,12 @@ def astrology_premium():
         )
         text = completion.choices[0].message.content.strip()
 
-        # ---- NATAL HARİTASI ----
-        lat, lon = geocode_place(birth_place)
-        chart_id = None
-        chart_public_path = None
-
-        try:
-            timezone_str = get_timezone_from_latlon(lat, lon)
-            chart_id, chart_file_path = generate_natal_chart(
-                birth_date=birth_date,
-                birth_time=birth_time,
-                latitude=lat,
-                longitude=lon,
-                out_dir="/tmp",
-                timezone_str=timezone_str,
-            )
-            chart_public_path = f"/chart/{chart_id}"
-        except Exception as e:
-            print("Natal chart generation error:", e)
-
         return jsonify(
             {
                 "text": text,
                 "chart": chart_public_path,
                 "chart_id": chart_id,
+                "chart_data": chart_meta,
                 "language": lang,
                 "mode": "natal",
             }
@@ -337,8 +387,7 @@ def astrology_premium():
 def solar_return():
     """
     Solar return raporu + harita.
-    Not: Solar return tarihi, doğum günü + aynı saat üzerinden yaklaşık alınır
-    (profesyonel yorum için yeterli; gezegen konumları gerçek efemeris ile hesaplanır).
+    Not: Solar return tarihi, doğum günü + aynı saat üzerinden yaklaşık alınır.
     """
     try:
         data = request.json or {}
@@ -356,7 +405,6 @@ def solar_return():
             year = datetime.utcnow().year
         year = int(year)
 
-        # Solar return tarih: aynı ay/gün, farklı yıl (yaklaşık yöntem)
         y0, m0, d0 = map(int, birth_date.split("-"))
         sr_date = f"{year:04d}-{m0:02d}-{d0:02d}"
 
@@ -368,13 +416,12 @@ def solar_return():
         if lang not in ("tr", "en"):
             lang = "en"
 
-        # Harita
         lat, lon = geocode_place(birth_place)
         chart_id = None
         chart_public_path = None
         try:
             timezone_str = get_timezone_from_latlon(lat, lon)
-            chart_id, chart_file_path = generate_natal_chart(
+            chart_id, chart_file_path, _ = generate_natal_chart(
                 birth_date=sr_date,
                 birth_time=birth_time,
                 latitude=lat,
@@ -539,17 +586,14 @@ def transits():
 class MystPDF(FPDF):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # TTF fontları ekle (Unicode için)
         if os.path.exists(FONT_PATH_TTF):
             self.add_font("DejaVu", "", FONT_PATH_TTF, uni=True)
             self.add_font("DejaVu", "B", FONT_PATH_TTF, uni=True)
 
     def header(self):
-        # Küçük logo sol üstte
         if LOGO_PATH and os.path.exists(LOGO_PATH):
-            self.image(LOGO_PATH, 10, 7, 16)  # x, y, width(mm)
+            self.image(LOGO_PATH, 10, 7, 16)
 
-        # Marka başlığı
         self.set_xy(28, 8)
         self.set_font("DejaVu", "B", 11)
         self.set_text_color(25, 30, 55)
@@ -586,7 +630,6 @@ def generate_pdf():
         lang = data.get("language", "en")
         report_type = (data.get("report_type") or "natal").lower()
 
-        # meta (opsiyonel)
         birth_date = data.get("birth_date")
         birth_time = data.get("birth_time")
         birth_place = data.get("birth_place")
@@ -604,7 +647,6 @@ def generate_pdf():
         pdf.alias_nb_pages()
         pdf.add_page()
 
-        # ----- Kapak başlığı & alt başlık -----
         if lang == "tr":
             if report_type == "solar":
                 title = "MystAI Güneş Dönüşü (Solar Return) Astroloji Raporu"
@@ -646,7 +688,6 @@ def generate_pdf():
                 )
             intro_heading = "Your detailed astrology report is below:"
 
-        # Başlık
         pdf.set_font("DejaVu", "B", 17)
         pdf.set_text_color(30, 32, 60)
         pdf.multi_cell(0, 8, title)
@@ -657,17 +698,12 @@ def generate_pdf():
         pdf.multi_cell(0, 6, sub)
         pdf.ln(6)
 
-        # Meta satırı
         meta_lines = []
         if birth_date and birth_time and birth_place:
             if lang == "tr":
-                meta_lines.append(
-                    f"Doğum: {birth_date} • {birth_time} • {birth_place}"
-                )
+                meta_lines.append(f"Doğum: {birth_date} • {birth_time} • {birth_place}")
             else:
-                meta_lines.append(
-                    f"Birth: {birth_date} • {birth_time} • {birth_place}"
-                )
+                meta_lines.append(f"Birth: {birth_date} • {birth_time} • {birth_place}")
         if solar_year and report_type == "solar":
             if lang == "tr":
                 meta_lines.append(f"Güneş dönüşü yılı: {solar_year}")
@@ -685,19 +721,16 @@ def generate_pdf():
             pdf.multi_cell(0, 4.5, "  •  ".join(meta_lines))
             pdf.ln(5)
 
-        # ----- Harita görseli (NATAL / SOLAR için) -----
         has_chart_page = False
         if chart_id and report_type in ("natal", "solar"):
             chart_file = f"/tmp/{chart_id}.png"
             if os.path.exists(chart_file):
                 try:
-                    from PIL import Image
-
                     img = Image.open(chart_file).convert("RGB")
                     rgb_fixed = f"/tmp/{chart_id}_rgb.jpg"
                     img.save(rgb_fixed, "JPEG", quality=95)
 
-                    img_width = 140  # mm
+                    img_width = 140
                     x = (210 - img_width) / 2
                     y = pdf.get_y() + 2
 
@@ -706,11 +739,9 @@ def generate_pdf():
                 except Exception as e:
                     print("PDF image error:", e)
 
-        # Eğer harita çizildiyse, detaylı metni 2. sayfadan başlat
         if has_chart_page:
             pdf.add_page()
 
-        # ----- Gövde / detaylı metin -----
         pdf.set_text_color(35, 35, 55)
         pdf.set_font("DejaVu", "B", 13)
         pdf.multi_cell(0, 7, intro_heading)
