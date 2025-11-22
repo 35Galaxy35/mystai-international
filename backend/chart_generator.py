@@ -8,10 +8,14 @@
 # - Aspect çizgileri (konj., kare, üçgen, karşıt, sekstil)
 # - Render (headless) uyumlu matplotlib çıktısı (PNG)
 #
-# main.py bu modülden sadece:
-#   from chart_generator import generate_natal_chart
-#   chart_id, chart_file_path = generate_natal_chart(...)
-# çağrısını yapıyor.
+# generate_natal_chart artık:
+#   (chart_id, chart_file_path, chart_meta)
+# döndürür.
+# chart_meta içinde:
+#   - planets: gezegen listesi (burç, derece vb.)
+#   - houses: 12 ev cusp derecesi
+#   - asc: yükselen bilgisi
+#   - mc: MC bilgisi
 
 import os
 import math
@@ -22,9 +26,7 @@ from datetime import datetime, timezone
 # Tarihsel timezone desteği
 # ------------------------------
 try:
-    # Python 3.9+ standart kütüphane
-    from zoneinfo import ZoneInfo
-
+    from zoneinfo import ZoneInfo  # Python 3.9+
     HAS_TZINFO = True
 except Exception:
     HAS_TZINFO = False
@@ -45,7 +47,7 @@ except Exception:
 # -----------------------------------------
 import matplotlib
 
-matplotlib.use("Agg")  # GUI gerekmez
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 
@@ -54,7 +56,6 @@ from matplotlib.patches import Circle
 # -----------------------------------------
 
 if HAS_SWISS:
-    # (İsim, Sembol, swe sabiti, çizim rengi)
     PLANETS = [
         ("Sun", "☉", swe.SUN, "#ffcc33"),
         ("Moon", "☽", swe.MOON, "#ffffff"),
@@ -68,7 +69,6 @@ if HAS_SWISS:
         ("Pluto", "♇", swe.PLUTO, "#ff99ff"),
     ]
 else:
-    # Eğer Swiss yoksa tamamen görsel amaçlı, yaklaşık yerleşim
     PLANETS = [
         ("Sun", "☉", 0.0, "#ffcc33"),
         ("Moon", "☽", 33.0, "#ffffff"),
@@ -97,56 +97,54 @@ SIGNS = [
     ("Pisces", "♓"),
 ]
 
-# Aspect tanımları: (açı, tolerans, renk, kalınlık)
 ASPECTS = [
-    (0, 6, "#ff6666", 1.2),   # conjunction
-    (60, 4, "#66b3ff", 0.9),  # sextile
-    (90, 5, "#ff6666", 1.1),  # square
-    (120, 5, "#66b3ff", 1.1), # trine
-    (180, 6, "#ff6666", 1.3), # opposition
+    (0, 6, "#ff6666", 1.2),
+    (60, 4, "#66b3ff", 0.9),
+    (90, 5, "#ff6666", 1.1),
+    (120, 5, "#66b3ff", 1.1),
+    (180, 6, "#ff6666", 1.3),
 ]
 
 
+# Burç ve derece bilgisi üret
+def _deg_to_sign_info(deg: float):
+    idx = int(deg // 30) % 12
+    sign_name, sign_symbol = SIGNS[idx]
+    deg_in_sign = deg % 30.0
+    return {
+        "sign": sign_name,
+        "symbol": sign_symbol,
+        "degree": deg,
+        "degree_in_sign": deg_in_sign,
+        "sign_index": idx,
+    }
+
+
 # -----------------------------------------
-# Yardımcı: tarih-saat (yerel) -> Julian Day (UT)
+# Yerel tarih-saat -> Julian Day (UT)
 # -----------------------------------------
 def _parse_datetime(
     birth_date: str,
     birth_time: str,
     timezone_str: str = "UTC",
 ) -> float:
-    """
-    birth_date: 'YYYY-MM-DD'
-    birth_time: 'HH:MM'
-    timezone_str: IANA timezone ismi (örn. 'Europe/Istanbul')
-
-    Astro.com ile aynı mantık:
-      - Girilen tarih/saat doğum yerinin YEREL saati kabul edilir
-      - Bu saat, timezone_str kullanılarak UTC'ye çevrilir
-      - Swiss Ephemeris'e her zaman UT verilir
-    """
-    # Temel parse
     try:
         dt_naive = datetime.strptime(
             f"{birth_date} {birth_time}",
             "%Y-%m-%d %H:%M",
         )
     except ValueError:
-        # Saat verilmiyorsa öğlen varsayalım (astro yazılımlarının çoğu gibi)
         dt_naive = datetime.strptime(birth_date, "%Y-%m-%d")
         dt_naive = dt_naive.replace(hour=12, minute=0)
 
-    # Yerel -> UTC
     if HAS_TZINFO:
         try:
             local_tz = ZoneInfo(timezone_str)
         except Exception:
-            # bilinmeyen timezone ise UTC varsay
             local_tz = timezone.utc
         dt_local = dt_naive.replace(tzinfo=local_tz)
         dt_utc = dt_local.astimezone(timezone.utc)
     else:
-        # zoneinfo yoksa, gelen saati zaten UTC kabul ediyoruz
         dt_utc = dt_naive.replace(tzinfo=timezone.utc)
 
     hour_decimal = (
@@ -163,7 +161,6 @@ def _parse_datetime(
         )
         return jd_ut
     else:
-        # Swiss yoksa: basit Julian hesap (UTC'ye göre)
         a = (14 - dt_utc.month) // 12
         y = dt_utc.year + 4800 - a
         m = dt_utc.month + 12 * a - 3
@@ -181,7 +178,7 @@ def _parse_datetime(
 
 
 # -----------------------------------------
-# Yardımcı: gezegen & ev pozisyonları
+# Pozisyon hesaplama (planetler + evler)
 # -----------------------------------------
 def _compute_positions(
     birth_date: str,
@@ -190,33 +187,27 @@ def _compute_positions(
     longitude: float,
     timezone_str: str = "UTC",
 ):
-    """
-    Swiss varsa:
-      - gezegen boylamları (0-360°)
-      - Placidus 12 ev cusp dereceleri
-    Swiss yoksa:
-      - gezegenler sabit örnek dereceler (PLANETS'ten)
-      - evler 30° aralıklarla
-
-    timezone_str ile yerel saat -> UT dönüşümü yapılır.
-    """
     jd_ut = _parse_datetime(birth_date, birth_time, timezone_str=timezone_str)
 
     planets_longitudes = []
     houses = []
+    asc_info = None
+    mc_info = None
 
     if HAS_SWISS:
-        # Evler (Placidus)
         try:
-            # houses() -> (cusps[1..12], ascmc[0..9])
             cusps, ascmc = swe.houses(jd_ut, latitude, longitude, b"P")
-            # `cusps` 13 elemanlı dizi: 1..12 ev başlangıçları
             houses = [float(cusps[i]) % 360.0 for i in range(1, 13)]
-        except Exception:
-            # Her ihtimale karşı fallback: 30° eşit evler
-            houses = [(i * 30.0) % 360.0 for i in range(12)]
 
-        # Gezegenler
+            asc_deg = float(ascmc[0]) % 360.0
+            mc_deg = float(ascmc[1]) % 360.0
+            asc_info = _deg_to_sign_info(asc_deg)
+            mc_info = _deg_to_sign_info(mc_deg)
+        except Exception:
+            houses = [(i * 30.0) % 360.0 for i in range(12)]
+            asc_info = _deg_to_sign_info(houses[0])
+            mc_info = _deg_to_sign_info(houses[9])
+
         for name, symbol, code, color in PLANETS:
             if isinstance(code, (int, float)):
                 try:
@@ -227,50 +218,55 @@ def _compute_positions(
             else:
                 lon = 0.0
 
+            sign_info = _deg_to_sign_info(lon)
             planets_longitudes.append(
                 {
                     "name": name,
                     "symbol": symbol,
                     "lon": lon,
                     "color": color,
+                    "sign": sign_info["sign"],
+                    "sign_symbol": sign_info["symbol"],
+                    "degree_in_sign": sign_info["degree_in_sign"],
                 }
             )
 
     else:
-        # Swiss yoksa: eşit ev & sabit planet dereceleri
         houses = [(i * 30.0) % 360.0 for i in range(12)]
+        asc_info = _deg_to_sign_info(houses[0])
+        mc_info = _deg_to_sign_info(houses[9])
         for name, symbol, deg, color in PLANETS:
+            sign_info = _deg_to_sign_info(deg)
             planets_longitudes.append(
                 {
                     "name": name,
                     "symbol": symbol,
                     "lon": float(deg) % 360.0,
                     "color": color,
+                    "sign": sign_info["sign"],
+                    "sign_symbol": sign_info["symbol"],
+                    "degree_in_sign": sign_info["degree_in_sign"],
                 }
             )
 
-    return planets_longitudes, houses
+    chart_meta = {
+        "planets": planets_longitudes,
+        "houses": houses,
+        "asc": asc_info,
+        "mc": mc_info,
+    }
+
+    return planets_longitudes, houses, chart_meta
 
 
-# -----------------------------------------
-# Yardımcı: açı farkı (0-180)
-# -----------------------------------------
 def _angle_diff(a, b):
-    """İki derece arasındaki en küçük fark (0-180)."""
     diff = abs(a - b) % 360.0
     if diff > 180.0:
         diff = 360.0 - diff
     return diff
 
 
-# -----------------------------------------
-# Aspect hesaplama
-# -----------------------------------------
 def _compute_aspects(planets):
-    """
-    Basit aspect kontrolü:
-    Seçili gezegenler arasındaki açılar, ASPECTS listesine göre.
-    """
     aspects = []
     n = len(planets)
     for i in range(n):
@@ -294,19 +290,9 @@ def _compute_aspects(planets):
     return aspects
 
 
-# -----------------------------------------
-# Çizim fonksiyonu
-# -----------------------------------------
 def _draw_chart(
     planets, houses, out_path, title_text="Natal Chart", subtitle_text=""
 ):
-    """
-    planets: [{name, symbol, lon, color}, ...]
-    houses: [deg1, deg2, ..., deg12] (0-360)
-    out_path: kaydedilecek PNG yolu
-    """
-
-    # Tema: koyu mavi / altın – sitenle uyumlu
     fig = plt.figure(figsize=(6, 6), dpi=240)
     ax = plt.subplot(111)
     ax.set_aspect("equal")
@@ -314,27 +300,22 @@ def _draw_chart(
     ax.set_ylim(-1.1, 1.1)
     ax.axis("off")
 
-    # Arka plan
     fig.patch.set_facecolor("#050816")
     ax.set_facecolor("#050816")
 
-    # Dış çember
     outer = Circle((0, 0), 1.0, edgecolor="#f2d47f", facecolor="#101735", linewidth=2.0)
     ax.add_patch(outer)
 
-    # İç çember (ev/planet alanı)
     inner = Circle(
         (0, 0), 0.7, edgecolor="#f2d47f", facecolor="#050816", linewidth=1.2
     )
     ax.add_patch(inner)
 
-    # En iç çember (aspect çizgileri için sınır)
     core = Circle(
         (0, 0), 0.05, edgecolor="#30354f", facecolor="#050816", linewidth=0.8
     )
     ax.add_patch(core)
 
-    # Burç dilimleri & semboller
     for i, (name, symbol) in enumerate(SIGNS):
         start_deg = i * 30.0
         mid_deg = start_deg + 15.0
@@ -343,7 +324,6 @@ def _draw_chart(
         x = 0.88 * math.cos(theta)
         y = 0.88 * math.sin(theta)
 
-        # ince çizgi (burç sınırı)
         boundary_angle = math.radians(90.0 - start_deg)
         bx = [0.0, 1.0 * math.cos(boundary_angle)]
         by = [0.0, 1.0 * math.sin(boundary_angle)]
@@ -359,7 +339,6 @@ def _draw_chart(
             color="#ffe9a3",
         )
 
-    # Ev çizgileri & numaralar
     for idx, cusp_deg in enumerate(houses):
         theta = math.radians(90.0 - cusp_deg)
         x1 = 0.0
@@ -368,7 +347,6 @@ def _draw_chart(
         y2 = 0.7 * math.sin(theta)
         ax.plot([x1, x2], [y1, y2], color="#f8f8ff", linewidth=0.8, alpha=0.8)
 
-        # Ev numarası
         mid_r = 0.78
         tx = mid_r * math.cos(theta)
         ty = mid_r * math.sin(theta)
@@ -383,7 +361,6 @@ def _draw_chart(
             color="#cfd2ff",
         )
 
-    # Aspect çizgileri
     aspects = _compute_aspects(planets)
     for asp in aspects:
         p1 = asp["p1"]
@@ -391,7 +368,7 @@ def _draw_chart(
         color = asp["color"]
         width = asp["width"]
 
-        r = 0.67  # aspect dairesi yarıçapı
+        r = 0.67
 
         t1 = math.radians(90.0 - p1["lon"])
         t2 = math.radians(90.0 - p2["lon"])
@@ -409,7 +386,6 @@ def _draw_chart(
             alpha=0.8,
         )
 
-    # Gezegen sembolleri
     for pl in planets:
         theta = math.radians(90.0 - pl["lon"])
         r = 0.82
@@ -417,7 +393,6 @@ def _draw_chart(
         x = r * math.cos(theta)
         y = r * math.sin(theta)
 
-        # küçük nokta
         ax.scatter(
             [x],
             [y],
@@ -426,7 +401,6 @@ def _draw_chart(
             zorder=5,
         )
 
-        # sembol
         tx = (r + 0.04) * math.cos(theta)
         ty = (r + 0.04) * math.sin(theta)
         ax.text(
@@ -439,7 +413,6 @@ def _draw_chart(
             color=pl["color"],
         )
 
-    # Başlık
     ax.text(
         0,
         1.05,
@@ -461,15 +434,11 @@ def _draw_chart(
             fontsize=7,
         )
 
-    # Kayıt
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     fig.savefig(out_path, dpi=240, bbox_inches="tight", pad_inches=0.12)
     plt.close(fig)
 
 
-# -----------------------------------------
-# DIŞA AÇIK FONKSİYON
-# -----------------------------------------
 def generate_natal_chart(
     birth_date: str,
     birth_time: str,
@@ -478,23 +447,7 @@ def generate_natal_chart(
     out_dir: str = "/tmp",
     timezone_str: str = "Europe/Istanbul",
 ):
-    """
-    main.py tarafından çağrılan fonksiyon.
-
-    birth_date: 'YYYY-MM-DD'
-    birth_time: 'HH:MM'
-    latitude, longitude: float (derece, doğu +, batı -)
-    out_dir: PNG'in yazılacağı klasör (Render'da /tmp)
-    timezone_str: IANA timezone (örn. 'Europe/Istanbul', 'America/New_York')
-
-    DÖNER:
-      (chart_id, chart_file_path)
-
-    Not: Solar return endpoint'i de bu fonksiyonu kullanıyor,
-    sadece doğum tarihi yerine solar yılına göre tarih gönderiyor.
-    """
-    # Pozisyonları hesapla (Astro.com ile uyumlu zaman hesabı)
-    planets, houses = _compute_positions(
+    planets, houses, chart_meta = _compute_positions(
         birth_date,
         birth_time,
         latitude,
@@ -502,14 +455,12 @@ def generate_natal_chart(
         timezone_str=timezone_str,
     )
 
-    # ID & dosya yolu
     chart_id = uuid.uuid4().hex
     chart_path = os.path.join(out_dir, f"{chart_id}.png")
 
-    # Başlık metni (sadece görsel için, main.py mod’u belirliyor)
     title = "Astrology Chart"
     subtitle = f"{birth_date}  •  {birth_time}"
 
     _draw_chart(planets, houses, chart_path, title, subtitle)
 
-    return chart_id, chart_path
+    return chart_id, chart_path, chart_meta
