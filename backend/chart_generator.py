@@ -1,8 +1,8 @@
 # chart_generator.py
 # ===================
-# MystAI - Profesyonel Astroloji Harita Üreticisi
+# MystAI - Profesyonel Astroloji Harita Üreticisi (Swiss Ephemeris)
 #
-# - Skyfield (NASA JPL DE421) ile gezegen hesapları
+# - Swiss Ephemeris (pyswisseph) ile gezegen konumları
 # - Natal & Solar Return haritaları için ortak çizici
 # - Aspect çizgileri: kavuşum, kare, üçgen, karşıt, sekstil
 # - PNG çıktı: /tmp klasörüne kaydedilir
@@ -11,25 +11,31 @@
 #   generate_natal_chart(...)
 #   generate_solar_return_chart(...)
 #
-# main.py:
-#   from chart_generator import generate_natal_chart, generate_solar_return_chart
-#
-# Not: Haritalar "profesyonel astroloji" standardında,
-# Skyfield JPL efemerisi kullanıldığı için Swiss Ephemeris kadar hassas.
+# Not:
+# - Zaman hesabı: doğum saati ve doğum yeri -> TimezoneFinder + pytz ile UTC'ye çevrilir
+# - Ev sistemi: şu an çizimde eşit ev çemberi kullanıyoruz; gezegen dereceleri
+#   ve burç yerleşimleri Swiss Ephemeris ile astro.com ile uyumlu hale getirildi.
 
 import os
 import uuid
 import math
 from datetime import datetime, timedelta
 
-from skyfield.api import load, wgs84
 from PIL import Image, ImageDraw, ImageFont
+from timezonefinder import TimezoneFinder
+import pytz
+import swisseph as swe
 
+# -------------------------------------------------
+# Swiss Ephemeris ayarı (ephemeris dosya yolu)
+# -------------------------------------------------
+EPHE_PATH = os.path.join(os.path.dirname(swe.__file__), "ephe")
+if os.path.isdir(EPHE_PATH):
+    swe.set_ephe_path(EPHE_PATH)
 
-# -------------------------
-# Genel ayarlar
-# -------------------------
-
+# -------------------------------------------------
+# Görsel ayarları
+# -------------------------------------------------
 IMAGE_SIZE = 1200                 # PNG boyutu
 BG_COLOR   = (9, 11, 28)          # koyu gece mavisi
 CIRCLE_COLOR = (240, 210, 120)
@@ -45,16 +51,16 @@ ASPECT_COLORS = {
 }
 
 PLANETS = [
-    ("Sun",     "☉"),
-    ("Moon",    "☽"),
-    ("Mercury", "☿"),
-    ("Venus",   "♀"),
-    ("Mars",    "♂"),
-    ("Jupiter", "♃"),
-    ("Saturn",  "♄"),
-    ("Uranus",  "♅"),
-    ("Neptune", "♆"),
-    ("Pluto",   "♇"),
+    ("Sun",     "☉", swe.SUN),
+    ("Moon",    "☽", swe.MOON),
+    ("Mercury", "☿", swe.MERCURY),
+    ("Venus",   "♀", swe.VENUS),
+    ("Mars",    "♂", swe.MARS),
+    ("Jupiter", "♃", swe.JUPITER),
+    ("Saturn",  "♄", swe.SATURN),
+    ("Uranus",  "♅", swe.URANUS),
+    ("Neptune", "♆", swe.NEPTUNE),
+    ("Pluto",   "♇", swe.PLUTO),
 ]
 
 SIGNS = [
@@ -72,71 +78,85 @@ SIGNS = [
     ("Pisces", "♓"),
 ]
 
-
-# Skyfield ephemeris
-_TS = load.timescale()
-_EPH = load("de421.bsp")   # ücretsiz, küçük ephemeris
+_tf = TimezoneFinder()
 
 
-# -----------------------------------------------------
-# Yardımcı: derece farkı (0–180 arası)
-# -----------------------------------------------------
+# -------------------------------------------------
+# Yardımcı fonksiyonlar
+# -------------------------------------------------
 def _angle_diff(a, b):
+    """0–180 arası derece farkı."""
     diff = abs(a - b) % 360.0
     if diff > 180.0:
         diff = 360.0 - diff
     return diff
 
 
-# -----------------------------------------------------
-# Yardımcı: datetime parse
-# -----------------------------------------------------
-def _parse_datetime(birth_date: str, birth_time: str) -> datetime:
+def _parse_local_to_utc(birth_date: str, birth_time: str, lat: float, lon: float) -> datetime:
     """
+    Doğum tarihi & yerel saat -> UTC datetime
     birth_date: 'YYYY-MM-DD'
-    birth_time: 'HH:MM' (24 saat format)
+    birth_time: 'HH:MM'
     """
     year, month, day = map(int, birth_date.split("-"))
     hh, mm = map(int, birth_time.split(":")[:2])
-    return datetime(year, month, day, hh, mm)
+
+    # Tahmini timezone (şehir koordinatına göre)
+    try:
+        tzname = _tf.timezone_at(lat=lat, lng=lon) or "UTC"
+    except Exception:
+        tzname = "UTC"
+
+    try:
+        tz = pytz.timezone(tzname)
+    except Exception:
+        tz = pytz.UTC
+
+    local_dt = tz.localize(datetime(year, month, day, hh, mm))
+    utc_dt = local_dt.astimezone(pytz.UTC)
+    return utc_dt
 
 
-# -----------------------------------------------------
-# Güneş boylamı (profesyonel solar return için)
-# -----------------------------------------------------
-def _sun_longitude(dt: datetime) -> float:
+def _utc_to_julday(dt_utc: datetime) -> float:
+    """UTC datetime -> Swiss Ephemeris Julian Day (UT)."""
+    return swe.julday(dt_utc.year, dt_utc.month, dt_utc.day,
+                      dt_utc.hour + dt_utc.minute / 60.0 + dt_utc.second / 3600.0)
+
+
+# -------------------------------------------------
+# Güneş boylamı (solar return için)
+# -------------------------------------------------
+def _sun_longitude_utc(dt_utc: datetime) -> float:
+    jd_ut = _utc_to_julday(dt_utc)
+    lon, lat, dist, speed = swe.calc_ut(jd_ut, swe.SUN)
+    return lon % 360.0
+
+
+def compute_solar_return_datetime(birth_date: str, birth_time: str, lat: float, lon: float, year: int) -> datetime:
     """
-    Verilen datetime için Güneş'in ekliptik boylamı (0-360 derece)
-    Burada ~UT varsayımı var (kullanıcı TZ bilinmiyor).
+    Profesyonel solar return:
+    - Doğumdaki Güneş boylamını bul
+    - İstenen yılda doğum günü civarında Güneş aynı boylama dönene kadar ara
     """
-    t = _TS.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute)
-    earth = _EPH["earth"]
-    sun = _EPH["sun"]
-    ecl_lat, ecl_lon, _ = earth.at(t).observe(sun).ecliptic_latlon()
-    return float(ecl_lon.degrees % 360.0)
+    # Doğum anını UTC'ye çevir
+    natal_local = datetime.strptime(birth_date + " " + birth_time, "%Y-%m-%d %H:%M")
+    natal_utc = _parse_local_to_utc(birth_date, birth_time, lat, lon)
+    natal_sun_lon = _sun_longitude_utc(natal_utc)
 
+    # Aynı ay/gün + hedef yıl civarı başlangıç (lokal saat yaklaşık)
+    approx_local = natal_local.replace(year=year)
+    approx_utc = _parse_local_to_utc(approx_local.strftime("%Y-%m-%d"),
+                                     approx_local.strftime("%H:%M"),
+                                     lat, lon)
 
-def compute_solar_return_datetime(birth_date: str, birth_time: str, year: int) -> datetime:
-    """
-    PROFESYONEL SOLAR RETURN:
-    - Önce doğum anındaki Güneş boylamını bul
-    - Seçilen yılda doğum günü civarında ±36 saatlik aralıkta
-      Güneş boylamının en yakın olduğu zamanı tara
-    """
-    natal_dt = _parse_datetime(birth_date, birth_time)
-    natal_sun_lon = _sun_longitude(natal_dt)
-
-    # Aynı ay/gün + hedef yıl civarı
-    approx = datetime(year, natal_dt.month, natal_dt.day, natal_dt.hour, natal_dt.minute)
-
-    best_dt = approx
+    best_dt = approx_utc
     best_diff = 999.0
 
-    # -36 saatten +60 saate kadar, saat saat tara
+    # -36 saatten +60 saate kadar 1 saat aralıkla tara
     for h in range(-36, 61):
-        cand = approx + timedelta(hours=h)
-        lon = _sun_longitude(cand)
-        diff = _angle_diff(lon, natal_sun_lon)
+        cand = approx_utc + timedelta(hours=h)
+        lon_sun = _sun_longitude_utc(cand)
+        diff = _angle_diff(lon_sun, natal_sun_lon)
         if diff < best_diff:
             best_diff = diff
             best_dt = cand
@@ -144,54 +164,31 @@ def compute_solar_return_datetime(birth_date: str, birth_time: str, year: int) -
     return best_dt
 
 
-# -----------------------------------------------------
+# -------------------------------------------------
 # Gezegen boylamlarını hesaplayan fonksiyon
-# -----------------------------------------------------
-def _compute_longitudes(birth_date: str, birth_time: str, lat: float, lon: float):
+# -------------------------------------------------
+def _compute_longitudes_utc(jd_ut: float):
     """
-    Verilen tarih/saat ve konum için temel gezegen boylamları.
+    Julian Day (UT) için temel gezegen boylamları (ecliptic, geocentric).
     """
-    year, month, day = map(int, birth_date.split("-"))
-    hour, minute = map(int, birth_time.split(":")[:2])
-
-    t = _TS.utc(year, month, day, hour, minute)
-
-    earth = _EPH["earth"]
-    location = earth + wgs84.latlon(latitude_degrees=lat, longitude_degrees=lon)
-
-    planet_keys = {
-        "Sun":      "sun",
-        "Moon":     "moon",
-        "Mercury":  "mercury",
-        "Venus":    "venus",
-        "Mars":     "mars",
-        "Jupiter":  "jupiter barycenter",
-        "Saturn":   "saturn barycenter",
-        "Uranus":   "uranus barycenter",
-        "Neptune":  "neptune barycenter",
-        "Pluto":    "pluto barycenter",
-    }
-
     longs = {}
-    for name, key in planet_keys.items():
-        body = _EPH[key]
-        ecl_lat, ecl_lon, _ = location.at(t).observe(body).ecliptic_latlon()
-        longs[name] = float(ecl_lon.degrees % 360.0)
-
+    for name, glyph, swe_id in PLANETS:
+        lon, lat, dist, speed = swe.calc_ut(jd_ut, swe_id)
+        longs[name] = lon % 360.0
     return longs
 
 
-# -----------------------------------------------------
-# Polar koordinat hesaplayan yardımcı fonksiyon
-# -----------------------------------------------------
+# -------------------------------------------------
+# Polar koordinat hesaplayan fonksiyon
+# -------------------------------------------------
 def _polar(cx, cy, radius, angle_deg):
     rad = math.radians(angle_deg)
     return cx + radius * math.cos(rad), cy + radius * math.sin(rad)
 
 
-# -----------------------------------------------------
+# -------------------------------------------------
 # Haritayı çizen ana fonksiyon (Natal / Solar ortak)
-# -----------------------------------------------------
+# -------------------------------------------------
 def _draw_chart(longitudes: dict, title: str = "Astrology Chart", subtitle: str = "") -> Image.Image:
     size = IMAGE_SIZE
     img = Image.new("RGB", (size, size), BG_COLOR)
@@ -215,15 +212,14 @@ def _draw_chart(longitudes: dict, title: str = "Astrology Chart", subtitle: str 
         outline=INNER_COLOR, width=4
     )
 
-    # 12 burç & ev çizgisi (eşit ev sistemi – profesyonel sitelerin çoğunda seçenek)
+    # 12 eşit ev çizgisi (şimdilik görsel amaçlı)
     for i in range(12):
         angle = i * 30  # 30° aralıklarla
-        # ev çizgisi
         x1, y1 = _polar(cx, cy, inner_r, angle)
         x2, y2 = _polar(cx, cy, outer_r, angle)
         draw.line([x1, y1, x2, y2], fill=HOUSE_LINE_COLOR, width=2)
 
-    # Font
+    # Fontlar
     try:
         font = ImageFont.truetype("DejaVuSans.ttf", 40)
         font_small = ImageFont.truetype("DejaVuSans.ttf", 26)
@@ -237,26 +233,27 @@ def _draw_chart(longitudes: dict, title: str = "Astrology Chart", subtitle: str 
     title_text = title or "Astrology Chart"
     tb = draw.textbbox((0, 0), title_text, font=font_title)
     tw = tb[2] - tb[0]
-    draw.text((cx - tw/2, cy - outer_r - 70), title_text, font=font_title, fill=(245, 225, 160))
+    draw.text((cx - tw / 2, cy - outer_r - 70), title_text, font=font_title, fill=(245, 225, 160))
 
     if subtitle:
         sb = draw.textbbox((0, 0), subtitle, font=font_small)
         sw = sb[2] - sb[0]
-        draw.text((cx - sw/2, cy - outer_r - 32), subtitle, font=font_small, fill=(210, 210, 230))
+        draw.text((cx - sw / 2, cy - outer_r - 32), subtitle, font=font_small, fill=(210, 210, 230))
 
-    # Burç sembolleri dış çember etrafında
+    # Burç sembolleri dış çember etrafında (0° Koç yukarıda olacak şekilde)
     for i, (_, sign_glyph) in enumerate(SIGNS):
         mid_angle = i * 30 + 15  # her burcun orta noktası
+        # 0° Koç yukarı gelsin diye -90 kaydırıyoruz
         tx, ty = _polar(cx, cy, outer_r + 24, mid_angle - 90)
         sbbox = draw.textbbox((0, 0), sign_glyph, font=font_small)
         sw = sbbox[2] - sbbox[0]
         sh = sbbox[3] - sbbox[1]
-        draw.text((tx - sw/2, ty - sh/2), sign_glyph, font=font_small, fill=(255, 233, 163))
+        draw.text((tx - sw / 2, ty - sh / 2), sign_glyph, font=font_small, fill=(255, 233, 163))
 
     # Gezegenlerin noktaları + sembolleri
     planet_points = {}
 
-    for name, glyph in PLANETS:
+    for name, glyph, _ in PLANETS:
         lon_deg = longitudes.get(name)
         if lon_deg is None:
             continue
@@ -272,18 +269,18 @@ def _draw_chart(longitudes: dict, title: str = "Astrology Chart", subtitle: str 
         tx, ty = _polar(cx, cy, text_r, angle)
         label = glyph or name[:2]
 
-        bbox = draw.textbbox((0, 0), label, font=font)   # Pillow 10 uyumlu
+        bbox = draw.textbbox((0, 0), label, font=font)
         w = bbox[2] - bbox[0]
         h = bbox[3] - bbox[1]
 
-        draw.text((tx - w/2, ty - h/2), label, font=font, fill=(240, 240, 250))
+        draw.text((tx - w / 2, ty - h / 2), label, font=font, fill=(240, 240, 250))
 
         planet_points[name] = (px, py, lon_deg)
 
     # Aspect çizimleri
     names = list(planet_points.keys())
     for i in range(len(names)):
-        for j in range(i+1, len(names)):
+        for j in range(i + 1, len(names)):
             n1, n2 = names[i], names[j]
             x1, y1, lon1 = planet_points[n1]
             x2, y2, lon2 = planet_points[n2]
@@ -305,15 +302,15 @@ def _draw_chart(longitudes: dict, title: str = "Astrology Chart", subtitle: str 
                 aspect = "opp"
 
             if aspect:
-                color = ASPECT_COLORS.get(aspect, (150,150,150))
+                color = ASPECT_COLORS.get(aspect, (150, 150, 150))
                 draw.line([x1, y1, x2, y2], fill=color, width=2)
 
     return img
 
 
-# -----------------------------------------------------
+# -------------------------------------------------
 # NATAL HARİTA ÜRETİCİ (DIŞA AÇIK)
-# -----------------------------------------------------
+# -------------------------------------------------
 def generate_natal_chart(
     birth_date: str,
     birth_time: str,
@@ -328,7 +325,11 @@ def generate_natal_chart(
     """
     os.makedirs(out_dir, exist_ok=True)
 
-    longs = _compute_longitudes(birth_date, birth_time, latitude, longitude)
+    # Lokal doğum zamanı -> UTC -> JD
+    dt_utc = _parse_local_to_utc(birth_date, birth_time, latitude, longitude)
+    jd_ut = _utc_to_julday(dt_utc)
+
+    longs = _compute_longitudes_utc(jd_ut)
 
     subtitle = f"{birth_date} • {birth_time}"
     img = _draw_chart(longs, title="Natal Chart", subtitle=subtitle)
@@ -340,9 +341,9 @@ def generate_natal_chart(
     return chart_id, file_path
 
 
-# -----------------------------------------------------
+# -------------------------------------------------
 # SOLAR RETURN HARİTA ÜRETİCİ (DIŞA AÇIK)
-# -----------------------------------------------------
+# -------------------------------------------------
 def generate_solar_return_chart(
     birth_date: str,
     birth_time: str,
@@ -352,9 +353,9 @@ def generate_solar_return_chart(
     out_dir: str = "/tmp",
 ):
     """
-    PROFESYONEL Solar Return haritası üretir.
+    Profesyonel Solar Return haritası üretir.
 
-    - Güneşin, doğum anındaki boylamına döndüğü anı bulur (yaklaşık ±1 saat hassasiyet)
+    - Güneşin, doğum anındaki boylamına döndüğü UTC zamanı bulur
     - O anki gökyüzüne göre harita çizer.
 
     DÖNEN:
@@ -362,13 +363,15 @@ def generate_solar_return_chart(
     """
     os.makedirs(out_dir, exist_ok=True)
 
-    sr_dt = compute_solar_return_datetime(birth_date, birth_time, year)
-    sr_date_str = sr_dt.strftime("%Y-%m-%d")
-    sr_time_str = sr_dt.strftime("%H:%M")
+    # Solar return anını UTC olarak bul
+    sr_dt_utc = compute_solar_return_datetime(birth_date, birth_time, latitude, longitude, year)
+    sr_date_str = sr_dt_utc.strftime("%Y-%m-%d")
+    sr_time_str = sr_dt_utc.strftime("%H:%M")
 
-    longs = _compute_longitudes(sr_date_str, sr_time_str, latitude, longitude)
+    jd_ut = _utc_to_julday(sr_dt_utc)
+    longs = _compute_longitudes_utc(jd_ut)
 
-    subtitle = f"Solar Return: {sr_date_str} • {sr_time_str} (UT approx)"
+    subtitle = f"Solar Return: {sr_date_str} • {sr_time_str} (UTC)"
     img = _draw_chart(longs, title="Solar Return Chart", subtitle=subtitle)
 
     chart_id = uuid.uuid4().hex
