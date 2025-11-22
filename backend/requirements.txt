@@ -11,5 +11,5 @@ numpy
 Pillow
 pyswisseph
 matplotlib
-
-
+pytz
+timezonefinder
