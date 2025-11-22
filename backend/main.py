@@ -153,6 +153,9 @@ def degree_to_sign(deg: float) -> str:
         "Aslan", "Başak", "Terazi", "Akrep",
         "Yay", "Oğlak", "Kova", "Balık"
     ]
+    if deg is None:
+        return ""
+    deg = float(deg) % 360.0
     index = int(deg // 30) % 12
     return signs[index]
 
@@ -164,32 +167,64 @@ def build_chart_summary(chart_meta: dict, lang: str) -> str:
 
     planets = chart_meta.get("planets", [])
 
-    # ASC ve MC bazen dict bazen float geliyor, ikisini de destekleyelim:
+    # --- ASC & MC: dict veya float gelebilir ---
     asc_raw = chart_meta.get("asc")
     mc_raw = chart_meta.get("mc")
 
-    def extract_degree(val):
-        """Hem dict {'degree': x} hem float destekler."""
+    def extract_sign_and_degree(val):
+        """
+        ASC/MC için:
+        - Eğer dict ise: {'sign': 'Kova', 'lon': 304.0, 'degree_in_sign': 4.0}
+        - Eğer float ise: 0–360 global derece
+        """
         if isinstance(val, dict):
-            return val.get("degree")
-        return val
+            sign = val.get("sign")
+            lon = val.get("lon")
+            # Eğer sign yok ama global derece varsa, buradan hesapla
+            if not sign and lon is not None:
+                sign = degree_to_sign(lon)
+            # derece olarak görüntüleyeceğimiz değer:
+            # lon varsa onu, yoksa degree/degree_in_sign
+            deg = lon
+            if deg is None:
+                deg = val.get("degree") or val.get("degree_in_sign")
+            return sign, deg
+        elif isinstance(val, (int, float)):
+            return degree_to_sign(val), float(val)
+        else:
+            return None, None
 
-    asc_deg = extract_degree(asc_raw)
-    mc_deg = extract_degree(mc_raw)
+    asc_sign, asc_deg = extract_sign_and_degree(asc_raw)
+    mc_sign, mc_deg = extract_sign_and_degree(mc_raw)
 
-    # GEZEGENLER
+    # --- Gezegenler ---
     fixed = []
     for p in planets:
-        deg = p.get("lon")
-        sign = degree_to_sign(deg)
-        fixed.append({
-            "name": p.get("name"),
-            "degree": deg,
-            "sign": sign,
-        })
+        # planet meta'dan önce sign'i, sonra global dereceyi almaya çalış
+        p_name = p.get("name")
+        p_sign = p.get("sign")
+        lon = p.get("lon")
 
-    asc_sign = degree_to_sign(asc_deg) if asc_deg is not None else None
-    mc_sign = degree_to_sign(mc_deg) if mc_deg is not None else None
+        if lon is not None:
+            # elimizde 0–360 global derece varsa buradan da sign çıkarabiliriz
+            if not p_sign:
+                p_sign = degree_to_sign(lon)
+            degree_val = float(lon)
+        else:
+            # lon yoksa elde ne varsa onu göster
+            degree_val = p.get("degree") or p.get("degree_in_sign")
+            if not p_sign and degree_val is not None:
+                # bu durumda degree_val muhtemelen 0–30, sign zaten yoksa
+                # buradan sign çıkarmaya çalışmak riskli → boş bırak
+                p_sign = ""
+
+        fixed.append(
+            {
+                "name": p_name,
+                "degree": degree_val,
+                "sign": p_sign,
+            }
+        )
 
     lines = []
 
@@ -201,7 +236,10 @@ def build_chart_summary(chart_meta: dict, lang: str) -> str:
             lines.append(f"• MC: {mc_sign} ({mc_deg:.2f}°)")
 
         for p in fixed:
-            lines.append(f"• {p['name']}: {p['sign']} ({p['degree']:.2f}°)")
+            if p["sign"]:
+                lines.append(
+                    f"• {p['name']}: {p['sign']} ({p['degree']:.2f}°)"
+                )
 
     else:
         en_signs = {
@@ -212,16 +250,23 @@ def build_chart_summary(chart_meta: dict, lang: str) -> str:
 
         lines.append("True natal chart placements:")
         if asc_sign:
-            lines.append(f"• Ascendant: {en_signs[asc_sign]} ({asc_deg:.2f}°)")
-        if mc_sign:
-            lines.append(f"• MC: {en_signs[mc_sign]} ({mc_deg:.2f}°)")
-
-        for p in fixed:
             lines.append(
-                f"• {p['name']}: {en_signs[p['sign']]} ({p['degree']:.2f}°)"
+                f"• Ascendant: {en_signs.get(asc_sign, asc_sign)} ({asc_deg:.2f}°)"
+            )
+        if mc_sign:
+            lines.append(
+                f"• MC: {en_signs.get(mc_sign, mc_sign)} ({mc_deg:.2f}°)"
             )
 
+        for p in fixed:
+            if p["sign"]:
+                en_name = en_signs.get(p["sign"], p["sign"])
+                lines.append(
+                    f"• {p['name']}: {en_name} ({p['degree']:.2f}°)"
+                )
+
     return "\n".join(lines)
+
 
 
 # -----------------------------
