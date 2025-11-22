@@ -3,17 +3,14 @@ import uuid
 from fpdf import FPDF
 from PIL import Image
 
-# Konumlar
 BASE_DIR = os.path.dirname(__file__)
 FONT_PATH_TTF = os.path.join(BASE_DIR, "fonts", "DejaVuSans.ttf")
 LOGO_PATH = os.path.abspath(os.path.join(BASE_DIR, "..", "images", "mystai-logo.png"))
 
-# PDF sınıfı (logo + header + footer)
+
 class MystPDF(FPDF):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # Unicode font ekle
         if os.path.exists(FONT_PATH_TTF):
             self.add_font("DejaVu", "", FONT_PATH_TTF, uni=True)
             self.add_font("DejaVu", "B", FONT_PATH_TTF, uni=True)
@@ -42,7 +39,6 @@ class MystPDF(FPDF):
         self.cell(0, 8, f"MystAI.ai • Page {self.page_no()}", align="C")
 
 
-# ========== PDF ÜRETME FONKSİYONU ==========
 def generate_pdf_file(
     text: str,
     lang: str = "en",
@@ -53,18 +49,12 @@ def generate_pdf_file(
     birth_place: str = None,
     name: str = None,
 ):
-    """
-    Tek başına PDF üretir ve path döner.
-    Harita varsa /tmp/<chart_id>.png okunur.
-    """
     pdf_id = uuid.uuid4().hex
     pdf_path = f"/tmp/{pdf_id}.pdf"
 
-    # Dil doğrulama
     if lang not in ("tr", "en"):
         lang = "en"
 
-    # report_type doğrulama
     if report_type not in ("natal", "solar", "transits"):
         report_type = "natal"
 
@@ -73,7 +63,6 @@ def generate_pdf_file(
     pdf.alias_nb_pages()
     pdf.add_page()
 
-    # ========== BAŞLIKLAR ==========
     if lang == "tr":
         if report_type == "solar":
             title = "MystAI Güneş Dönüşü Astroloji Raporu"
@@ -102,7 +91,6 @@ def generate_pdf_file(
 
         intro = "Your detailed astrology report is below:"
 
-    # Başlık
     pdf.set_font("DejaVu", "B", 17)
     pdf.set_text_color(30, 32, 60)
     pdf.multi_cell(0, 8, title)
@@ -113,7 +101,6 @@ def generate_pdf_file(
     pdf.multi_cell(0, 6, sub)
     pdf.ln(6)
 
-    # Meta satırları
     meta = []
     if birth_date and birth_time and birth_place:
         if lang == "tr":
@@ -130,7 +117,6 @@ def generate_pdf_file(
         pdf.multi_cell(0, 4.5, "  •  ".join(meta))
         pdf.ln(5)
 
-    # ========== HARİTA ==========
     if chart_id and report_type in ("natal", "solar"):
         chart_path = f"/tmp/{chart_id}.png"
         if os.path.exists(chart_path):
@@ -145,7 +131,6 @@ def generate_pdf_file(
             pdf.image(temp_jpg, x=x, y=y, w=img_width)
             pdf.add_page()
 
-    # ========== METİN ==========
     pdf.set_font("DejaVu", "B", 13)
     pdf.set_text_color(35, 35, 55)
     pdf.multi_cell(0, 7, intro)
