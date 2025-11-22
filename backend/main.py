@@ -164,7 +164,7 @@ def predict():
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_input},
             ],
-            max_tokens=800,
+            max_tokens=5000,
         )
 
         text = completion.choices[0].message.content.strip()
@@ -267,7 +267,7 @@ def astrology_premium():
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            max_tokens=2300,
+            max_tokens=6000,
         )
         text = completion.choices[0].message.content.strip()
 
@@ -398,7 +398,7 @@ def solar_return():
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            max_tokens=1600,
+            max_tokens=5000,
         )
         text = completion.choices[0].message.content.strip()
 
