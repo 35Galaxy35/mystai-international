@@ -146,9 +146,8 @@ def build_system_prompt(kind: str, lang: str) -> str:
         }
     return mapping.get(kind, mapping["general"])
 
-
 def degree_to_sign(deg: float) -> str:
-    """0–360 dereceyi burç adına çevirir (Astro.com ile birebir)."""
+    """0–360 dereceyi burç adına çevirir."""
     signs = [
         "Koç", "Boğa", "İkizler", "Yengeç",
         "Aslan", "Başak", "Terazi", "Akrep",
@@ -164,15 +163,30 @@ def build_chart_summary(chart_meta: dict, lang: str) -> str:
         return ""
 
     planets = chart_meta.get("planets", [])
-    asc_deg = chart_meta.get("asc")
-    mc_deg = chart_meta.get("mc")
 
+    # ASC ve MC bazen dict bazen float geliyor, ikisini de destekleyelim:
+    asc_raw = chart_meta.get("asc")
+    mc_raw = chart_meta.get("mc")
+
+    def extract_degree(val):
+        """Hem dict {'degree': x} hem float destekler."""
+        if isinstance(val, dict):
+            return val.get("degree")
+        return val
+
+    asc_deg = extract_degree(asc_raw)
+    mc_deg = extract_degree(mc_raw)
+
+    # GEZEGENLER
     fixed = []
     for p in planets:
-        name = p.get("name")
         deg = p.get("lon")
         sign = degree_to_sign(deg)
-        fixed.append({"name": name, "degree": deg, "sign": sign})
+        fixed.append({
+            "name": p.get("name"),
+            "degree": deg,
+            "sign": sign,
+        })
 
     asc_sign = degree_to_sign(asc_deg) if asc_deg is not None else None
     mc_sign = degree_to_sign(mc_deg) if mc_deg is not None else None
@@ -180,7 +194,7 @@ def build_chart_summary(chart_meta: dict, lang: str) -> str:
     lines = []
 
     if lang == "tr":
-        lines.append("Gerçek doğum haritası yerleşimleri:")
+        lines.append("Gerçek doğum haritası yerleşimleri (Swiss Ephemeris):")
         if asc_sign:
             lines.append(f"• Yükselen (ASC): {asc_sign} ({asc_deg:.2f}°)")
         if mc_sign:
@@ -195,6 +209,7 @@ def build_chart_summary(chart_meta: dict, lang: str) -> str:
             "Aslan": "Leo", "Başak": "Virgo", "Terazi": "Libra", "Akrep": "Scorpio",
             "Yay": "Sagittarius", "Oğlak": "Capricorn", "Kova": "Aquarius", "Balık": "Pisces"
         }
+
         lines.append("True natal chart placements:")
         if asc_sign:
             lines.append(f"• Ascendant: {en_signs[asc_sign]} ({asc_deg:.2f}°)")
@@ -202,9 +217,12 @@ def build_chart_summary(chart_meta: dict, lang: str) -> str:
             lines.append(f"• MC: {en_signs[mc_sign]} ({mc_deg:.2f}°)")
 
         for p in fixed:
-            lines.append(f"• {p['name']}: {en_signs[p['sign']]} ({p['degree']:.2f}°)")
+            lines.append(
+                f"• {p['name']}: {en_signs[p['sign']]} ({p['degree']:.2f}°)"
+            )
 
     return "\n".join(lines)
+
 
 # -----------------------------
 # HEALTH CHECK
