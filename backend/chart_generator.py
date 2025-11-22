@@ -4,14 +4,14 @@
 #
 # - Swiss Ephemeris (pyswisseph) varsa gerçek efemeris hesabı
 # - Placidus ev sistemi
-# - Natal & Solar return için ayrı haritalar
-# - Aspect çizgileri (konj., kare, üçgen, karşıt, sekstil)
+# - Natal & Solar return için harita
+# - Aspect çizgileri
 # - Render (headless) uyumlu matplotlib çıktısı (PNG)
 #
-# generate_natal_chart artık:
+# generate_natal_chart:
 #   (chart_id, chart_file_path, chart_meta)
 # döndürür.
-# chart_meta içinde:
+# chart_meta:
 #   - planets: gezegen listesi (burç, derece vb.)
 #   - houses: 12 ev cusp derecesi
 #   - asc: yükselen bilgisi
@@ -23,7 +23,7 @@ import uuid
 from datetime import datetime, timezone
 
 # ------------------------------
-# Tarihsel timezone desteği
+# Tarihsel timezone desteği (ZoneInfo)
 # ------------------------------
 try:
     from zoneinfo import ZoneInfo  # Python 3.9+
@@ -69,6 +69,7 @@ if HAS_SWISS:
         ("Pluto", "♇", swe.PLUTO, "#ff99ff"),
     ]
 else:
+    # Swiss yoksa görsel amaçlı sabit dereceler
     PLANETS = [
         ("Sun", "☉", 0.0, "#ffcc33"),
         ("Moon", "☽", 33.0, "#ffffff"),
@@ -106,8 +107,8 @@ ASPECTS = [
 ]
 
 
-# Burç ve derece bilgisi üret
 def _deg_to_sign_info(deg: float):
+    """0–360° dereceden burç ve burç içi derece bilgisi üret."""
     idx = int(deg // 30) % 12
     sign_name, sign_symbol = SIGNS[idx]
     deg_in_sign = deg % 30.0
@@ -128,6 +129,12 @@ def _parse_datetime(
     birth_time: str,
     timezone_str: str = "UTC",
 ) -> float:
+    """
+    Astro.com mantığı:
+      - Girilen tarih/saat doğum yerinin yerel zamanı
+      - timezone_str ile UTC'ye çevrilir
+      - Swiss Ephemeris'e UT verilir
+    """
     try:
         dt_naive = datetime.strptime(
             f"{birth_date} {birth_time}",
@@ -232,6 +239,7 @@ def _compute_positions(
             )
 
     else:
+        # Swiss yoksa: görsel amaçlı, sabit örnek dereceler
         houses = [(i * 30.0) % 360.0 for i in range(12)]
         asc_info = _deg_to_sign_info(houses[0])
         mc_info = _deg_to_sign_info(houses[9])
