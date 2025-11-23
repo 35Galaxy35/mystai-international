@@ -1,53 +1,108 @@
+import os
 import swisseph as swe
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-# Swiss Ephemeris dosyalarının yolu
-# BURAYI DEĞİŞTİRECEĞİZ → şimdilik böyle kalsın
-swe.set_ephe_path("./ephe")
+# ==========================
+#  EPHE PATH (KESİN DOĞRU)
+# ==========================
+EPHE_PATH = os.path.join(os.path.dirname(__file__), "ephe")
+swe.set_ephe_path(EPHE_PATH)
 
 PLANET_IDS = {
-    "SUN": swe.SUN,
-    "MOON": swe.MOON,
-    "MERCURY": swe.MERCURY,
-    "VENUS": swe.VENUS,
-    "MARS": swe.MARS,
-    "JUPITER": swe.JUPITER,
-    "SATURN": swe.SATURN,
-    "URANUS": swe.URANUS,
-    "NEPTUNE": swe.NEPTUNE,
-    "PLUTO": swe.PLUTO,
+    "Sun": swe.SUN,
+    "Moon": swe.MOON,
+    "Mercury": swe.MERCURY,
+    "Venus": swe.VENUS,
+    "Mars": swe.MARS,
+    "Jupiter": swe.JUPITER,
+    "Saturn": swe.SATURN,
+    "Uranus": swe.URANUS,
+    "Neptune": swe.NEPTUNE,
+    "Pluto": swe.PLUTO,
 }
 
-def local_to_utc(year, month, day, hour, minute, tz_name):
-    local_dt = datetime(year, month, day, hour, minute, tzinfo=ZoneInfo(tz_name))
-    utc_dt = local_dt.astimezone(ZoneInfo("UTC"))
-    return utc_dt
+SIGNS = [
+    "Koç", "Boğa", "İkizler", "Yengeç", "Aslan", "Başak",
+    "Terazi", "Akrep", "Yay", "Oğlak", "Kova", "Balık"
+]
 
+def degree_to_sign(deg):
+    deg = float(deg) % 360
+    index = int(deg // 30)
+    return SIGNS[index], deg % 30
+
+# ==========================
+#  LOCAL TIME → UTC
+# ==========================
+def local_to_utc(year, month, day, hour, minute, tz_name):
+    dt_local = datetime(year, month, day, hour, minute, tzinfo=ZoneInfo(tz_name))
+    dt_utc = dt_local.astimezone(ZoneInfo("UTC"))
+    return dt_utc
+
+
+# ==========================
+#   ANA HESAP FONKSİYONU
+# ==========================
 def compute_birth_chart(date_str, time_str, lat, lon, tz_name):
     year, month, day = map(int, date_str.split("-"))
     hour, minute = map(int, time_str.split(":"))
 
+    # → UTC'ye çevir
     utc_dt = local_to_utc(year, month, day, hour, minute, tz_name)
-    hour_decimal = utc_dt.hour + (utc_dt.minute / 60)
 
-    jd_ut = swe.julday(utc_dt.year, utc_dt.month, utc_dt.day, hour_decimal, swe.GREG_CAL)
+    # → Julian Day
+    hour_decimal = (
+        utc_dt.hour +
+        utc_dt.minute / 60 +
+        utc_dt.second / 3600
+    )
 
-    planets = {}
+    jd_ut = swe.julday(
+        utc_dt.year,
+        utc_dt.month,
+        utc_dt.day,
+        hour_decimal,
+        swe.GREG_CAL
+    )
+
+    # ============== PLANETS =================
+    planet_data = []
     for name, pid in PLANET_IDS.items():
         lon_p, lat_p, dist, speed = swe.calc_ut(jd_ut, pid)
-        planets[name] = lon_p
+        sign_name, degree_in_sign = degree_to_sign(lon_p)
 
+        planet_data.append({
+            "name": name,
+            "lon": float(lon_p),
+            "sign": sign_name,
+            "degree_in_sign": float(degree_in_sign)
+        })
+
+    # ============== HOUSES ==================
+    lat = float(lat)
+    lon = float(lon)
     houses, ascmc = swe.houses(jd_ut, lat, lon, b'P')
 
-    asc = ascmc[0]
-    mc  = ascmc[1]
+    asc = float(ascmc[0])
+    mc = float(ascmc[1])
+
+    asc_sign, asc_deg = degree_to_sign(asc)
+    mc_sign, mc_deg = degree_to_sign(mc)
 
     return {
         "utc": utc_dt.isoformat(),
         "julian_day": jd_ut,
-        "planets": planets,
-        "houses": houses,
-        "asc": asc,
-        "mc": mc
+        "asc": {
+            "lon": asc,
+            "sign": asc_sign,
+            "degree_in_sign": asc_deg
+        },
+        "mc": {
+            "lon": mc,
+            "sign": mc_sign,
+            "degree_in_sign": mc_deg
+        },
+        "planets": planet_data,
+        "houses": houses
     }
