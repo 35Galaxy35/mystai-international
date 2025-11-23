@@ -13,3 +13,4 @@ pyswisseph
 matplotlib
 pytz
 timezonefinder
+cycler
