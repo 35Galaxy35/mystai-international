@@ -246,11 +246,24 @@
       color:#6f78ae;
     }
 
+    /* 👇 YENİ: Kişi satırları (A/B için) */
+    .person-row{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      margin-bottom:10px;
+    }
+    @media(max-width:600px){
+      .person-row{
+        grid-template-columns:1fr;
+      }
+    }
+
     /* Relation select */
     .select-wrap{
       position:relative;
       display:block;
-      background:rgba(4,9,30,.85);
+      background:#050716; /* daha koyu ve stabil arka plan */
       border-radius:10px;
       border:1px solid rgba(255,255,255,.16);
       padding:2px 9px;
@@ -259,13 +272,21 @@
       width:100%;
       border:0;
       outline:none;
-      background:transparent;
+      background:#050716; /* transparent yerine koyu */
       color:var(--text);
       font-size:13px;
       padding:7px 20px 7px 0;
       appearance:none;
       -webkit-appearance:none;
       -moz-appearance:none;
+    }
+    .select-wrap select:focus{
+      background:#050716;
+      color:var(--text);
+    }
+    .select-wrap select option{
+      background:#050716;
+      color:var(--text);
     }
     .select-wrap::after{
       content:"▾";
@@ -409,16 +430,19 @@
       display:flex;
       flex-direction:column;
     }
+
+    /* 👇 YENİ: Yorumun kesilmemesi için max-height kaldırıldı */
     .result-text{
       flex:1;
       font-size:13px;
       color:var(--text);
       line-height:1.7;
       white-space:pre-wrap;
-      overflow-y:auto;
-      max-height:340px;
+      overflow-y:visible;
+      max-height:none;
       padding-right:4px;
     }
+
     .result-hint{
       margin-top:8px;
       font-size:11px;
@@ -487,16 +511,25 @@
         <!-- PEOPLE -->
         <div class="field-label" id="peopleLabel">People in this connection</div>
 
-        <div class="two-col" style="margin-bottom:10px;">
+        <!-- 👇 YENİ: A kişisi iki ayrı kutu -->
+        <div class="person-row">
           <div class="input-box">
             <div class="input-label-small" id="personALabel">Person A · Name</div>
             <input id="nameA" class="text-input" type="text" placeholder="Name / nickname" />
+          </div>
+          <div class="input-box">
             <div class="input-label-small" id="dobALabel">Birth date</div>
             <input id="dobA" class="text-input" type="text" placeholder="dd.mm.yyyy" />
           </div>
+        </div>
+
+        <!-- 👇 YENİ: B kişisi iki ayrı kutu -->
+        <div class="person-row">
           <div class="input-box">
             <div class="input-label-small" id="personBLabel">Person B · Name</div>
             <input id="nameB" class="text-input" type="text" placeholder="Name / nickname" />
+          </div>
+          <div class="input-box">
             <div class="input-label-small" id="dobBLabel">Birth date</div>
             <input id="dobB" class="text-input" type="text" placeholder="dd.mm.yyyy" />
           </div>
