@@ -427,13 +427,13 @@
     /* READINGS GRID */
     .readings-grid{
       display:grid;
-      grid-template-columns:repeat(5,240px);
+      grid-template-columns:repeat(6,minmax(0,1fr)); /* 6 kart yan yana */
       gap:22px;
       justify-content:center;
       margin-top:20px;
     }
     @media(max-width:1300px){
-      .readings-grid{grid-template-columns:repeat(3,240px);}
+      .readings-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
     }
     @media(max-width:900px){
       .readings-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
@@ -864,6 +864,15 @@
             Enter your birth details and let MystAI build a symbolic natal map, Yıldızname style guidance and Solar Return interpretations.
           </p>
         </article>
+
+        <!-- YENİ SOUL KARTI -->
+        <article class="tile">
+          <img src="images/Soul.png" loading="lazy" alt="Soul & Aura Reading" class="reading-img">
+          <h3 data-i18n="soulTitle">Soul & Aura Reading</h3>
+          <p data-i18n="soulDesc">
+            Discover subtle patterns in your aura, emotional field and spiritual lessons — translated into gentle, practical guidance.
+          </p>
+        </article>
       </div>
     </section>
 
@@ -1051,6 +1060,9 @@
         energyDesc:"Upload dreams for symbolism mapping and explore energy reading with gentle reflection prompts.",
         astroTitle:"Astrology & Birth Chart",
         astroDesc:"Enter your birth details and let MystAI build a symbolic natal map, Yıldızname style guidance and Solar Return interpretations.",
+        /* YENİ SOUL KARTI (EN) */
+        soulTitle:"Soul & Aura Reading",
+        soulDesc:"Discover subtle patterns in your aura, emotional field and spiritual lessons — translated into gentle, practical guidance.",
         howKicker:"How it works",
         howTitle:"3 simple steps to get your reading",
         how1Title:"Choose your reading type",
@@ -1127,6 +1139,9 @@
         energyDesc:"Rüyalarını yükleyip sembol haritalamasıyla yorumlat; enerji okumasını yumuşak yansıtma sorularıyla keşfet.",
         astroTitle:"Astroloji & Doğum Haritası",
         astroDesc:"Doğum bilgilerini gir; MystAI sembolik bir natal harita, yıldızname tarzı rehberlik ve Güneş Dönüşü yorumları oluştursun.",
+        /* YENİ SOUL KARTI (TR) */
+        soulTitle:"Ruh & Aura Okuması",
+        soulDesc:"Aurandaki, duygusal alanındaki ve ruhsal derslerindeki ince desenleri keşfet; MystAI bunları yumuşak ve uygulanabilir rehberliğe çevirsin.",
         howKicker:"Nasıl çalışır",
         howTitle:"3 adımda fal yorumun hazır",
         how1Title:"Fal türünü seç",
