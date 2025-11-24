@@ -186,7 +186,7 @@
 
     /* PAGE LAYOUT */
     .page{
-      max-width:1120px;
+      max-width:1400px; /* GENİŞLETTİK */
       margin:0 auto;
       padding:110px 20px 60px;
     }
@@ -424,22 +424,29 @@
       color:#9fd9ff;
     }
 
-    /* READINGS GRID */
+    /* READINGS GRID - 6 KART TEK SATIR DESKTOP */
     .readings-grid{
       display:grid;
-      grid-template-columns:repeat(6, 1fr); /* 6 kart yan yana */
+      grid-template-columns:repeat(6, minmax(0,1fr)); /* 6 kart yan yana */
       gap:22px;
       justify-content:center;
       margin-top:20px;
+      align-items:stretch;
     }
-    @media(max-width:1300px){
-      .readings-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
+    @media(max-width:1200px){
+      .readings-grid{
+        grid-template-columns:repeat(3, minmax(0,1fr)); /* 3x2 */
+      }
     }
     @media(max-width:900px){
-      .readings-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+      .readings-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr)); /* 2x3 */
+      }
     }
-    @media(max-width:620px){
-      .readings-grid{grid-template-columns:minmax(0,1fr);}
+    @media(max-width:600px){
+      .readings-grid{
+        grid-template-columns:minmax(0,1fr); /* 1x6 mobil dar */
+      }
     }
 
     .tile{
@@ -463,20 +470,22 @@
       transform:translateY(-4px) scale(1.02);
       box-shadow:0 24px 48px rgba(0,0,0,.95);
     }
+
+    /* RESİMLER KIRPILMIYOR */
     .reading-img{
       width:100%;
-      height:280px;
+      height:auto;              /* sabit yükseklik YOK */
       border-radius:12px;
-      object-fit:cover;
+      object-fit:contain;       /* oran korunur, kırpma yok */
       box-shadow:0 0 22px rgba(255,215,0,.25);
       margin-bottom:10px;
       display:block;
       transition:transform .35s ease,box-shadow .35s ease,filter .35s ease;
     }
     .tile:hover .reading-img{
-      transform:scale(1.04);
-      box-shadow:0 0 36px rgba(255,225,150,.45);
-      filter:brightness(1.05);
+      transform:scale(1.02);
+      box-shadow:0 0 28px rgba(255,225,150,.45);
+      filter:brightness(1.03);
     }
     .tile h3{
       margin:4px 0 4px;
@@ -489,6 +498,7 @@
       font-size:13px;
       color:var(--muted);
       line-height:1.5;
+      min-height:48px;
     }
     .tile-label{
       position:absolute;
@@ -865,14 +875,16 @@
           </p>
         </article>
 
-        <!-- YENİ SOUL KARTI -->
+        <!-- YENİ 6. KART: SOUL -->
         <article class="tile">
-          <img src="images/Soul.png" loading="lazy" alt="Soul & Aura Reading" class="reading-img">
-          <h3 data-i18n="soulTitle">Soul & Aura Reading</h3>
+          <span class="tile-label" data-i18n="labelNew">New</span>
+          <img src="images/Soul.png" loading="lazy" alt="Soul Connection Reading" class="reading-img">
+          <h3 data-i18n="soulTitle">Soul Connection Reading</h3>
           <p data-i18n="soulDesc">
-            Discover subtle patterns in your aura, emotional field and spiritual lessons — translated into gentle, practical guidance.
+            Explore the deep energetic connection between two souls with symbolic, AI-guided reflection.
           </p>
         </article>
+
       </div>
     </section>
 
@@ -1060,9 +1072,8 @@
         energyDesc:"Upload dreams for symbolism mapping and explore energy reading with gentle reflection prompts.",
         astroTitle:"Astrology & Birth Chart",
         astroDesc:"Enter your birth details and let MystAI build a symbolic natal map, Yıldızname style guidance and Solar Return interpretations.",
-        /* YENİ SOUL KARTI (EN) */
-        soulTitle:"Soul & Aura Reading",
-        soulDesc:"Discover subtle patterns in your aura, emotional field and spiritual lessons — translated into gentle, practical guidance.",
+        soulTitle:"Soul Connection Reading",
+        soulDesc:"Explore the deep energetic connection between two souls with symbolic, AI-guided reflection.",
         howKicker:"How it works",
         howTitle:"3 simple steps to get your reading",
         how1Title:"Choose your reading type",
@@ -1139,9 +1150,8 @@
         energyDesc:"Rüyalarını yükleyip sembol haritalamasıyla yorumlat; enerji okumasını yumuşak yansıtma sorularıyla keşfet.",
         astroTitle:"Astroloji & Doğum Haritası",
         astroDesc:"Doğum bilgilerini gir; MystAI sembolik bir natal harita, yıldızname tarzı rehberlik ve Güneş Dönüşü yorumları oluştursun.",
-        /* YENİ SOUL KARTI (TR) */
-        soulTitle:"Ruh & Aura Okuması",
-        soulDesc:"Aurandaki, duygusal alanındaki ve ruhsal derslerindeki ince desenleri keşfet; MystAI bunları yumuşak ve uygulanabilir rehberliğe çevirsin.",
+        soulTitle:"Ruhsal Bağlantı Yorumu",
+        soulDesc:"İki ruh arasındaki derin enerjik bağı, sembolik ve yapay zekâ rehberli yansımalarla keşfet.",
         howKicker:"Nasıl çalışır",
         howTitle:"3 adımda fal yorumun hazır",
         how1Title:"Fal türünü seç",
@@ -1228,4 +1238,3 @@
   </script>
 </body>
 </html>
-
