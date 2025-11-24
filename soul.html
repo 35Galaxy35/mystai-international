@@ -125,7 +125,6 @@
       gap:22px;
       position:relative;
       overflow:hidden;
-      align-items:stretch; /* iki panel aynı yükseklikte */
     }
 
     .shell::before{
@@ -238,7 +237,6 @@
       color:#6f78ae;
     }
 
-    /* Kişi satırları (A/B için) */
     .person-row{
       display:grid;
       grid-template-columns:repeat(2,minmax(0,1fr));
@@ -251,7 +249,7 @@
       }
     }
 
-    /* Relation select - koyu, beyaz değil */
+    /* Relation select */
     .select-wrap{
       position:relative;
       display:block;
@@ -359,7 +357,6 @@
       display:flex;
       flex-direction:column;
       overflow:hidden;
-      min-height:260px;
     }
     .result-panel::before{
       content:"";
@@ -419,22 +416,21 @@
       position:relative;
       z-index:1;
       margin-top:10px;
-      flex:1 1 auto;
+      flex:1;
       display:flex;
       flex-direction:column;
-      min-height:0; /* scroll için kritik */
     }
 
-    /* Uzun yorum + profesyonel scroll */
+    /* Uzun yorum + scroll – diğer fallarla aynı mantık */
     .result-text{
-      flex:1 1 auto;
+      flex:1;
       font-size:13px;
       color:var(--text);
       line-height:1.7;
       white-space:pre-wrap;
       overflow-y:auto;
-      max-height:none;
-      padding-right:8px;
+      max-height:260px;  /* panel yüksekliği */
+      padding-right:6px;
     }
 
     /* Premium scrollbar */
@@ -877,24 +873,12 @@ MystAI is a spiritual and entertainment-focused AI tool. It does not replace med
           relationType.options[relationType.selectedIndex]?.textContent || "";
 
         const systemIntroTR =
-          "Bu bir yapay zekâ RUHSAL BAĞLANTI yorumudur. İki kişi arasındaki bağın enerjisini, karmasını, derslerini, uyum ve zorluk alanlarını MİSTİK ama AYAKLARI YERE BASAN bir dille anlat.\n" +
-          "LÜTFEN EN AZ 900–1100 KELİMELİK, 10 BAŞLIKLI, ASLA YARIM KALMAYAN BİR METİN YAZ. CÜMLEYİ KESİP BIRAKMA.\n" +
-          "Yapı şu başlıklar halinde olsun:\n" +
-          "1) Bağın genel özeti\n" +
-          "2) Ruhsal/karmik tema\n" +
-          "3) Duygusal dinamikler\n" +
-          "4) İletişim ve zihinsel uyum\n" +
-          "5) Geleceğe dair olasılıklar (tahmin değil, olasılık)\n" +
-          "6) İlişki türüne özel yorum (örn: aile, aşk, arkadaşlık)\n" +
-          "7) Kişi A için mesajlar\n" +
-          "8) Kişi B için mesajlar\n" +
-          "9) Birlikte şifa & gelişim önerileri (maddeli olabilir)\n" +
-          "10) Son cümlede birlikte ruhsal ders ve kapanış.\n";
+          "Bu bir yapay zekâ RUHSAL BAĞLANTI yorumudur. İki kişi arasındaki bağın enerjisini, karmasını, derslerini, uyum ve zorluk alanlarını mistik ama ayakları yere basan bir dille anlat.\n" +
+          "Metni bütünlüklü, akıcı ve profesyonel yaz; cümleleri yarım bırakma.\n";
 
         const systemIntroEN =
           "This is an AI SOUL CONNECTION reading. Describe the energetic and spiritual bond, karma, lessons, strengths and challenges in a mystical yet grounded tone.\n" +
-          "PLEASE WRITE AT LEAST 900–1100 WORDS, WITH 10 CLEAR SECTIONS, NEVER CUTTING A SENTENCE IN THE MIDDLE.\n" +
-          "Use headings like: (1) Overall connection summary, (2) Soul / karmic theme, (3) Emotional dynamics, (4) Communication & mental harmony, (5) Possible future timelines (not fixed predictions), (6) Insights for this relationship type, (7) Messages for Person A, (8) Messages for Person B, (9) Suggestions for healing & growth, (10) Closing reflection.\n";
+          "Write a coherent, flowing and professional text; do not cut sentences in the middle.\n";
 
         const baseIntro = activeLang === "tr" ? systemIntroTR : systemIntroEN;
 
