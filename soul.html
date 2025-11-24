@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MystAI — Soul Connection Reading</title>
+  <link rel="icon" type="image/png" href="mystai-logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-start:#050716;
+      --bg-end:#050915;
+      --card:#060e26;
+      --card-soft:#0b1636;
+      --accent:#f6d35f;
+      --accent-soft:#f3d97f;
+      --text:#e4e9ff;
+      --muted:#9ba5d2;
+      --danger:#ff4b6b;
+    }
+
+    *{box-sizing:border-box;}
+
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 20% -10%, #293b86 0, transparent 55%),
+        radial-gradient(circle at 80% -10%, #5a378e 0, transparent 60%),
+        radial-gradient(circle at 50% 120%, #1b285a 0, transparent 60%),
+        linear-gradient(180deg, var(--bg-start), var(--bg-end));
+      background-attachment:fixed;
+    }
+
+    /* Top Bar */
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:14px 22px;
+      background:rgba(3,5,18,.80);
+      backdrop-filter:blur(18px);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .top-left,.top-right{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .flag-btn{
+      width:34px;height:34px;
+      border-radius:50%;
+      border:2px solid transparent;
+      background-size:cover;
+      background-position:center;
+      cursor:pointer;
+      box-shadow:0 0 0 1px rgba(255,255,255,.08);
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    .flag-btn.en{background-image:url("https://flagcdn.com/w40/gb.png");}
+    .flag-btn.tr{background-image:url("https://flagcdn.com/w40/tr.png");}
+    .flag-btn.active{
+      transform:scale(1.06);
+      border-color:var(--accent);
+      box-shadow:0 0 12px rgba(246,211,95,.85);
+    }
+    .flag-btn:hover{transform:scale(1.08);}
+
+    .user-label{
+      font-size:13px;
+      color:var(--accent-soft);
+      text-shadow:0 0 12px rgba(246,211,95,.6);
+      white-space:nowrap;
+    }
+
+    .nav-pill{
+      border:0;
+      border-radius:999px;
+      padding:7px 14px;
+      font-size:13px;
+      font-weight:600;
+      cursor:pointer;
+      background:rgba(255,255,255,.12);
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      gap:5px;
+      transition:all .18s ease;
+    }
+    .nav-pill:hover{
+      filter:brightness(1.15);
+      transform:translateY(-1px);
+    }
+
+    /* Layout */
+    .wrapper{
+      flex:1;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      padding:30px 14px 40px;
+    }
+
+    .shell{
+      width:100%;
+      max-width:1120px;
+      background:radial-gradient(circle at top,#1a2658 0,#080d22 55%,#050812 100%);
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:
+        0 0 40px rgba(0,0,0,.55),
+        0 0 90px rgba(78,56,163,.55);
+      padding:26px 26px 24px;
+      display:grid;
+      grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);
+      gap:22px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .shell::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(255,255,255,.06), transparent 55%),
+        radial-gradient(circle at 100% 0%, rgba(246,211,95,.18), transparent 50%);
+      opacity:.55;
+      mix-blend-mode:soft-light;
+      pointer-events:none;
+    }
+
+    @media(max-width:930px){
+      .shell{
+        grid-template-columns:1fr;
+        padding:22px 18px 20px;
+      }
+    }
+
+    /* Section headers */
+    .section-kicker{
+      font-size:11px;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--accent-soft);
+      text-align:left;
+      margin-bottom:4px;
+    }
+    .section-title{
+      font-family:"Cinzel",serif;
+      font-size:28px;
+      color:#ffe8a8;
+      text-align:left;
+      margin:0 0 10px;
+      text-shadow:0 0 14px rgba(246,211,95,.7);
+    }
+    .section-sub{
+      text-align:left;
+      font-size:14px;
+      color:var(--muted);
+      line-height:1.6;
+      margin-bottom:18px;
+    }
+
+    .step-row{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      margin-bottom:8px;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .step-badge{
+      width:18px;height:18px;
+      border-radius:50%;
+      background:linear-gradient(135deg,var(--accent),#ffefb5);
+      color:#221b03;
+      display:flex;align-items:center;justify-content:center;
+      font-size:11px;
+      font-weight:800;
+      box-shadow:0 0 10px rgba(246,211,95,.85);
+      flex-shrink:0;
+      margin-top:2px;
+    }
+
+    .divider{
+      height:1px;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.24),transparent);
+      margin:14px 0 10px;
+      opacity:.7;
+    }
+
+    /* Labels & controls */
+    .field-label{
+      font-size:12px;
+      font-weight:600;
+      color:var(--accent-soft);
+      margin-bottom:6px;
+      text-align:left;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+
+    .people-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      margin-bottom:10px;
+    }
+    @media(max-width:700px){
+      .people-grid{
+        grid-template-columns:1fr;
+      }
+    }
+    .person-card{
+      background:rgba(4,8,26,.9);
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      padding:10px 10px 9px;
+    }
+    .person-title{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      color:#ffe3a0;
+      margin-bottom:6px;
+    }
+
+    .input-row{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      margin-bottom:6px;
+      text-align:left;
+    }
+    .input-label{
+      font-size:11px;
+      color:var(--muted);
+    }
+    input[type="text"],
+    input[type="date"],
+    select{
+      width:100%;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.15);
+      background:radial-gradient(circle at top,#111a46,#04081c);
+      color:var(--text);
+      padding:7px 9px;
+      font-size:13px;
+      font-family:inherit;
+      outline:none;
+      box-shadow:inset 0 0 10px rgba(0,0,0,.45);
+    }
+    input::placeholder{
+      color:#767fb3;
+    }
+
+    .rel-type-box{
+      margin-top:4px;
+      margin-bottom:8px;
+    }
+
+    textarea{
+      width:100%;
+      min-height:90px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.15);
+      background:radial-gradient(circle at top,#111a46,#04081c);
+      color:var(--text);
+      padding:10px 11px;
+      font-size:13px;
+      font-family:inherit;
+      resize:vertical;
+      outline:none;
+      box-shadow:inset 0 0 12px rgba(0,0,0,.55);
+    }
+    textarea::placeholder{
+      color:#767fb3;
+    }
+
+    .primary-btn{
+      margin-top:14px;
+      border:0;
+      border-radius:14px;
+      padding:10px 18px;
+      font-size:14px;
+      font-weight:800;
+      cursor:pointer;
+      background:conic-gradient(from 210deg at 50% 50%,#ffe9b0,#fbd36a,#f8c24a,#ffe9b0);
+      color:#241b03;
+      box-shadow:
+        0 0 22px rgba(246,211,95,.95),
+        0 0 60px rgba(246,211,95,.45);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      transition:all .18s ease;
+    }
+    .primary-btn:hover{
+      transform:translateY(-2px) scale(1.02);
+      filter:brightness(1.03);
+    }
+    .primary-btn:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+      transform:none;
+      box-shadow:none;
+    }
+
+    .status{
+      margin-top:6px;
+      font-size:11px;
+      color:var(--muted);
+      text-align:left;
+      min-height:14px;
+    }
+
+    /* Right side – Result */
+    .result-panel{
+      position:relative;
+      border-radius:18px;
+      background:radial-gradient(circle at 0 0,#324089,#080f2a 40%,#040816 100%);
+      border:1px solid rgba(255,255,255,.18);
+      padding:14px 13px 12px;
+      box-shadow:0 0 26px rgba(0,0,0,.75);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+    .result-panel::before{
+      content:"";
+      position:absolute;
+      inset:-20%;
+      background:
+        radial-gradient(circle at 0 0,rgba(246,211,95,.2),transparent 50%),
+        radial-gradient(circle at 100% 0,rgba(146,214,255,.18),transparent 55%);
+      opacity:.9;
+      mix-blend-mode:soft-light;
+      pointer-events:none;
+    }
+
+    .result-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      position:relative;
+      z-index:1;
+    }
+    .result-title{
+      font-size:14px;
+      font-weight:700;
+      color:#ffe6a0;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .result-sub{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:2px;
+    }
+
+    .audio-btn{
+      border-radius:999px;
+      border:0;
+      padding:6px 11px;
+      font-size:11px;
+      font-weight:600;
+      cursor:pointer;
+      background:rgba(3,7,26,.9);
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      gap:6px;
+      box-shadow:0 0 0 1px rgba(255,255,255,.22);
+      transition:all .18s ease;
+    }
+    .audio-btn:hover{filter:brightness(1.1);}
+    .audio-btn:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+      box-shadow:none;
+    }
+
+    .result-body{
+      position:relative;
+      z-index:1;
+      margin-top:10px;
+      flex:1;
+      display:flex;
+      flex-direction:column;
+    }
+    .result-text{
+      flex:1;
+      font-size:13px;
+      color:var(--text);
+      line-height:1.7;
+      white-space:pre-wrap;
+      overflow-y:auto;
+      max-height:260px;
+      padding-right:4px;
+    }
+    .result-hint{
+      margin-top:8px;
+      font-size:11px;
+      color:var(--muted);
+    }
+
+    /* Footer */
+    footer{
+      border-top:1px solid rgba(255,255,255,.08);
+      padding:16px 10px 18px;
+      text-align:center;
+      font-size:12px;
+      color:#a9b3dc;
+    }
+    footer a{
+      color:var(--accent-soft);
+      text-decoration:none;
+      font-weight:600;
+    }
+    footer a:hover{
+      color:#fffad0;
+      text-shadow:0 0 9px rgba(246,211,95,.8);
+    }
+  </style>
+</head>
+<body>
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="top-left">
+      <button id="btn-en" class="flag-btn en"></button>
+      <button id="btn-tr" class="flag-btn tr"></button>
+    </div>
+    <div class="top-right">
+      <span id="userLabel" class="user-label"></span>
+      <button id="backBtn" class="nav-pill">⬅ Back</button>
+      <button id="logoutBtn" class="nav-pill">Logout</button>
+    </div>
+  </div>
+
+  <div class="wrapper">
+    <div class="shell">
+      <!-- LEFT SIDE -->
+      <div>
+        <div class="section-kicker" id="kickerLabel">MystAI · Soul Oracle</div>
+        <h1 class="section-title" id="titleLabel">Soul Connection Reading</h1>
+        <p class="section-sub" id="subtitleLabel">
+          Enter names, dates of birth and your relationship context. MystAI will explore the energetic connection,
+          karmic themes and lessons between you.
+        </p>
+
+        <div class="step-row">
+          <div class="step-badge">1</div>
+          <div id="step1Text">Fill in the names and birth dates for both people.</div>
+        </div>
+        <div class="step-row">
+          <div class="step-badge">2</div>
+          <div id="step2Text">Choose the type of relationship and briefly describe your situation.</div>
+        </div>
+        <div class="step-row">
+          <div class="step-badge">3</div>
+          <div id="step3Text">Write your question or intention and let MystAI reflect the soul connection.</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- PEOPLE DATA -->
+        <div class="field-label" id="peopleLabel">People in this connection</div>
+        <div class="people-grid">
+          <div class="person-card">
+            <div class="person-title" id="person1Title">Person A</div>
+            <div class="input-row">
+              <span class="input-label" id="person1NameLabel">Name</span>
+              <input id="person1Name" type="text" placeholder="Name / nickname">
+            </div>
+            <div class="input-row">
+              <span class="input-label" id="person1DobLabel">Date of birth</span>
+              <input id="person1Dob" type="date">
+            </div>
+          </div>
+
+          <div class="person-card">
+            <div class="person-title" id="person2Title">Person B</div>
+            <div class="input-row">
+              <span class="input-label" id="person2NameLabel">Name</span>
+              <input id="person2Name" type="text" placeholder="Name / nickname">
+            </div>
+            <div class="input-row">
+              <span class="input-label" id="person2DobLabel">Date of birth</span>
+              <input id="person2Dob" type="date">
+            </div>
+          </div>
+        </div>
+
+        <!-- RELATION TYPE -->
+        <div class="rel-type-box">
+          <div class="field-label" id="relTypeLabel">Relationship type</div>
+          <select id="relType">
+            <option value="" id="relOptPlaceholder">Select type</option>
+            <option value="romantic" id="relOptRomantic">Romantic / love</option>
+            <option value="ex" id="relOptEx">Past relationship / ex</option>
+            <option value="friend" id="relOptFriend">Friendship</option>
+            <option value="family" id="relOptFamily">Family</option>
+            <option value="work" id="relOptWork">Work / collaboration</option>
+            <option value="undefined" id="relOptUndefined">Undefined / complicated</option>
+          </select>
+        </div>
+
+        <!-- QUESTION -->
+        <div class="field-label" style="margin-top:6px;" id="questionLabel">Your question / intention</div>
+        <textarea id="questionInput" placeholder="Write what you’d like MystAI to explore between you: karmic lessons, future potential, emotional patterns, soul contract themes..."></textarea>
+
+        <!-- ACTION -->
+        <button id="readBtn" class="primary-btn">
+          🔮 <span id="readBtnText">Read Our Soul Connection</span>
+        </button>
+        <div id="statusText" class="status"></div>
+      </div>
+
+      <!-- RIGHT – RESULT -->
+      <div class="result-panel">
+        <div class="result-header">
+          <div>
+            <div class="result-title" id="resultTitle">Your Soul Connection Reading</div>
+            <div class="result-sub" id="resultSub">The AI will reflect the energy between you, once you share your details and intention.</div>
+          </div>
+          <button id="listenBtn" class="audio-btn" disabled>
+            🔊 <span id="listenLabel">Listen</span>
+          </button>
+        </div>
+
+        <div class="result-body">
+          <div id="resultText" class="result-text">
+✨ After you enter names, birth dates, relationship type and your intention, MystAI will reveal the soul connection reading here. ✨
+          </div>
+          <div id="resultHint" class="result-hint">
+MystAI is an AI-based spiritual entertainment tool. It does not replace medical, psychological, legal or financial advice.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 MystAI.ai — <span id="rightsLabel">All Rights Reserved.</span>
+    <span id="devLabel">Developed by GALAXY 🌌</span><br>
+    <span id="contactLabel">Contact us:</span>
+    <a href="mailto:support@mystai.ai">support@mystai.ai</a>
+  </footer>
+
+  <audio id="audioPlayer" style="display:none;"></audio>
+
+  <script type="module">
+    /* ========= CONFIG ========= */
+    const BACKEND_URL = "https://mystai-international.onrender.com";
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
+      authDomain: "mystai-6cca2.firebaseapp.com",
+      projectId: "mystai-6cca2",
+      storageBucket: "mystai-6cca2.appspot.com",
+      messagingSenderId: "624127781219",
+      appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    /* ========= ELEMENTS ========= */
+    const btnEn       = document.getElementById("btn-en");
+    const btnTr       = document.getElementById("btn-tr");
+    const backBtn     = document.getElementById("backBtn");
+    const logoutBtn   = document.getElementById("logoutBtn");
+    const userLabel   = document.getElementById("userLabel");
+
+    const kickerLabel   = document.getElementById("kickerLabel");
+    const titleLabel    = document.getElementById("titleLabel");
+    const subtitleLabel = document.getElementById("subtitleLabel");
+    const step1Text     = document.getElementById("step1Text");
+    const step2Text     = document.getElementById("step2Text");
+    const step3Text     = document.getElementById("step3Text");
+
+    const peopleLabel     = document.getElementById("peopleLabel");
+    const person1Title    = document.getElementById("person1Title");
+    const person2Title    = document.getElementById("person2Title");
+    const person1Name     = document.getElementById("person1Name");
+    const person2Name     = document.getElementById("person2Name");
+    const person1Dob      = document.getElementById("person1Dob");
+    const person2Dob      = document.getElementById("person2Dob");
+    const person1NameLabel= document.getElementById("person1NameLabel");
+    const person2NameLabel= document.getElementById("person2NameLabel");
+    const person1DobLabel = document.getElementById("person1DobLabel");
+    const person2DobLabel = document.getElementById("person2DobLabel");
+
+    const relTypeLabel    = document.getElementById("relTypeLabel");
+    const relType         = document.getElementById("relType");
+    const relOptPlaceholder = document.getElementById("relOptPlaceholder");
+    const relOptRomantic  = document.getElementById("relOptRomantic");
+    const relOptEx        = document.getElementById("relOptEx");
+    const relOptFriend    = document.getElementById("relOptFriend");
+    const relOptFamily    = document.getElementById("relOptFamily");
+    const relOptWork      = document.getElementById("relOptWork");
+    const relOptUndefined = document.getElementById("relOptUndefined");
+
+    const questionLabel = document.getElementById("questionLabel");
+    const questionInput = document.getElementById("questionInput");
+    const readBtn       = document.getElementById("readBtn");
+    const readBtnText   = document.getElementById("readBtnText");
+    const statusText    = document.getElementById("statusText");
+
+    const resultTitle   = document.getElementById("resultTitle");
+    const resultSub     = document.getElementById("resultSub");
+    const resultText    = document.getElementById("resultText");
+    const resultHint    = document.getElementById("resultHint");
+    const listenBtn     = document.getElementById("listenBtn");
+    const listenLabel   = document.getElementById("listenLabel");
+    const audioPlayer   = document.getElementById("audioPlayer");
+
+    const rightsLabel   = document.getElementById("rightsLabel");
+    const devLabel      = document.getElementById("devLabel");
+    const contactLabel  = document.getElementById("contactLabel");
+
+    /* ========= i18n ========= */
+    const i18n = {
+      en:{
+        kicker:"MystAI · Soul Oracle",
+        title:"Soul Connection Reading",
+        subtitle:"Enter names, dates of birth and your relationship context. MystAI will explore the energetic connection, karmic themes and lessons between you.",
+        step1:"Fill in the names and birth dates for both people.",
+        step2:"Choose the type of relationship and briefly describe your situation.",
+        step3:"Write your question or intention and let MystAI reflect the soul connection.",
+        peopleLabel:"People in this connection",
+        person1Title:"Person A",
+        person2Title:"Person B",
+        person1NameLabel:"Name",
+        person2NameLabel:"Name",
+        person1DobLabel:"Date of birth",
+        person2DobLabel:"Date of birth",
+        relTypeLabel:"Relationship type",
+        relOptPlaceholder:"Select type",
+        relOptRomantic:"Romantic / love",
+        relOptEx:"Past relationship / ex",
+        relOptFriend:"Friendship",
+        relOptFamily:"Family",
+        relOptWork:"Work / collaboration",
+        relOptUndefined:"Undefined / complicated",
+        questionLabel:"Your question / intention",
+        questionPlaceholder:"Write what you’d like MystAI to explore between you: karmic lessons, future potential, emotional patterns, soul contract themes...",
+        readBtn:"Read Our Soul Connection",
+        statusIdle:"",
+        statusLoading:"Reading your soul connection… energetic threads, karmic themes and emotional patterns are being explored.",
+        statusDone:"Your soul connection reading is ready.",
+        statusError:"An error occurred. Please try again.",
+        mustQuestion:"Please write at least a short question or intention.",
+        mustNames:"Please enter at least the names of both people.",
+        resultTitle:"Your Soul Connection Reading",
+        resultSub:"The AI will reflect the energy between you, once you share your details and intention.",
+        resultInitial:"✨ After you enter names, birth dates, relationship type and your intention, MystAI will reveal the soul connection reading here. ✨",
+        resultHint:"MystAI is an AI-based spiritual entertainment tool. It does not replace medical, psychological, legal or financial advice.",
+        listen:"Listen",
+        listening:"Playing...",
+        back:"Back to App",
+        logout:"Logout",
+        rights:"All Rights Reserved.",
+        dev:"Developed by GALAXY 🌌",
+        contact:"Contact us:",
+        welcome:"Welcome, "
+      },
+      tr:{
+        kicker:"MystAI · Ruhsal Bağ Kapısı",
+        title:"Ruhsal Bağlantı Yorumu",
+        subtitle:"İki kişinin adını, doğum tarihlerini ve ilişkinizin bağlamını gir. MystAI aranızdaki enerjik bağlantıyı, karmayı ve dersleri ruhsal bir dille yorumlasın.",
+        step1:"Her iki kişi için ad ve doğum tarihlerini doldur.",
+        step2:"İlişki türünü seç ve durumu kısaca tarif et.",
+        step3:"Sorunu veya niyetini yaz; MystAI aranızdaki ruhsal bağı yansıtsın.",
+        peopleLabel:"Bu bağlantıdaki kişiler",
+        person1Title:"Kişi A",
+        person2Title:"Kişi B",
+        person1NameLabel:"İsim",
+        person2NameLabel:"İsim",
+        person1DobLabel:"Doğum tarihi",
+        person2DobLabel:"Doğum tarihi",
+        relTypeLabel:"İlişki türü",
+        relOptPlaceholder:"Tür seç",
+        relOptRomantic:"Romantik / aşk",
+        relOptEx:"Eski ilişki / ex",
+        relOptFriend:"Arkadaşlık",
+        relOptFamily:"Aile",
+        relOptWork:"İş / birlikte çalışma",
+        relOptUndefined:"Tanımsız / karmaşık",
+        questionLabel:"Sorun / niyetin",
+        questionPlaceholder:"MystAI'nin aranızda keşfetmesini istediğin şeyi yaz: karmalar, gelecekteki potansiyel, duygusal kalıplar, ruh sözleşmesi temaları...",
+        readBtn:"Ruhsal Bağımızı Oku",
+        statusIdle:"",
+        statusLoading:"Ruhsal bağınız okunuyor… enerjik bağlar, karmalar ve duygusal temalar yorumlanıyor.",
+        statusDone:"Ruhsal bağlantı yorumun hazır.",
+        statusError:"Bir hata oluştu. Lütfen tekrar dene.",
+        mustQuestion:"Lütfen en azından kısa bir soru veya niyet yaz.",
+        mustNames:"Lütfen en azından her iki kişinin adını gir.",
+        resultTitle:"Ruhsal Bağlantı Yorumun",
+        resultSub:"Detayları ve niyetini paylaştıktan sonra yapay zekâ aranızdaki enerjiyi burada yansıtacak.",
+        resultInitial:"✨ İsimleri, doğum tarihlerini, ilişki türünü ve niyetini girdikten sonra MystAI aranızdaki ruhsal bağlantı yorumunu burada gösterecek. ✨",
+        resultHint:"MystAI ruhsal ve eğlence amaçlı bir yapay zekâ yorumlayıcısıdır; tıbbi, psikolojik, hukuki veya finansal danışmanlığın yerine geçmez.",
+        listen:"Dinle",
+        listening:"Çalıyor...",
+        back:"Uygulamaya Dön",
+        logout:"Çıkış Yap",
+        rights:"Tüm Hakları Saklıdır.",
+        dev:"GALAXY tarafından geliştirilmiştir 🌌",
+        contact:"İletişim:",
+        welcome:"Hoş geldin, "
+      }
+    };
+
+    let activeLang = localStorage.getItem("myst_lang") || "en";
+
+    function applyLang(lang){
+      activeLang = lang;
+      localStorage.setItem("myst_lang", lang);
+      const t = i18n[lang];
+
+      kickerLabel.textContent   = t.kicker;
+      titleLabel.textContent    = t.title;
+      subtitleLabel.textContent = t.subtitle;
+      step1Text.textContent     = t.step1;
+      step2Text.textContent     = t.step2;
+      step3Text.textContent     = t.step3;
+
+      peopleLabel.textContent      = t.peopleLabel;
+      person1Title.textContent     = t.person1Title;
+      person2Title.textContent     = t.person2Title;
+      person1NameLabel.textContent = t.person1NameLabel;
+      person2NameLabel.textContent = t.person2NameLabel;
+      person1DobLabel.textContent  = t.person1DobLabel;
+      person2DobLabel.textContent  = t.person2DobLabel;
+
+      relTypeLabel.textContent     = t.relTypeLabel;
+      relOptPlaceholder.textContent= t.relOptPlaceholder;
+      relOptRomantic.textContent   = t.relOptRomantic;
+      relOptEx.textContent         = t.relOptEx;
+      relOptFriend.textContent     = t.relOptFriend;
+      relOptFamily.textContent     = t.relOptFamily;
+      relOptWork.textContent       = t.relOptWork;
+      relOptUndefined.textContent  = t.relOptUndefined;
+
+      questionLabel.textContent    = t.questionLabel;
+      questionInput.placeholder    = t.questionPlaceholder;
+      readBtnText.textContent      = t.readBtn;
+
+      resultTitle.textContent      = t.resultTitle;
+      resultSub.textContent        = t.resultSub;
+      resultText.textContent       = t.resultInitial;
+      resultHint.textContent       = t.resultHint;
+      listenLabel.textContent      = t.listen;
+
+      rightsLabel.textContent      = t.rights;
+      devLabel.textContent         = t.dev;
+      contactLabel.textContent     = t.contact;
+      backBtn.textContent          = "⬅ " + t.back;
+      logoutBtn.textContent        = t.logout;
+
+      btnEn.classList.toggle("active", lang === "en");
+      btnTr.classList.toggle("active", lang === "tr");
+
+      if (auth.currentUser){
+        const name = auth.currentUser.displayName || auth.currentUser.email;
+        userLabel.textContent = t.welcome + name;
+      }
+    }
+
+    btnEn.addEventListener("click", ()=>applyLang("en"));
+    btnTr.addEventListener("click", ()=>applyLang("tr"));
+
+    /* ========= AUTH & NAV ========= */
+    backBtn.addEventListener("click", ()=>{ window.location.href = "app.html"; });
+
+    logoutBtn.addEventListener("click", ()=>{
+      signOut(auth).then(()=> window.location.href="login.html");
+    });
+
+    onAuthStateChanged(auth, user=>{
+      if(!user){
+        window.location.href = "login.html";
+        return;
+      }
+      const t = i18n[activeLang];
+      const name = user.displayName || user.email;
+      userLabel.textContent = t.welcome + name;
+    });
+
+    applyLang(activeLang);
+
+    /* ========= MAIN READING ACTION ========= */
+    readBtn.addEventListener("click", async ()=>{
+      const t = i18n[activeLang];
+      const user = auth.currentUser;
+
+      if(!user){
+        alert(activeLang === "tr" ? "Lütfen önce giriş yap." : "Please log in first.");
+        return;
+      }
+
+      const name1 = person1Name.value.trim();
+      const name2 = person2Name.value.trim();
+      const dob1  = person1Dob.value;
+      const dob2  = person2Dob.value;
+      const rel   = relType.value;
+      const question = questionInput.value.trim();
+
+      if(!name1 || !name2){
+        alert(t.mustNames);
+        return;
+      }
+      if(!question){
+        alert(t.mustQuestion);
+        return;
+      }
+
+      readBtn.disabled = true;
+      statusText.textContent = t.statusLoading;
+      resultText.textContent = "";
+      listenBtn.disabled = true;
+      audioPlayer.pause();
+      audioPlayer.currentTime = 0;
+      audioPlayer.src = "";
+
+      try{
+        if(!BACKEND_URL || BACKEND_URL.includes("YOUR-BACKEND-URL")){
+          statusText.textContent = "Backend URL is not configured.";
+          readBtn.disabled = false;
+          return;
+        }
+
+        const relTextMapEn = {
+          "romantic":"romantic / love connection",
+          "ex":"past romantic relationship / ex-partner dynamic",
+          "friend":"friendship / platonic connection",
+          "family":"family bond",
+          "work":"work / collaboration theme",
+          "undefined":"undefined / complicated connection"
+        };
+        const relTextMapTr = {
+          "romantic":"romantik / aşk bağlantısı",
+          "ex":"geçmiş romantik ilişki / eski partner dinamiği",
+          "friend":"arkadaşlık / platonik bağ",
+          "family":"aile bağı",
+          "work":"iş / birlikte çalışma teması",
+          "undefined":"tanımsız / karmaşık bağlantı"
+        };
+
+        const relText = activeLang === "tr"
+          ? (rel ? relTextMapTr[rel] : "belirtilmemiş ilişki tipi")
+          : (rel ? relTextMapEn[rel] : "unspecified relationship type");
+
+        const systemIntro =
+          activeLang === "tr"
+            ? "Bu bir ruhsal bağlantı yorumudur. İki kişi arasındaki enerjik bağları, karmayı, tekrar eden döngüleri ve potansiyel gelecek senaryolarını; mistik ama ayağı yere basan bir dille yorumla. Somut tavsiyeler, içsel farkındalık ve duygusal şefkat içeren bir üslup kullan.\n"
+            : "This is a soul connection reading. Explore the energetic bond, karma, repeating cycles and potential future scenarios between them, in a mystical yet grounded tone. Include practical reflections, emotional validation and gentle guidance.\n";
+
+        const payloadText =
+          systemIntro +
+          (activeLang === "tr" ? "Kişi A adı: " : "Person A name: ") + name1 + "\n" +
+          (activeLang === "tr" ? "Kişi A doğum tarihi: " : "Person A date of birth: ") + (dob1 || (activeLang==="tr" ? "bilinmiyor" : "unknown")) + "\n" +
+          (activeLang === "tr" ? "Kişi B adı: " : "Person B name: ") + name2 + "\n" +
+          (activeLang === "tr" ? "Kişi B doğum tarihi: " : "Person B date of birth: ") + (dob2 || (activeLang==="tr" ? "bilinmiyor" : "unknown")) + "\n" +
+          (activeLang === "tr" ? "İlişki türü: " : "Relationship type: ") + relText + "\n\n" +
+          (activeLang === "tr" ? "Kullanıcının sorusu/niyeti: " : "User's question/intention: ") +
+          question;
+
+        const res = await fetch(`${BACKEND_URL}/predict`, {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({ user_input: payloadText })
+        });
+
+        if(!res.ok){
+          throw new Error("HTTP " + res.status);
+        }
+
+        const data = await res.json();
+        const text = data?.text || (activeLang === "tr" ? "Yanıt alınamadı." : "No response.");
+        const audioPath = data?.audio;
+
+        resultText.textContent = text;
+        statusText.textContent = t.statusDone;
+
+        // Firestore save
+        try{
+          await addDoc(collection(db, "fortunes"), {
+            user: user.email,
+            type: "Soul Connection Reading",
+            personA: { name:name1, dob:dob1 || null },
+            personB: { name:name2, dob:dob2 || null },
+            relationshipType: rel || null,
+            question,
+            result: text,
+            createdAt: serverTimestamp(),
+            source: "soul-page"
+          });
+        }catch(e){
+          console.warn("Firestore save error:", e);
+        }
+
+        if(audioPath){
+          const audioURL = audioPath.startsWith("http") ? audioPath : `${BACKEND_URL}${audioPath}`;
+          audioPlayer.src = audioURL;
+          listenBtn.disabled = false;
+        }
+      }catch(err){
+        console.error(err);
+        statusText.textContent = t.statusError;
+        resultText.textContent =
+          (activeLang === "tr" ? "Hata: " : "Error: ") + (err?.message || String(err));
+      }finally{
+        readBtn.disabled = false;
+      }
+    });
+
+    /* ========= AUDIO PLAY ========= */
+    listenBtn.addEventListener("click", ()=>{
+      if(!audioPlayer.src) return;
+      const t = i18n[activeLang];
+      listenLabel.textContent = t.listening;
+      audioPlayer.play().catch(()=>{});
+      audioPlayer.onended = ()=>{
+        listenLabel.textContent = t.listen;
+      };
+    });
+  </script>
+</body>
+</html>
