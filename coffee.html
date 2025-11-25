@@ -243,6 +243,8 @@
       align-items:center;
       gap:8px;
       transition:all .25s ease;
+      width:100%;
+      justify-content:center;
     }
     .primary-btn:hover { transform:translateY(-1px) scale(1.03); }
     .primary-btn:disabled {
@@ -256,6 +258,13 @@
       margin-top:8px;
       font-size:12px;
       color:#aeb6ff;
+      text-align:left;
+    }
+
+    .free-info{
+      margin-top:8px;
+      font-size:12px;
+      color:#ffd54f;
       text-align:left;
     }
 
@@ -433,6 +442,7 @@
           🔮 <span id="analyzeText">Read My Coffee</span>
         </button>
 
+        <div class="free-info" id="freeInfo"></div>
         <div class="status" id="statusText"></div>
       </div>
 
@@ -468,10 +478,11 @@
   <script type="module">
     /* ====== CONFIG ====== */
     const BACKEND_URL = "https://mystai-international.onrender.com";
+    const SHOPIER_COFFEE_URL = "https://www.shopier.com/"; // BURAYA kendi kahve ürünü linkini koy
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
@@ -544,6 +555,7 @@
     const analyzeBtn    = document.getElementById("analyzeBtn");
     const analyzeText   = document.getElementById("analyzeText");
     const statusText    = document.getElementById("statusText");
+    const freeInfo      = document.getElementById("freeInfo");
 
     const resultTitle = document.getElementById("resultTitle");
     const resultText  = document.getElementById("resultText");
@@ -577,7 +589,10 @@
         imageSelected: "Image selected.",
         questionLabel: "Your Question / Intention",
         placeholder: "Write what you’d like MystAI to focus on (love, career, money, destiny, spiritual themes...)",
-        analyze: "Read My Coffee",
+        analyze_free: "Start Free Coffee Reading",
+        analyze_paid: "Buy Coffee Reading via Shopier (179 TL)",
+        freeAvailable: "You have 1 FREE introductory coffee reading. After this, new readings will be paid via Shopier.",
+        freeUsed: "You have already used your free coffee reading. To get a new reading, please purchase via Shopier.",
         statusIdle: "",
         statusLoading: "Reading your coffee… symbols and energy are aligning...",
         statusDone: "Your coffee reading is ready.",
@@ -614,7 +629,10 @@
         imageSelected: "Görsel seçildi.",
         questionLabel: "Sorun / Niyetin",
         placeholder: "Aşk, kariyer, para, kader, ruhsal konular veya merak ettiklerinle ilgili niyetini buraya yaz...",
-        analyze: "Kahvemi Yorumla",
+        analyze_free: "Ücretsiz Tanışma Kahve Falını Başlat",
+        analyze_paid: "Shopier ile Kahve Falı Satın Al (179 TL)",
+        freeAvailable: "1 adet ÜCRETSİZ tanışma kahve falı hakkın var. Bu haktan sonra yeni fallar Shopier üzerinden ücretli olacaktır.",
+        freeUsed: "Ücretsiz kahve falı hakkını kullandın. Yeni bir fal için Shopier üzerinden ödeme yapman gerekiyor.",
         statusIdle: "",
         statusLoading: "Kahven okunuyor… semboller ve enerjin yorumlanıyor...",
         statusDone: "Kahve falın hazır.",
@@ -635,6 +653,18 @@
     };
 
     let activeLang = localStorage.getItem("myst_lang") || "en";
+    let hasFreeCoffee = true;
+
+    function updateFreeUI(){
+      const t = i18n[activeLang];
+      if(hasFreeCoffee){
+        analyzeText.textContent = t.analyze_free;
+        freeInfo.textContent = t.freeAvailable;
+      } else {
+        analyzeText.textContent = t.analyze_paid;
+        freeInfo.textContent = t.freeUsed;
+      }
+    }
 
     function applyLang(lang) {
       activeLang = lang;
@@ -673,7 +703,6 @@
 
       labelQuestion.textContent = t.questionLabel;
       textarea.placeholder      = t.placeholder;
-      analyzeText.textContent   = t.analyze;
 
       resultTitle.textContent   = t.resultTitle;
       resultText.textContent    = t.resultInitial;
@@ -693,6 +722,8 @@
         const name = auth.currentUser.displayName || auth.currentUser.email;
         userLabel.textContent = t.userWelcome + name;
       }
+
+      updateFreeUI();
     }
 
     btnEn.addEventListener("click", () => applyLang("en"));
@@ -706,7 +737,7 @@
       signOut(auth).then(() => window.location.href = "login.html");
     });
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = "login.html";
         return;
@@ -714,6 +745,22 @@
       const t = i18n[activeLang];
       const name = user.displayName || user.email;
       userLabel.textContent = t.userWelcome + name;
+
+      // Ücretsiz kahve falı hakkını Firestore'dan kontrol et
+      try {
+        const id = user.uid || user.email;
+        const freeRef = doc(db, "user_free_reads", id);
+        const snap = await getDoc(freeRef);
+        if (snap.exists() && snap.data().coffeeFreeUsed === true) {
+          hasFreeCoffee = false;
+        } else {
+          hasFreeCoffee = true;
+        }
+      } catch (e) {
+        console.warn("Free coffee check error:", e);
+        hasFreeCoffee = true; // hata olursa kullanıcıyı engellemeyelim
+      }
+      updateFreeUI();
     });
 
     applyLang(activeLang);
@@ -745,6 +792,18 @@
       const user = auth.currentUser;
       if (!user) {
         alert(activeLang === "tr" ? "Lütfen önce giriş yap." : "Please log in first.");
+        return;
+      }
+
+      // Ücretsiz hakkı yoksa Shopier'e yönlendir
+      if (!hasFreeCoffee) {
+        if (!SHOPIER_COFFEE_URL || SHOPIER_COFFEE_URL.includes("shopier.com/") === false) {
+          alert(activeLang === "tr"
+            ? "Shopier bağlantısı henüz doğru şekilde eklenmemiş. Lütfen yönetici olarak kendi Shopier ürün linkini ekle."
+            : "Shopier link is not configured correctly yet. Please add your own Shopier product URL.");
+          return;
+        }
+        window.open(SHOPIER_COFFEE_URL, "_blank");
         return;
       }
 
@@ -806,11 +865,10 @@
           return;
         }
 
-              const basePrompt =
+        const basePrompt =
           activeLang === "tr"
             ? "Bu bir Türk kahve falıdır. Sen profesyonel, empatik ve mistik bir kahve falı yorumcususun. Kullanıcının fincan ve tabak fotoğraflarına, kupanın farklı açılardan görüntülerine ve yazdığı soruya/niyetine göre ayrıntılı ve kişisel bir kahve falı yaz. Yorumun sıcak, destekleyici ve spiritüel olsun; ama mantıklı ve tutarlı kal. Fal metnini UZUN ve birkaç bölüm halinde yaz: 1) genel enerji ve son dönemin atmosferi, 2) aşk ve ilişkiler, 3) iş, kariyer ve para, 4) kişisel psikoloji, içsel dünya ve ruhsal yolculuk, 5) yakın gelecekte (1–3 ay) ortaya çıkabilecek olası gelişmeler, 6) kısa, toparlayıcı bir sonuç ve rehberlik mesajı. Kesin tarihler verme, isim veya sağlık teşhisi kullanma. Geleceği %100 kesinmiş gibi konuşma; bunun yerine 'ihtimal', 'enerji', 'görünüyor' gibi ifadeler kullan. Kullanıcının sorusuna/niyetine mutlaka geri dön ve onu merkeze al. Metni akıcı ve doğal Türkçe ile yaz.\n"
             : "This is a Turkish coffee fortune reading. You are a professional, empathetic and mystical coffee reader. Using the cup and saucer photos, the different angles of the cup and the user's written question/intention, write a detailed and PERSONAL coffee reading. Your tone should be warm, supportive and spiritual, but still logical and coherent. Write a LONG reading structured in several sections: 1) general energy and recent atmosphere, 2) love and relationships, 3) work, career and money, 4) personal psychology, inner world and spiritual journey, 5) possible developments in the near future (1–3 months), 6) a short, summarizing conclusion and guidance message. Do not give exact dates, names or medical diagnoses. Do not speak as if the future is 100% certain; instead use expressions like 'it seems', 'the energy suggests', 'there is a possibility'. Always come back to the user's question/intention and keep it at the center. Write the text in smooth, natural English.\n";
-
 
         const payloadText =
           basePrompt +
@@ -845,7 +903,7 @@
         try {
           await addDoc(collection(db, "fortunes"), {
             user: user.email,
-            type: "AI Coffee Reading",
+            type: "AI Coffee Reading (Free Intro)",
             question,
             result: text,
             images: {
@@ -860,6 +918,17 @@
           });
         } catch (e) {
           console.warn("Firestore save error:", e);
+        }
+
+        // ÜCRETSİZ HAKKI KULLANILMIŞ OLARAK İŞARETLE
+        try {
+          const id = user.uid || user.email;
+          const freeRef = doc(db, "user_free_reads", id);
+          await setDoc(freeRef, { coffeeFreeUsed: true }, { merge: true });
+          hasFreeCoffee = false;
+          updateFreeUI();
+        } catch (e) {
+          console.warn("Free coffee flag error:", e);
         }
 
         if (audioPath) {
