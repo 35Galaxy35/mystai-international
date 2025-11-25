@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MystAI — Energy & Dreams Reading</title>
+  <link rel="icon" type="image/png" href="mystai-logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-start:#0d1440;
+      --bg-end:#0b0f1f;
+      --text:#d8e0ff;
+      --muted:#a9b4d0;
+      --accent:#f2c84b;
+    }
+    * { box-sizing:border-box; }
+
+    body {
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:radial-gradient(1100px 700px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:14px 24px;
+      background:rgba(10,15,30,0.45);
+      backdrop-filter:blur(12px);
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      position:sticky;
+      top:0;
+      z-index:20;
+    }
+    .top-left, .top-right {
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .lang-btn {
+      border:none;
+      border-radius:50%;
+      width:34px; height:34px;
+      cursor:pointer;
+      background-size:cover;
+      background-position:center;
+      transition:transform .25s ease, box-shadow .25s ease;
+      border:2px solid transparent;
+    }
+    .lang-btn.active {
+      box-shadow:0 0 12px rgba(255,215,0,.7);
+      border-color:#ffd54f;
+      transform:scale(1.08);
+    }
+    .lang-btn:hover { transform:scale(1.12); }
+    .flag-en { background-image:url('https://flagcdn.com/w40/gb.png'); }
+    .flag-tr { background-image:url('https://flagcdn.com/w40/tr.png'); }
+
+    .nav-btn {
+      border:0;
+      border-radius:20px;
+      background:rgba(255,255,255,.12);
+      color:#fff;
+      padding:7px 14px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:13px;
+      display:flex;
+      align-items:center;
+      gap:4px;
+      transition:all .25s ease;
+    }
+    .nav-btn:hover { filter:brightness(1.2); transform:translateY(-1px); }
+
+    .user-label {
+      font-size:13px;
+      color:#ffe680;
+      text-shadow:0 0 8px rgba(255,215,0,.4);
+      margin-right:4px;
+    }
+
+    /* MAIN WRAPPER */
+    .wrapper {
+      flex:1;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      padding:30px 16px 40px;
+    }
+    .card {
+      width:100%;
+      max-width:1020px;
+      background:rgba(8,12,30,.92);
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 0 40px rgba(0,0,0,.55);
+      padding:24px;
+      display:grid;
+      grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);
+      gap:22px;
+    }
+    @media(max-width:900px){
+      .card {
+        grid-template-columns:1fr;
+      }
+    }
+
+    /* LEFT SIDE – TITLE + FORM */
+    .section-title {
+      font-family:'Cinzel',serif;
+      color:#ffd54f;
+      font-size:28px;
+      margin-bottom:8px;
+      text-shadow:0 0 12px rgba(255,220,120,.5);
+      text-align:left;
+    }
+    .section-sub {
+      font-size:14px;
+      color:#c5cfff;
+      text-align:left;
+      line-height:1.6;
+      margin-bottom:18px;
+    }
+
+    .label {
+      text-align:left;
+      font-size:13px;
+      font-weight:600;
+      color:#ffe680;
+      margin-bottom:6px;
+      margin-top:12px;
+    }
+
+    /* CATEGORY CHIPS */
+    .chip-row {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:4px;
+    }
+    .chip {
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.2);
+      background:rgba(255,255,255,.04);
+      padding:7px 12px;
+      font-size:12px;
+      color:#e2e6ff;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      transition:all .25s ease;
+    }
+    .chip span.emoji {
+      font-size:15px;
+    }
+    .chip.active {
+      background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);
+      color:#111;
+      border-color:rgba(0,0,0,.3);
+      box-shadow:0 0 18px rgba(255,215,0,.45);
+    }
+
+    textarea {
+      width:100%;
+      min-height:110px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.18);
+      background:#050b20;
+      color:#e6ecff;
+      padding:10px;
+      font-family:inherit;
+      font-size:14px;
+      resize:vertical;
+      outline:none;
+      box-shadow:inset 0 0 10px rgba(0,0,0,.35);
+    }
+    textarea::placeholder {
+      color:#808abf;
+      font-size:13px;
+    }
+
+    .primary-btn {
+      margin-top:14px;
+      border:0;
+      border-radius:12px;
+      padding:10px 18px;
+      background:linear-gradient(120deg,#ffd700,#ffb600,#ffe680);
+      color:#111;
+      font-weight:800;
+      font-size:14px;
+      cursor:pointer;
+      box-shadow:0 0 18px rgba(255,215,0,.4);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      transition:all .25s ease;
+    }
+    .primary-btn:hover { transform:translateY(-1px) scale(1.03); }
+    .primary-btn:disabled {
+      opacity:.6;
+      cursor:not-allowed;
+      transform:none;
+      box-shadow:none;
+    }
+
+    .status {
+      margin-top:8px;
+      font-size:12px;
+      color:#aeb6ff;
+      text-align:left;
+    }
+
+    /* RIGHT SIDE – RESULT */
+    .result-box {
+      border-radius:14px;
+      background:radial-gradient(circle at top,#202760,#070c24);
+      border:1px solid rgba(255,255,255,.15);
+      padding:16px;
+      box-shadow:0 0 22px rgba(0,0,0,.4);
+      display:flex;
+      flex-direction:column;
+      height:100%;
+    }
+    .result-header {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:8px;
+    }
+    .result-title {
+      font-size:15px;
+      font-weight:700;
+      color:#ffd966;
+    }
+    .audio-btn {
+      border:0;
+      border-radius:999px;
+      padding:6px 12px;
+      font-size:12px;
+      font-weight:600;
+      background:rgba(255,255,255,.12);
+      color:#fff;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .audio-btn[disabled] {
+      opacity:.5;
+      cursor:not-allowed;
+    }
+    .result-content {
+      margin-top:6px;
+      font-size:14px;
+      color:#dbe3ff;
+      text-align:left;
+      line-height:1.7;
+      overflow-y:auto;
+      max-height:260px;
+      padding-right:4px;
+      white-space:pre-wrap;
+    }
+    .result-hint {
+      font-size:12px;
+      color:#9098d0;
+      margin-top:6px;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top:1px solid rgba(255,255,255,.08);
+      padding:18px;
+      font-size:13px;
+      color:#aeb6cf;
+      text-align:center;
+    }
+    footer a {
+      color:#ffd54f;
+      text-decoration:none;
+      font-weight:600;
+    }
+    footer a:hover {
+      color:#fff6b0;
+      text-shadow:0 0 10px rgba(255,255,120,.6);
+    }
+  </style>
+</head>
+<body>
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="top-left">
+      <button class="lang-btn flag-en" id="btn-en"></button>
+      <button class="lang-btn flag-tr" id="btn-tr"></button>
+    </div>
+    <div class="top-right">
+      <span class="user-label" id="userLabel"></span>
+      <button class="nav-btn" id="backBtn">⬅ App</button>
+      <button class="nav-btn" id="logoutBtn">Logout</button>
+    </div>
+  </div>
+
+  <div class="wrapper">
+    <div class="card">
+      <!-- LEFT: FORM -->
+      <div>
+        <h1 class="section-title" id="title">Energy & Dreams Reading</h1>
+        <p class="section-sub" id="subtitle">
+          Choose your focus (energy, aura, dreams, or intuition) and share your intention. MystAI will reflect your inner field with AI.
+        </p>
+
+        <div class="label" id="labelCategory">Select focus</div>
+        <div class="chip-row" id="chipRow">
+          <div class="chip active" data-cat="energy">
+            <span class="emoji">⚡</span><span id="chipEnergyText">Energy Reading</span>
+          </div>
+          <div class="chip" data-cat="aura">
+            <span class="emoji">✨</span><span id="chipAuraText">Aura Analysis</span>
+          </div>
+          <div class="chip" data-cat="dream">
+            <span class="emoji">🌙</span><span id="chipDreamText">Dream Interpretation</span>
+          </div>
+          <div class="chip" data-cat="intuition">
+            <span class="emoji">👁️</span><span id="chipIntuitionText">Intuition / Sixth Sense</span>
+          </div>
+        </div>
+
+        <div class="label" id="labelQuestion">Your Question / Intention</div>
+        <textarea id="energyQuestion" placeholder="Describe your energy, dreams, or what you’d like MystAI to focus on."></textarea>
+
+        <button class="primary-btn" id="analyzeBtn">
+          🔮 <span id="analyzeText">Read My Energy</span>
+        </button>
+
+        <div class="status" id="statusText"></div>
+      </div>
+
+      <!-- RIGHT: RESULT -->
+      <div class="result-box">
+        <div class="result-header">
+          <div class="result-title" id="resultTitle">Energy & Dreams Reading</div>
+          <button class="audio-btn" id="listenBtn" disabled>
+            🔊 <span id="listenLabel">Listen</span>
+          </button>
+        </div>
+        <div class="result-content" id="resultText">
+          ✨ After you choose a focus and write your intention, MystAI will reveal your Energy & Dreams reading here. ✨
+        </div>
+        <div class="result-hint" id="resultHint">
+          MystAI is an AI-based entertainment tool and should not be taken as medical, psychological or professional advice.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>
+      © 2025 MystAI.ai — <span id="rightsLabel">All Rights Reserved.</span>
+      <span id="devLabel">Developed by GALAXY 🌌</span><br />
+      <span id="contactLabel">Contact us:</span>
+      <a href="mailto:support@mystai.ai">support@mystai.ai</a>
+    </p>
+  </footer>
+
+  <audio id="audioPlayer" style="display:none;"></audio>
+
+  <script type="module">
+    /* ====== CONFIG ====== */
+    const BACKEND_URL = "https://mystai-international.onrender.com";
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
+      authDomain: "mystai-6cca2.firebaseapp.com",
+      projectId: "mystai-6cca2",
+      storageBucket: "mystai-6cca2.appspot.com",
+      messagingSenderId: "624127781219",
+      appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    /* ====== ELEMENTS ====== */
+    const btnEn       = document.getElementById("btn-en");
+    const btnTr       = document.getElementById("btn-tr");
+    const backBtn     = document.getElementById("backBtn");
+    const logoutBtn   = document.getElementById("logoutBtn");
+    const userLabel   = document.getElementById("userLabel");
+
+    const titleEl     = document.getElementById("title");
+    const subtitleEl  = document.getElementById("subtitle");
+
+    const labelCategory = document.getElementById("labelCategory");
+    const chipRow    = document.getElementById("chipRow");
+    const chipEnergyText   = document.getElementById("chipEnergyText");
+    const chipAuraText     = document.getElementById("chipAuraText");
+    const chipDreamText    = document.getElementById("chipDreamText");
+    const chipIntuitionText= document.getElementById("chipIntuitionText");
+
+    const labelQuestion = document.getElementById("labelQuestion");
+    const textarea    = document.getElementById("energyQuestion");
+    const analyzeBtn  = document.getElementById("analyzeBtn");
+    const analyzeText = document.getElementById("analyzeText");
+    const statusText  = document.getElementById("statusText");
+
+    const resultTitle = document.getElementById("resultTitle");
+    const resultText  = document.getElementById("resultText");
+    const resultHint  = document.getElementById("resultHint");
+    const listenBtn   = document.getElementById("listenBtn");
+    const listenLabel = document.getElementById("listenLabel");
+    const audioPlayer = document.getElementById("audioPlayer");
+
+    const rightsLabel  = document.getElementById("rightsLabel");
+    const devLabel     = document.getElementById("devLabel");
+    const contactLabel = document.getElementById("contactLabel");
+
+    /* ====== i18n ====== */
+    const i18n = {
+      en: {
+        title: "Energy & Dreams Reading",
+        subtitle: "Choose your focus (energy, aura, dreams, or intuition) and share your intention. MystAI will reflect your inner field with AI.",
+        categoryLabel: "Select focus",
+        chipEnergy: "Energy Reading",
+        chipAura: "Aura Analysis",
+        chipDream: "Dream Interpretation",
+        chipIntuition: "Intuition / Sixth Sense",
+        questionLabel: "Your Question / Intention",
+        placeholder: "Describe your energy, dreams, or what you’d like MystAI to focus on (love, relationships, career, spiritual path, etc.)",
+        analyze: "Read My Energy",
+        statusIdle: "",
+        statusLoading: "Reading your energy… waves, symbols and patterns are being interpreted...",
+        statusDone: "Your Energy & Dreams reading is ready.",
+        statusError: "An error occurred. Please try again.",
+        mustText: "Please write at least a short question or intention.",
+        userWelcome: "Welcome, ",
+        resultTitle: "Energy & Dreams Reading",
+        resultInitial: "✨ After you choose a focus and write your intention, MystAI will reveal your Energy & Dreams reading here. ✨",
+        resultHint: "MystAI is an AI-based entertainment tool and should not be taken as medical, psychological or professional advice.",
+        listen: "Listen",
+        listening: "Playing...",
+        back: "Back to App",
+        logout: "Logout",
+        rights: "All Rights Reserved.",
+        dev: "Developed by GALAXY 🌌",
+        contact: "Contact us:"
+      },
+      tr: {
+        title: "Enerji & Rüyalar Yorumu",
+        subtitle: "Odağını seç (enerji, aura, rüyalar veya sezgiler) ve niyetini yaz. MystAI, iç alanını yapay zekâ ile yansıtsın.",
+        categoryLabel: "Odak alanını seç",
+        chipEnergy: "Enerji Okuması",
+        chipAura: "Aura Analizi",
+        chipDream: "Rüya Yorumu",
+        chipIntuition: "Sezgi / 6. His",
+        questionLabel: "Sorun / Niyetin",
+        placeholder: "Enerjini, rüyalarını veya MystAI’nin odaklanmasını istediğin konuyu tarif et (aşk, ilişkiler, kariyer, ruhsal yolculuk vb.)",
+        analyze: "Enerjimi Yorumla",
+        statusIdle: "",
+        statusLoading: "Enerjin okunuyor… dalgaların, sembollerin ve desenlerin yorumlanıyor...",
+        statusDone: "Enerji & Rüyalar yorumun hazır.",
+        statusError: "Bir hata oluştu. Lütfen tekrar dene.",
+        mustText: "Lütfen en azından kısa bir soru veya niyet yaz.",
+        userWelcome: "Hoş geldin, ",
+        resultTitle: "Enerji & Rüyalar Yorumu",
+        resultInitial: "✨ Odak alanını seçip niyetini yazdıktan sonra yapay zekâ yorumun burada görünecek. ✨",
+        resultHint: "MystAI eğlence amaçlı bir yapay zekâ yorumlayıcısıdır; tıbbi, psikolojik veya profesyonel tavsiye yerine geçmez.",
+        listen: "Dinle",
+        listening: "Çalıyor...",
+        back: "Uygulamaya Dön",
+        logout: "Çıkış Yap",
+        rights: "Tüm Hakları Saklıdır.",
+        dev: "GALAXY tarafından geliştirilmiştir 🌌",
+        contact: "İletişim:"
+      }
+    };
+
+    let activeLang = localStorage.getItem("myst_lang") || "en";
+    let selectedCategory = "energy";
+
+    function applyLang(lang) {
+      activeLang = lang;
+      localStorage.setItem("myst_lang", lang);
+      const t = i18n[lang];
+
+      titleEl.textContent       = t.title;
+      subtitleEl.textContent    = t.subtitle;
+      labelCategory.textContent = t.categoryLabel;
+
+      chipEnergyText.textContent   = t.chipEnergy;
+      chipAuraText.textContent     = t.chipAura;
+      chipDreamText.textContent    = t.chipDream;
+      chipIntuitionText.textContent= t.chipIntuition;
+
+      labelQuestion.textContent = t.questionLabel;
+      textarea.placeholder      = t.placeholder;
+      analyzeText.textContent   = t.analyze;
+
+      resultTitle.textContent   = t.resultTitle;
+      resultText.textContent    = t.resultInitial;
+      resultHint.textContent    = t.resultHint;
+      listenLabel.textContent   = t.listen;
+
+      rightsLabel.textContent   = t.rights;
+      devLabel.textContent      = t.dev;
+      contactLabel.textContent  = t.contact;
+      backBtn.textContent       = "⬅ " + t.back;
+      logoutBtn.textContent     = t.logout;
+
+      btnEn.classList.toggle("active", lang === "en");
+      btnTr.classList.toggle("active", lang === "tr");
+
+      if (auth.currentUser) {
+        const name = auth.currentUser.displayName || auth.currentUser.email;
+        userLabel.textContent = t.userWelcome + name;
+      }
+    }
+
+    btnEn.addEventListener("click", () => applyLang("en"));
+    btnTr.addEventListener("click", () => applyLang("tr"));
+
+    backBtn.addEventListener("click", () => {
+      window.location.href = "app.html";
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth).then(() => window.location.href = "login.html");
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+      const t = i18n[activeLang];
+      const name = user.displayName || user.email;
+      userLabel.textContent = t.userWelcome + name;
+    });
+
+    applyLang(activeLang);
+
+    /* ====== CATEGORY CHIPS ====== */
+    chipRow.querySelectorAll(".chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        chipRow.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        selectedCategory = chip.getAttribute("data-cat") || "energy";
+      });
+    });
+
+    /* ====== ANALYZE (backend + Firestore) ====== */
+    analyzeBtn.addEventListener("click", async () => {
+      const t = i18n[activeLang];
+      const user = auth.currentUser;
+      if (!user) {
+        alert(activeLang === "tr" ? "Lütfen önce giriş yap." : "Please log in first.");
+        return;
+      }
+
+      const question = textarea.value.trim();
+      if (!question) {
+        alert(t.mustText);
+        return;
+      }
+
+      analyzeBtn.disabled = true;
+      statusText.textContent = t.statusLoading;
+      resultText.textContent = "";
+      listenBtn.disabled = true;
+      audioPlayer.pause();
+      audioPlayer.currentTime = 0;
+      audioPlayer.src = "";
+
+      try {
+        if (!BACKEND_URL || BACKEND_URL.includes("YOUR-BACKEND-URL")) {
+          statusText.textContent = "Backend URL is not configured.";
+          analyzeBtn.disabled = false;
+          return;
+        }
+
+        // Kategori adını dile göre yazalım
+        let catLabel;
+        if (selectedCategory === "energy") {
+          catLabel = activeLang === "tr" ? "Enerji Okuması" : "Energy Reading";
+        } else if (selectedCategory === "aura") {
+          catLabel = activeLang === "tr" ? "Aura Analizi" : "Aura Analysis";
+        } else if (selectedCategory === "dream") {
+          catLabel = activeLang === "tr" ? "Rüya Yorumu" : "Dream Interpretation";
+        } else {
+          catLabel = activeLang === "tr" ? "Sezgi / 6. His" : "Intuition / Sixth Sense";
+        }
+
+        const headerText =
+          activeLang === "tr"
+            ? "Bu bir Enerji & Rüyalar yorumudur. Kullanıcının seçtiği odak alanına göre enerjisini, bilinçaltını ve sembollerini derin ve samimi bir dille yorumla.\n"
+            : "This is an Energy & Dreams reading. Interpret the user's energy, subconscious and symbols based on the selected focus in a warm, deep style.\n";
+
+        const payloadText =
+          headerText +
+          (activeLang === "tr" ? "Odak alanı: " : "Focus: ") + catLabel + "\n\n" +
+          (activeLang === "tr" ? "Kullanıcının sorusu/niyeti: " : "User's question/intention: ") +
+          question;
+
+        const res = await fetch(`${BACKEND_URL}/predict`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_input: payloadText })
+        });
+
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status);
+        }
+
+        const data = await res.json();
+        const text = data?.text || (activeLang === "tr" ? "Yanıt alınamadı." : "No response.");
+        const audioPath = data?.audio;
+
+        resultText.textContent = text;
+        statusText.textContent = t.statusDone;
+
+        // Firestore kaydı
+        try {
+          await addDoc(collection(db, "fortunes"), {
+            user: user.email,
+            type: "Energy & Dreams",
+            category: selectedCategory,
+            question,
+            result: text,
+            createdAt: new Date().toISOString(),
+            source: "energy-page"
+          });
+        } catch (e) {
+          console.warn("Firestore save error:", e);
+        }
+
+        if (audioPath) {
+          const fullURL = audioPath.startsWith("http") ? audioPath : `${BACKEND_URL}${audioPath}`;
+          audioPlayer.src = fullURL;
+          listenBtn.disabled = false;
+        }
+      } catch (err) {
+        console.error(err);
+        statusText.textContent = t.statusError;
+        resultText.textContent =
+          (activeLang === "tr" ? "Hata: " : "Error: ") + (err?.message || String(err));
+      } finally {
+        analyzeBtn.disabled = false;
+      }
+    });
+
+    listenBtn.addEventListener("click", () => {
+      if (!audioPlayer.src) return;
+      const t = i18n[activeLang];
+      listenLabel.textContent = t.listening;
+      audioPlayer.play().catch(() => {});
+      audioPlayer.onended = () => {
+        listenLabel.textContent = t.listen;
+      };
+    });
+  </script>
+</body>
+</html>
