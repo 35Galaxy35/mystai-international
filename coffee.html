@@ -740,19 +740,31 @@
     connectSlot(saucerBtn, saucerInput, saucerPreview, saucerImg);
 
     /* ====== ANALYZE (backend + Firestore) ====== */
-    analyzeBtn.addEventListener("click", async () => {
-      const t = i18n[activeLang];
-      const user = auth.currentUser;
-      if (!user) {
-        alert(activeLang === "tr" ? "Lütfen önce giriş yap." : "Please log in first.");
-        return;
-      }
+   analyzeBtn.addEventListener("click", async () => {
 
-      const question = textarea.value.trim();
-      if (!question) {
-        alert(t.mustText);
-        return;
-      }
+  // FREE TRIAL CHECK
+  const usedFree = localStorage.getItem("freeReadingUsed");
+
+  if (usedFree) {
+      window.location.href = "https://shopier.com/mystai/41517473";
+      return;
+  }
+
+  localStorage.setItem("freeReadingUsed", "yes");
+
+  const t = i18n[activeLang];
+  const user = auth.currentUser;
+  if (!user) {
+    alert(activeLang === "tr" ? "Lütfen önce giriş yap." : "Please log in first.");
+    return;
+  }
+
+  const question = textarea.value.trim();
+  if (!question) {
+    alert(t.mustText);
+    return;
+  }
+
 
       // Fotoğraf bilgilerini sadece metinsel olarak gönderiyoruz (şu an backend'e image upload yok)
       function has(fileInput){ return !!fileInput.files[0]; }
