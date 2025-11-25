@@ -833,6 +833,16 @@ MystAI is a spiritual and entertainment-focused AI tool. It does not replace med
 
     /* ========= MAIN READING ACTION ========= */
     readBtn.addEventListener("click", async ()=>{
+      // FREE TRIAL CHECK
+    const usedFree = localStorage.getItem("freeReadingUsed");
+    if (usedFree) {
+    window.location.href = "https://shopier.com/mystai/41518115"; // SOUL SHOPIER LİNKİ
+    return;
+    }
+
+    // mark free reading as used
+    localStorage.setItem("freeReadingUsed", "yes");
+
       const t = i18n[activeLang];
       const user = auth.currentUser;
 
