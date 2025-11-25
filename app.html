@@ -172,7 +172,7 @@
 
     .reading-img{
       width:100%;
-      height:auto;              /* <-- sabit 360px kaldırıldı */
+      height:auto;
       object-fit:contain;
       border-radius:14px;
       margin-bottom:14px;
@@ -195,6 +195,14 @@
       margin:0 0 12px;
     }
 
+    /* Kart butonları */
+    .card-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+    }
+
     .start-btn{
       background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);
       font-weight:700;
@@ -210,6 +218,30 @@
 
     .start-btn:hover{
       transform:scale(1.05);
+    }
+
+    .buy-btn{
+      font-size:12px;
+      padding:8px 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(5,6,22,.9);
+      color:#e6ecff;
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    .buy-btn span{
+      font-size:12px;
+    }
+
+    .buy-btn:hover{
+      border-color:#ffd54f;
+      color:#ffd54f;
     }
 
     /* FOOTER */
@@ -400,7 +432,12 @@
       <p data-i18n="coffeeDesc">
         Upload your cup image and receive symbolic and emotional insights decoded by AI.
       </p>
-      <button class="start-btn" data-i18n="start">Start Reading</button>
+      <div class="card-actions">
+        <button class="start-btn" data-i18n="start">Start Reading</button>
+        <a class="buy-btn" href="https://shopier.com/mystai/41517473" target="_blank" rel="noopener noreferrer" data-i18n="buyShopier">
+          <span>Buy via Shopier</span>
+        </a>
+      </div>
     </article>
 
     <article class="tile" data-type="tarot">
@@ -409,7 +446,12 @@
       <p data-i18n="tarotDesc">
         Draw cards digitally and let AI interpret archetypes and guidance for you.
       </p>
-      <button class="start-btn" data-i18n="start">Start Reading</button>
+      <div class="card-actions">
+        <button class="start-btn" data-i18n="start">Start Reading</button>
+        <a class="buy-btn" href="https://shopier.com/mystai/41517660" target="_blank" rel="noopener noreferrer" data-i18n="buyShopier">
+          <span>Buy via Shopier</span>
+        </a>
+      </div>
     </article>
 
     <article class="tile" data-type="palm">
@@ -418,7 +460,12 @@
       <p data-i18n="palmDesc">
         Scan your palm and discover patterns and meanings through AI analysis.
       </p>
-      <button class="start-btn" data-i18n="start">Start Reading</button>
+      <div class="card-actions">
+        <button class="start-btn" data-i18n="start">Start Reading</button>
+        <a class="buy-btn" href="https://shopier.com/mystai/41517769" target="_blank" rel="noopener noreferrer" data-i18n="buyShopier">
+          <span>Buy via Shopier</span>
+        </a>
+      </div>
     </article>
 
     <article class="tile" data-type="energy">
@@ -427,7 +474,12 @@
       <p data-i18n="energyDesc">
         Upload your dreams or energy symbols and receive reflective AI interpretations.
       </p>
-      <button class="start-btn" data-i18n="start">Start Reading</button>
+      <div class="card-actions">
+        <button class="start-btn" data-i18n="start">Start Reading</button>
+        <a class="buy-btn" href="https://shopier.com/mystai/41517889" target="_blank" rel="noopener noreferrer" data-i18n="buyShopier">
+          <span>Buy via Shopier</span>
+        </a>
+      </div>
     </article>
 
     <article class="tile" data-type="astrology">
@@ -436,7 +488,12 @@
       <p data-i18n="astroDesc">
         Discover your personal birth chart, zodiac energies and AI-generated interpretations.
       </p>
-      <button class="start-btn" data-i18n="start">Start Reading</button>
+      <div class="card-actions">
+        <button class="start-btn" data-i18n="start">Start Reading</button>
+        <a class="buy-btn" href="https://shopier.com/mystai/41518003" target="_blank" rel="noopener noreferrer" data-i18n="buyShopier">
+          <span>Buy via Shopier</span>
+        </a>
+      </div>
     </article>
 
     <article class="tile" data-type="soul">
@@ -445,7 +502,12 @@
       <p data-i18n="soulDesc">
         Discover the deep energetic connection between two souls through symbolic, AI-guided reflection.
       </p>
-      <button class="start-btn" data-i18n="start">Start Reading</button>
+      <div class="card-actions">
+        <button class="start-btn" data-i18n="start">Start Reading</button>
+        <a class="buy-btn" href="https://shopier.com/mystai/41518115" target="_blank" rel="noopener noreferrer" data-i18n="buyShopier">
+          <span>Buy via Shopier</span>
+        </a>
+      </div>
     </article>
 
   </section>
@@ -555,7 +617,8 @@
         send:"Send",
         close:"Close",
         hint:"Tip: You can ask about your energy, dreams, love, career, or destiny.",
-        placeholder:"Type your question..."
+        placeholder:"Type your question...",
+        buyShopier:"Buy via Shopier"
       },
 
       tr: {
@@ -584,7 +647,8 @@
         send:"Gönder",
         close:"Kapat",
         hint:"İpucu: Enerji, rüyalar, aşk, kariyer veya kader hakkında sorular sorabilirsin.",
-        placeholder:"Sorunu yaz..."
+        placeholder:"Sorunu yaz...",
+        buyShopier:"Shopier ile Satın Al"
       }
     };
 
@@ -657,7 +721,6 @@
       if(type === 'energy')    target = 'energy.html';
       if(type === 'astrology') target = 'astrology.html';
       if(type === 'soul')      target = 'soul.html';
-      // if(type === 'soul')      target = 'soul.html';
 
       btn.addEventListener('click', ()=>window.location.href=target);
     });
