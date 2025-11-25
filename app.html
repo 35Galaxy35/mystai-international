@@ -126,7 +126,7 @@
       line-height:1.6;
     }
 
-    /* GRID — 6 KART, INDEX’E BENZER */
+    /* GRID — 6 KART */
     .grid{
       display:grid;
       gap:22px;
@@ -163,6 +163,8 @@
       transition:transform .3s ease,box-shadow .3s ease;
       box-shadow:0 18px 40px rgba(0,0,0,.85);
       text-align:left;
+      display:flex;           /* kartları dikey hizala */
+      flex-direction:column;
     }
 
     .tile:hover{
@@ -198,9 +200,8 @@
     /* Kart butonları */
     .card-actions{
       display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      align-items:center;
+      justify-content:center;   /* yatay ortala */
+      margin-top:auto;          /* kartın en altına indir */
     }
 
     .start-btn{
@@ -218,30 +219,6 @@
 
     .start-btn:hover{
       transform:scale(1.05);
-    }
-
-    .buy-btn{
-      font-size:12px;
-      padding:8px 14px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.18);
-      background:rgba(5,6,22,.9);
-      color:#e6ecff;
-      cursor:pointer;
-      text-decoration:none;
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      white-space:nowrap;
-    }
-
-    .buy-btn span{
-      font-size:12px;
-    }
-
-    .buy-btn:hover{
-      border-color:#ffd54f;
-      color:#ffd54f;
     }
 
     /* FOOTER */
@@ -434,9 +411,6 @@
       </p>
       <div class="card-actions">
         <button class="start-btn" data-i18n="start">Start Reading</button>
-        <a class="buy-btn" href="https://shopier.com/mystai/41517473" target="_blank" rel="noopener noreferrer" data-i18n="buyShopier">
-          <span>Buy via Shopier</span>
-        </a>
       </div>
     </article>
 
@@ -448,9 +422,6 @@
       </p>
       <div class="card-actions">
         <button class="start-btn" data-i18n="start">Start Reading</button>
-        <a class="buy-btn" href="https://shopier.com/mystai/41517660" target="_blank" rel="noopener noreferrer" data-i18n="buyShopier">
-          <span>Buy via Shopier</span>
-        </a>
       </div>
     </article>
 
@@ -462,9 +433,6 @@
       </p>
       <div class="card-actions">
         <button class="start-btn" data-i18n="start">Start Reading</button>
-        <a class="buy-btn" href="https://shopier.com/mystai/41517769" target="_blank" rel="noopener noreferrer" data-i18n="buyShopier">
-          <span>Buy via Shopier</span>
-        </a>
       </div>
     </article>
 
@@ -476,9 +444,6 @@
       </p>
       <div class="card-actions">
         <button class="start-btn" data-i18n="start">Start Reading</button>
-        <a class="buy-btn" href="https://shopier.com/mystai/41517889" target="_blank" rel="noopener noreferrer" data-i18n="buyShopier">
-          <span>Buy via Shopier</span>
-        </a>
       </div>
     </article>
 
@@ -490,9 +455,6 @@
       </p>
       <div class="card-actions">
         <button class="start-btn" data-i18n="start">Start Reading</button>
-        <a class="buy-btn" href="https://shopier.com/mystai/41518003" target="_blank" rel="noopener noreferrer" data-i18n="buyShopier">
-          <span>Buy via Shopier</span>
-        </a>
       </div>
     </article>
 
@@ -504,9 +466,6 @@
       </p>
       <div class="card-actions">
         <button class="start-btn" data-i18n="start">Start Reading</button>
-        <a class="buy-btn" href="https://shopier.com/mystai/41518115" target="_blank" rel="noopener noreferrer" data-i18n="buyShopier">
-          <span>Buy via Shopier</span>
-        </a>
       </div>
     </article>
 
@@ -707,22 +666,49 @@
     });
 
     /* ===================
-       START READING
+       START READING + ÖDEME
+       İlk fal ücretsiz, sonra Shopier
     ==================== */
+
+    const shopierLinks = {
+      coffee:    "https://shopier.com/mystai/41517473",
+      tarot:     "https://shopier.com/mystai/41517660",
+      palm:      "https://shopier.com/mystai/41517769",
+      energy:    "https://shopier.com/mystai/41517889",
+      astrology: "https://shopier.com/mystai/41518003",
+      soul:      "https://shopier.com/mystai/41518115"
+    };
+
+    const readingPages = {
+      coffee:    "coffee.html",
+      tarot:     "tarot.html",
+      palm:      "palm.html",
+      energy:    "energy.html",
+      astrology: "astrology.html",
+      soul:      "soul.html"
+    };
+
     document.querySelectorAll('.tile').forEach(tile=>{
       const btn  = tile.querySelector('.start-btn');
       const type = tile.dataset.type;
 
-      let target = 'app.html';
+      btn.addEventListener('click', ()=>{
+        const usedFree = localStorage.getItem("freeReadingUsed");
 
-      if(type === 'coffee')    target = 'coffee.html';
-      if(type === 'tarot')     target = 'tarot.html';
-      if(type === 'palm')      target = 'palm.html';
-      if(type === 'energy')    target = 'energy.html';
-      if(type === 'astrology') target = 'astrology.html';
-      if(type === 'soul')      target = 'soul.html';
-
-      btn.addEventListener('click', ()=>window.location.href=target);
+        if (!usedFree) {
+          // İlk fal: ücretsiz, fal sayfasına gönder
+          localStorage.setItem("freeReadingUsed", "yes");
+          window.location.href = readingPages[type] || "app.html";
+        } else {
+          // Ücretsiz hakkı kullanıldı: ilgili Shopier sayfasına gönder
+          const payUrl = shopierLinks[type];
+          if (payUrl) {
+            window.location.href = payUrl;
+          } else {
+            window.location.href = readingPages[type] || "app.html";
+          }
+        }
+      });
     });
 
     /* ===================
