@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MystAI — AI Coffee Reading</title>
+  <link rel="icon" type="image/png" href="mystai-logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-start:#0d1440;
+      --bg-end:#0b0f1f;
+      --text:#d8e0ff;
+      --muted:#a9b4d0;
+      --accent:#f2c84b;
+    }
+    * { box-sizing:border-box; }
+
+    body {
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:radial-gradient(1100px 700px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:14px 24px;
+      background:rgba(10,15,30,0.45);
+      backdrop-filter:blur(12px);
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      position:sticky;
+      top:0;
+      z-index:20;
+    }
+    .top-left, .top-right {
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .lang-btn {
+      border:none;
+      border-radius:50%;
+      width:34px; height:34px;
+      cursor:pointer;
+      background-size:cover;
+      background-position:center;
+      transition:transform .25s ease, box-shadow .25s ease;
+      border:2px solid transparent;
+    }
+    .lang-btn.active {
+      box-shadow:0 0 12px rgba(255,215,0,.7);
+      border-color:#ffd54f;
+      transform:scale(1.08);
+    }
+    .lang-btn:hover { transform:scale(1.12); }
+    .flag-en { background-image:url('https://flagcdn.com/w40/gb.png'); }
+    .flag-tr { background-image:url('https://flagcdn.com/w40/tr.png'); }
+
+    .nav-btn {
+      border:0;
+      border-radius:20px;
+      background:rgba(255,255,255,.12);
+      color:#fff;
+      padding:7px 14px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:13px;
+      display:flex;
+      align-items:center;
+      gap:4px;
+      transition:all .25s ease;
+    }
+    .nav-btn:hover { filter:brightness(1.2); transform:translateY(-1px); }
+
+    .user-label {
+      font-size:13px;
+      color:#ffe680;
+      text-shadow:0 0 8px rgba(255,215,0,.4);
+      margin-right:4px;
+    }
+
+    /* MAIN WRAPPER */
+    .wrapper {
+      flex:1;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      padding:30px 16px 40px;
+    }
+    .card {
+      width:100%;
+      max-width:1080px;
+      background:rgba(8,12,30,.95);
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 0 40px rgba(0,0,0,.55);
+      padding:24px;
+      display:grid;
+      grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);
+      gap:24px;
+    }
+    @media(max-width:900px){
+      .card { grid-template-columns:1fr; }
+    }
+
+    /* LEFT SIDE – TITLE + FORM */
+    .section-title {
+      font-family:'Cinzel',serif;
+      color:#ffd54f;
+      font-size:28px;
+      margin-bottom:8px;
+      text-shadow:0 0 12px rgba(255,220,120,.5);
+      text-align:left;
+    }
+    .section-sub {
+      font-size:14px;
+      color:#c5cfff;
+      text-align:left;
+      line-height:1.6;
+      margin-bottom:18px;
+    }
+
+    .label {
+      text-align:left;
+      font-size:13px;
+      font-weight:600;
+      color:#ffe680;
+      margin-bottom:4px;
+      margin-top:12px;
+    }
+
+    /* UPLOAD GRID (5 fotoğraf: 4 açı + tabak) */
+    .upload-grid-wrapper{
+      border-radius:14px;
+      border:1px dashed rgba(255,255,255,.32);
+      background:rgba(4,8,26,.9);
+      padding:10px 10px 12px;
+    }
+    .upload-hint{
+      font-size:12px;
+      color:#a9b4e8;
+      text-align:left;
+      margin-bottom:8px;
+    }
+    .upload-grid{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:10px;
+    }
+    @media(max-width:780px){
+      .upload-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+    }
+    @media(max-width:520px){
+      .upload-grid{ grid-template-columns:1fr; }
+    }
+
+    .slot{
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(10,14,38,.95);
+      padding:8px;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .slot-title{
+      font-size:12px;
+      font-weight:600;
+      color:#ffd966;
+      text-align:left;
+    }
+    .slot-sub{
+      font-size:11px;
+      color:#aeb6ff;
+      text-align:left;
+    }
+    .slot-preview{
+      margin-top:4px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:11px;
+      color:#cfd6ff;
+    }
+    .slot-preview img{
+      width:54px;height:54px;border-radius:8px;object-fit:cover;
+      box-shadow:0 0 10px rgba(0,0,0,.7);
+    }
+    .slot-btn{
+      margin-top:4px;
+      border-radius:999px;
+      border:0;
+      padding:6px 10px;
+      font-size:11px;
+      font-weight:700;
+      background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);
+      color:#111;
+      cursor:pointer;
+      align-self:flex-start;
+      box-shadow:0 0 10px rgba(255,215,0,.35);
+    }
+
+    textarea {
+      width:100%;
+      min-height:90px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.18);
+      background:#050b20;
+      color:#e6ecff;
+      padding:10px;
+      font-family:inherit;
+      font-size:14px;
+      resize:vertical;
+      outline:none;
+      box-shadow:inset 0 0 10px rgba(0,0,0,.35);
+    }
+    textarea::placeholder {
+      color:#808abf;
+      font-size:13px;
+    }
+
+    .primary-btn {
+      margin-top:14px;
+      border:0;
+      border-radius:12px;
+      padding:10px 18px;
+      background:linear-gradient(120deg,#ffd700,#ffb600,#ffe680);
+      color:#111;
+      font-weight:800;
+      font-size:14px;
+      cursor:pointer;
+      box-shadow:0 0 18px rgba(255,215,0,.4);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      transition:all .25s ease;
+    }
+    .primary-btn:hover { transform:translateY(-1px) scale(1.03); }
+    .primary-btn:disabled {
+      opacity:.6;
+      cursor:not-allowed;
+      transform:none;
+      box-shadow:none;
+    }
+
+    .status {
+      margin-top:8px;
+      font-size:12px;
+      color:#aeb6ff;
+      text-align:left;
+    }
+
+    /* RIGHT SIDE – RESULT */
+    .result-box {
+      border-radius:16px;
+      background:radial-gradient(circle at top,#262d68,#070c24);
+      border:1px solid rgba(255,255,255,.16);
+      padding:16px;
+      box-shadow:0 0 22px rgba(0,0,0,.4);
+      display:flex;
+      flex-direction:column;
+      height:100%;
+    }
+    .result-header {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:8px;
+    }
+    .result-title {
+      font-size:15px;
+      font-weight:700;
+      color:#ffd966;
+    }
+    .audio-btn {
+      border:0;
+      border-radius:999px;
+      padding:6px 12px;
+      font-size:12px;
+      font-weight:600;
+      background:rgba(255,255,255,.12);
+      color:#fff;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .audio-btn[disabled] {
+      opacity:.5;
+      cursor:not-allowed;
+    }
+    .result-content {
+      margin-top:6px;
+      font-size:14px;
+      color:#dbe3ff;
+      text-align:left;
+      line-height:1.7;
+      overflow-y:auto;
+      max-height:260px;
+      padding-right:4px;
+      white-space:pre-wrap;
+    }
+    .result-hint {
+      font-size:12px;
+      color:#9098d0;
+      margin-top:6px;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top:1px solid rgba(255,255,255,.08);
+      padding:18px;
+      font-size:13px;
+      color:#aeb6cf;
+      text-align:center;
+    }
+    footer a {
+      color:#ffd54f;
+      text-decoration:none;
+      font-weight:600;
+    }
+    footer a:hover {
+      color:#fff6b0;
+      text-shadow:0 0 10px rgba(255,255,120,.6);
+    }
+  </style>
+</head>
+<body>
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="top-left">
+      <button class="lang-btn flag-en" id="btn-en"></button>
+      <button class="lang-btn flag-tr" id="btn-tr"></button>
+    </div>
+    <div class="top-right">
+      <span class="user-label" id="userLabel"></span>
+      <button class="nav-btn" id="backBtn">⬅ App</button>
+      <button class="nav-btn" id="logoutBtn">Logout</button>
+    </div>
+  </div>
+
+  <div class="wrapper">
+    <div class="card">
+      <!-- LEFT: FORM -->
+      <div>
+        <h1 class="section-title" id="title">AI Coffee Reading</h1>
+        <p class="section-sub" id="subtitle">
+          Upload 4 angles of your cup and the saucer, then share your question. MystAI will read your Turkish coffee symbols, energy and patterns with AI.
+        </p>
+
+        <div class="label" id="labelPhotos">Cup & Saucer Photos (5)</div>
+        <div class="upload-grid-wrapper">
+          <div class="upload-hint" id="uploadHint">
+            For the most accurate mystical reading, upload your cup from 4 sides and the saucer.
+          </div>
+          <div class="upload-grid">
+            <!-- FRONT -->
+            <div class="slot">
+              <div class="slot-title" id="frontTitle">Front of the cup</div>
+              <div class="slot-sub" id="frontSub">Handle to the right, cup facing you.</div>
+              <button class="slot-btn" id="frontBtn">📷 Choose</button>
+              <input type="file" id="frontInput" accept="image/*" style="display:none;" />
+              <div class="slot-preview" id="frontPreview" style="display:none;">
+                <img id="frontImg" alt="Front" />
+                <span id="frontInfo">Image selected.</span>
+              </div>
+            </div>
+
+            <!-- RIGHT -->
+            <div class="slot">
+              <div class="slot-title" id="rightTitle">Right side</div>
+              <div class="slot-sub" id="rightSub">Turn the cup slightly to the right.</div>
+              <button class="slot-btn" id="rightBtn">📷 Choose</button>
+              <input type="file" id="rightInput" accept="image/*" style="display:none;" />
+              <div class="slot-preview" id="rightPreview" style="display:none;">
+                <img id="rightImg" alt="Right" />
+                <span id="rightInfo">Image selected.</span>
+              </div>
+            </div>
+
+            <!-- LEFT -->
+            <div class="slot">
+              <div class="slot-title" id="leftTitle">Left side</div>
+              <div class="slot-sub" id="leftSub">Turn the cup slightly to the left.</div>
+              <button class="slot-btn" id="leftBtn">📷 Choose</button>
+              <input type="file" id="leftInput" accept="image/*" style="display:none;" />
+              <div class="slot-preview" id="leftPreview" style="display:none;">
+                <img id="leftImg" alt="Left" />
+                <span id="leftInfo">Image selected.</span>
+              </div>
+            </div>
+
+            <!-- BACK -->
+            <div class="slot">
+              <div class="slot-title" id="backTitle">Back of the cup</div>
+              <div class="slot-sub" id="backSub">Take from the opposite side.</div>
+              <button class="slot-btn" id="backBtnSlot">📷 Choose</button>
+              <input type="file" id="backInput" accept="image/*" style="display:none;" />
+              <div class="slot-preview" id="backPreview" style="display:none;">
+                <img id="backImg" alt="Back" />
+                <span id="backInfo">Image selected.</span>
+              </div>
+            </div>
+
+            <!-- SAUCER -->
+            <div class="slot">
+              <div class="slot-title" id="saucerTitle">Saucer pattern</div>
+              <div class="slot-sub" id="saucerSub">Flip the cup and capture the saucer symbols.</div>
+              <button class="slot-btn" id="saucerBtn">📷 Choose</button>
+              <input type="file" id="saucerInput" accept="image/*" style="display:none;" />
+              <div class="slot-preview" id="saucerPreview" style="display:none;">
+                <img id="saucerImg" alt="Saucer" />
+                <span id="saucerInfo">Image selected.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="label" id="labelQuestion">Your Question / Intention</div>
+        <textarea id="coffeeQuestion"
+          placeholder="Write what you’d like MystAI to focus on (love, career, money, destiny, spiritual themes...)"></textarea>
+
+        <button class="primary-btn" id="analyzeBtn">
+          🔮 <span id="analyzeText">Read My Coffee</span>
+        </button>
+
+        <div class="status" id="statusText"></div>
+      </div>
+
+      <!-- RIGHT: RESULT -->
+      <div class="result-box">
+        <div class="result-header">
+          <div class="result-title" id="resultTitle">Your Coffee Reading</div>
+          <button class="audio-btn" id="listenBtn" disabled>
+            🔊 <span id="listenLabel">Listen</span>
+          </button>
+        </div>
+        <div class="result-content" id="resultText">
+          ✨ After you upload 5 photos and send your intention, MystAI will reveal your AI coffee reading here. ✨
+        </div>
+        <div class="result-hint" id="resultHint">
+          MystAI is an AI-based entertainment tool and should not be taken as professional, medical or financial advice.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>
+      © 2025 MystAI.ai — <span id="rightsLabel">All Rights Reserved.</span>
+      <span id="devLabel">Developed by GALAXY 🌌</span><br />
+      <span id="contactLabel">Contact us:</span>
+      <a href="mailto:support@mystai.ai">support@mystai.ai</a>
+    </p>
+  </footer>
+
+  <audio id="audioPlayer" style="display:none;"></audio>
+
+  <script type="module">
+    /* ====== CONFIG ====== */
+    const BACKEND_URL = "https://mystai-international.onrender.com";
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
+      authDomain: "mystai-6cca2.firebaseapp.com",
+      projectId: "mystai-6cca2",
+      storageBucket: "mystai-6cca2.appspot.com",
+      messagingSenderId: "624127781219",
+      appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
+    };
+
+    const app    = initializeApp(firebaseConfig);
+    const auth   = getAuth(app);
+    const db     = getFirestore(app);
+
+    /* ====== ELEMENTS ====== */
+    const btnEn       = document.getElementById("btn-en");
+    const btnTr       = document.getElementById("btn-tr");
+    const backBtn     = document.getElementById("backBtn");
+    const logoutBtn   = document.getElementById("logoutBtn");
+    const userLabel   = document.getElementById("userLabel");
+
+    const titleEl     = document.getElementById("title");
+    const subtitleEl  = document.getElementById("subtitle");
+    const labelPhotos = document.getElementById("labelPhotos");
+    const uploadHint  = document.getElementById("uploadHint");
+
+    // Slot elements
+    const frontTitle = document.getElementById("frontTitle");
+    const frontSub   = document.getElementById("frontSub");
+    const frontBtn   = document.getElementById("frontBtn");
+    const frontInput = document.getElementById("frontInput");
+    const frontPreview = document.getElementById("frontPreview");
+    const frontImg   = document.getElementById("frontImg");
+    const frontInfo  = document.getElementById("frontInfo");
+
+    const rightTitle = document.getElementById("rightTitle");
+    const rightSub   = document.getElementById("rightSub");
+    const rightBtn   = document.getElementById("rightBtn");
+    const rightInput = document.getElementById("rightInput");
+    const rightPreview = document.getElementById("rightPreview");
+    const rightImg   = document.getElementById("rightImg");
+    const rightInfo  = document.getElementById("rightInfo");
+
+    const leftTitle = document.getElementById("leftTitle");
+    const leftSub   = document.getElementById("leftSub");
+    const leftBtn   = document.getElementById("leftBtn");
+    const leftInput = document.getElementById("leftInput");
+    const leftPreview = document.getElementById("leftPreview");
+    const leftImg   = document.getElementById("leftImg");
+    const leftInfo  = document.getElementById("leftInfo");
+
+    const backTitle = document.getElementById("backTitle");
+    const backSub   = document.getElementById("backSub");
+    const backBtnSlot = document.getElementById("backBtnSlot");
+    const backInput = document.getElementById("backInput");
+    const backPreview = document.getElementById("backPreview");
+    const backImg   = document.getElementById("backImg");
+    const backInfo  = document.getElementById("backInfo");
+
+    const saucerTitle  = document.getElementById("saucerTitle");
+    const saucerSub    = document.getElementById("saucerSub");
+    const saucerBtn    = document.getElementById("saucerBtn");
+    const saucerInput  = document.getElementById("saucerInput");
+    const saucerPreview= document.getElementById("saucerPreview");
+    const saucerImg    = document.getElementById("saucerImg");
+    const saucerInfo   = document.getElementById("saucerInfo");
+
+    const labelQuestion = document.getElementById("labelQuestion");
+    const textarea      = document.getElementById("coffeeQuestion");
+    const analyzeBtn    = document.getElementById("analyzeBtn");
+    const analyzeText   = document.getElementById("analyzeText");
+    const statusText    = document.getElementById("statusText");
+
+    const resultTitle = document.getElementById("resultTitle");
+    const resultText  = document.getElementById("resultText");
+    const resultHint  = document.getElementById("resultHint");
+    const listenBtn   = document.getElementById("listenBtn");
+    const listenLabel = document.getElementById("listenLabel");
+    const audioPlayer = document.getElementById("audioPlayer");
+
+    const rightsLabel  = document.getElementById("rightsLabel");
+    const devLabel     = document.getElementById("devLabel");
+    const contactLabel = document.getElementById("contactLabel");
+
+    /* ====== i18n ====== */
+    const i18n = {
+      en: {
+        title: "AI Coffee Reading",
+        subtitle: "Upload 4 angles of your cup and the saucer, then share your question. MystAI will read your Turkish coffee symbols, energy and patterns with AI.",
+        photosLabel: "Cup & Saucer Photos (5)",
+        uploadHint: "For the most accurate mystical reading, upload your cup from 4 sides and the saucer.",
+        frontTitle: "Front of the cup",
+        frontSub: "Handle to the right, cup facing you.",
+        rightTitle: "Right side",
+        rightSub: "Turn the cup slightly to the right.",
+        leftTitle: "Left side",
+        leftSub: "Turn the cup slightly to the left.",
+        backTitle: "Back of the cup",
+        backSub: "Take from the opposite side.",
+        saucerTitle: "Saucer pattern",
+        saucerSub: "Flip the cup and capture the saucer symbols.",
+        chooseBtn: "Choose",
+        imageSelected: "Image selected.",
+        questionLabel: "Your Question / Intention",
+        placeholder: "Write what you’d like MystAI to focus on (love, career, money, destiny, spiritual themes...)",
+        analyze: "Read My Coffee",
+        statusIdle: "",
+        statusLoading: "Reading your coffee… symbols and energy are aligning...",
+        statusDone: "Your coffee reading is ready.",
+        statusError: "An error occurred. Please try again.",
+        mustText: "Please write at least a short question or intention.",
+        userWelcome: "Welcome, ",
+        resultTitle: "Your Coffee Reading",
+        resultInitial: "✨ After you upload 5 photos and send your intention, MystAI will reveal your AI coffee reading here. ✨",
+        resultHint: "MystAI is an AI-based entertainment tool and should not be taken as professional, medical or financial advice.",
+        listen: "Listen",
+        listening: "Playing...",
+        back: "Back to App",
+        logout: "Logout",
+        rights: "All Rights Reserved.",
+        dev: "Developed by GALAXY 🌌",
+        contact: "Contact us:"
+      },
+      tr: {
+        title: "Yapay Zekâ Kahve Falı",
+        subtitle: "Fincanının 4 farklı açıdan ve tabağın fotoğrafını yükle, sorunu yaz. MystAI, Türk kahvesi sembollerini, enerjini ve desenleri yapay zekâ ile yorumlasın.",
+        photosLabel: "Fincan & Tabak Fotoğrafları (5)",
+        uploadHint: "En kuvvetli yorum için fincanını 4 açıdan ve tabağını yükle.",
+        frontTitle: "Fincanın önü",
+        frontSub: "Kulplu taraf sağda, fincan sana bakacak şekilde.",
+        rightTitle: "Sağ yan",
+        rightSub: "Fincanı hafif sağa çevirerek çek.",
+        leftTitle: "Sol yan",
+        leftSub: "Fincanı hafif sola çevirerek çek.",
+        backTitle: "Fincanın arkası",
+        backSub: "Tam karşı taraftan, fincanın arkası görünecek şekilde.",
+        saucerTitle: "Tabak deseni",
+        saucerSub: "Fincanı kapatıp ters çevir; tabaktaki izleri çek.",
+        chooseBtn: "Seç",
+        imageSelected: "Görsel seçildi.",
+        questionLabel: "Sorun / Niyetin",
+        placeholder: "Aşk, kariyer, para, kader, ruhsal konular veya merak ettiklerinle ilgili niyetini buraya yaz...",
+        analyze: "Kahvemi Yorumla",
+        statusIdle: "",
+        statusLoading: "Kahven okunuyor… semboller ve enerjin yorumlanıyor...",
+        statusDone: "Kahve falın hazır.",
+        statusError: "Bir hata oluştu. Lütfen tekrar dene.",
+        mustText: "Lütfen en azından kısa bir soru veya niyet yaz.",
+        userWelcome: "Hoş geldin, ",
+        resultTitle: "Kahve Falın",
+        resultInitial: "✨ 5 fotoğrafı yükleyip niyetini yazdıktan sonra yapay zekâ kahve falın burada görünecek. ✨",
+        resultHint: "MystAI eğlence amaçlı bir yapay zekâ fal yorumlayıcısıdır; profesyonel, tıbbi veya finansal tavsiye yerine geçmez.",
+        listen: "Dinle",
+        listening: "Çalıyor...",
+        back: "Uygulamaya Dön",
+        logout: "Çıkış Yap",
+        rights: "Tüm Hakları Saklıdır.",
+        dev: "GALAXY tarafından geliştirilmiştir 🌌",
+        contact: "İletişim:"
+      }
+    };
+
+    let activeLang = localStorage.getItem("myst_lang") || "en";
+
+    function applyLang(lang) {
+      activeLang = lang;
+      localStorage.setItem("myst_lang", lang);
+      const t = i18n[lang];
+
+      titleEl.textContent       = t.title;
+      subtitleEl.textContent    = t.subtitle;
+      labelPhotos.textContent   = t.photosLabel;
+      uploadHint.textContent    = t.uploadHint;
+
+      frontTitle.textContent    = t.frontTitle;
+      frontSub.textContent      = t.frontSub;
+      frontBtn.textContent      = "📷 " + t.chooseBtn;
+      frontInfo.textContent     = t.imageSelected;
+
+      rightTitle.textContent    = t.rightTitle;
+      rightSub.textContent      = t.rightSub;
+      rightBtn.textContent      = "📷 " + t.chooseBtn;
+      rightInfo.textContent     = t.imageSelected;
+
+      leftTitle.textContent     = t.leftTitle;
+      leftSub.textContent       = t.leftSub;
+      leftBtn.textContent       = "📷 " + t.chooseBtn;
+      leftInfo.textContent      = t.imageSelected;
+
+      backTitle.textContent     = t.backTitle;
+      backSub.textContent       = t.backSub;
+      backBtnSlot.textContent   = "📷 " + t.chooseBtn;
+      backInfo.textContent      = t.imageSelected;
+
+      saucerTitle.textContent   = t.saucerTitle;
+      saucerSub.textContent     = t.saucerSub;
+      saucerBtn.textContent     = "📷 " + t.chooseBtn;
+      saucerInfo.textContent    = t.imageSelected;
+
+      labelQuestion.textContent = t.questionLabel;
+      textarea.placeholder      = t.placeholder;
+      analyzeText.textContent   = t.analyze;
+
+      resultTitle.textContent   = t.resultTitle;
+      resultText.textContent    = t.resultInitial;
+      resultHint.textContent    = t.resultHint;
+      listenLabel.textContent   = t.listen;
+
+      rightsLabel.textContent   = t.rights;
+      devLabel.textContent      = t.dev;
+      contactLabel.textContent  = t.contact;
+      backBtn.textContent       = "⬅ " + t.back;
+      logoutBtn.textContent     = t.logout;
+
+      btnEn.classList.toggle("active", lang === "en");
+      btnTr.classList.toggle("active", lang === "tr");
+
+      if (auth.currentUser) {
+        const name = auth.currentUser.displayName || auth.currentUser.email;
+        userLabel.textContent = t.userWelcome + name;
+      }
+    }
+
+    btnEn.addEventListener("click", () => applyLang("en"));
+    btnTr.addEventListener("click", () => applyLang("tr"));
+
+    backBtn.addEventListener("click", () => {
+      window.location.href = "app.html";
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth).then(() => window.location.href = "login.html");
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+      const t = i18n[activeLang];
+      const name = user.displayName || user.email;
+      userLabel.textContent = t.userWelcome + name;
+    });
+
+    applyLang(activeLang);
+
+    /* ====== SLOT BUTTONS & PREVIEW ====== */
+    function connectSlot(button, input, previewBox, imgEl) {
+      button.addEventListener("click", () => input.click());
+      input.addEventListener("change", () => {
+        const file = input.files[0];
+        if (!file) {
+          previewBox.style.display = "none";
+          return;
+        }
+        const url = URL.createObjectURL(file);
+        imgEl.src = url;
+        previewBox.style.display = "flex";
+      });
+    }
+
+    connectSlot(frontBtn, frontInput, frontPreview, frontImg);
+    connectSlot(rightBtn, rightInput, rightPreview, rightImg);
+    connectSlot(leftBtn,  leftInput,  leftPreview,  leftImg);
+    connectSlot(backBtnSlot, backInput, backPreview, backImg);
+    connectSlot(saucerBtn, saucerInput, saucerPreview, saucerImg);
+
+    /* ====== ANALYZE (backend + Firestore) ====== */
+    analyzeBtn.addEventListener("click", async () => {
+      const t = i18n[activeLang];
+      const user = auth.currentUser;
+      if (!user) {
+        alert(activeLang === "tr" ? "Lütfen önce giriş yap." : "Please log in first.");
+        return;
+      }
+
+      const question = textarea.value.trim();
+      if (!question) {
+        alert(t.mustText);
+        return;
+      }
+
+      // Fotoğraf bilgilerini sadece metinsel olarak gönderiyoruz (şu an backend'e image upload yok)
+      function has(fileInput){ return !!fileInput.files[0]; }
+
+      const imagesInfoEn = [];
+      const imagesInfoTr = [];
+      if (has(frontInput)) {
+        imagesInfoEn.push("front of the cup");
+        imagesInfoTr.push("fincanın önü");
+      }
+      if (has(rightInput)) {
+        imagesInfoEn.push("right side of the cup");
+        imagesInfoTr.push("fincanın sağ yanı");
+      }
+      if (has(leftInput)) {
+        imagesInfoEn.push("left side of the cup");
+        imagesInfoTr.push("fincanın sol yanı");
+      }
+      if (has(backInput)) {
+        imagesInfoEn.push("back of the cup");
+        imagesInfoTr.push("fincanın arkası");
+      }
+      if (has(saucerInput)) {
+        imagesInfoEn.push("saucer pattern");
+        imagesInfoTr.push("tabak deseni");
+      }
+
+      let imagesText;
+      if (activeLang === "tr") {
+        imagesText = imagesInfoTr.length
+          ? "Kullanıcı şu açılardan fotoğraf yükledi: " + imagesInfoTr.join(", ") + "."
+          : "Kullanıcı fincan fotoğrafı yüklemedi veya eksik yükledi.";
+      } else {
+        imagesText = imagesInfoEn.length
+          ? "User uploaded photos from: " + imagesInfoEn.join(", ") + "."
+          : "User did not upload cup photos or uploaded them partially.";
+      }
+
+      analyzeBtn.disabled = true;
+      statusText.textContent = t.statusLoading;
+      resultText.textContent = "";
+      listenBtn.disabled = true;
+      audioPlayer.pause();
+      audioPlayer.currentTime = 0;
+      audioPlayer.src = "";
+
+      try {
+        if (!BACKEND_URL || BACKEND_URL.includes("YOUR-BACKEND-URL")) {
+          statusText.textContent = "Backend URL is not configured.";
+          analyzeBtn.disabled = false;
+          return;
+        }
+
+              const basePrompt =
+          activeLang === "tr"
+            ? "Bu bir Türk kahve falıdır. Sen profesyonel, empatik ve mistik bir kahve falı yorumcususun. Kullanıcının fincan ve tabak fotoğraflarına, kupanın farklı açılardan görüntülerine ve yazdığı soruya/niyetine göre ayrıntılı ve kişisel bir kahve falı yaz. Yorumun sıcak, destekleyici ve spiritüel olsun; ama mantıklı ve tutarlı kal. Fal metnini UZUN ve birkaç bölüm halinde yaz: 1) genel enerji ve son dönemin atmosferi, 2) aşk ve ilişkiler, 3) iş, kariyer ve para, 4) kişisel psikoloji, içsel dünya ve ruhsal yolculuk, 5) yakın gelecekte (1–3 ay) ortaya çıkabilecek olası gelişmeler, 6) kısa, toparlayıcı bir sonuç ve rehberlik mesajı. Kesin tarihler verme, isim veya sağlık teşhisi kullanma. Geleceği %100 kesinmiş gibi konuşma; bunun yerine 'ihtimal', 'enerji', 'görünüyor' gibi ifadeler kullan. Kullanıcının sorusuna/niyetine mutlaka geri dön ve onu merkeze al. Metni akıcı ve doğal Türkçe ile yaz.\n"
+            : "This is a Turkish coffee fortune reading. You are a professional, empathetic and mystical coffee reader. Using the cup and saucer photos, the different angles of the cup and the user's written question/intention, write a detailed and PERSONAL coffee reading. Your tone should be warm, supportive and spiritual, but still logical and coherent. Write a LONG reading structured in several sections: 1) general energy and recent atmosphere, 2) love and relationships, 3) work, career and money, 4) personal psychology, inner world and spiritual journey, 5) possible developments in the near future (1–3 months), 6) a short, summarizing conclusion and guidance message. Do not give exact dates, names or medical diagnoses. Do not speak as if the future is 100% certain; instead use expressions like 'it seems', 'the energy suggests', 'there is a possibility'. Always come back to the user's question/intention and keep it at the center. Write the text in smooth, natural English.\n";
+
+
+        const payloadText =
+          basePrompt +
+          (activeLang === "tr"
+            ? "Kullanıcının sorusu/niyeti: "
+            : "User's question/intention: ") +
+          question +
+          "\n\n" +
+          (activeLang === "tr"
+            ? "Fotoğraf bilgisi: "
+            : "Photo info: ") +
+          imagesText;
+
+        const res = await fetch(`${BACKEND_URL}/predict`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_input: payloadText })
+        });
+
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status);
+        }
+
+        const data = await res.json();
+        const text = data?.text || (activeLang === "tr" ? "Yanıt alınamadı." : "No response.");
+        const audioPath = data?.audio;
+
+        resultText.textContent = text;
+        statusText.textContent = t.statusDone;
+
+        // Firestore kaydı (history.html için)
+        try {
+          await addDoc(collection(db, "fortunes"), {
+            user: user.email,
+            type: "AI Coffee Reading",
+            question,
+            result: text,
+            images: {
+              front: has(frontInput),
+              right: has(rightInput),
+              left:  has(leftInput),
+              back:  has(backInput),
+              saucer:has(saucerInput)
+            },
+            createdAt: serverTimestamp(),
+            source: "coffee-page"
+          });
+        } catch (e) {
+          console.warn("Firestore save error:", e);
+        }
+
+        if (audioPath) {
+          const fullURL = audioPath.startsWith("http") ? audioPath : `${BACKEND_URL}${audioPath}`;
+          audioPlayer.src = fullURL;
+          listenBtn.disabled = false;
+        }
+      } catch (err) {
+        console.error(err);
+        statusText.textContent = t.statusError;
+        resultText.textContent =
+          (activeLang === "tr" ? "Hata: " : "Error: ") + (err?.message || String(err));
+      } finally {
+        analyzeBtn.disabled = false;
+      }
+    });
+
+    listenBtn.addEventListener("click", () => {
+      if (!audioPlayer.src) return;
+      const t = i18n[activeLang];
+      listenLabel.textContent = t.listening;
+      audioPlayer.play().catch(() => {});
+      audioPlayer.onended = () => {
+        listenLabel.textContent = t.listen;
+      };
+    });
+  </script>
+</body>
+</html>
