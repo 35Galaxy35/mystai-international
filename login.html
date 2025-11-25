@@ -6,47 +6,114 @@
   <title>Login — MystAI.ai</title>
   <link rel="icon" type="image/png" href="mystai-logo.png" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+
   <style>
     body {
-      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
       background:radial-gradient(1200px 800px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
-      color:#e6eaff; text-align:center;
+      color:#e6eaff;
+      text-align:center;
     }
+
     header {
-      padding:16px 40px; display:flex; justify-content:flex-end;
-      background:rgba(10,15,30,0.35); backdrop-filter:blur(12px);
-      border-bottom:1px solid rgba(255,255,255,0.08);
+      padding:16px 40px;
+      display:flex;
+      justify-content:flex-end;
+      background:rgba(10,15,30,0.35);
+      backdrop-filter:blur(12px);
+      border-bottom:1px solid rgba(255,255,255,.1);
     }
+
     .lang-btn {
-      font-weight:700;border:0;border-radius:50px;padding:7px 13px;cursor:pointer;font-size:13px;
-      background:linear-gradient(135deg,#ffd54f,#ffe680);color:#111;transition:all .3s ease;margin-left:8px;
+      font-weight:700;
+      border:0;
+      border-radius:50px;
+      padding:7px 13px;
+      cursor:pointer;
+      font-size:13px;
+      background:linear-gradient(135deg,#ffd54f,#ffe680);
+      color:#111;
+      transition:.3s;
+      margin-left:8px;
     }
+
     .lang-btn.secondary {
-      background:rgba(255,255,255,.1);color:#e6ecff;border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.1);
+      color:#e6ecff;
+      border:1px solid rgba(255,255,255,.12);
     }
+
     .container {
-      margin-top:120px;max-width:360px;margin-inline:auto;padding:30px;
-      background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
-      border-radius:14px;box-shadow:0 0 30px rgba(255,220,100,.1);
+      margin-top:110px;
+      max-width:360px;
+      padding:30px;
+      margin-inline:auto;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:16px;
+      box-shadow:0 0 35px rgba(255,220,100,.12);
     }
+
     h1 {
-      font-family:'Cinzel',serif;color:#ffd54f;margin-bottom:20px;
-      text-shadow:0 0 12px rgba(255,220,100,.4);
+      font-family:'Cinzel',serif;
+      color:#ffd54f;
+      text-shadow:0 0 14px rgba(255,200,80,.4);
+      margin-bottom:22px;
+      font-size:27px;
     }
+
     input {
-      width:100%;padding:12px;margin:8px 0;border:none;border-radius:8px;
-      background:rgba(255,255,255,.1);color:white;font-size:15px;
+      width:100%;
+      padding:12px;
+      margin:8px 0;
+      border:none;
+      border-radius:8px;
+      background:rgba(255,255,255,.12);
+      color:white;
+      font-size:15px;
     }
+
     input::placeholder {color:#bbb;}
+
     button {
-      width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px;
+      width:100%;
+      padding:12px;
+      margin-top:12px;
+      border:none;
+      border-radius:8px;
       background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);
-      color:#111;font-weight:700;cursor:pointer;transition:transform .2s ease;
+      color:#111;
+      font-weight:700;
+      cursor:pointer;
+      transition:.2s;
     }
-    button:hover {transform:scale(1.03);}
-    p {font-size:14px;margin-top:14px;}
-    a {color:#ffd54f;text-decoration:none;}
-    a:hover{text-decoration:underline;}
+
+    button:disabled {
+      opacity:.6;
+    }
+
+    button:hover:not(:disabled) {
+      transform:scale(1.03);
+    }
+
+    .forgot {
+      font-size:14px;
+      margin-top:12px;
+      display:block;
+    }
+
+    .error-box {
+      background:rgba(255,60,60,.18);
+      border:1px solid rgba(255,80,80,.35);
+      padding:8px;
+      border-radius:8px;
+      margin-top:10px;
+      display:none;
+      font-size:13px;
+      color:#ffb3b3;
+    }
+
   </style>
 </head>
 <body>
@@ -58,10 +125,21 @@
 
   <div class="container">
     <h1 id="title">Welcome Back</h1>
+
+    <div class="error-box" id="errBox"></div>
+
     <input type="email" id="email" placeholder="Email" />
     <input type="password" id="password" placeholder="Password" />
+
     <button id="loginBtn">Login</button>
-    <p id="bottom-text">Don’t have an account? <a href="signup.html" id="signup-link">Sign up</a></p>
+
+    <a href="reset.html" class="forgot" id="forgot-link">Forgot password?</a>
+
+    <p id="bottom-text">
+      Don’t have an account?
+      <a href="signup.html" id="signup-link">Sign up</a>
+    </p>
+
     <p><a href="index.html" id="home-link">← Back to Home</a></p>
   </div>
 
@@ -73,66 +151,96 @@
       apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
       authDomain: "mystai-6cca2.firebaseapp.com",
       projectId: "mystai-6cca2",
-      storageBucket: "mystai-6cca2.firebasestorage.app",
+      storageBucket: "mystai-6cca2.appspot.com",
       messagingSenderId: "624127781219",
       appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
     };
+
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    const loginBtn = document.getElementById('loginBtn');
-    const email = document.getElementById('email');
-    const password = document.getElementById('password');
+    const loginBtn = document.getElementById("loginBtn");
+    const email = document.getElementById("email");
+    const password = document.getElementById("password");
+    const errBox = document.getElementById("errBox");
 
-    loginBtn.addEventListener('click', ()=>{
-      signInWithEmailAndPassword(auth, email.value, password.value)
-        .then(()=>{
-          alert(activeLang === 'tr' ? 'Giriş başarılı!' : 'Login successful!');
-          window.location.href = "app.html";
-        })
-        .catch((error)=>{
-          alert(activeLang === 'tr' ? 'Hatalı e-posta veya şifre!' : 'Invalid email or password!');
-        });
+    loginBtn.addEventListener("click", async ()=>{
+
+      errBox.style.display = "none";
+
+      if(!email.value.trim() || !password.value.trim()){
+        showError(activeLang === "tr" ? "Lütfen tüm alanları doldurun." : "Please fill in all fields.");
+        return;
+      }
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = activeLang === "tr" ? "Giriş yapılıyor..." : "Logging in...";
+
+      try {
+        await signInWithEmailAndPassword(auth, email.value, password.value);
+        alert(activeLang === 'tr' ? 'Giriş başarılı!' : 'Login successful!');
+        window.location.href = "app.html";
+        
+      } catch (err) {
+        showError(activeLang === "tr" ? "E-posta veya şifre hatalı." : "Incorrect email or password.");
+      }
+
+      loginBtn.disabled = false;
+      loginBtn.textContent = i18n[activeLang].login;
     });
 
+    function showError(msg){
+      errBox.textContent = msg;
+      errBox.style.display = "block";
+    }
+
+    /* LANG SYSTEM -------------------------------------------------- */
     const i18n = {
-      en: {
-        title: "Welcome Back",
-        email: "Email",
-        password: "Password",
-        login: "Login",
-        bottom: "Don’t have an account? ",
-        signup: "Sign up",
-        home: "← Back to Home"
+      en:{
+        title:"Welcome Back",
+        email:"Email",
+        password:"Password",
+        login:"Login",
+        forgot:"Forgot password?",
+        bottom:"Don’t have an account?",
+        signup:"Sign up",
+        home:"← Back to Home"
       },
-      tr: {
-        title: "Tekrar Hoş Geldin",
-        email: "E-posta",
-        password: "Şifre",
-        login: "Giriş Yap",
-        bottom: "Hesabın yok mu? ",
-        signup: "Kayıt Ol",
-        home: "← Ana Sayfaya Dön"
+      tr:{
+        title:"Tekrar Hoş Geldin",
+        email:"E-posta",
+        password:"Şifre",
+        login:"Giriş Yap",
+        forgot:"Şifremi Unuttum",
+        bottom:"Hesabın yok mu?",
+        signup:"Kayıt Ol",
+        home:"← Ana Sayfaya Dön"
       }
     };
 
     let activeLang = localStorage.getItem("myst_lang") || "en";
-    const setLang = (lang)=>{
+
+    function setLang(lang){
       activeLang = lang;
       localStorage.setItem("myst_lang", lang);
+
       const t = i18n[lang];
+
       document.getElementById("title").textContent = t.title;
       email.placeholder = t.email;
       password.placeholder = t.password;
       loginBtn.textContent = t.login;
-      document.getElementById("bottom-text").innerHTML = `${t.bottom}<a href="signup.html" id="signup-link">${t.signup}</a>`;
+      document.getElementById("forgot-link").textContent = t.forgot;
+      document.getElementById("bottom-text").innerHTML = `${t.bottom} <a href="signup.html">${t.signup}</a>`;
       document.getElementById("home-link").textContent = t.home;
-      document.getElementById("btn-en").classList.toggle("secondary", lang !== "en");
-      document.getElementById("btn-tr").classList.toggle("secondary", lang !== "tr");
-    };
 
-    document.getElementById("btn-en").addEventListener("click", ()=>setLang("en"));
-    document.getElementById("btn-tr").addEventListener("click", ()=>setLang("tr"));
+      document.getElementById("btn-en").classList.toggle("secondary", lang!=="en");
+      document.getElementById("btn-tr").classList.toggle("secondary", lang!=="tr");
+    }
+
+    document.getElementById("btn-en").onclick = ()=>setLang("en");
+    document.getElementById("btn-tr").onclick = ()=>setLang("tr");
+
     setLang(activeLang);
   </script>
 </body>
