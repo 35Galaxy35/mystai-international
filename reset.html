@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reset Password — MystAI.ai</title>
+
+  <link rel="icon" type="image/png" href="mystai-logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:radial-gradient(1200px 800px at 50% -10%, #101a4d 0%, #0b0f1f 85%);
+      color:#e6eaff;
+      text-align:center;
+    }
+
+    header {
+      padding:16px 40px;
+      display:flex;
+      justify-content:flex-end;
+      background:rgba(10,15,30,0.35);
+      backdrop-filter:blur(12px);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+
+    .lang-btn {
+      font-weight:700;
+      border:0;
+      border-radius:50px;
+      padding:7px 13px;
+      cursor:pointer;
+      font-size:13px;
+      background:linear-gradient(135deg,#ffd54f,#ffe680);
+      color:#111;
+      transition:all .3s ease;
+      margin-left:8px;
+    }
+    .lang-btn.secondary {
+      background:rgba(255,255,255,.1);
+      color:#e6ecff;
+      border:1px solid rgba(255,255,255,.12);
+    }
+
+    .container {
+      margin-top:120px;
+      max-width:360px;
+      margin-inline:auto;
+      padding:30px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:14px;
+      box-shadow:0 0 30px rgba(255,220,100,.1);
+    }
+
+    h1 {
+      font-family:'Cinzel',serif;
+      color:#ffd54f;
+      margin-bottom:20px;
+      text-shadow:0 0 12px rgba(255,220,100,.4);
+    }
+
+    input {
+      width:100%;
+      padding:12px;
+      margin:8px 0;
+      border:none;
+      border-radius:8px;
+      background:rgba(255,255,255,.1);
+      color:white;
+      font-size:15px;
+    }
+    input::placeholder {color:#bbb;}
+
+    button {
+      width:100%;
+      padding:12px;
+      margin-top:10px;
+      border:none;
+      border-radius:8px;
+      background:linear-gradient(120deg,#ffd700,#ffcc33,#ffe680);
+      color:#111;
+      font-weight:700;
+      cursor:pointer;
+      transition:transform .2s ease;
+    }
+    button:hover { transform:scale(1.03); }
+
+    .msg {
+      margin-top:15px;
+      padding:12px;
+      border-radius:8px;
+      font-size:14px;
+      display:none;
+    }
+    .error { background:rgba(255,0,0,.15); border:1px solid rgba(255,0,0,.4); color:#ff9a9a; }
+    .success { background:rgba(0,255,0,.12); border:1px solid rgba(0,255,0,.35); color:#c9ffca; }
+
+    a { color:#ffd54f; text-decoration:none; }
+    a:hover { text-decoration:underline; }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <button class="lang-btn" id="btn-en">EN</button>
+    <button class="lang-btn secondary" id="btn-tr">TR</button>
+  </header>
+
+  <div class="container">
+    <h1 id="title">Reset Password</h1>
+
+    <input type="email" id="email" placeholder="Email Address" />
+
+    <button id="resetBtn">Send Reset Link</button>
+
+    <div id="error" class="msg error"></div>
+    <div id="success" class="msg success"></div>
+
+    <p style="margin-top:12px;"><a href="login.html" id="back-login">← Back to Login</a></p>
+  </div>
+
+  <script type="module">
+    /* Firebase */
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
+      authDomain: "mystai-6cca2.firebaseapp.com",
+      projectId: "mystai-6cca2",
+      storageBucket: "mystai-6cca2.firebasestorage.app",
+      messagingSenderId: "624127781219",
+      appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    /* Elements */
+    const emailInput = document.getElementById("email");
+    const resetBtn = document.getElementById("resetBtn");
+    const errorBox = document.getElementById("error");
+    const successBox = document.getElementById("success");
+
+    resetBtn.addEventListener("click", ()=>{
+      const email = emailInput.value.trim();
+      if (!email) {
+        showError(activeLang === "tr" ? "Lütfen e-posta adresinizi girin." : "Please enter your email.");
+        return;
+      }
+
+      sendPasswordResetEmail(auth, email)
+        .then(()=>{
+          showSuccess(
+            activeLang === "tr"
+            ? "Şifre sıfırlama linki e-posta adresinize gönderildi."
+            : "Password reset link has been sent to your email."
+          );
+        })
+        .catch((err)=>{
+          showError(
+            activeLang === "tr"
+            ? "Geçersiz e-posta adresi veya hesap bulunamadı."
+            : "Invalid email or account not found."
+          );
+        });
+    });
+
+    function showError(msg){
+      errorBox.textContent = msg;
+      errorBox.style.display = "block";
+      successBox.style.display = "none";
+    }
+
+    function showSuccess(msg){
+      successBox.textContent = msg;
+      successBox.style.display = "block";
+      errorBox.style.display = "none";
+    }
+
+    /* i18n system */
+    const i18n = {
+      en:{
+        title:"Reset Password",
+        placeholder:"Email Address",
+        btn:"Send Reset Link",
+        back:"← Back to Login"
+      },
+      tr:{
+        title:"Şifre Sıfırlama",
+        placeholder:"E-posta Adresi",
+        btn:"Sıfırlama Linki Gönder",
+        back:"← Giriş Sayfasına Dön"
+      }
+    };
+
+    let activeLang = localStorage.getItem("myst_lang") || "en";
+
+    function setLang(lang){
+      activeLang = lang;
+      localStorage.setItem("myst_lang", lang);
+
+      const t = i18n[lang];
+      document.getElementById("title").textContent = t.title;
+      emailInput.placeholder = t.placeholder;
+      resetBtn.textContent = t.btn;
+      document.getElementById("back-login").textContent = t.back;
+
+      document.getElementById("btn-en").classList.toggle("secondary", lang!=="en");
+      document.getElementById("btn-tr").classList.toggle("secondary", lang!=="tr");
+    }
+
+    setLang(activeLang);
+
+    document.getElementById("btn-en").addEventListener("click", ()=>setLang("en"));
+    document.getElementById("btn-tr").addEventListener("click", ()=>setLang("tr"));
+  </script>
+
+</body>
+</html>
