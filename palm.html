@@ -845,6 +845,16 @@ MystAI is an AI-based entertainment tool. It does not replace medical, psycholog
 
     /* ========= MAIN READING ACTION ========= */
     readBtn.addEventListener("click", async ()=>{
+      // FREE TRIAL CHECK
+    const usedFree = localStorage.getItem("freeReadingUsed");
+    if (usedFree) {
+    window.location.href = "https://shopier.com/mystai/41517769"; // PALM SHOPIER LİNKİ
+    return;
+   }
+
+   // mark free reading as used
+   localStorage.setItem("freeReadingUsed", "yes");
+
       const t = i18n[activeLang];
       const user = auth.currentUser;
 
