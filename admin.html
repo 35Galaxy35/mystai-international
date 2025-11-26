@@ -1,45 +1,979 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MystAI Admin Panel</title>
-  <link rel="stylesheet" href="admin.css">
-  <script type="module" src="admin.js"></script>
+  <link rel="icon" type="image/png" href="mystai-logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #040816;
+      --bg-alt: #070b1f;
+      --card: #0c1229;
+      --border: rgba(255,255,255,0.06);
+      --border-strong: rgba(255,215,0,0.6);
+      --text: #e3e7ff;
+      --muted: #9ea6c7;
+      --accent: #f7d35c;
+      --danger: #ff5c7a;
+      --success: #4ade80;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: radial-gradient(1600px 900px at 50% -10%, #111b4f 0%, #030614 70%);
+      color: var(--text);
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(3,6,20,0.9);
+      backdrop-filter: blur(18px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logo-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: "Cinzel", serif;
+      font-size: 22px;
+      letter-spacing: .03em;
+      color: var(--accent);
+    }
+
+    .logo-title img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(247,211,92,0.6);
+    }
+
+    .admin-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 4px 10px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(10,16,40,0.8);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg,#ffd24f,#ffe88a);
+      color: #111;
+      box-shadow: 0 0 14px rgba(247,211,92,0.5);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+    .btn:active { transform: translateY(0); box-shadow: 0 0 8px rgba(247,211,92,0.4); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.25);
+      box-shadow: none;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.06); }
+
+    .btn-small {
+      padding: 5px 12px;
+      font-size: 12px;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+      box-shadow: 0 0 14px rgba(255,92,122,0.5);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #020617;
+      box-shadow: 0 0 14px rgba(74,222,128,0.5);
+    }
+
+    /* LAYOUT */
+    .page {
+      padding: 18px 20px 28px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4,minmax(0,1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, rgba(15,23,60,0.96), rgba(10,16,40,1));
+      border-radius: 14px;
+      padding: 10px 14px;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .stat-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .stat-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .main-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: rgba(7,11,31,0.98);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.8);
+      padding: 14px 16px 8px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(17,24,55,0.8);
+      color: var(--accent);
+    }
+
+    .search-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 0;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      background: rgba(15,23,42,0.9);
+      padding: 6px 12px;
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+    }
+    .search-input::placeholder { color: #6b7280; }
+
+    .chip {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      background: rgba(15,23,42,0.8);
+      color: var(--muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .chip.active {
+      border-color: var(--accent);
+      background: rgba(250,204,21,0.1);
+      color: var(--accent);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th, td {
+      padding: 6px 6px;
+      text-align: left;
+      border-bottom: 1px solid rgba(17,24,39,0.9);
+    }
+
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #9ca3af;
+      letter-spacing: .06em;
+    }
+
+    tbody tr {
+      cursor: pointer;
+      transition: background .12s ease, transform .12s ease;
+    }
+
+    tbody tr:hover {
+      background: rgba(30,64,175,0.2);
+      transform: translateY(-1px);
+    }
+
+    tbody tr.selected {
+      background: rgba(250,204,21,0.14);
+      border-left: 2px solid var(--accent);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid rgba(148,163,184,0.5);
+      background: rgba(15,23,42,0.7);
+    }
+
+    .tag-green {
+      border-color: rgba(74,222,128,0.7);
+      color: #bbf7d0;
+      background: rgba(22,163,74,0.16);
+    }
+
+    .tag-red {
+      border-color: rgba(248,113,113,0.8);
+      color: #fecaca;
+      background: rgba(185,28,28,0.16);
+    }
+
+    .tag-yellow {
+      border-color: rgba(250,204,21,0.9);
+      color: #fef3c7;
+      background: rgba(202,138,4,0.14);
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2,minmax(0,1fr));
+      gap: 8px 10px;
+      margin-bottom: 10px;
+      font-size: 12px;
+    }
+
+    .detail-label { color: var(--muted); font-size: 11px; text-transform: uppercase; display:block; margin-bottom:2px; }
+    .detail-value { color: var(--text); word-break: break-all; }
+
+    .detail-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .divider {
+      margin: 12px 0 8px;
+      border-top: 1px dashed rgba(148,163,184,0.4);
+    }
+
+    .table-scroll {
+      max-height: 280px;
+      overflow: auto;
+      margin-top: 4px;
+      border-radius: 10px;
+    }
+
+    /* HISTORY */
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .history-filters {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .label-pill {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      background: rgba(15,23,42,0.9);
+      color: var(--muted);
+    }
+
+    .empty {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      padding: 10px;
+    }
+
+    @media (max-width: 960px) {
+      .stats-row {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+      }
+      .main-row {
+        grid-template-columns: minmax(0,1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .admin-info {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .stats-row {
+        grid-template-columns: minmax(0,1fr);
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <div class="container">
-    <h1>MystAI Admin Panel</h1>
-    <p>Hoş geldiniz, Ethem!</p>
+  <header>
+    <div class="logo-title">
+      <img src="mystai-logo.png" alt="MystAI" />
+      <span>MystAI Admin Panel</span>
+    </div>
 
-    <button id="logoutBtn" class="logout">Çıkış Yap</button>
+    <div class="admin-info">
+      <span id="admin-email-pill" class="pill">Admin: -</span>
+      <button class="btn btn-outline btn-small" id="backToAppBtn">Fal Uygulamasına Dön</button>
+      <button class="btn btn-small" id="logoutBtn">Çıkış Yap</button>
+    </div>
+  </header>
 
-    <h2>Kullanıcılar</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Email</th>
-          <th>Ücretsiz Fal Kullandı mı?</th>
-          <th>Premium</th>
-          <th>İşlemler</th>
-        </tr>
-      </thead>
-      <tbody id="userTable"></tbody>
-    </table>
+  <main class="page">
+    <!-- STATS -->
+    <section class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">
+          <span>Toplam Kullanıcı</span>
+          <span>👥</span>
+        </div>
+        <div class="stat-value" id="statTotalUsers">-</div>
+        <div class="stat-sub" id="statPremiumUsers">- premium</div>
+      </div>
 
-    <h2>Fal Geçmişi</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Kullanıcı</th>
-          <th>Fal Türü</th>
-          <th>Soru</th>
-          <th>Tarih</th>
-        </tr>
-      </thead>
-      <tbody id="fortuneTable"></tbody>
-    </table>
+      <div class="stat-card">
+        <div class="stat-label">
+          <span>Toplam Fal</span>
+          <span>🔮</span>
+        </div>
+        <div class="stat-value" id="statTotalFortunes">-</div>
+        <div class="stat-sub" id="statTodayFortunes">Bugün: -</div>
+      </div>
 
-  </div>
+      <div class="stat-card">
+        <div class="stat-label">
+          <span>Premium Oranı</span>
+          <span>⭐</span>
+        </div>
+        <div class="stat-value" id="statPremiumRate">-</div>
+        <div class="stat-sub">Premium / tüm kullanıcılar</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">
+          <span>Ücretsiz Fal Kullanan</span>
+          <span>🎁</span>
+        </div>
+        <div class="stat-value" id="statFreeUsed">-</div>
+        <div class="stat-sub">En az bir ücretsiz fal kullanmış</div>
+      </div>
+    </section>
+
+    <!-- USERS + DETAIL -->
+    <section class="main-row">
+      <!-- USERS LIST -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">Kullanıcılar</h2>
+          <span class="badge" id="usersCountLabel">0 kayıt</span>
+        </div>
+
+        <div class="search-row">
+          <input
+            id="userSearchInput"
+            class="search-input"
+            type="text"
+            placeholder="E-posta veya isim ile ara..."
+          />
+          <button class="chip active" id="chipAll">Tümü</button>
+          <button class="chip" id="chipPremium">Premium</button>
+          <button class="chip" id="chipFreeOnly">Sadece ücretsiz kullanan</button>
+        </div>
+
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>E-posta</th>
+                <th>İsim</th>
+                <th>Ücretsiz Fal</th>
+                <th>Premium</th>
+                <th>Oluşturma</th>
+              </tr>
+            </thead>
+            <tbody id="userTableBody">
+              <!-- JS ile doldurulacak -->
+            </tbody>
+          </table>
+          <div class="empty" id="userEmpty" style="display:none;">Kullanıcı bulunamadı.</div>
+        </div>
+      </section>
+
+      <!-- USER DETAIL -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">Seçilen Kullanıcı</h2>
+          <span class="badge" id="selectedStatus">Henüz kullanıcı seçilmedi</span>
+        </div>
+
+        <div id="noUserSelected" class="empty" style="padding-top:2px;">
+          Soldaki listeden bir kullanıcı seçin.
+        </div>
+
+        <div id="userDetailPanel" style="display:none;">
+          <div class="detail-grid">
+            <div>
+              <span class="detail-label">E-posta</span>
+              <span class="detail-value" id="detailEmail"></span>
+            </div>
+            <div>
+              <span class="detail-label">İsim</span>
+              <span class="detail-value" id="detailName"></span>
+            </div>
+            <div>
+              <span class="detail-label">Ücretsiz Fal Kullandı mı?</span>
+              <span class="detail-value" id="detailFree"></span>
+            </div>
+            <div>
+              <span class="detail-label">Premium Durumu</span>
+              <span class="detail-value" id="detailPremium"></span>
+            </div>
+            <div>
+              <span class="detail-label">Kayıt Tarihi</span>
+              <span class="detail-value" id="detailCreatedAt"></span>
+            </div>
+            <div>
+              <span class="detail-label">Toplam Fal Sayısı</span>
+              <span class="detail-value" id="detailFortuneCount">-</span>
+            </div>
+          </div>
+
+          <div class="detail-actions">
+            <button class="btn btn-success btn-small" id="btnMakePremium">Premium Yap</button>
+            <button class="btn btn-outline btn-small" id="btnRemovePremium">Premium Kaldır</button>
+            <button class="btn btn-outline btn-small" id="btnResetFree">Ücretsiz Hakkı Sıfırla</button>
+          </div>
+
+          <p class="hint">
+            Premium: Kullanıcının tüm fal türlerini ödeme almadan kullanmasına izin verir.  
+            Ücretsiz hakkı sıfırlama: İlk ücretsiz falı tekrar kullanabilmesini sağlar.
+          </p>
+        </div>
+      </section>
+    </section>
+
+    <!-- FORTUNE HISTORY -->
+    <section class="card">
+      <div class="history-header">
+        <div>
+          <h2 class="card-title" style="margin-bottom:4px;">Fal Geçmişi</h2>
+          <div class="label-pill" id="historyScopeLabel">Tüm kullanıcılar</div>
+        </div>
+        <div class="history-filters">
+          <button class="chip active" id="chipHistoryAll">Tüm Fal Kayıtları</button>
+          <button class="chip" id="chipHistorySelected">Sadece seçilen kullanıcı</button>
+        </div>
+      </div>
+
+      <div class="table-scroll" style="max-height:260px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Kullanıcı</th>
+              <th>Fal Türü</th>
+              <th>Soru</th>
+              <th>Tarih</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <!-- JS -->
+          </tbody>
+        </table>
+        <div class="empty" id="historyEmpty" style="display:none;">Henüz fal kaydı bulunmuyor.</div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    // ============================
+    // FIREBASE IMPORTS
+    // ============================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      doc,
+      updateDoc
+    } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+    // ============================
+    // CONFIG
+    // ============================
+    const firebaseConfig = {
+      apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
+      authDomain: "mystai-6cca2.firebaseapp.com",
+      projectId: "mystai-6cca2",
+      storageBucket: "mystai-6cca2.appspot.com",
+      messagingSenderId: "624127781219",
+      appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
+    };
+
+    const ADMIN_EMAIL = "chf.ethem35belen@outlook.com";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    // ============================
+    // DOM ELEMENTS
+    // ============================
+    const logoutBtn        = document.getElementById("logoutBtn");
+    const backToAppBtn     = document.getElementById("backToAppBtn");
+    const adminEmailPill   = document.getElementById("admin-email-pill");
+
+    const userTableBody    = document.getElementById("userTableBody");
+    const userEmpty        = document.getElementById("userEmpty");
+    const usersCountLabel  = document.getElementById("usersCountLabel");
+
+    const chipAll          = document.getElementById("chipAll");
+    const chipPremium      = document.getElementById("chipPremium");
+    const chipFreeOnly     = document.getElementById("chipFreeOnly");
+    const userSearchInput  = document.getElementById("userSearchInput");
+
+    const noUserSelected   = document.getElementById("noUserSelected");
+    const userDetailPanel  = document.getElementById("userDetailPanel");
+    const selectedStatus   = document.getElementById("selectedStatus");
+    const detailEmail      = document.getElementById("detailEmail");
+    const detailName       = document.getElementById("detailName");
+    const detailFree       = document.getElementById("detailFree");
+    const detailPremium    = document.getElementById("detailPremium");
+    const detailCreatedAt  = document.getElementById("detailCreatedAt");
+    const detailFortuneCount = document.getElementById("detailFortuneCount");
+
+    const btnMakePremium   = document.getElementById("btnMakePremium");
+    const btnRemovePremium = document.getElementById("btnRemovePremium");
+    const btnResetFree     = document.getElementById("btnResetFree");
+
+    const historyTableBody   = document.getElementById("historyTableBody");
+    const historyEmpty       = document.getElementById("historyEmpty");
+    const chipHistoryAll     = document.getElementById("chipHistoryAll");
+    const chipHistorySelected= document.getElementById("chipHistorySelected");
+    const historyScopeLabel  = document.getElementById("historyScopeLabel");
+
+    const statTotalUsers     = document.getElementById("statTotalUsers");
+    const statPremiumUsers   = document.getElementById("statPremiumUsers");
+    const statTotalFortunes  = document.getElementById("statTotalFortunes");
+    const statTodayFortunes  = document.getElementById("statTodayFortunes");
+    const statPremiumRate    = document.getElementById("statPremiumRate");
+    const statFreeUsed       = document.getElementById("statFreeUsed");
+
+    // ============================
+    // GLOBAL STATE
+    // ============================
+    let allUsers   = [];  // {id, ...data}
+    let allFortunes = []; // {id, ...data}
+    let selectedUserId = null;
+
+    // ============================
+    // AUTH GUARD
+    // ============================
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      if (user.email !== ADMIN_EMAIL) {
+        alert("Bu sayfa yalnızca yönetici içindir.");
+        window.location.href = "app.html";
+        return;
+      }
+
+      adminEmailPill.textContent = "Admin: " + user.email;
+
+      await Promise.all([
+        loadUsersFromFirestore(),
+        loadFortunesFromFirestore()
+      ]);
+
+      renderStats();
+      renderUserTable();
+      renderHistoryTable();
+    });
+
+    // ============================
+    // FIRESTORE LOAD
+    // ============================
+    async function loadUsersFromFirestore() {
+      const snap = await getDocs(collection(db, "users"));
+      allUsers = [];
+      snap.forEach((docSnap) => {
+        const data = docSnap.data();
+        allUsers.push({
+          id: docSnap.id,
+          ...data
+        });
+      });
+    }
+
+    async function loadFortunesFromFirestore() {
+      const snap = await getDocs(collection(db, "fortunes"));
+      allFortunes = [];
+      snap.forEach((docSnap) => {
+        const data = docSnap.data();
+        allFortunes.push({
+          id: docSnap.id,
+          ...data
+        });
+      });
+    }
+
+    // ============================
+    // RENDER USERS TABLE
+    // ============================
+    function renderUserTable() {
+      const search = userSearchInput.value.toLowerCase().trim();
+      const filterPremium = chipPremium.classList.contains("active");
+      const filterFreeOnly = chipFreeOnly.classList.contains("active");
+
+      let filtered = allUsers.slice();
+
+      if (search) {
+        filtered = filtered.filter(u =>
+          (u.email || "").toLowerCase().includes(search) ||
+          (u.name  || "").toLowerCase().includes(search)
+        );
+      }
+
+      if (filterPremium) {
+        filtered = filtered.filter(u => !!u.premium);
+      } else if (filterFreeOnly) {
+        filtered = filtered.filter(u => !!u.freeUsed);
+      }
+
+      userTableBody.innerHTML = "";
+      if (filtered.length === 0) {
+        userEmpty.style.display = "block";
+      } else {
+        userEmpty.style.display = "none";
+      }
+
+      filtered.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+      for (const u of filtered) {
+        const tr = document.createElement("tr");
+        tr.dataset.uid = u.id;
+
+        const freeTag = u.freeUsed
+          ? '<span class="tag tag-yellow">Kullandı</span>'
+          : '<span class="tag">Kullanmadı</span>';
+
+        const premiumTag = u.premium
+          ? '<span class="tag tag-green">Aktif</span>'
+          : '<span class="tag tag-red">Pasif</span>';
+
+        const createdAtStr = formatDate(u.createdAt);
+
+        tr.innerHTML = `
+          <td>${u.email || "-"}</td>
+          <td>${u.name || "-"}</td>
+          <td>${freeTag}</td>
+          <td>${premiumTag}</td>
+          <td>${createdAtStr}</td>
+        `;
+
+        tr.addEventListener("click", () => {
+          selectUser(u.id);
+          // highlight
+          document.querySelectorAll("#userTableBody tr").forEach(row => row.classList.remove("selected"));
+          tr.classList.add("selected");
+        });
+
+        userTableBody.appendChild(tr);
+      }
+
+      usersCountLabel.textContent = filtered.length + " kayıt";
+    }
+
+    // ============================
+    // SELECT USER + DETAIL
+    // ============================
+    function selectUser(userId) {
+      selectedUserId = userId;
+      const u = allUsers.find(x => x.id === userId);
+      if (!u) return;
+
+      noUserSelected.style.display = "none";
+      userDetailPanel.style.display = "block";
+      selectedStatus.textContent   = "Seçilen kullanıcı aktif";
+      selectedStatus.style.color   = "var(--accent)";
+
+      detailEmail.textContent     = u.email || "-";
+      detailName.textContent      = u.name || "-";
+      detailFree.innerHTML        = u.freeUsed
+        ? '<span class="tag tag-yellow">Ücretsiz fal kullandı</span>'
+        : '<span class="tag">Hiç kullanmadı</span>';
+      detailPremium.innerHTML     = u.premium
+        ? '<span class="tag tag-green">Premium aktif</span>'
+        : '<span class="tag tag-red">Premium pasif</span>';
+      detailCreatedAt.textContent = formatDate(u.createdAt) || "-";
+
+      const userFortunes = allFortunes.filter(f => (f.user || "").toLowerCase() === (u.email || "").toLowerCase());
+      detailFortuneCount.textContent = userFortunes.length.toString();
+
+      if (chipHistorySelected.classList.contains("active")) {
+        renderHistoryTable();
+      }
+    }
+
+    // ============================
+    // RENDER FORTUNE HISTORY
+    // ============================
+    function renderHistoryTable() {
+      historyTableBody.innerHTML = "";
+
+      let list = allFortunes.slice();
+      if (chipHistorySelected.classList.contains("active") && selectedUserId) {
+        const u = allUsers.find(x => x.id === selectedUserId);
+        if (u && u.email) {
+          const email = u.email.toLowerCase();
+          list = list.filter(f => (f.user || "").toLowerCase() === email);
+          historyScopeLabel.textContent = "Seçilen kullanıcı: " + u.email;
+        } else {
+          historyScopeLabel.textContent = "Seçilen kullanıcı (e-posta yok)";
+        }
+      } else {
+        historyScopeLabel.textContent = "Tüm kullanıcılar";
+      }
+
+      list.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+      if (list.length === 0) {
+        historyEmpty.style.display = "block";
+        return;
+      }
+      historyEmpty.style.display = "none";
+
+      for (const f of list) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${f.user || "-"}</td>
+          <td>${f.type || "-"}</td>
+          <td>${(f.question || "").slice(0,80)}</td>
+          <td>${formatDate(f.createdAt) || "-"}</td>
+        `;
+        historyTableBody.appendChild(tr);
+      }
+    }
+
+    // ============================
+    // STATS
+    // ============================
+    function renderStats() {
+      const totalUsers   = allUsers.length;
+      const premiumUsers = allUsers.filter(u => !!u.premium).length;
+      const freeUsed     = allUsers.filter(u => !!u.freeUsed).length;
+      const totalFortunes= allFortunes.length;
+
+      statTotalUsers.textContent = totalUsers.toString();
+      statPremiumUsers.textContent = premiumUsers + " premium";
+      statFreeUsed.textContent = freeUsed.toString();
+
+      statTotalFortunes.textContent = totalFortunes.toString();
+
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const todaySeconds = today.getTime() / 1000;
+      const tomorrowSeconds = todaySeconds + 86400;
+
+      const todayCount = allFortunes.filter(f => {
+        const s = f.createdAt?.seconds;
+        return s && s >= todaySeconds && s < tomorrowSeconds;
+      }).length;
+      statTodayFortunes.textContent = "Bugün: " + todayCount;
+
+      if (totalUsers === 0) {
+        statPremiumRate.textContent = "-";
+      } else {
+        const rate = (premiumUsers / totalUsers) * 100;
+        statPremiumRate.textContent = rate.toFixed(1) + "%";
+      }
+    }
+
+    // ============================
+    // ACTION BUTTONS
+    // ============================
+    btnMakePremium.addEventListener("click", async () => {
+      if (!selectedUserId) return alert("Önce kullanıcı seçin.");
+      await updateUserField(selectedUserId, { premium: true });
+    });
+
+    btnRemovePremium.addEventListener("click", async () => {
+      if (!selectedUserId) return alert("Önce kullanıcı seçin.");
+      await updateUserField(selectedUserId, { premium: false });
+    });
+
+    btnResetFree.addEventListener("click", async () => {
+      if (!selectedUserId) return alert("Önce kullanıcı seçin.");
+      if (!confirm("Bu kullanıcının ücretsiz fal hakkını sıfırlamak istediğinize emin misiniz?")) return;
+      await updateUserField(selectedUserId, { freeUsed: false });
+    });
+
+    async function updateUserField(userId, fields) {
+      try {
+        await updateDoc(doc(db, "users", userId), fields);
+        // local state güncelle
+        const u = allUsers.find(x => x.id === userId);
+        if (u) Object.assign(u, fields);
+
+        renderUserTable();
+        selectUser(userId);
+        renderStats();
+        alert("Kullanıcı başarıyla güncellendi.");
+      } catch (err) {
+        console.error(err);
+        alert("Güncelleme sırasında hata oluştu: " + err.message);
+      }
+    }
+
+    // ============================
+    // FILTER CHIP / SEARCH EVENTS
+    // ============================
+    function setChipActive(chip) {
+      [chipAll, chipPremium, chipFreeOnly].forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      renderUserTable();
+    }
+
+    chipAll.addEventListener("click", () => setChipActive(chipAll));
+    chipPremium.addEventListener("click", () => setChipActive(chipPremium));
+    chipFreeOnly.addEventListener("click", () => setChipActive(chipFreeOnly));
+
+    userSearchInput.addEventListener("input", () => renderUserTable());
+
+    chipHistoryAll.addEventListener("click", () => {
+      chipHistoryAll.classList.add("active");
+      chipHistorySelected.classList.remove("active");
+      renderHistoryTable();
+    });
+
+    chipHistorySelected.addEventListener("click", () => {
+      chipHistorySelected.classList.add("active");
+      chipHistoryAll.classList.remove("active");
+      renderHistoryTable();
+    });
+
+    // ============================
+    // LOGOUT & NAV
+    // ============================
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "login.html";
+    });
+
+    backToAppBtn.addEventListener("click", () => {
+      window.location.href = "app.html";
+    });
+
+    // ============================
+    // HELPERS
+    // ============================
+    function formatDate(ts) {
+      if (!ts) return "";
+      try {
+        // Firestore Timestamp
+        const d = ts.toDate ? ts.toDate() : new Date(ts.seconds * 1000);
+        return d.toLocaleString("tr-TR");
+      } catch {
+        return "";
+      }
+    }
+  </script>
 </body>
 </html>
