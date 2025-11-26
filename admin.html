@@ -261,6 +261,8 @@
     tbody tr {
       cursor: pointer;
       transition: background .12s ease, transform .12s ease;
+      position: relative;
+      z-index: 2;
     }
 
     tbody tr:hover {
@@ -765,12 +767,11 @@
           <td>${u.name || "-"}</td>
           <td>${freeTag}</td>
           <td>${premiumTag}</td>
-          <td>${createdAtStr}</td>
+          <td>${createdAtStr || "-"}</td>
         `;
 
         tr.addEventListener("click", () => {
           selectUser(u.id);
-          // highlight
           document.querySelectorAll("#userTableBody tr").forEach(row => row.classList.remove("selected"));
           tr.classList.add("selected");
         });
@@ -779,6 +780,13 @@
       }
 
       usersCountLabel.textContent = filtered.length + " kayıt";
+
+      // Seçili kullanıcı varsa, tabloda onu işaretli tut
+      if (selectedUserId) {
+        document.querySelectorAll("#userTableBody tr").forEach(row => {
+          row.classList.toggle("selected", row.dataset.uid === selectedUserId);
+        });
+      }
     }
 
     // ============================
@@ -810,6 +818,21 @@
       if (chipHistorySelected.classList.contains("active")) {
         renderHistoryTable();
       }
+    }
+
+    function selectUserByEmail(email) {
+      if (!email) return;
+      const u = allUsers.find(x => (x.email || "").toLowerCase() === email.toLowerCase());
+      if (!u) {
+        alert("Bu e-posta ile kayıtlı kullanıcı bulunamadı: " + email);
+        return;
+      }
+      selectedUserId = u.id;
+      // Kullanıcı tablosunda highlight
+      document.querySelectorAll("#userTableBody tr").forEach(row => {
+        row.classList.toggle("selected", row.dataset.uid === u.id);
+      });
+      selectUser(u.id);
     }
 
     // ============================
@@ -848,6 +871,19 @@
           <td>${(f.question || "").slice(0,80)}</td>
           <td>${formatDate(f.createdAt) || "-"}</td>
         `;
+        tr.style.cursor = "pointer";
+
+        // Fal satırına tıklayınca o kullanıcının kaydına git
+        tr.addEventListener("click", () => {
+          if (f.user) {
+            selectUserByEmail(f.user);
+            // otomatik olarak "Sadece seçilen kullanıcı" filtresine geçmek istersen:
+            chipHistorySelected.classList.add("active");
+            chipHistoryAll.classList.remove("active");
+            renderHistoryTable();
+          }
+        });
+
         historyTableBody.appendChild(tr);
       }
     }
@@ -869,12 +905,14 @@
 
       const today = new Date();
       today.setHours(0,0,0,0);
-      const todaySeconds = today.getTime() / 1000;
-      const tomorrowSeconds = todaySeconds + 86400;
+      const todayMs = today.getTime();
+      const tomorrowMs = todayMs + 86400000;
 
       const todayCount = allFortunes.filter(f => {
-        const s = f.createdAt?.seconds;
-        return s && s >= todaySeconds && s < tomorrowSeconds;
+        const d = parseToDate(f.createdAt);
+        if (!d) return false;
+        const ms = d.getTime();
+        return ms >= todayMs && ms < tomorrowMs;
       }).length;
       statTodayFortunes.textContent = "Bugün: " + todayCount;
 
@@ -908,7 +946,6 @@
     async function updateUserField(userId, fields) {
       try {
         await updateDoc(doc(db, "users", userId), fields);
-        // local state güncelle
         const u = allUsers.find(x => x.id === userId);
         if (u) Object.assign(u, fields);
 
@@ -964,15 +1001,33 @@
     // ============================
     // HELPERS
     // ============================
-    function formatDate(ts) {
-      if (!ts) return "";
+    function parseToDate(ts) {
+      if (!ts) return null;
       try {
-        // Firestore Timestamp
-        const d = ts.toDate ? ts.toDate() : new Date(ts.seconds * 1000);
-        return d.toLocaleString("tr-TR");
+        if (ts.toDate) {
+          return ts.toDate();
+        }
+        if (typeof ts === "object" && typeof ts.seconds === "number") {
+          return new Date(ts.seconds * 1000);
+        }
+        if (typeof ts === "string") {
+          const d = new Date(ts);
+          if (!isNaN(d.getTime())) return d;
+          return null;
+        }
+        return null;
       } catch {
+        return null;
+      }
+    }
+
+    function formatDate(ts) {
+      const d = parseToDate(ts);
+      if (!d) {
+        if (typeof ts === "string") return ts; // en azından stringi göster
         return "";
       }
+      return d.toLocaleString("tr-TR");
     }
   </script>
 </body>
