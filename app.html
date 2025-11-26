@@ -522,10 +522,17 @@
     const BACKEND_URL = "https://mystai-international.onrender.com";
 
     /* ===================
-       FIREBASE AUTH
+       FIREBASE AUTH + FIRESTORE
     ==================== */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      updateDoc
+    } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
@@ -536,8 +543,9 @@
       appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
     };
 
-    const app = initializeApp(firebaseConfig);
+    const app  = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db   = getFirestore(app);
 
     /* ===================
        UI ELEMENTS
@@ -667,7 +675,7 @@
 
     /* ===================
        START READING + ÖDEME
-       İlk fal ücretsiz, sonra Shopier
+       Firestore + Premium + İlk fal ücretsiz
     ==================== */
 
     const shopierLinks = {
@@ -692,21 +700,57 @@
       const btn  = tile.querySelector('.start-btn');
       const type = tile.dataset.type;
 
-      btn.addEventListener('click', ()=>{
-        const usedFree = localStorage.getItem("freeReadingUsed");
+      btn.addEventListener('click', async ()=>{
+        const user = auth.currentUser;
+        if (!user) {
+          window.location.href = "login.html";
+          return;
+        }
 
-        if (!usedFree) {
-          // İlk fal: ücretsiz, fal sayfasına gönder
-          localStorage.setItem("freeReadingUsed", "yes");
-          window.location.href = readingPages[type] || "app.html";
+        const userRef  = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        let userData;
+
+        if (!userSnap.exists()) {
+          // Eski kullanıcılar için: localStorage'dan free kullanımı alıp Firestore'a yaz
+          const localFreeUsed = localStorage.getItem("freeReadingUsed") === "yes";
+
+          userData = {
+            email: user.email,
+            name:  user.displayName || "",
+            freeUsed: localFreeUsed,
+            premium: false,
+            createdAt: new Date()
+          };
+
+          await setDoc(userRef, userData);
         } else {
-          // Ücretsiz hakkı kullanıldı: ilgili Shopier sayfasına gönder
-          const payUrl = shopierLinks[type];
-          if (payUrl) {
-            window.location.href = payUrl;
-          } else {
-            window.location.href = readingPages[type] || "app.html";
-          }
+          userData = userSnap.data();
+        }
+
+        // 1) Premium ise: HER ZAMAN ücretsiz
+        if (userData.premium === true) {
+          window.location.href = readingPages[type] || "app.html";
+          return;
+        }
+
+        // 2) İlk fal hakkı kullanılmamışsa: ücretsiz, sonra freeUsed=true
+        if (userData.freeUsed === false) {
+          await updateDoc(userRef, { freeUsed: true });
+
+          // Eski sistemle uyum için localStorage da set edelim
+          localStorage.setItem("freeReadingUsed", "yes");
+
+          window.location.href = readingPages[type] || "app.html";
+          return;
+        }
+
+        // 3) Premium değil ve freeUsed=true → Shopier ödeme
+        const payUrl = shopierLinks[type];
+        if (payUrl) {
+          window.location.href = payUrl;
+        } else {
+          window.location.href = readingPages[type] || "app.html";
         }
       });
     });
