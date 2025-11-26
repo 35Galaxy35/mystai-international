@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MystAI Admin Panel</title>
+  <link rel="stylesheet" href="admin.css">
+  <script type="module" src="admin.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>MystAI Admin Panel</h1>
+    <p>Hoş geldiniz, Ethem!</p>
+
+    <button id="logoutBtn" class="logout">Çıkış Yap</button>
+
+    <h2>Kullanıcılar</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Ücretsiz Fal Kullandı mı?</th>
+          <th>Premium</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody id="userTable"></tbody>
+    </table>
+
+    <h2>Fal Geçmişi</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Kullanıcı</th>
+          <th>Fal Türü</th>
+          <th>Soru</th>
+          <th>Tarih</th>
+        </tr>
+      </thead>
+      <tbody id="fortuneTable"></tbody>
+    </table>
+
+  </div>
+</body>
+</html>
