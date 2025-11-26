@@ -67,35 +67,70 @@
   </div>
 
   <script type="module">
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { 
+      getAuth, 
+      createUserWithEmailAndPassword, 
+      updateProfile 
+    } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+    import {
+      getFirestore,
+      doc,
+      setDoc
+    } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDyiD7GAfOjMbtm-S6pO6XCSRXJclffPL0",
       authDomain: "mystai-6cca2.firebaseapp.com",
       projectId: "mystai-6cca2",
-      storageBucket: "mystai-6cca2.firebasestorage.app",
+      storageBucket: "mystai-6cca2.appspot.com",
       messagingSenderId: "624127781219",
       appId: "1:624127781219:web:a580ac6e80ccc26e694b56"
     };
+
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    const signupBtn = document.getElementById('signupBtn');
-    const nameField = document.getElementById('name');
-    const emailField = document.getElementById('email');
-    const passwordField = document.getElementById('password');
+    const signupBtn = document.getElementById("signupBtn");
+    const nameField = document.getElementById("name");
+    const emailField = document.getElementById("email");
+    const passwordField = document.getElementById("password");
 
-    signupBtn.addEventListener('click', ()=>{
-      createUserWithEmailAndPassword(auth, emailField.value, passwordField.value)
-        .then(async (userCredential)=>{
-          await updateProfile(userCredential.user, { displayName: nameField.value });
-          alert(activeLang === 'tr' ? 'Hesap başarıyla oluşturuldu!' : 'Account created successfully!');
-          window.location.href = "app.html";
-        })
-        .catch((error)=>{
-          alert(activeLang === 'tr' ? 'Kayıt başarısız! E-posta kullanılıyor olabilir.' : 'Sign up failed! Email may already be in use.');
+    signupBtn.addEventListener("click", async () => {
+      try {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          emailField.value,
+          passwordField.value
+        );
+
+        await updateProfile(userCredential.user, {
+          displayName: nameField.value,
         });
+
+        // ⭐ KULLANICININ FIRESTORE’DA OLUŞMASI (Burası eksikti)
+        await setDoc(doc(db, "users", userCredential.user.uid), {
+          email: emailField.value,
+          name: nameField.value,
+          freeUsed: false,
+          premium: false,
+          createdAt: new Date()
+        });
+
+        alert(activeLang === "tr" ? "Hesap başarıyla oluşturuldu!" : "Account created successfully!");
+        window.location.href = "app.html";
+
+      } catch (error) {
+        console.error(error);
+        alert(
+          activeLang === "tr"
+            ? "Kayıt başarısız! Bu e-posta zaten kullanımda olabilir."
+            : "Sign up failed! This email may already be in use."
+        );
+      }
     });
 
     const i18n = {
@@ -107,7 +142,7 @@
         signup: "Sign Up",
         bottom: "Already have an account? ",
         login: "Login",
-        home: "← Back to Home"
+        home: "← Back to Home",
       },
       tr: {
         title: "Hesap Oluştur",
@@ -117,12 +152,13 @@
         signup: "Kayıt Ol",
         bottom: "Zaten bir hesabın var mı? ",
         login: "Giriş Yap",
-        home: "← Ana Sayfaya Dön"
-      }
+        home: "← Ana Sayfaya Dön",
+      },
     };
 
     let activeLang = localStorage.getItem("myst_lang") || "en";
-    const setLang = (lang)=>{
+
+    const setLang = (lang) => {
       activeLang = lang;
       localStorage.setItem("myst_lang", lang);
       const t = i18n[lang];
@@ -131,15 +167,18 @@
       emailField.placeholder = t.email;
       passwordField.placeholder = t.password;
       signupBtn.textContent = t.signup;
-      document.getElementById("bottom-text").innerHTML = `${t.bottom}<a href="login.html" id="login-link">${t.login}</a>`;
+      document.getElementById("bottom-text").innerHTML =
+        `${t.bottom}<a href="login.html" id="login-link">${t.login}</a>`;
       document.getElementById("home-link").textContent = t.home;
       document.getElementById("btn-en").classList.toggle("secondary", lang !== "en");
       document.getElementById("btn-tr").classList.toggle("secondary", lang !== "tr");
     };
 
-    document.getElementById("btn-en").addEventListener("click", ()=>setLang("en"));
-    document.getElementById("btn-tr").addEventListener("click", ()=>setLang("tr"));
+    document.getElementById("btn-en").addEventListener("click", () => setLang("en"));
+    document.getElementById("btn-tr").addEventListener("click", () => setLang("tr"));
     setLang(activeLang);
+
   </script>
+
 </body>
 </html>
