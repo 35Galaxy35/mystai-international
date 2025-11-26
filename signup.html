@@ -99,40 +99,7 @@
     const emailField = document.getElementById("email");
     const passwordField = document.getElementById("password");
 
-    signupBtn.addEventListener("click", async () => {
-      try {
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          emailField.value,
-          passwordField.value
-        );
-
-        await updateProfile(userCredential.user, {
-          displayName: nameField.value,
-        });
-
-        // ⭐ KULLANICININ FIRESTORE’DA OLUŞMASI (Burası eksikti)
-        await setDoc(doc(db, "users", userCredential.user.uid), {
-          email: emailField.value,
-          name: nameField.value,
-          freeUsed: false,
-          premium: false,
-          createdAt: new Date()
-        });
-
-        alert(activeLang === "tr" ? "Hesap başarıyla oluşturuldu!" : "Account created successfully!");
-        window.location.href = "app.html";
-
-      } catch (error) {
-        console.error(error);
-        alert(
-          activeLang === "tr"
-            ? "Kayıt başarısız! Bu e-posta zaten kullanımda olabilir."
-            : "Sign up failed! This email may already be in use."
-        );
-      }
-    });
-
+    // Dil metinleri
     const i18n = {
       en: {
         title: "Create Account",
@@ -143,6 +110,8 @@
         bottom: "Already have an account? ",
         login: "Login",
         home: "← Back to Home",
+        success: "Account created successfully!",
+        fail: "Sign up failed! This email may already be in use."
       },
       tr: {
         title: "Hesap Oluştur",
@@ -153,6 +122,8 @@
         bottom: "Zaten bir hesabın var mı? ",
         login: "Giriş Yap",
         home: "← Ana Sayfaya Dön",
+        success: "Hesap başarıyla oluşturuldu!",
+        fail: "Kayıt başarısız! Bu e-posta zaten kullanımda olabilir."
       },
     };
 
@@ -177,6 +148,37 @@
     document.getElementById("btn-en").addEventListener("click", () => setLang("en"));
     document.getElementById("btn-tr").addEventListener("click", () => setLang("tr"));
     setLang(activeLang);
+
+    // SIGNUP + Firestore user kaydı
+    signupBtn.addEventListener("click", async () => {
+      try {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          emailField.value,
+          passwordField.value
+        );
+
+        await updateProfile(userCredential.user, {
+          displayName: nameField.value,
+        });
+
+        // ⭐ Firestore'da users koleksiyonu kaydı
+        await setDoc(doc(db, "users", userCredential.user.uid), {
+          email: emailField.value,
+          name: nameField.value,
+          freeUsed: false,
+          premium: false,
+          createdAt: new Date()
+        });
+
+        alert(i18n[activeLang].success);
+        window.location.href = "app.html";
+
+      } catch (error) {
+        console.error(error);
+        alert(i18n[activeLang].fail);
+      }
+    });
 
   </script>
 
