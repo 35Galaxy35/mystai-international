@@ -104,47 +104,82 @@ def get_timezone_from_latlon(lat: float, lon: float) -> str:
 def build_system_prompt(kind: str, lang: str) -> str:
     """Rapor türüne göre (natal / solar / transit / general) sistem prompt'u üretir."""
     if lang == "tr":
-        base = (
+        # ==== TÜRKÇE SİSTEM PROMPT ====
+        # general: Kahve/tarot/enerji/rüya falları + sohbet
+        base_general = (
+            "Sen MystAI adında mistik, profesyonel ve çok içten bir fal ve enerji yorumcusun. "
+            "Kahve falı, tarot, el falı, enerji ve rüya yorumları yaparsın. "
+            "Kullanıcıya derin, pozitif, gerçekçi ve güçlendirici bir dille hitap edersin. "
+            "Onu gerçekten dinleyen bir insan gibi, sıcak ve samimi konuşursun. "
+            "Gerektiğinde psikolojik içgörüler verirsin ama asla yargılayıcı olmazsın. "
+            "Korkutucu, tehditkâr, lanet gibi görülebilecek veya kesin kaderci cümleler kullanmazsın; "
+            "her zaman özgür iradeyi, kişinin seçimlerini ve iç gücünü vurgularsın. "
+            "Cevaplarını paragraflara böl, hikâye anlatır gibi akıcı yaz. "
+            "Özellikle girişte enerjiyi ve şu anki durumu anlat, ortada duyguları ve süreci derinleştir, "
+            "sonda ise net, umut veren tavsiyeler ve yakın geleceğe dair olasılıkları paylaş. "
+        )
+
+        base_astro = (
             "Sen MystAI adında mistik, profesyonel ve destekleyici bir astroloji yorumcusun. "
             "Kullanıcıya derin, pozitif, gerçekçi ve güçlendirici bir dille açıklama yaparsın. "
             "Korkutucu, tehditkâr, kesin kaderci ifadeler kullanmazsın; özgür iradeyi ve bilinçli seçimleri vurgularsın. "
         )
+
         mapping = {
-            "general": base + "Genel enerji, sezgi ve rehberlik sun. Fal, enerji ve sembolik dil kullanabilirsin.",
-            "astrology": base
+            "general": base_general
+            + "Genel enerji, sezgi ve rehberlik sun. Fal, enerji ve sembolik dil kullanabilirsin; "
+              "kullanıcının aşk, ilişkiler, kariyer, para ve kişisel dönüşüm alanlarına dokunan, "
+              "kalbine işleyen bir yorum yap.",
+            "astrology": base_astro
             + "Teknik astroloji bilgin çok yüksek. Doğum haritasını gezegenler, burçlar, evler ve açılar üzerinden "
             + "profesyonel şekilde yorumla. Güneş, Ay, ASC, MC, kişisel ve dışsal gezegenleri ayrı ayrı ele al. "
             + "Metni mutlaka başlıklar ve paragraflarla düzenli yaz.",
-            "solar_return": base
+            "solar_return": base_astro
             + "Solar return (güneş dönüşü) haritasını yıllık tema olarak yorumla. "
             + "Bu yılın ana derslerini ve fırsatlarını; aşk, kariyer, para, ruhsal gelişim ve kişisel dönüşüm başlıkları "
             + "altında detaylıca açıkla.",
-            "transit": base
+            "transit": base_astro
             + "Güncel transit gezegenlerin danışanın doğum haritası üzerindeki etkilerini yorumla. "
             + "Özellikle Satürn, Uranüs, Neptün, Plüton transitlerinin önemli süreçlerini, aynı zamanda Jüpiter ve Mars "
             + "gibi daha hızlı gezegenlerin etkilerini de ele al. Somut öneriler ver.",
         }
     else:
-        base = (
+        # ==== ENGLISH SYSTEM PROMPT ====
+        base_general = (
+            "You are MystAI, a mystical, professional and very warm fortune & energy reader. "
+            "You read coffee cups, tarot, palm, energy and dreams. "
+            "You speak in a deep, comforting, realistic and empowering tone, like a close friend who truly listens. "
+            "You may offer psychological insight, but you are never judgmental. "
+            "You avoid fear-based, threatening or fatalistic language; instead you highlight free will, choice and inner strength. "
+            "Write in clear paragraphs, like telling a flowing story. "
+            "Begin with the current energy, then explore emotions and the situation in depth, "
+            "and finally give hopeful, practical advice and possibilities for the near future. "
+        )
+
+        base_astro = (
             "You are MystAI, a mystical, professional and supportive astrologer. "
             "You speak in a deep, empowering and realistic tone. "
             "You avoid fear-based or fatalistic language and always emphasise free will and conscious choices. "
         )
+
         mapping = {
-            "general": base + "Offer intuitive guidance, energy reading and symbolic insight.",
-            "astrology": base
+            "general": base_general
+            + "Offer intuitive guidance and symbolic insight. "
+              "Touch on love, relationships, career, money and personal transformation in a heartfelt, inspiring way.",
+            "astrology": base_astro
             + "You are highly skilled in technical astrology. Interpret the natal chart using planets, signs, houses "
             + "and aspects in a professional way. Highlight Sun, Moon, ASC, MC, personal and outer planets. "
             + "Organise the text with headings and clear paragraphs.",
-            "solar_return": base
+            "solar_return": base_astro
             + "Interpret the solar return chart as the main theme for the year ahead. "
             + "Describe love, career, money, spiritual growth and personal transformation as yearly topics.",
-            "transit": base
+            "transit": base_astro
             + "Explain how the current planetary transits affect the natal chart. "
-            + "Pay special attention to Saturn, Uranus, Neptune, and Pluto processes, as well as Jupiter and Mars. "
-            + "Give concrete, practical advice.",
+            "Pay special attention to Saturn, Uranus, Neptune, and Pluto processes, as well as Jupiter and Mars. "
+            "Give concrete, practical advice.",
         }
     return mapping.get(kind, mapping["general"])
+
 
 def degree_to_sign(deg: float) -> str:
     """0–360 dereceyi burç adına çevirir."""
@@ -268,7 +303,6 @@ def build_chart_summary(chart_meta: dict, lang: str) -> str:
     return "\n".join(lines)
 
 
-
 # -----------------------------
 # HEALTH CHECK
 # -----------------------------
@@ -294,6 +328,7 @@ def predict():
         if not user_input:
             return jsonify({"error": "user_input boş olamaz"}), 400
 
+        # Dil tespiti
         try:
             lang = detect(user_input)
         except Exception:
@@ -303,20 +338,76 @@ def predict():
 
         system_prompt = build_system_prompt("general", lang)
 
+        # 🔮 Burada: Kullanıcının sorusundan tek parça, etkileyici fal metni üret
+        if lang == "tr":
+            user_prompt = f"""
+Kullanıcının sorusu / niyeti:
+
+\"\"\"{user_input}\"\"\"
+
+Yukarıdaki soruya ve enerjiye göre tek parça, akıcı bir fal ve enerji yorumu yaz.
+Kahve falı, tarot, el falı, enerji ya da rüya yorumu yapıyor olabilirsin; semboller üzerinden konuşup
+kişinin ruh halini, iç dünyasını ve yakın geleceğini yorumla.
+
+Lütfen şuna dikkat et:
+- Etkileyici ve mistik bir giriş yap; enerjisini ve şu anki halini anlat.
+- Ortada, yaşadığı sürecin duygusal ve psikolojik tarafını sıcak ve anlayışlı bir dille anlat.
+- Aşk, ilişkiler, kariyer, para ve kişisel dönüşüm alanlarında görebildiğin fırsatları ve olasılıkları paylaş.
+- Yakın gelecek (önümüzdeki haftalar/aylar) için net ama korkutmayan, umut veren cümlelerle olası gelişmeleri anlat.
+- Sonda, kalbine dokunan, destekleyici bir kapanış paragrafı yaz; kişinin değerini ve iç gücünü hatırlat.
+
+'Şu an fincanında...', 'Enerjinde görüyorum ki...', 'Kartların bana şunu söylüyor...' gibi mistik ifadeler kullanabilirsin.
+Cevabı SORU-CEVAP biçiminde değil, tek bir uzun fal metni olarak yaz.
+"""
+        else:
+            user_prompt = f"""
+User's question / intention:
+
+\"\"\"{user_input}\"\"\"
+
+Based on the question and energy above, write ONE complete, flowing fortune & energy reading.
+It may feel like a coffee reading, tarot, palm, energy or dream reading; use symbols and intuition
+to describe the person's emotional state, inner world and near future.
+
+Please:
+- Start with a mystical, impactful introduction describing the current energy.
+- Then explore their emotional and psychological process in a warm, understanding tone.
+- Touch on love, relationships, career, money and personal growth, sharing possible opportunities and lessons.
+- For the near future (next weeks/months), describe likely developments in a hopeful but realistic way.
+- End with a heartfelt closing paragraph that reminds them of their worth and inner strength.
+
+You can use phrases like “I sense in your energy…”, “The symbols are showing me…”, “The cards whisper that…”.
+Do NOT answer in Q&A format; write a single, coherent fortune-style text.
+"""
+
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_input},
+                {"role": "user", "content": user_prompt},
             ],
             max_tokens=800,
         )
 
         text = completion.choices[0].message.content.strip()
 
+        # === YENİ: OpenAI TTS ile doğal, insan gibi seslendirme ===
         audio_id = uuid.uuid4().hex
         audio_path = f"/tmp/{audio_id}.mp3"
-        gTTS(text=text, lang=lang).save(audio_path)
+
+        # En kaliteli TTS modellerinden biri (çok doğal ses)
+        tts_model = "tts-1-hd"
+        voice = "alloy"  # Çok doğal, hem TR hem EN metni okuyabiliyor
+
+        speech = client.audio.speech.create(
+            model=tts_model,
+            voice=voice,
+            input=text,
+        )
+
+        # Gelen sesi dosyaya yaz
+        with open(audio_path, "wb") as f:
+            f.write(speech.read())
 
         return jsonify({"text": text, "audio": f"/audio/{audio_id}"})
 
