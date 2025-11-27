@@ -464,7 +464,7 @@ Do NOT answer in Q&A format; write a single, coherent fortune-style text.
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            max_tokens=800,
+            max_tokens=1600,
         )
 
         text = completion.choices[0].message.content.strip()
