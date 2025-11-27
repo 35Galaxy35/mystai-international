@@ -459,7 +459,7 @@ Do NOT answer in Q&A format; write a single, coherent fortune-style text.
 """
 
         completion = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4o,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
@@ -479,7 +479,7 @@ Do NOT answer in Q&A format; write a single, coherent fortune-style text.
         try:
             # OpenAI TTS – daha doğal, insan benzeri ses
             with client.audio.speech.with_streaming_response.create(
-                model="gpt-4o-mini-tts",
+                model="gpt-4o-tts",
                 voice="alloy",  # istersen sonra voice'i değiştirebiliriz
                 input=text,
             ) as response:
@@ -718,7 +718,7 @@ def solar_return():
             )
 
         completion = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
@@ -813,7 +813,7 @@ def transits():
             )
 
         completion = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
