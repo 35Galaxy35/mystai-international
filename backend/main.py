@@ -479,7 +479,7 @@ Do NOT answer in Q&A format; write a single, coherent fortune-style text.
         try:
             # OpenAI TTS – daha doğal, insan benzeri ses
             with client.audio.speech.with_streaming_response.create(
-                model="gpt-4o-tts",
+                model="gpt-4o-mini-tts",
                 voice="alloy",  # istersen sonra voice'i değiştirebiliriz
                 input=text,
             ) as response:
