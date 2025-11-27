@@ -459,7 +459,7 @@ Do NOT answer in Q&A format; write a single, coherent fortune-style text.
 """
 
         completion = client.chat.completions.create(
-            model="gpt-4o,
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
